@@ -18,8 +18,8 @@ build:
 .PHONY: docker-build
 docker-build:
 	@if [ -z "$(APP_NAME)" ]; then echo "app name is required"; exit 1; fi
-	@echo "Building moon app=$(APPP_NAME)"
-	docker build -t ghcr.io/moon-monitor/palace:$(VERSION) \
+	@echo "Building moon app=$(APP_NAME)"
+	docker build -t ghcr.io/moon-monitor/$(APP_NAME):$(VERSION) \
       --build-arg APP_NAME=$(APP_NAME) \
       -f deploy/server/Dockerfile .
 
