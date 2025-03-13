@@ -1,0 +1,11 @@
+environment: DEV
+
+http:
+  network: ${X_HTTP_NETWORK:tcp}
+  addr: ${X_HTTP_ADDR:0.0.0.0:8080}
+  timeout: ${X_HTTP_TIMEOUT:5s}
+
+grpc:
+  network: ${X_GRPC_NETWORK:tcp}
+  addr: ${X_GRPC_ADDR:0.0.0.0:9090}
+  timeout: ${X_GRPC_TIMEOUT:5s}

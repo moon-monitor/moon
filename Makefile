@@ -45,6 +45,28 @@ errors:
            --go-errors_out=paths=source_relative:./pkg/merr \
            ./proto/merr/*.proto
 
+.PHONY: conf
+# generate config
+conf:
+	mkdir -p ./pkg/config
+	protoc --proto_path=./proto/config \
+           --proto_path=./proto/third_party \
+           --go_out=paths=source_relative:./pkg/config \
+           ./proto/config/*.proto
+
+.PHONY: palace-conf
+# generate palace-config
+palace-conf:
+	protoc --proto_path=./proto/config \
+           --proto_path=./proto/third_party \
+           --proto_path=./cmd/palace/internal/conf \
+           --go_out=paths=source_relative:./cmd/palace/internal/conf \
+           ./cmd/palace/internal/conf/*.proto
+
+.PPHONY: wire-palace
+wire-palace:
+	cd ./cmd/palace && wire
+
 .PHONY: build
 build:
 	@if [ -z "$(APP_NAME)" ]; then echo "app name is required"; exit 1; fi

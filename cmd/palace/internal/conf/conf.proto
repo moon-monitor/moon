@@ -1,0 +1,24 @@
+syntax = "proto3";
+
+package cmd.palace.internal.conf;
+
+import "config.proto";
+
+option go_package = "github.com/moon-monitor/moon/cmd/palace/internal/conf;conf";
+option java_multiple_files = true;
+option java_package = "cmd.palace.internal.conf";
+
+message Bootstrap {
+	config.Environment environment = 1;
+	config.HTTPServer http = 2;
+	config.GRPCServer grpc = 3;
+	Data data = 4;
+	config.Cache cache = 5;
+	config.Log log = 6;
+}
+
+message Data {
+	config.Database main = 1;
+	config.Database biz = 2;
+	config.Database alarm = 3;
+}
