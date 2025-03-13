@@ -1,0 +1,24 @@
+syntax = "proto3";
+
+package proto.api.common;
+
+import "google/api/annotations.proto";
+
+option go_package = "github.com/moon-monitor/moon/pkg/api/common;common";
+option java_multiple_files = true;
+option java_package = "proto.api.common";
+
+// Health Check API
+service Health {
+	rpc Check(CheckRequest) returns (CheckReply) {
+		option (google.api.http) = {
+			get: "/health"
+		};
+	}
+}
+
+message CheckRequest {}
+message CheckReply {
+	bool healthy = 1;
+	string version = 2;
+}

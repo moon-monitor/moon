@@ -1,5 +1,19 @@
+GOHOSTOS:=$(shell go env GOHOSTOS)
 VERSION=$(shell git describe --tags --always)
 APP_NAME ?= $(app)
+
+ifeq ($(GOHOSTOS), windows)
+	#the `find.exe` is different from `find` in bash/shell.
+	#to see https://docs.microsoft.com/en-us/windows-server/administration/windows-commands/find.
+	#changed to use git-bash.exe to run find cli or other cli friendly, caused of every developer has a Git.
+	#Git_Bash= $(subst cmd\,bin\bash.exe,$(dir $(shell where git)))
+	Git_Bash=$(subst \,/,$(subst cmd\,bin\bash.exe,$(dir $(shell where git))))
+	INTERNAL_PROTO_FILES=$(shell $(Git_Bash) -c "find cmd -name *.proto")
+	API_PROTO_FILES=$(shell $(Git_Bash) -c "find proto/api -name *.proto")
+else
+	INTERNAL_PROTO_FILES=$(shell find cmd -name *.proto)
+	API_PROTO_FILES=$(shell find proto/api -name *.proto)
+endif
 
 .PHONY: init
 init:
@@ -8,6 +22,28 @@ init:
 .PHONY: all
 all:
 	@echo "Initialization of moon project "
+
+.PHONY: api
+# generate api proto
+api:
+	mkdir -p ./pkg/api
+	protoc --proto_path=./proto/api \
+	       --proto_path=./proto/third_party \
+ 	       --go_out=paths=source_relative:./pkg/api \
+ 	       --go-http_out=paths=source_relative:./pkg/api \
+ 	       --go-grpc_out=paths=source_relative:./pkg/api \
+	       --openapi_out=fq_schema_naming=true,default_response=false:./swagger \
+	       $(API_PROTO_FILES)
+
+.PHONY: errors
+# generate errors
+errors:
+	mkdir -p ./pkg/merr
+	protoc --proto_path=./proto/merr \
+           --proto_path=./proto/third_party \
+           --go_out=paths=source_relative:./pkg/merr \
+           --go-errors_out=paths=source_relative:./pkg/merr \
+           ./proto/merr/*.proto
 
 .PHONY: build
 build:
