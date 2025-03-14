@@ -69,7 +69,9 @@ func WithName(name string) Option {
 
 func WithVersion(version string) Option {
 	return func(e *Env) {
-		e.version = version
+		if version != "" {
+			e.version = version
+		}
 	}
 }
 

@@ -15,6 +15,13 @@ enum Environment {
   PROD = 3;
 }
 
+message Server {
+  string name = 1;
+  map<string, string> metadata = 2;
+  HTTPServer http = 3;
+  GRPCServer grpc = 4;
+}
+
 // http服务配置
 message HTTPServer {
   // 网络类型
@@ -67,15 +74,14 @@ message Database {
   string dsn = 2;
   // 是否开启调试
   bool debug = 3;
+  bool use_system_log = 4;
 }
 
 // 缓存配置
 message Cache {
   enum Driver {
-    // redis
-    REDIS = 0;
-    // mini redis
-    MINI_REDIS = 1;
+    MEMORY = 0;
+    REDIS = 1;
   }
   Driver driver = 1;
   // 网络类型
@@ -91,6 +97,24 @@ message Cache {
   google.protobuf.Duration write_timeout = 7;
   // 连接超时
   google.protobuf.Duration dial_timeout = 8;
+  string client_name = 9;
+  int64 protocol = 10;
+  string username = 11;
+  int64 max_retries = 12;
+  google.protobuf.Duration min_retry_backoff = 13;
+  google.protobuf.Duration max_retry_backoff = 14;
+  bool context_timeout_enabled = 15;
+  bool pool_fifo = 16;
+  int64 pool_size = 17;
+  google.protobuf.Duration pool_timeout = 18;
+  int64 min_idle_conns = 19;
+  int64 max_idle_conns = 20;
+  int64 max_active_conns = 21;
+  google.protobuf.Duration conn_max_idle_time = 22;
+  google.protobuf.Duration conn_max_lifetime = 23;
+  bool disable_identity = 24;
+  string identity_suffix = 25;
+  bool unstable_resp3 = 26;
 }
 
 // 微服务配置

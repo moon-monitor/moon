@@ -58,9 +58,11 @@ func run(cfgPath string) {
 }
 
 func newApp(c *conf.Bootstrap, srv *server.Server, logger log.Logger) *kratos.App {
+	serverConf := c.GetServer()
 	envOpts := []hello.Option{
 		hello.WithVersion(Version),
-		hello.WithName("Palace"),
+		hello.WithName(serverConf.GetName()),
+		hello.WithMetadata(serverConf.GetMetadata()),
 	}
 	hello.SetEnvWithOption(envOpts...)
 	hello.Hello()

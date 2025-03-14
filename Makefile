@@ -24,6 +24,7 @@ init:
 	go install github.com/go-kratos/kratos/cmd/protoc-gen-go-errors/v2@latest
 	go install github.com/google/gnostic/cmd/protoc-gen-openapi@latest
 	go install github.com/google/wire/cmd/wire@latest
+	go install github.com/moon-monitor/stringer@latest
 
 .PHONY: all
 all:
@@ -32,6 +33,7 @@ all:
 	make api
 	make errors
 	make conf
+	make stringer-$(APP_NAME)
 	make conf-$(APP_NAME)
 	make wire-$(APP_NAME)
 
@@ -81,6 +83,10 @@ conf-palace:
 .PPHONY: wire-palace
 wire-palace:
 	cd ./cmd/palace && wire
+
+.PPHONY: stringer-palace
+stringer-palace:
+	cd ./cmd/palace/internal/biz/vobj && go generate
 
 .PHONY: build
 build:

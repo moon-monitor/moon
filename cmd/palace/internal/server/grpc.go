@@ -9,7 +9,8 @@ import (
 
 // NewGRPCServer new a gRPC server.
 func NewGRPCServer(bc *conf.Bootstrap) *grpc.Server {
-	c := bc.GetGrpc()
+	serverConf := bc.GetServer()
+	c := serverConf.GetGrpc()
 	opts := []grpc.ServerOption{
 		grpc.Middleware(
 			recovery.Recovery(),

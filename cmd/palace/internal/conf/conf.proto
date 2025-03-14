@@ -10,12 +10,11 @@ option java_package = "cmd.palace.internal.conf";
 
 message Bootstrap {
 	config.Environment environment = 1;
-	config.HTTPServer http = 2;
-	config.GRPCServer grpc = 3;
-	Data data = 4;
-	config.Cache cache = 5;
-	config.Log log = 6;
-	config.Registry registry = 7;
+	config.Server server = 2;
+	Data data = 3;
+	config.Cache cache = 4;
+	config.Log log = 5;
+	config.Registry registry = 6;
 }
 
 message Data {

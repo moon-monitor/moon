@@ -8,8 +8,9 @@ import (
 )
 
 // NewHTTPServer new an HTTP server.
-func NewHTTPServer(c *conf.Bootstrap) *http.Server {
-	httpConf := c.GetHttp()
+func NewHTTPServer(bc *conf.Bootstrap) *http.Server {
+	serverConf := bc.GetServer()
+	httpConf := serverConf.GetHttp()
 	opts := []http.ServerOption{
 		http.Middleware(),
 	}
@@ -24,7 +25,7 @@ func NewHTTPServer(c *conf.Bootstrap) *http.Server {
 	}
 	srv := http.NewServer(opts...)
 
-	registerDocs(c, srv)
+	registerDocs(bc, srv)
 
 	return srv
 }
