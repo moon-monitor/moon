@@ -134,28 +134,35 @@ message Tracer {
   Jaeger jaeger = 2;
 }
 
-// ETCD数据源配置
-message ETCD {
-  // 端点
-  repeated string endpoints = 1;
-  // 连接超时
-  optional google.protobuf.Duration timeout = 2;
-  // 用户名
-  optional string username = 3;
-  // 密码
-  optional string password = 4;
-}
-
 // 服务注册发现配置
 message Registry {
   enum Driver {
     // etcd
     ETCD = 0;
   }
+  // ETCD数据源配置
+  message Etcd {
+    repeated string endpoints = 1;
+    string username = 2;
+    string password = 3;
+    google.protobuf.Duration timeout = 4;
+    google.protobuf.Duration auto_sync_interval = 5;
+    google.protobuf.Duration dial_keep_alive_time = 6;
+    google.protobuf.Duration dial_keep_alive_timeout = 7;
+    int64 max_call_send_msg_size = 8;
+    int64 max_call_recv_msg_size = 9;
+    bool reject_old_cluster = 10;
+    bool permit_without_stream = 11;
+    uint64 max_unary_retries = 12;
+    google.protobuf.Duration backoff_wait_between = 13;
+    double backoff_jitter_fraction = 14;
+  }
+
   // 类型， 名称和数据源保持一致，例如etcd
   Driver driver = 1;
+  bool enable = 2;
   // 数据源
-  ETCD etcd = 2;
+  Etcd etcd = 3;
 }
 
 // 邮件发送配置

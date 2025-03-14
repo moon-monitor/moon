@@ -6,6 +6,7 @@ import (
 	"github.com/go-kratos/kratos/v2"
 	"github.com/go-kratos/kratos/v2/encoding/json"
 	"github.com/go-kratos/kratos/v2/log"
+	"github.com/moon-monitor/moon/pkg/plugin/registry"
 	"github.com/spf13/cobra"
 	"google.golang.org/protobuf/encoding/protojson"
 
@@ -80,15 +81,14 @@ func newApp(c *conf.Bootstrap, srv *server.Server, logger log.Logger) *kratos.Ap
 		kratos.Logger(logger),
 		kratos.Server(srv.GetServers()...),
 	}
-	//registerConf := c.GetDiscovery()
-	//if !types.IsNil(registerConf) {
-	//	register, err := conn.NewRegister(c.GetDiscovery(), conn.WithDiscoveryConfigEtcd(c.GetDiscovery().GetEtcd()))
-	//	if !types.IsNil(err) {
-	//		log.Warnw("register error", err)
-	//		panic(err)
-	//	}
-	//	opts = append(opts, kratos.Registrar(register))
-	//}
+	registerConf := c.GetRegistry()
+	if registerConf != nil && registerConf.GetEnable() {
+		reg, err := registry.NewRegister(c.GetRegistry())
+		if err != nil {
+			panic(err)
+		}
+		opts = append(opts, kratos.Registrar(reg))
+	}
 
 	return kratos.New(opts...)
 }

@@ -15,6 +15,7 @@ message Bootstrap {
 	Data data = 4;
 	config.Cache cache = 5;
 	config.Log log = 6;
+	config.Registry registry = 7;
 }
 
 message Data {

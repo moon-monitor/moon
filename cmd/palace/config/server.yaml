@@ -9,3 +9,15 @@ grpc:
   network: ${X_GRPC_NETWORK:tcp}
   addr: ${X_GRPC_ADDR:0.0.0.0:9090}
   timeout: ${X_GRPC_TIMEOUT:5s}
+
+registry:
+  driver: ${X_REGISTRY_DRIVER:ETCD}
+  enable: ${X_REGISTRY_ENABLE:false}
+  etcd:
+    endpoints:
+      -  ${X_REGISTRY_ETCD_ENDPOINTS:127.0.0.1:2379}
+      -  ${X_REGISTRY_ETCD_ENDPOINTS:127.0.0.1:2380}
+      -  ${X_REGISTRY_ETCD_ENDPOINTS:127.0.0.1:2381}
+    timeout: ${X_REGISTRY_ETCD_TIMEOUT:5s}
+    username: ${X_REGISTRY_ETCD_USERNAME:}
+    password: ${X_REGISTRY_ETCD_PASSWORD:}
