@@ -54,7 +54,7 @@ func run(cfgPath string) {
 		panic(err)
 	}
 
-	app, cleanup, err := wireApp(bc, mlog.WithSugaredLogger(logger))
+	app, cleanup, err := wireApp(bc, logger)
 	if err != nil {
 		panic(err)
 	}
