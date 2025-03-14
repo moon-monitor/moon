@@ -4,16 +4,14 @@ import (
 	"fmt"
 
 	"github.com/go-kratos/kratos/v2"
-	"github.com/go-kratos/kratos/v2/encoding/json"
 	"github.com/go-kratos/kratos/v2/log"
-	"github.com/moon-monitor/moon/pkg/plugin/registry"
 	"github.com/spf13/cobra"
-	"google.golang.org/protobuf/encoding/protojson"
 
 	"github.com/moon-monitor/moon/cmd/palace/internal/conf"
-	"github.com/moon-monitor/moon/cmd/palace/internal/server"
 	"github.com/moon-monitor/moon/pkg/hello"
 	mlog "github.com/moon-monitor/moon/pkg/log"
+	"github.com/moon-monitor/moon/pkg/plugin/registry"
+	"github.com/moon-monitor/moon/pkg/plugin/server"
 )
 
 // Version is the version of the compiled software.
@@ -30,12 +28,6 @@ var rootCmd = &cobra.Command{
 }
 
 func init() {
-	// 增加这段代码
-	json.MarshalOptions = protojson.MarshalOptions{
-		UseEnumNumbers:  true, // 将枚举值作为数字发出，默认为枚举值的字符串
-		UseProtoNames:   true, // 使用 proto 的字段名作为输出字段名
-		EmitUnpopulated: true, // 输出未设置字段
-	}
 	rootCmd.PersistentFlags().StringVarP(&cfgPath, "conf", "c", "./cmd/palace/config", "Path to the configuration files")
 }
 
