@@ -28,11 +28,12 @@ init:
 .PHONY: all
 all:
 	@echo "Initialization of moon project"
+	@if [ -z "$(APP_NAME)" ]; then echo "app name is required"; echo "usage: make all app=<app_name>"; exit 1; fi
 	make api
 	make errors
 	make conf
-	make conf-palace
-	make wire-palace
+	make conf-$(APP_NAME)
+	make wire-$(APP_NAME)
 
 .PHONY: api
 # generate api proto
@@ -83,13 +84,13 @@ wire-palace:
 
 .PHONY: build
 build:
-	@if [ -z "$(APP_NAME)" ]; then echo "app name is required"; exit 1; fi
+	@if [ -z "$(APP_NAME)" ]; then echo "app name is required"; echo "usage: make build app=<app_name>"; exit 1; fi
 	@echo "Building moon app=$(APPP_NAME)"
 	mkdir -p bin/ && go build -ldflags "-X main.Version=$(VERSION)" -o ./bin/ ./cmd/$(APP_NAME)
 
 .PHONY: docker-build
 docker-build:
-	@if [ -z "$(APP_NAME)" ]; then echo "app name is required"; exit 1; fi
+	@if [ -z "$(APP_NAME)" ]; then echo "app name is required"; echo "usage: make docker-build app=<app_name>"; exit 1; fi
 	@echo "Building moon app=$(APP_NAME)"
 	docker build -t ghcr.io/moon-monitor/$(APP_NAME):$(VERSION) \
       --build-arg APP_NAME=$(APP_NAME) \
