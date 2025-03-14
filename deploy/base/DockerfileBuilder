@@ -5,6 +5,6 @@ RUN apt update -y \
 
 WORKDIR /moon
 
-COPY ../../Makefile Makefile
+COPY Makefile Makefile
 
 RUN make init

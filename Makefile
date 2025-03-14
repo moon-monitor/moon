@@ -18,10 +18,21 @@ endif
 .PHONY: init
 init:
 	@echo "Initializing moon environment"
+	go install google.golang.org/protobuf/cmd/protoc-gen-go@v1.36.3
+	go install google.golang.org/grpc/cmd/protoc-gen-go-grpc@v1.5.1
+	go install github.com/go-kratos/kratos/cmd/protoc-gen-go-http/v2@latest
+	go install github.com/go-kratos/kratos/cmd/protoc-gen-go-errors/v2@latest
+	go install github.com/google/gnostic/cmd/protoc-gen-openapi@latest
+	go install github.com/google/wire/cmd/wire@latest
 
 .PHONY: all
 all:
-	@echo "Initialization of moon project "
+	@echo "Initialization of moon project"
+	make api
+	make errors
+	make conf
+	make conf-palace
+	make wire-palace
 
 .PHONY: api
 # generate api proto
@@ -33,6 +44,7 @@ api:
  	       --go-http_out=paths=source_relative:./pkg/api \
  	       --go-grpc_out=paths=source_relative:./pkg/api \
 	       --openapi_out=fq_schema_naming=true,default_response=false:./swagger \
+	       --experimental_allow_proto3_optional \
 	       $(API_PROTO_FILES)
 
 .PHONY: errors
@@ -52,15 +64,17 @@ conf:
 	protoc --proto_path=./proto/config \
            --proto_path=./proto/third_party \
            --go_out=paths=source_relative:./pkg/config \
+           --experimental_allow_proto3_optional \
            ./proto/config/*.proto
 
-.PHONY: palace-conf
+.PHONY: conf-palace
 # generate palace-config
-palace-conf:
+conf-palace:
 	protoc --proto_path=./proto/config \
            --proto_path=./proto/third_party \
            --proto_path=./cmd/palace/internal/conf \
            --go_out=paths=source_relative:./cmd/palace/internal/conf \
+           --experimental_allow_proto3_optional \
            ./cmd/palace/internal/conf/*.proto
 
 .PPHONY: wire-palace
