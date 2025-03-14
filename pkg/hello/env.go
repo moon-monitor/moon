@@ -57,6 +57,10 @@ func SetEnvWithOption(opts ...Option) {
 	})
 }
 
+func GetEnv() *Env {
+	return env
+}
+
 func WithName(name string) Option {
 	return func(e *Env) {
 		e.name = name

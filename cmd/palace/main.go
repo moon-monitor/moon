@@ -11,9 +11,12 @@ import (
 
 	"github.com/moon-monitor/moon/cmd/palace/internal/conf"
 	"github.com/moon-monitor/moon/cmd/palace/internal/server"
+	"github.com/moon-monitor/moon/pkg/hello"
 	mlog "github.com/moon-monitor/moon/pkg/log"
 )
 
+// Version is the version of the compiled software.
+var Version string
 var cfgPath string
 var rootCmd = &cobra.Command{
 	Use:   "moon",
@@ -62,11 +65,18 @@ func run(cfgPath string) {
 }
 
 func newApp(c *conf.Bootstrap, srv *server.Server, logger log.Logger) *kratos.App {
+	envOpts := []hello.Option{
+		hello.WithVersion(Version),
+		hello.WithName("Palace"),
+	}
+	hello.SetEnvWithOption(envOpts...)
+	hello.Hello()
+	env := hello.GetEnv()
 	opts := []kratos.Option{
-		//kratos.ID(env.ID()),
-		//kratos.Name(env.Name()),
-		//kratos.Version(env.Version()),
-		//kratos.Metadata(env.Metadata()),
+		kratos.ID(env.ID()),
+		kratos.Name(env.Name()),
+		kratos.Version(env.Version()),
+		kratos.Metadata(env.Metadata()),
 		kratos.Logger(logger),
 		kratos.Server(srv.GetServers()...),
 	}
