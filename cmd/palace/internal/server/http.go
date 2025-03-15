@@ -6,6 +6,7 @@ import (
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/go-kratos/kratos/v2/middleware/logging"
 	"github.com/go-kratos/kratos/v2/middleware/recovery"
+	"github.com/go-kratos/kratos/v2/middleware/selector"
 	"github.com/go-kratos/kratos/v2/middleware/tracing"
 	"github.com/go-kratos/kratos/v2/transport/http"
 
@@ -18,14 +19,20 @@ func NewHTTPServer(bc *conf.Bootstrap, logger log.Logger) *http.Server {
 	serverConf := bc.GetServer()
 	httpConf := serverConf.GetHttp()
 	authConf := bc.GetAuth()
+
+	authMiddleware := selector.Server(
+		middleware.JwtServer(authConf.GetJwt().GetSignKey()),
+		middleware.MustLogin(),
+		middleware.BindHeaders(),
+	).Match(middleware.AllowListMatcher(httpConf.GetAllowOperations()...)).Build()
 	opts := []http.ServerOption{
+		http.Filter(middleware.Cors(httpConf)),
 		http.Middleware(
 			recovery.Recovery(),
 			logging.Server(logger),
 			tracing.Server(),
-			middleware.JwtServer(authConf.GetJwt().GetSignKey()),
-			middleware.MustLogin(),
-			middleware.BindHeaders(),
+			authMiddleware,
+			middleware.Validate(),
 		),
 	}
 	if httpConf.GetNetwork() != "" {

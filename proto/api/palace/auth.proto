@@ -1,8 +1,9 @@
 syntax = "proto3";
 
-package proto.api.palace;
+package api.palace;
 
 import "google/api/annotations.proto";
+import "buf/validate/validate.proto";
 import "palace/user.proto";
 
 option go_package = "github.com/moon-monitor/moon/pkg/api/palace;palace";
@@ -25,11 +26,26 @@ service Auth {
 }
 
 message CaptchaValidateRequest {
-	string captchaId = 1;
-	string captchaImg = 2;
+	string captchaId = 1 [(buf.validate.field).cel = {
+		message: "captchaId is required"
+		expression: "this.size() > 0"
+	}];
+	string answer = 2 [(buf.validate.field).cel = {
+		message: "answer is required"
+		expression: "this.size() > 0"
+	}];
 }
 
-message GetCaptchaRequest {}
+message GetCaptchaRequest {
+	int32 width = 1 [(buf.validate.field).cel = {
+		message: "width is required"
+		expression: "this > 0"
+	}];
+	int32 height = 2 [(buf.validate.field).cel = {
+		message: "height is required"
+		expression: "this > 0"
+	}];
+}
 message GetCaptchaReply {
 	string captchaId = 1;
 	string captchaImg = 2;
@@ -37,9 +53,21 @@ message GetCaptchaReply {
 }
 
 message LoginByEmailRequest {
-	string email = 1;
-	string password = 2;
-	CaptchaValidateRequest captcha = 3;
+	string email = 1 [(buf.validate.field).cel = {
+		message: "email is required"
+		expression: "this.size() > 0"
+	}, (buf.validate.field).cel = {
+		message: "email is invalid"
+		expression: "this.isEmail()"
+	}];
+	string password = 2 [(buf.validate.field).cel = {
+		message: "password is required"
+		expression: "this.size() > 0"
+	}, (buf.validate.field).cel = {
+		message: "password max length is 32"
+		expression: "this.size() <= 32"
+	}];
+	CaptchaValidateRequest captcha = 3 [(buf.validate.field).required = true];
 }
 message LoginByEmailReply {
 	string token = 1;

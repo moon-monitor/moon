@@ -30,6 +30,10 @@ message HTTPServer {
   string addr = 2;
   // 读写超时时间
   google.protobuf.Duration timeout = 3;
+  repeated string allow_operations = 4;
+  repeated string allow_headers = 5;
+  repeated string allow_methods = 6;
+  repeated string allow_origins = 7;
 }
 
 // grpc服务配置

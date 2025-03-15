@@ -8,6 +8,12 @@ server:
     network: ${X_HTTP_NETWORK:tcp}
     addr: ${X_HTTP_ADDR:0.0.0.0:8080}
     timeout: ${X_HTTP_TIMEOUT:5s}
+    allow_operations:
+      - /api.palace.Auth/GetCaptcha
+      - /api.palace.Auth/LoginByEmail
+    allow_headers: ${X_HTTP_ALLOW_HEADERS:['*']}
+    allow_methods: ${X_HTTP_ALLOW_METHODS:['*']}
+    allow_origins: ${X_HTTP_ALLOW_ORIGINS:['*']}
 
   grpc:
     network: ${X_GRPC_NETWORK:tcp}
