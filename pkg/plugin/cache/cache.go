@@ -2,6 +2,7 @@ package cache
 
 import (
 	"context"
+	"encoding"
 	"time"
 
 	"github.com/alicebob/miniredis/v2"
@@ -9,6 +10,11 @@ import (
 
 	"github.com/moon-monitor/moon/pkg/config"
 )
+
+type Object interface {
+	encoding.BinaryMarshaler
+	encoding.BinaryUnmarshaler
+}
 
 // Cache is the interface of cache.
 type Cache interface {
