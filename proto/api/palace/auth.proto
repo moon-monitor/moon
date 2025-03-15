@@ -17,7 +17,7 @@ service Auth {
 		};
 	}
 
-	rpc LoginByEmail(LoginByEmailRequest) returns (LoginByEmailReply) {
+	rpc LoginByPassword(LoginByPasswordRequest) returns (LoginByPasswordReply) {
 		option (google.api.http) = {
 			post: "/api/auth/login/email"
 			body: "*"
@@ -52,7 +52,7 @@ message GetCaptchaReply {
 	int64 expired_seconds = 3;
 }
 
-message LoginByEmailRequest {
+message LoginByPasswordRequest {
 	string email = 1 [(buf.validate.field).cel = {
 		message: "email is required"
 		expression: "this.size() > 0"
@@ -69,7 +69,7 @@ message LoginByEmailRequest {
 	}];
 	CaptchaValidateRequest captcha = 3 [(buf.validate.field).required = true];
 }
-message LoginByEmailReply {
+message LoginByPasswordReply {
 	string token = 1;
 	UserItem user = 2;
 }

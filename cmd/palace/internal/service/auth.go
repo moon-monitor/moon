@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/go-kratos/kratos/v2/log"
+	"github.com/moon-monitor/moon/cmd/palace/internal/biz/bo"
 
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz"
 	palacev1 "github.com/moon-monitor/moon/pkg/api/palace"
@@ -36,6 +37,16 @@ func (s *AuthService) GetCaptcha(ctx context.Context, _ *palacev1.GetCaptchaRequ
 	}, nil
 }
 
-func (s *AuthService) LoginByEmail(ctx context.Context, req *palacev1.LoginByEmailRequest) (*palacev1.LoginByEmailReply, error) {
-	return &palacev1.LoginByEmailReply{}, nil
+func (s *AuthService) LoginByPassword(ctx context.Context, req *palacev1.LoginByPasswordRequest) (*palacev1.LoginByPasswordReply, error) {
+	captchaReq := req.GetCaptcha()
+	captchaVerify := &bo.CaptchaVerify{
+		Id:     captchaReq.GetCaptchaId(),
+		Answer: captchaReq.GetAnswer(),
+		Clear:  true,
+	}
+
+	if err := s.authBiz.VerifyCaptcha(ctx, captchaVerify); err != nil {
+		return nil, err
+	}
+	return &palacev1.LoginByPasswordReply{}, nil
 }

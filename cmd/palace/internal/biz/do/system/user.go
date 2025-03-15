@@ -3,6 +3,7 @@ package system
 import (
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/vobj"
+	"github.com/moon-monitor/moon/pkg/util/password"
 )
 
 const tableNameUser = "sys_users"
@@ -26,4 +27,10 @@ type User struct {
 
 func (u *User) TableName() string {
 	return tableNameUser
+}
+
+// ValidatePassword validate password
+func (u *User) ValidatePassword(p string) bool {
+	validate := password.New(p, u.Salt)
+	return validate.EQ(u.Password)
 }
