@@ -7,7 +7,7 @@ import (
 	"gorm.io/gorm"
 	"gorm.io/plugin/soft_delete"
 
-	"github.com/moon-monitor/moon/cmd/palace/internal/helper/middleware"
+	"github.com/moon-monitor/moon/cmd/palace/internal/helper/permission"
 	"github.com/moon-monitor/moon/pkg/merr"
 )
 
@@ -39,7 +39,7 @@ type CreatorModel struct {
 
 func (u *CreatorModel) BeforeCreate(tx *gorm.DB) (err error) {
 	var exist bool
-	u.CreatorID, exist = middleware.GetUserIDByContext(u.GetContext())
+	u.CreatorID, exist = permission.GetUserIDByContext(u.GetContext())
 	if !exist || u.CreatorID == 0 {
 		return merr.ErrorInternalServerError("user id not found")
 	}
@@ -54,7 +54,7 @@ type TeamModel struct {
 
 func (u *TeamModel) BeforeCreate(tx *gorm.DB) (err error) {
 	var exist bool
-	u.TeamID, exist = middleware.GetTeamIDByContext(u.GetContext())
+	u.TeamID, exist = permission.GetTeamIDByContext(u.GetContext())
 	if !exist || u.TeamID == 0 {
 		return merr.ErrorInternalServerError("team id not found")
 	}
@@ -64,7 +64,7 @@ func (u *TeamModel) BeforeCreate(tx *gorm.DB) (err error) {
 
 func (u *TeamModel) BeforeUpdate(tx *gorm.DB) (err error) {
 	var exist bool
-	u.TeamID, exist = middleware.GetTeamIDByContext(u.GetContext())
+	u.TeamID, exist = permission.GetTeamIDByContext(u.GetContext())
 	if !exist || u.TeamID == 0 {
 		return merr.ErrorInternalServerError("team id not found")
 	}
@@ -74,7 +74,7 @@ func (u *TeamModel) BeforeUpdate(tx *gorm.DB) (err error) {
 
 func (u *TeamModel) BeforeSave(tx *gorm.DB) (err error) {
 	var exist bool
-	u.TeamID, exist = middleware.GetTeamIDByContext(u.GetContext())
+	u.TeamID, exist = permission.GetTeamIDByContext(u.GetContext())
 	if !exist || u.TeamID == 0 {
 		return merr.ErrorInternalServerError("team id not found")
 	}
@@ -84,7 +84,7 @@ func (u *TeamModel) BeforeSave(tx *gorm.DB) (err error) {
 
 func (u *TeamModel) BeforeDelete(tx *gorm.DB) (err error) {
 	var exist bool
-	u.TeamID, exist = middleware.GetTeamIDByContext(u.GetContext())
+	u.TeamID, exist = permission.GetTeamIDByContext(u.GetContext())
 	if !exist || u.TeamID == 0 {
 		return merr.ErrorInternalServerError("team id not found")
 	}

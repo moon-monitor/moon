@@ -17,10 +17,34 @@ var ProviderSetData = wire.NewSet(New)
 
 type Data struct {
 	mainDB         gorm.DB
-	bizDB, alarmDB safety.Map[uint32, gorm.DB]
+	bizDB, alarmDB *safety.Map[uint32, gorm.DB]
 	cache          cache.Cache
 
 	helper *log.Helper
+}
+
+func (d *Data) GetMainDB() gorm.DB {
+	return d.mainDB
+}
+
+func (d *Data) GetBizDB(teamID uint32) gorm.DB {
+	db, ok := d.bizDB.Get(teamID)
+	if !ok {
+		// TODO create a new DB instance
+	}
+	return db
+}
+
+func (d *Data) GetAlarmDB(teamID uint32) gorm.DB {
+	db, ok := d.alarmDB.Get(teamID)
+	if !ok {
+		// TODO create a new DB instance
+	}
+	return db
+}
+
+func (d *Data) GetCache() cache.Cache {
+	return d.cache
 }
 
 // New a data and returns.
@@ -29,6 +53,8 @@ func New(c *conf.Bootstrap, logger log.Logger) (*Data, func(), error) {
 		data Data
 		err  error
 	)
+	data.bizDB = safety.NewMap[uint32, gorm.DB]()
+	data.alarmDB = safety.NewMap[uint32, gorm.DB]()
 	data.helper = log.NewHelper(log.With(logger, "module", "data"))
 	dataConf := c.GetData()
 	data.mainDB, err = gorm.NewDB(dataConf.GetMain())

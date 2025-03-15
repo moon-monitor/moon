@@ -1,0 +1,9 @@
+auth:
+  jwt:
+    sign_key: ${X_AUTH_JWT_SIGN_KEY:secret}
+    issuer: ${X_AUTH_JWT_ISSUER:moon-palace}
+    expire: ${X_AUTH_JWT_EXPIRE:3600s}
+  captcha:
+    prefix: ${X_AUTH_CAPTCHA_PREFIX:}
+    timeout: ${X_AUTH_CAPTCHA_TIMEOUT:10s}
+    expire: ${X_AUTH_CAPTCHA_EXPIRE:60s}

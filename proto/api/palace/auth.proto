@@ -10,6 +10,12 @@ option java_multiple_files = true;
 option java_package = "com.api.palace";
 
 service Auth {
+	rpc GetCaptcha(GetCaptchaRequest) returns (GetCaptchaReply) {
+		option (google.api.http) = {
+			get: "/api/auth/captcha"
+		};
+	}
+
 	rpc LoginByEmail(LoginByEmailRequest) returns (LoginByEmailReply) {
 		option (google.api.http) = {
 			post: "/api/auth/login/email"
@@ -23,10 +29,11 @@ message CaptchaValidateRequest {
 	string captchaImg = 2;
 }
 
-message CaptchaRequest {}
-message CaptchaReply {
+message GetCaptchaRequest {}
+message GetCaptchaReply {
 	string captchaId = 1;
 	string captchaImg = 2;
+	int64 expired_seconds = 3;
 }
 
 message LoginByEmailRequest {

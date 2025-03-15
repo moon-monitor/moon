@@ -7,10 +7,10 @@ import (
 	"github.com/go-kratos/kratos/v2/middleware"
 	"github.com/go-kratos/kratos/v2/middleware/auth/jwt"
 	jwtv5 "github.com/golang-jwt/jwt/v5"
-	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do/system"
-	"github.com/moon-monitor/moon/pkg/config"
 
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/vobj"
+	"github.com/moon-monitor/moon/cmd/palace/internal/helper/permission"
+	"github.com/moon-monitor/moon/pkg/config"
 	"github.com/moon-monitor/moon/pkg/merr"
 )
 
@@ -64,21 +64,14 @@ func MustLogin() middleware.Middleware {
 			if !ok {
 				return nil, merr.ErrorUnauthorized("token error")
 			}
-			ctx = WithUserIDContext(ctx, claims.UserID)
+			ctx = permission.WithUserIDContext(ctx, claims.UserID)
 			return handler(ctx, req)
 		}
 	}
 }
 
 // NewJwtClaims new jwt claims
-func NewJwtClaims(c *config.JWT, userDo *system.User) *JwtClaims {
-	base := &JwtBaseInfo{
-		UserID:   userDo.ID,
-		Username: userDo.Username,
-		Nickname: userDo.Nickname,
-		Avatar:   userDo.Avatar,
-		Gender:   userDo.Gender,
-	}
+func NewJwtClaims(c *config.JWT, base *JwtBaseInfo) *JwtClaims {
 	return &JwtClaims{
 		signKey:     c.GetSignKey(),
 		JwtBaseInfo: base,

@@ -3,9 +3,12 @@ package gorm
 import (
 	"context"
 
+	"gorm.io/driver/mysql"
+	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 
 	"github.com/moon-monitor/moon/pkg/config"
+	"github.com/moon-monitor/moon/pkg/merr"
 )
 
 type DB interface {
@@ -15,8 +18,33 @@ type DB interface {
 
 // NewDB creates a new DB instance
 func NewDB(c *config.Database) (DB, error) {
-	// TODO create a new DB instance
-	return &db{}, nil
+	var opts []gorm.Option
+	gormConfig := &gorm.Config{
+		DisableForeignKeyConstraintWhenMigrating: true,
+	}
+	opts = append(opts, gormConfig)
+	var dialector gorm.Dialector
+	dsn := c.GetDsn()
+	drive := c.GetDriver()
+	switch drive {
+	case config.Database_MYSQL:
+		dialector = mysql.Open(dsn)
+	case config.Database_SQLITE:
+		dialector = sqlite.Open(dsn)
+	default:
+		return nil, merr.ErrorInternalServerError("invalid driver: %s", drive)
+	}
+	conn, err := gorm.Open(dialector, opts...)
+	if err != nil {
+		return nil, merr.ErrorInternalServerError("connect db error: %s", err)
+	}
+	if drive == config.Database_SQLITE {
+		_ = conn.Exec("PRAGMA journal_mode=WAL;")
+	}
+	if c.GetDebug() {
+		conn = conn.Debug()
+	}
+	return &db{DB: conn}, nil
 }
 
 type db struct {

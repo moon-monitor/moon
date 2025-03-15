@@ -1,17 +1,17 @@
 data:
   main:
     driver: ${X_DATA_MAIN_DRIVER:SQLITE}
-    dsn: ${X_DATA_MAIN_DSN:file:data/main.db?cache=shared&mode=rwc}
+    dsn: ${X_DATA_MAIN_DSN:file:main.db?cache=shared&mode=rwc}
     debug: ${X_DATA_MAIN_DEBUG:true}
     use_system_log: ${X_DATA_MAIN_USE_SYSTEM_LOG:false}
   biz:
     driver: ${X_DATA_BIZ_DRIVER:SQLITE}
-    dsn: ${X_DATA_BIZ_DSN:file:data/biz.db?cache=shared&mode=rwc}
+    dsn: ${X_DATA_BIZ_DSN:file:biz.db?cache=shared&mode=rwc}
     debug: ${X_DATA_BIZ_DEBUG:true}
     use_system_log: ${X_DATA_BIZ_USE_SYSTEM_LOG:false}
   alarm:
     driver: ${X_DATA_ALARM_DRIVER:SQLITE}
-    dsn: ${X_DATA_ALARM_DSN:file:data/alarm.db?cache=shared&mode=rwc}
+    dsn: ${X_DATA_ALARM_DSN:file:alarm.db?cache=shared&mode=rwc}
     debug: ${X_DATA_ALARM_DEBUG:true}
     use_system_log: ${X_DATA_ALARM_USE_SYSTEM_LOG:false}
 
