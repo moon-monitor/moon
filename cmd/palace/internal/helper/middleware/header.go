@@ -3,11 +3,19 @@ package middleware
 import (
 	"context"
 	"strconv"
+	"strings"
 
 	"github.com/go-kratos/kratos/v2/middleware"
+	"github.com/go-kratos/kratos/v2/middleware/auth/jwt"
 	"github.com/go-kratos/kratos/v2/transport"
+
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/vobj"
 	"github.com/moon-monitor/moon/pkg/merr"
+)
+
+const (
+	// bearerWord the bearer key word for authorization
+	bearerWord string = "Bearer"
 )
 
 const (
@@ -17,6 +25,7 @@ const (
 	XHeaderSysRoleID    = "X-Sys-Role"
 	XHeaderTeamPosition = "X-Team-Position"
 	XHeaderTeamRoleID   = "X-Team-Role"
+	XHeaderToken        = "Authorization"
 )
 
 func BindHeaders() middleware.Middleware {
@@ -77,6 +86,14 @@ func withAllHeaders(ctx context.Context) (context.Context, error) {
 			return nil, merr.ErrorBadRequest("not allow request, header [%s] err", XHeaderTeamRoleID)
 		}
 		ctx = WithTeamRoleIDContext(ctx, uint32(teamRole))
+	}
+	if tokenStr := tr.RequestHeader().Get(XHeaderToken); tokenStr != "" {
+		auths := strings.SplitN(tokenStr, " ", 2)
+		if len(auths) != 2 || !strings.EqualFold(auths[0], bearerWord) {
+			return nil, jwt.ErrMissingJwtToken
+		}
+		jwtToken := auths[1]
+		ctx = WithTokenContext(ctx, jwtToken)
 	}
 	return ctx, nil
 }

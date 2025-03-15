@@ -1,0 +1,36 @@
+syntax = "proto3";
+
+package proto.api.palace;
+
+option go_package = "github.com/moon-monitor/moon/pkg/api/palace;palace";
+option java_multiple_files = true;
+option java_package = "com.api.palace";
+
+service User {
+	rpc CreateUser (CreateUserRequest) returns (CreateUserReply);
+	rpc UpdateUser (UpdateUserRequest) returns (UpdateUserReply);
+	rpc DeleteUser (DeleteUserRequest) returns (DeleteUserReply);
+	rpc GetUser (GetUserRequest) returns (GetUserReply);
+	rpc ListUser (ListUserRequest) returns (ListUserReply);
+}
+
+message UserItem {
+	string username = 1;
+	string nickname = 2;
+	string avatar = 3;
+}
+
+message CreateUserRequest {}
+message CreateUserReply {}
+
+message UpdateUserRequest {}
+message UpdateUserReply {}
+
+message DeleteUserRequest {}
+message DeleteUserReply {}
+
+message GetUserRequest {}
+message GetUserReply {}
+
+message ListUserRequest {}
+message ListUserReply {}

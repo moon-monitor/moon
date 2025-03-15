@@ -2,10 +2,14 @@ package middleware
 
 import (
 	"context"
+	"time"
 
 	"github.com/go-kratos/kratos/v2/middleware"
 	"github.com/go-kratos/kratos/v2/middleware/auth/jwt"
 	jwtv5 "github.com/golang-jwt/jwt/v5"
+	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do/system"
+	"github.com/moon-monitor/moon/pkg/config"
+
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/vobj"
 	"github.com/moon-monitor/moon/pkg/merr"
 )
@@ -21,6 +25,7 @@ type JwtBaseInfo struct {
 
 // JwtClaims jwt claims
 type JwtClaims struct {
+	signKey string
 	*JwtBaseInfo
 	*jwtv5.RegisteredClaims
 }
@@ -63,4 +68,28 @@ func MustLogin() middleware.Middleware {
 			return handler(ctx, req)
 		}
 	}
+}
+
+// NewJwtClaims new jwt claims
+func NewJwtClaims(c *config.JWT, userDo *system.User) *JwtClaims {
+	base := &JwtBaseInfo{
+		UserID:   userDo.ID,
+		Username: userDo.Username,
+		Nickname: userDo.Nickname,
+		Avatar:   userDo.Avatar,
+		Gender:   userDo.Gender,
+	}
+	return &JwtClaims{
+		signKey:     c.GetSignKey(),
+		JwtBaseInfo: base,
+		RegisteredClaims: &jwtv5.RegisteredClaims{
+			ExpiresAt: jwtv5.NewNumericDate(time.Now().Add(c.GetExpire().AsDuration())),
+			Issuer:    c.GetIssuer(),
+		},
+	}
+}
+
+// GetToken get token
+func (l *JwtClaims) GetToken() (string, error) {
+	return jwtv5.NewWithClaims(jwtv5.SigningMethodHS256, l).SignedString([]byte(l.signKey))
 }

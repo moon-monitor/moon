@@ -1,0 +1,40 @@
+syntax = "proto3";
+
+package proto.api.palace;
+
+import "google/api/annotations.proto";
+import "palace/user.proto";
+
+option go_package = "github.com/moon-monitor/moon/pkg/api/palace;palace";
+option java_multiple_files = true;
+option java_package = "com.api.palace";
+
+service Auth {
+	rpc LoginByEmail(LoginByEmailRequest) returns (LoginByEmailReply) {
+		option (google.api.http) = {
+			post: "/api/auth/login/email"
+			body: "*"
+		};
+	}
+}
+
+message CaptchaValidateRequest {
+	string captchaId = 1;
+	string captchaImg = 2;
+}
+
+message CaptchaRequest {}
+message CaptchaReply {
+	string captchaId = 1;
+	string captchaImg = 2;
+}
+
+message LoginByEmailRequest {
+	string email = 1;
+	string password = 2;
+	CaptchaValidateRequest captcha = 3;
+}
+message LoginByEmailReply {
+	string token = 1;
+	UserItem user = 2;
+}

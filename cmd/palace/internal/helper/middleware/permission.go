@@ -96,3 +96,16 @@ func GetTeamRoleIDByContext(ctx context.Context) (uint32, bool) {
 func WithTeamRoleIDContext(ctx context.Context, teamRole uint32) context.Context {
 	return context.WithValue(ctx, teamRoleIDContextKey{}, teamRole)
 }
+
+type tokenContextKey struct{}
+
+// GetTokenByContext Retrieve the token from the context.
+func GetTokenByContext(ctx context.Context) (string, bool) {
+	token, ok := ctx.Value(tokenContextKey{}).(string)
+	return token, ok
+}
+
+// WithTokenContext Set the token in the context.
+func WithTokenContext(ctx context.Context, token string) context.Context {
+	return context.WithValue(ctx, tokenContextKey{}, token)
+}

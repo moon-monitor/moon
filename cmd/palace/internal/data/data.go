@@ -12,8 +12,8 @@ import (
 	"github.com/moon-monitor/moon/pkg/util/safety"
 )
 
-// ProviderSetServer is a set of data providers.
-var ProviderSetServer = wire.NewSet(New)
+// ProviderSetData is a set of data providers.
+var ProviderSetData = wire.NewSet(New)
 
 type Data struct {
 	mainDB         gorm.DB

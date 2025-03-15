@@ -3,18 +3,26 @@ package server
 import (
 	nethttp "net/http"
 
+	"github.com/go-kratos/kratos/v2/log"
+	"github.com/go-kratos/kratos/v2/middleware/logging"
+	"github.com/go-kratos/kratos/v2/middleware/recovery"
+	"github.com/go-kratos/kratos/v2/middleware/tracing"
 	"github.com/go-kratos/kratos/v2/transport/http"
+
 	"github.com/moon-monitor/moon/cmd/palace/internal/conf"
 	"github.com/moon-monitor/moon/cmd/palace/internal/helper/middleware"
 )
 
 // NewHTTPServer new an HTTP server.
-func NewHTTPServer(bc *conf.Bootstrap) *http.Server {
+func NewHTTPServer(bc *conf.Bootstrap, logger log.Logger) *http.Server {
 	serverConf := bc.GetServer()
 	httpConf := serverConf.GetHttp()
 	authConf := bc.GetAuth()
 	opts := []http.ServerOption{
 		http.Middleware(
+			recovery.Recovery(),
+			logging.Server(logger),
+			tracing.Server(),
 			middleware.JwtServer(authConf.GetJwt().GetSignKey()),
 			middleware.MustLogin(),
 			middleware.BindHeaders(),
