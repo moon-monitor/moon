@@ -5,14 +5,20 @@ import (
 
 	"github.com/go-kratos/kratos/v2/transport/http"
 	"github.com/moon-monitor/moon/cmd/palace/internal/conf"
+	"github.com/moon-monitor/moon/cmd/palace/internal/helper/middleware"
 )
 
 // NewHTTPServer new an HTTP server.
 func NewHTTPServer(bc *conf.Bootstrap) *http.Server {
 	serverConf := bc.GetServer()
 	httpConf := serverConf.GetHttp()
+	authConf := bc.GetAuth()
 	opts := []http.ServerOption{
-		http.Middleware(),
+		http.Middleware(
+			middleware.JwtServer(authConf.GetJwt().GetSignKey()),
+			middleware.MustLogin(),
+			middleware.BindHeaders(),
+		),
 	}
 	if httpConf.GetNetwork() != "" {
 		opts = append(opts, http.Network(httpConf.GetNetwork()))

@@ -1,6 +1,6 @@
 package vobj
 
-// TeamStatus user status
+// TeamStatus team status
 //
 //go:generate stringer -type=TeamStatus -linecomment -output=status_team.string.go
 type TeamStatus int8

@@ -18,8 +18,9 @@ type Team struct {
 	LeaderID uint32          `gorm:"column:leader_id;type:int unsigned;not null;index:sys_teams__sys_users,priority:1;comment:负责人" json:"leader_id"` // 负责人
 	UUID     uuid.UUID       `gorm:"column:uuid;type:BINARY(16);not null" json:"uuid"`
 
-	Leader *User   `gorm:"foreignKey:LeaderID;references:ID" json:"leader"`
-	Admins []*User `gorm:"many2many:sys_team_admins;foreignKey:ID;joinForeignKey:TeamID;references:ID;joinReferences:AdminID" json:"admins"`
+	Leader    *User       `gorm:"foreignKey:LeaderID;references:ID" json:"leader"`
+	Admins    []*User     `gorm:"many2many:sys_team_admins;foreignKey:ID;joinForeignKey:TeamID;references:ID;joinReferences:AdminID" json:"admins"`
+	Resources []*Resource `gorm:"many2many:sys_team_resources;foreignKey:ID;joinForeignKey:TeamID;references:ID;joinReferences:ResourceID" json:"resources"`
 }
 
 func (u *Team) TableName() string {

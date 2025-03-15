@@ -18,8 +18,10 @@ type User struct {
 	Avatar   string          `gorm:"column:avatar;type:varchar(255);not null;comment:头像" json:"avatar"`
 	Salt     string          `gorm:"column:salt;type:varchar(16);not null;comment:盐" json:"-"`
 	Gender   vobj.Gender     `gorm:"column:gender;type:tinyint(2);not null;comment:性别" json:"gender"`
-	Role     vobj.Role       `gorm:"column:role;type:tinyint(2);not null;comment:系统默认角色类型" json:"role"`
+	Position vobj.Role       `gorm:"column:position;type:tinyint(2);not null;comment:系统默认角色类型" json:"position"`
 	Status   vobj.UserStatus `gorm:"column:status;type:tinyint(2);not null;comment:状态" json:"status"`
+
+	Roles []*Role `gorm:"many2many:sys_user_roles;foreignKey:ID;joinForeignKey:UserID;references:ID;joinReferences:RoleID" json:"roles"`
 }
 
 func (u *User) TableName() string {

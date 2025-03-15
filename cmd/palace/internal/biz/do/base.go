@@ -68,7 +68,7 @@ func (u *TeamModel) BeforeUpdate(tx *gorm.DB) (err error) {
 	if !exist || u.TeamID == 0 {
 		return merr.ErrorInternalServerError("team id not found")
 	}
-	tx.WithContext(u.GetContext())
+	tx.WithContext(u.GetContext()).Where(`team_id = ?`, u.TeamID)
 	return
 }
 
@@ -78,7 +78,7 @@ func (u *TeamModel) BeforeSave(tx *gorm.DB) (err error) {
 	if !exist || u.TeamID == 0 {
 		return merr.ErrorInternalServerError("team id not found")
 	}
-	tx.WithContext(u.GetContext())
+	tx.WithContext(u.GetContext()).Where(`team_id = ?`, u.TeamID)
 	return
 }
 
@@ -88,6 +88,6 @@ func (u *TeamModel) BeforeDelete(tx *gorm.DB) (err error) {
 	if !exist || u.TeamID == 0 {
 		return merr.ErrorInternalServerError("team id not found")
 	}
-	tx.WithContext(u.GetContext())
+	tx.WithContext(u.GetContext()).Where(`team_id = ?`, u.TeamID)
 	return
 }
