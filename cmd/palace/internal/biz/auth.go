@@ -13,35 +13,53 @@ import (
 	"github.com/moon-monitor/moon/pkg/merr"
 )
 
-func NewAuthBiz(bc *conf.Bootstrap, userRepo repository.User, captcha repository.Captcha, logger log.Logger) *AuthBiz {
+func NewAuthBiz(
+	bc *conf.Bootstrap,
+	userRepo repository.User,
+	captchaRepo repository.Captcha,
+	cacheRepo repository.Cache,
+	logger log.Logger,
+) *AuthBiz {
 	return &AuthBiz{
-		bc:       bc,
-		userRepo: userRepo,
-		captcha:  captcha,
-		helper:   log.NewHelper(log.With(logger, "module", "biz.auth")),
+		bc:          bc,
+		userRepo:    userRepo,
+		captchaRepo: captchaRepo,
+		cacheRepo:   cacheRepo,
+		helper:      log.NewHelper(log.With(logger, "module", "biz.auth")),
 	}
 }
 
 type AuthBiz struct {
-	bc       *conf.Bootstrap
-	userRepo repository.User
-	captcha  repository.Captcha
+	bc          *conf.Bootstrap
+	userRepo    repository.User
+	captchaRepo repository.Captcha
+	cacheRepo   repository.Cache
 
 	helper *log.Helper
 }
 
-// GetCaptcha get image captcha
+// GetCaptcha get image captchaRepo
 func (a *AuthBiz) GetCaptcha(ctx context.Context) (*bo.Captcha, error) {
-	return a.captcha.Generate(ctx)
+	return a.captchaRepo.Generate(ctx)
 }
 
 // VerifyCaptcha Captcha
 func (a *AuthBiz) VerifyCaptcha(ctx context.Context, req *bo.CaptchaVerify) error {
-	verify := a.captcha.Verify(ctx, req)
+	verify := a.captchaRepo.Verify(ctx, req)
 	if !verify {
-		return merr.ErrorCaptchaError("captcha err")
+		return merr.ErrorCaptchaError("captchaRepo err")
 	}
 	return nil
+}
+
+// Logout token logout
+func (a *AuthBiz) Logout(ctx context.Context, token string) error {
+	return a.cacheRepo.BanToken(ctx, token)
+}
+
+// VerifyToken verify token
+func (a *AuthBiz) VerifyToken(ctx context.Context, token string) error {
+	return a.cacheRepo.VerifyToken(ctx, token)
 }
 
 // LoginByPassword login by password

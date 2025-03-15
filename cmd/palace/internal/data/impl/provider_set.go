@@ -5,4 +5,8 @@ import (
 )
 
 // ProviderSetImpl is a set of providers.
-var ProviderSetImpl = wire.NewSet(NewUserRepo, NewCaptchaRepo)
+var ProviderSetImpl = wire.NewSet(
+	NewUserRepo,
+	NewCaptchaRepo,
+	NewCacheRepo,
+)

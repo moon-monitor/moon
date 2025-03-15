@@ -2,6 +2,7 @@ package middleware
 
 import (
 	"context"
+	"encoding/json"
 	"time"
 
 	"github.com/go-kratos/kratos/v2/middleware"
@@ -42,6 +43,29 @@ func ParseJwtClaims(ctx context.Context) (*JwtClaims, bool) {
 		return nil, false
 	}
 	return jwtClaims, true
+}
+
+// ParseJwtClaimsFromToken parse jwt claims from token
+func ParseJwtClaimsFromToken(token, signKey string) (*JwtClaims, error) {
+	claims, err := jwtv5.Parse(token, func(token *jwtv5.Token) (interface{}, error) {
+		return []byte(signKey), nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	if !claims.Valid {
+		return nil, merr.ErrorInvalidToken("token is invalid")
+	}
+
+	claimsBs, err := json.Marshal(claims.Claims)
+	if err != nil {
+		return nil, err
+	}
+	var jwtClaims JwtClaims
+	if err = json.Unmarshal(claimsBs, &jwtClaims); err != nil {
+		return nil, err
+	}
+	return &jwtClaims, nil
 }
 
 // JwtServer jwt server

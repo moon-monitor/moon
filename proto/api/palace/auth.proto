@@ -11,65 +11,88 @@ option java_multiple_files = true;
 option java_package = "com.api.palace";
 
 service Auth {
-	rpc GetCaptcha(GetCaptchaRequest) returns (GetCaptchaReply) {
-		option (google.api.http) = {
-			get: "/api/auth/captcha"
-		};
-	}
+  rpc GetCaptcha(GetCaptchaRequest) returns (GetCaptchaReply) {
+    option (google.api.http) = {
+      get: "/api/auth/captcha"
+    };
+  }
 
-	rpc LoginByPassword(LoginByPasswordRequest) returns (LoginByPasswordReply) {
-		option (google.api.http) = {
-			post: "/api/auth/login/email"
-			body: "*"
-		};
-	}
+  rpc LoginByPassword(LoginByPasswordRequest) returns (LoginReply) {
+    option (google.api.http) = {
+      post: "/api/auth/login/email"
+      body: "*"
+    };
+  }
+
+  rpc Logout(LogoutRequest) returns (LogoutReply) {
+    option (google.api.http) = {
+      post: "/api/auth/logout"
+      body: "*"
+    };
+  }
 }
 
 message CaptchaValidateRequest {
-	string captchaId = 1 [(buf.validate.field).cel = {
-		message: "captchaId is required"
-		expression: "this.size() > 0"
-	}];
-	string answer = 2 [(buf.validate.field).cel = {
-		message: "answer is required"
-		expression: "this.size() > 0"
-	}];
+  string captchaId = 1 [(buf.validate.field).cel = {
+    message: "captchaId is required"
+    expression: "this.size() > 0"
+  }];
+  string answer = 2 [(buf.validate.field).cel = {
+    message: "answer is required"
+    expression: "this.size() > 0"
+  }];
 }
 
 message GetCaptchaRequest {
-	int32 width = 1 [(buf.validate.field).cel = {
-		message: "width is required"
-		expression: "this > 0"
-	}];
-	int32 height = 2 [(buf.validate.field).cel = {
-		message: "height is required"
-		expression: "this > 0"
-	}];
+  int32 width = 1 [(buf.validate.field).cel = {
+    message: "width is required"
+    expression: "this > 0"
+  }];
+  int32 height = 2 [(buf.validate.field).cel = {
+    message: "height is required"
+    expression: "this > 0"
+  }];
 }
 message GetCaptchaReply {
-	string captchaId = 1;
-	string captchaImg = 2;
-	int64 expired_seconds = 3;
+  string captchaId = 1;
+  string captchaImg = 2;
+  int64 expired_seconds = 3;
+}
+
+message UserBaseItem {
+  string username = 1;
+  string nickname = 2;
+  string avatar = 3;
+  Gender gender = 4;
+  uint32 user_id = 5;
 }
 
 message LoginByPasswordRequest {
-	string email = 1 [(buf.validate.field).cel = {
-		message: "email is required"
-		expression: "this.size() > 0"
-	}, (buf.validate.field).cel = {
-		message: "email is invalid"
-		expression: "this.isEmail()"
-	}];
-	string password = 2 [(buf.validate.field).cel = {
-		message: "password is required"
-		expression: "this.size() > 0"
-	}, (buf.validate.field).cel = {
-		message: "password max length is 32"
-		expression: "this.size() <= 32"
-	}];
-	CaptchaValidateRequest captcha = 3 [(buf.validate.field).required = true];
+  string email = 1 [(buf.validate.field).cel = {
+    message: "email is required"
+    expression: "this.size() > 0"
+  }, (buf.validate.field).cel = {
+    message: "email is invalid"
+    expression: "this.isEmail()"
+  }];
+  string password = 2 [(buf.validate.field).cel = {
+    message: "password is required"
+    expression: "this.size() > 0"
+  }, (buf.validate.field).cel = {
+    message: "password max length is 32"
+    expression: "this.size() <= 32"
+  }];
+  CaptchaValidateRequest captcha = 3 [(buf.validate.field).required = true];
 }
-message LoginByPasswordReply {
-	string token = 1;
-	UserItem user = 2;
+message LoginReply {
+  string token = 1;
+  int64 expired_seconds = 2;
+  UserBaseItem user = 3;
+}
+
+message LogoutRequest {
+  string redirect = 1;
+}
+message LogoutReply {
+  string redirect = 1;
 }

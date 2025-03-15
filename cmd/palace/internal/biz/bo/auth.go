@@ -2,6 +2,7 @@ package bo
 
 import (
 	"github.com/moon-monitor/moon/cmd/palace/internal/helper/middleware"
+	"github.com/moon-monitor/moon/pkg/api/palace"
 )
 
 type Captcha struct {
@@ -23,7 +24,30 @@ type LoginByPassword struct {
 }
 
 type LoginSign struct {
-	Base           *middleware.JwtBaseInfo
-	Token          string
-	ExpiredSeconds int64
+	Base           *middleware.JwtBaseInfo `json:"base"`
+	Token          string                  `json:"token"`
+	ExpiredSeconds int64                   `json:"expired_seconds"`
+}
+
+// BaseToProto Convert BaseInfo to proto's BaseInfo.
+func (b *LoginSign) BaseToProto() *palace.UserBaseItem {
+	if b == nil || b.Base == nil {
+		return nil
+	}
+	return &palace.UserBaseItem{
+		Username: b.Base.Username,
+		Nickname: b.Base.Nickname,
+		Avatar:   b.Base.Avatar,
+		Gender:   palace.Gender(b.Base.Gender),
+		UserId:   b.Base.UserID,
+	}
+}
+
+// LoginReply Reply of login.
+func (b *LoginSign) LoginReply() *palace.LoginReply {
+	return &palace.LoginReply{
+		Token:          b.Token,
+		ExpiredSeconds: b.ExpiredSeconds,
+		User:           b.BaseToProto(),
+	}
 }
