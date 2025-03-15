@@ -70,6 +70,25 @@ conf:
            --experimental_allow_proto3_optional \
            ./proto/config/*.proto
 
+.PHONY: gen
+# generate gorm gen
+gen:
+	go run cmd/palace/migrate/gen/gen.go
+
+.PHONY: gen-system
+# generate gorm gen system
+gen-system:
+	go run cmd/palace/migrate/gen/gen.go sys
+
+.PHONY: gen-biz
+gen-biz:
+	go run cmd/palace/migrate/gen/gen.go biz
+
+.PHONY: gen-event
+gen-event:
+	go run cmd/palace/migrate/gen/gen.go event
+
+
 .PHONY: conf-palace
 # generate palace-config
 conf-palace:

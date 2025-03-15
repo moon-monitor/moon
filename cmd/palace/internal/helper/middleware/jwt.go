@@ -3,11 +3,13 @@ package middleware
 import (
 	"context"
 	"encoding/json"
+	"strings"
 	"time"
 
 	"github.com/go-kratos/kratos/v2/middleware"
 	"github.com/go-kratos/kratos/v2/middleware/auth/jwt"
 	"github.com/go-kratos/kratos/v2/middleware/selector"
+	"github.com/go-kratos/kratos/v2/transport"
 	jwtv5 "github.com/golang-jwt/jwt/v5"
 
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/vobj"
@@ -81,8 +83,10 @@ func JwtServer(signKey string) middleware.Middleware {
 	)
 }
 
+type TokenValidateFunc func(ctx context.Context, token string) error
+
 // MustLogin must login
-func MustLogin() middleware.Middleware {
+func MustLogin(validate TokenValidateFunc) middleware.Middleware {
 	return func(handler middleware.Handler) middleware.Handler {
 		return func(ctx context.Context, req any) (any, error) {
 			claims, ok := ParseJwtClaims(ctx)
@@ -90,6 +94,21 @@ func MustLogin() middleware.Middleware {
 				return nil, merr.ErrorUnauthorized("token error")
 			}
 			ctx = permission.WithUserIDContext(ctx, claims.UserID)
+			tr, ok := transport.FromServerContext(ctx)
+			if !ok {
+				return nil, merr.ErrorBadRequest("not allow request")
+			}
+			if tokenStr := tr.RequestHeader().Get(XHeaderToken); tokenStr != "" {
+				auths := strings.SplitN(tokenStr, " ", 2)
+				if len(auths) != 2 || !strings.EqualFold(auths[0], bearerWord) {
+					return nil, jwt.ErrMissingJwtToken
+				}
+				jwtToken := auths[1]
+				ctx = permission.WithTokenContext(ctx, jwtToken)
+				if err := validate(ctx, jwtToken); err != nil {
+					return nil, err
+				}
+			}
 			return handler(ctx, req)
 		}
 	}

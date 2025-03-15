@@ -10,6 +10,7 @@ import (
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/repository"
 	"github.com/moon-monitor/moon/cmd/palace/internal/conf"
 	"github.com/moon-monitor/moon/cmd/palace/internal/helper/middleware"
+	"github.com/moon-monitor/moon/cmd/palace/internal/helper/permission"
 	"github.com/moon-monitor/moon/pkg/merr"
 )
 
@@ -59,14 +60,28 @@ func (a *AuthBiz) Logout(ctx context.Context, token string) error {
 
 // VerifyToken verify token
 func (a *AuthBiz) VerifyToken(ctx context.Context, token string) error {
-	return a.cacheRepo.VerifyToken(ctx, token)
+	if err := a.cacheRepo.VerifyToken(ctx, token); err != nil {
+		return err
+	}
+	userID, ok := permission.GetUserIDByContext(ctx)
+	if !ok {
+		return merr.ErrorInvalidToken("token is invalid")
+	}
+	userDo, err := a.userRepo.FindByID(ctx, userID)
+	if err != nil {
+		return err
+	}
+	if !userDo.Status.IsNormal() {
+		return merr.ErrorUserForbidden("user forbidden")
+	}
+	return nil
 }
 
 // LoginByPassword login by password
 func (a *AuthBiz) LoginByPassword(ctx context.Context, req *bo.LoginByPassword) (*bo.LoginSign, error) {
 	user, err := a.userRepo.FindByEmail(ctx, req.Email)
 	if err != nil {
-		return nil, merr.ErrorUserNotFound("user not found")
+		return nil, merr.ErrorPasswordError("password error").WithCause(err)
 	}
 	if !user.ValidatePassword(req.Password) {
 		return nil, merr.ErrorPasswordError("password error")

@@ -14,7 +14,7 @@ type TeamMember struct {
 	Position  vobj.Role `gorm:"column:position;type:tinyint(2);not null;comment:职位" json:"position"`
 
 	User    *User       `gorm:"foreignKey:UserID;references:ID" json:"user"`
-	Inviter *User       `gorm:"foreignKey:InvitorID;references:ID" json:"inviter"`
+	Inviter *User       `gorm:"foreignKey:InviterID;references:ID" json:"inviter"`
 	Roles   []*TeamRole `gorm:"many2many:sys_team_member_roles;foreignKey:ID;joinForeignKey:TeamMemberID;references:ID;joinReferences:RoleID" json:"roles"`
 }
 

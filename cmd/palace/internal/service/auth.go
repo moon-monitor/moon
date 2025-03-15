@@ -4,12 +4,12 @@ import (
 	"context"
 
 	"github.com/go-kratos/kratos/v2/log"
-	"github.com/moon-monitor/moon/cmd/palace/internal/helper/permission"
-	"github.com/moon-monitor/moon/pkg/merr"
 
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/bo"
+	"github.com/moon-monitor/moon/cmd/palace/internal/helper/permission"
 	palacev1 "github.com/moon-monitor/moon/pkg/api/palace"
+	"github.com/moon-monitor/moon/pkg/merr"
 )
 
 type AuthService struct {
@@ -70,4 +70,8 @@ func (s *AuthService) Logout(ctx context.Context, req *palacev1.LogoutRequest) (
 		return nil, err
 	}
 	return &palacev1.LogoutReply{Redirect: req.GetRedirect()}, nil
+}
+
+func (s *AuthService) VerifyToken(ctx context.Context, token string) error {
+	return s.authBiz.VerifyToken(ctx, token)
 }
