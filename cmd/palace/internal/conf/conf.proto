@@ -10,27 +10,45 @@ option java_multiple_files = true;
 option java_package = "cmd.palace.internal.conf";
 
 message Bootstrap {
-	config.Environment environment = 1;
-	config.Server server = 2;
-	Data data = 3;
-	config.Cache cache = 4;
-	config.Log log = 5;
-	config.Registry registry = 6;
-	Auth auth = 7;
+  config.Environment environment = 1;
+  config.Server server = 2;
+  Data data = 3;
+  config.Cache cache = 4;
+  config.Log log = 5;
+  config.Registry registry = 6;
+  Auth auth = 7;
 }
 
 message Data {
-	config.Database main = 1;
-	config.Database biz = 2;
-	config.Database alarm = 3;
+  config.Database main = 1;
+  config.Database biz = 2;
+  config.Database alarm = 3;
 }
 
 message Auth {
-	message Captcha {
-		string prefix = 1;
-		google.protobuf.Duration timeout = 2;
-		google.protobuf.Duration expire = 3;
-	}
-	config.JWT jwt = 1;
-	Captcha captcha = 2;
+  message Captcha {
+    string prefix = 1;
+    google.protobuf.Duration timeout = 2;
+    google.protobuf.Duration expire = 3;
+  }
+  message OAuth2 {
+    enum APP {
+      GITHUB = 0;
+      GITEE = 1;
+    }
+    message Config {
+      APP app = 1;
+      string client_id = 2;
+      string client_secret = 3;
+      string callback_uri = 4;
+      string auth_url = 5;
+      string token_url = 6;
+      repeated string scopes = 7;
+    }
+    string redirect_uri = 1;
+    repeated Config configs = 2;
+  }
+  config.JWT jwt = 1;
+  Captcha captcha = 2;
+  OAuth2 oauth2 = 3;
 }

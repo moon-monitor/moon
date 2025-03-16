@@ -23,6 +23,11 @@ type LoginByPassword struct {
 	Password string `json:"password"`
 }
 
+type RefreshToken struct {
+	Token  string `json:"token"`
+	UserID uint32 `json:"user_id"`
+}
+
 type LoginSign struct {
 	Base           *middleware.JwtBaseInfo `json:"base"`
 	Token          string                  `json:"token"`

@@ -9,4 +9,6 @@ var ProviderSetImpl = wire.NewSet(
 	NewUserRepo,
 	NewCaptchaRepo,
 	NewCacheRepo,
+	NewOAuthRepo,
+	NewTransaction,
 )

@@ -12,8 +12,11 @@ type Cache interface {
 	Unlock(ctx context.Context, key string) error
 	BanToken(ctx context.Context, token string) error
 	VerifyToken(ctx context.Context, token string) error
+	VerifyOAuthToken(ctx context.Context, oauthID uint32, token string) error
+	WaitVerifyOAuthToken(ctx context.Context, oauthID uint32, token string) error
 }
 
 const (
-	BankTokenKey cache.K = "palace:token:ban"
+	BankTokenKey  cache.K = "palace:token:ban"
+	OAuthTokenKey cache.K = "palace:token:oauth"
 )

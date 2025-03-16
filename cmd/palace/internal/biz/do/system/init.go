@@ -8,5 +8,6 @@ func Models() []any {
 		&TeamMember{},
 		&Role{},
 		&Resource{},
+		&OAuthUser{},
 	}
 }

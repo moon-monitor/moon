@@ -30,6 +30,13 @@ service Auth {
       body: "*"
     };
   }
+
+  rpc RefreshToken(RefreshTokenRequest) returns (LoginReply) {
+    option (google.api.http) = {
+      post: "/api/auth/refresh"
+      body: "*"
+    };
+  }
 }
 
 message CaptchaValidateRequest {
@@ -96,3 +103,5 @@ message LogoutRequest {
 message LogoutReply {
   string redirect = 1;
 }
+
+message RefreshTokenRequest {}

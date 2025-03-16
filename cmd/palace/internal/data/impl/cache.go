@@ -61,3 +61,20 @@ func (c *cacheReoImpl) VerifyToken(ctx context.Context, token string) error {
 	}
 	return nil
 }
+
+func (c *cacheReoImpl) VerifyOAuthToken(ctx context.Context, oauthID uint32, token string) error {
+	exist, err := c.GetCache().Client().Exists(ctx, repository.OAuthTokenKey.Key(oauthID, token)).Result()
+	if err != nil {
+		return merr.ErrorInternalServerError("cache err").WithCause(err)
+	}
+	if exist == 0 {
+		return merr.ErrorUnauthorized("oauth unauthorized").WithMetadata(map[string]string{
+			"exist": "false",
+		})
+	}
+	return nil
+}
+
+func (c *cacheReoImpl) WaitVerifyOAuthToken(ctx context.Context, oauthID uint32, token string) error {
+	return c.GetCache().Client().Set(ctx, repository.OAuthTokenKey.Key(oauthID, token), 1, 10*time.Minute).Err()
+}
