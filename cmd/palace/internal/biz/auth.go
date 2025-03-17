@@ -4,8 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"strings"
-	"time"
 
 	"github.com/go-kratos/kratos/v2/log"
 	"golang.org/x/oauth2"
@@ -85,7 +83,9 @@ func (a *AuthBiz) GetCaptcha(ctx context.Context) (*bo.Captcha, error) {
 func (a *AuthBiz) VerifyCaptcha(ctx context.Context, req *bo.CaptchaVerify) error {
 	verify := a.captchaRepo.Verify(ctx, req)
 	if !verify {
-		return merr.ErrorCaptchaError("captchaRepo err")
+		return merr.ErrorCaptchaError("captcha err").WithMetadata(map[string]string{
+			"captcha.answer": "The verification code is incorrect. Please retrieve a new one and try again.",
+		})
 	}
 	return nil
 }
@@ -318,7 +318,10 @@ func (a *AuthBiz) oauthLogin(ctx context.Context, userInfo bo.IOAuthUser) (strin
 
 // OAuthLoginWithEmail oauth2 set email login
 func (a *AuthBiz) OAuthLoginWithEmail(ctx context.Context, oauthParams *bo.OAuthLoginParams) (*bo.LoginSign, error) {
-	// 校验临时token
+	if err := a.cacheRepo.VerifyEmailCode(ctx, oauthParams.Email, oauthParams.Code); err != nil {
+		return nil, err
+	}
+
 	if err := a.cacheRepo.VerifyOAuthToken(ctx, oauthParams); err != nil {
 		return nil, err
 	}
@@ -345,43 +348,17 @@ func (a *AuthBiz) OAuthLoginWithEmail(ctx context.Context, oauthParams *bo.OAuth
 	return a.login(userDo)
 }
 
-// VerifyOAuthLoginEmail 验证oauth登录邮箱
-func (a *AuthBiz) VerifyOAuthLoginEmail(ctx context.Context, oauthParams *bo.OAuthLoginParams) error {
-	// 校验临时token
-	if err := a.cacheRepo.VerifyOAuthToken(ctx, oauthParams); err != nil {
-		return err
-	}
-	// 生成验证码
-	code := strings.ToUpper(password.MD5(time.Now().String())[:6])
-	oauthParams.Code = code
-	return a.cacheRepo.SendVerifyEmailCode(ctx, oauthParams)
-}
-
-// RegisterByEmail 注册账号
-func (a *AuthBiz) RegisterByEmail(ctx context.Context, email string) (*bo.OAuthLoginParams, error) {
-	oauthParams := &bo.OAuthLoginParams{
-		APP:     vobj.OAuthAPPEmail,
-		Code:    strings.ToUpper(password.MD5(time.Now().String())[:6]),
-		Email:   email,
-		OAuthID: 0,
-		Token:   password.MD5(password.GenerateRandomPassword(64)),
-	}
-	if err := a.cacheRepo.CacheVerifyOAuthToken(ctx, oauthParams); err != nil {
-		return nil, err
-	}
-	if err := a.cacheRepo.SendVerifyEmailCode(ctx, oauthParams); err != nil {
-		return nil, err
-	}
-	return oauthParams, nil
+// VerifyEmail verify email
+func (a *AuthBiz) VerifyEmail(ctx context.Context, email string) error {
+	return a.cacheRepo.SendVerifyEmailCode(ctx, email)
 }
 
 // LoginWithEmail 邮箱登录
-func (a *AuthBiz) LoginWithEmail(ctx context.Context, oauthParams *bo.OAuthLoginParams, user *system.User) (*bo.LoginSign, error) {
-	// 校验临时token
-	if err := a.cacheRepo.VerifyOAuthToken(ctx, oauthParams); err != nil {
+func (a *AuthBiz) LoginWithEmail(ctx context.Context, code string, user *system.User) (*bo.LoginSign, error) {
+	if err := a.cacheRepo.VerifyEmailCode(ctx, user.Email, code); err != nil {
 		return nil, err
 	}
-	userDo, err := a.userRepo.FindByEmail(ctx, oauthParams.Email)
+	userDo, err := a.userRepo.FindByEmail(ctx, user.Email)
 	if err == nil {
 		return a.login(userDo)
 	}

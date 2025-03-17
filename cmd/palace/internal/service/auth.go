@@ -113,50 +113,13 @@ func (s *AuthService) VerifyEmail(ctx context.Context, req *palacev1.VerifyEmail
 	if err := s.authBiz.VerifyCaptcha(ctx, captchaVerify); err != nil {
 		return nil, err
 	}
-	oauthParams := &bo.OAuthLoginParams{
-		APP:     vobj.OAuthAPP(req.GetApp()),
-		Code:    "",
-		Email:   req.GetEmail(),
-		OAuthID: req.GetOauthID(),
-		Token:   req.GetToken(),
-	}
-	if err := s.authBiz.VerifyOAuthLoginEmail(ctx, oauthParams); err != nil {
+	if err := s.authBiz.VerifyEmail(ctx, req.GetEmail()); err != nil {
 		return nil, err
 	}
 	return &palacev1.VerifyEmailReply{ExpiredSeconds: int64(5 * time.Minute.Seconds())}, nil
 }
 
-func (s *AuthService) RegisterByEmail(ctx context.Context, req *palacev1.RegisterByEmailRequest) (*palacev1.RegisterByEmailReply, error) {
-	captchaReq := req.GetCaptcha()
-	captchaVerify := &bo.CaptchaVerify{
-		Id:     captchaReq.GetCaptchaId(),
-		Answer: captchaReq.GetAnswer(),
-		Clear:  true,
-	}
-
-	if err := s.authBiz.VerifyCaptcha(ctx, captchaVerify); err != nil {
-		return nil, err
-	}
-	authLoginParams, err := s.authBiz.RegisterByEmail(ctx, req.GetEmail())
-	if err != nil {
-		return nil, err
-	}
-	return &palacev1.RegisterByEmailReply{
-		Token:          authLoginParams.Token,
-		ExpiredSeconds: int64(5 * time.Minute.Seconds()),
-		App:            int32(authLoginParams.APP),
-		OauthID:        authLoginParams.OAuthID,
-	}, nil
-}
-
 func (s *AuthService) LoginByEmail(ctx context.Context, req *palacev1.LoginByEmailRequest) (*palacev1.LoginReply, error) {
-	oauthParams := &bo.OAuthLoginParams{
-		APP:     vobj.OAuthAPP(req.GetApp()),
-		Code:    req.GetCode(),
-		Email:   req.GetEmail(),
-		OAuthID: 0,
-		Token:   req.GetToken(),
-	}
 	userDo := &system.User{
 		BaseModel: do.BaseModel{},
 		Username:  req.GetUsername(),
@@ -167,7 +130,7 @@ func (s *AuthService) LoginByEmail(ctx context.Context, req *palacev1.LoginByEma
 		Position:  vobj.RoleUser,
 		Status:    vobj.UserStatusNormal,
 	}
-	return login(s.authBiz.LoginWithEmail(ctx, oauthParams, userDo))
+	return login(s.authBiz.LoginWithEmail(ctx, req.GetCode(), userDo))
 }
 
 func (s *AuthService) OAuthLoginByEmail(ctx context.Context, req *palacev1.OAuthLoginByEmailRequest) (*palacev1.LoginReply, error) {

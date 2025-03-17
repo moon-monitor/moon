@@ -8,5 +8,4 @@ type OAuthAPP int8
 const (
 	OAuthAPPGithub OAuthAPP = iota // github
 	OAuthAPPGitee                  // gitee
-	OAuthAPPEmail                  // email
 )

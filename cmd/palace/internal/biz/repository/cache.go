@@ -16,10 +16,12 @@ type Cache interface {
 
 	VerifyOAuthToken(ctx context.Context, oauthParams *bo.OAuthLoginParams) error
 	CacheVerifyOAuthToken(ctx context.Context, oauthParams *bo.OAuthLoginParams) error
-	SendVerifyEmailCode(ctx context.Context, oauthParams *bo.OAuthLoginParams) error
+	SendVerifyEmailCode(ctx context.Context, email string) error
+	VerifyEmailCode(ctx context.Context, email, code string) error
 }
 
 const (
+	EmailCodeKey  cache.K = "palace:verify:email:code"
 	BankTokenKey  cache.K = "palace:token:ban"
 	OAuthTokenKey cache.K = "palace:token:oauth"
 )

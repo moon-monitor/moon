@@ -11,6 +11,12 @@ server:
     allow_operations:
       - /api.palace.Auth/GetCaptcha
       - /api.palace.Auth/LoginByEmail
+      - /api.palace.Auth/LoginByPassword
+      - /api.palace.Auth/VerifyEmail
+      - /api.palace.Auth/RegisterByEmail
+      - /api.palace.Auth/LoginByEmail
+      - /api.palace.Auth/OAuthLoginByEmail
+      - /api.palace.Auth/OAuth2List
     allow_headers: ${X_HTTP_ALLOW_HEADERS:['*']}
     allow_methods: ${X_HTTP_ALLOW_METHODS:['*']}
     allow_origins: ${X_HTTP_ALLOW_ORIGINS:['*']}

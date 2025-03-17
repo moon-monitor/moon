@@ -3,9 +3,12 @@ package impl
 import (
 	"context"
 	_ "embed"
+	"strings"
 	"time"
 
+	"github.com/go-kratos/kratos/v2/errors"
 	"github.com/go-kratos/kratos/v2/log"
+	"github.com/redis/go-redis/v9"
 
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/bo"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/repository"
@@ -67,25 +70,15 @@ func (c *cacheReoImpl) VerifyToken(ctx context.Context, token string) error {
 }
 
 func (c *cacheReoImpl) VerifyOAuthToken(ctx context.Context, oauthParams *bo.OAuthLoginParams) error {
-	exist, err := c.GetCache().Client().Exists(ctx, repository.OAuthTokenKey.Key(oauthParams.OAuthID, oauthParams.Token)).Result()
+	key := repository.OAuthTokenKey.Key(oauthParams.OAuthID, oauthParams.Token)
+	defer c.GetCache().Client().Del(ctx, key).Val()
+	exist, err := c.GetCache().Client().Exists(ctx, key).Result()
 	if err != nil {
 		return merr.ErrorInternalServerError("cache err").WithCause(err)
 	}
 	if exist == 0 {
 		return merr.ErrorUnauthorized("oauth unauthorized").WithMetadata(map[string]string{
 			"exist": "false",
-		})
-	}
-	if validate.TextIsNull(oauthParams.Code) {
-		return nil
-	}
-	code, err := c.GetCache().Client().Get(ctx, repository.OAuthTokenKey.Key(oauthParams.OAuthID, oauthParams.Token)).Result()
-	if err != nil {
-		return merr.ErrorInternalServerError("cache err").WithCause(err)
-	}
-	if code != oauthParams.Code {
-		return merr.ErrorUnauthorized("oauth unauthorized").WithMetadata(map[string]string{
-			"code": "err",
 		})
 	}
 	return nil
@@ -95,21 +88,42 @@ func (c *cacheReoImpl) CacheVerifyOAuthToken(ctx context.Context, oauthParams *b
 	return c.GetCache().Client().Set(ctx, repository.OAuthTokenKey.Key(oauthParams.OAuthID, oauthParams.Token), "##code##", 10*time.Minute).Err()
 }
 
+func (c *cacheReoImpl) VerifyEmailCode(ctx context.Context, email, code string) error {
+	key := repository.EmailCodeKey.Key(email)
+	defer c.GetCache().Client().Del(ctx, key).Val()
+	cacheCode, err := c.GetCache().Client().Get(ctx, key).Result()
+	if err != nil {
+		if errors.Is(err, redis.Nil) {
+			return merr.ErrorCaptchaError("captcha is expire").WithMetadata(map[string]string{
+				"code": "captcha is expire",
+			})
+		}
+		return merr.ErrorInternalServerError("cache err").WithCause(err)
+	}
+	if strings.EqualFold(cacheCode, code) {
+		return nil
+	}
+	return merr.ErrorCaptchaError("captcha err").WithMetadata(map[string]string{
+		"code": "The verification code is incorrect. Please retrieve a new one and try again.",
+	})
+}
+
 //go:embed template/verify_email.html
 var verifyEmailTemplate string
 
-func (c *cacheReoImpl) SendVerifyEmailCode(ctx context.Context, oauthParams *bo.OAuthLoginParams) error {
-	if err := validate.CheckEmail(oauthParams.Email); err != nil {
+func (c *cacheReoImpl) SendVerifyEmailCode(ctx context.Context, email string) error {
+	if err := validate.CheckEmail(email); err != nil {
 		return err
 	}
-	err := c.GetCache().Client().Set(ctx, repository.OAuthTokenKey.Key(oauthParams.OAuthID, oauthParams.Token), oauthParams.Code, 5*time.Minute).Err()
+	code := strings.ToUpper(password.MD5(time.Now().String())[:6])
+	err := c.GetCache().Client().Set(ctx, repository.EmailCodeKey.Key(email), code, 5*time.Minute).Err()
 	if err != nil {
 		return err
 	}
 
 	bodyParams := map[string]string{
-		"Email":       oauthParams.Email,
-		"Code":        oauthParams.Code,
+		"Email":       email,
+		"Code":        code,
 		"RedirectURI": c.bc.GetAuth().GetOauth2().GetRedirectUri(),
 	}
 	emailBody, err := template.HtmlFormatter(verifyEmailTemplate, bodyParams)
@@ -117,5 +131,5 @@ func (c *cacheReoImpl) SendVerifyEmailCode(ctx context.Context, oauthParams *bo.
 		return err
 	}
 	// 发送用户密码到用户邮箱
-	return c.GetEmail().SetSubject("Email verification code.").SetTo(oauthParams.Email).SetBody(emailBody, "text/html").Send()
+	return c.GetEmail().SetSubject("Email verification code.").SetTo(email).SetBody(emailBody, "text/html").Send()
 }
