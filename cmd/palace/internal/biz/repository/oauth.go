@@ -9,9 +9,7 @@ import (
 )
 
 type OAuth interface {
-	OAuthUserFirstOrCreate(ctx context.Context, oauthUser bo.IOAuthUser) (*system.User, error)
-	SetEmail(ctx context.Context, userID uint32, email string) (*system.User, error)
-	GetSysUserByOAuthID(ctx context.Context, oauthID uint32, app vobj.OAuthAPP) (*system.OAuthUser, error)
-	SendVerifyEmail(ctx context.Context, email string) error
-	CheckVerifyEmailCode(ctx context.Context, email, code string) error
+	Create(ctx context.Context, user bo.IOAuthUser) (*system.OAuthUser, error)
+	FindByOAuthID(ctx context.Context, oauthID uint32, app vobj.OAuthAPP) (*system.OAuthUser, error)
+	SetUser(ctx context.Context, user *system.OAuthUser) (*system.OAuthUser, error)
 }

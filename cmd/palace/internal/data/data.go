@@ -5,6 +5,7 @@ import (
 
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/google/wire"
+	"github.com/moon-monitor/moon/pkg/plugin/email"
 
 	"github.com/moon-monitor/moon/cmd/palace/internal/conf"
 	"github.com/moon-monitor/moon/pkg/plugin/cache"
@@ -17,8 +18,9 @@ var ProviderSetData = wire.NewSet(New)
 
 type Data struct {
 	mainDB         gorm.DB
-	bizDB, alarmDB *safety.Map[uint32, gorm.DB]
+	bizDB, eventDB *safety.Map[uint32, gorm.DB]
 	cache          cache.Cache
+	email          email.Email
 
 	helper *log.Helper
 }
@@ -35,8 +37,8 @@ func (d *Data) GetBizDB(teamID uint32) gorm.DB {
 	return db
 }
 
-func (d *Data) GetAlarmDB(teamID uint32) gorm.DB {
-	db, ok := d.alarmDB.Get(teamID)
+func (d *Data) GetEventDB(teamID uint32) gorm.DB {
+	db, ok := d.eventDB.Get(teamID)
 	if !ok {
 		// TODO create a new DB instance
 	}
@@ -47,14 +49,19 @@ func (d *Data) GetCache() cache.Cache {
 	return d.cache
 }
 
+func (d *Data) GetEmail() email.Email {
+	return d.email
+}
+
 // New a data and returns.
 func New(c *conf.Bootstrap, logger log.Logger) (*Data, func(), error) {
 	var (
 		data Data
 		err  error
 	)
+	data.email = email.New(c.GetEmail())
 	data.bizDB = safety.NewMap[uint32, gorm.DB]()
-	data.alarmDB = safety.NewMap[uint32, gorm.DB]()
+	data.eventDB = safety.NewMap[uint32, gorm.DB]()
 	data.helper = log.NewHelper(log.With(logger, "module", "data"))
 	dataConf := c.GetData()
 	data.mainDB, err = gorm.NewDB(dataConf.GetMain())
@@ -82,7 +89,7 @@ func New(c *conf.Bootstrap, logger log.Logger) (*Data, func(), error) {
 				data.helper.Errorw("method", method, "err", err)
 			}
 		}
-		for teamID, db := range data.alarmDB.List() {
+		for teamID, db := range data.eventDB.List() {
 			if err = db.Close(); err != nil {
 				method := fmt.Sprintf("close team [%d] alarm db", teamID)
 				data.helper.Errorw("method", method, "err", err)

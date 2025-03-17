@@ -24,6 +24,20 @@ service Auth {
     };
   }
 
+  rpc VerifyEmail(VerifyEmailRequest) returns (VerifyEmailReply) {
+    option (google.api.http) = {
+      post: "/api/auth/verify/email"
+      body: "*"
+    };
+  }
+
+  rpc LoginByEmail(LoginByEmailRequest) returns (LoginReply) {
+    option (google.api.http) = {
+      post: "/api/auth/login/email"
+      body: "*"
+    };
+  }
+
   rpc Logout(LogoutRequest) returns (LogoutReply) {
     option (google.api.http) = {
       post: "/api/auth/logout"
@@ -91,6 +105,31 @@ message LoginByPasswordRequest {
   }];
   CaptchaValidateRequest captcha = 3 [(buf.validate.field).required = true];
 }
+message LoginByEmailRequest {
+  uint32 oauthID = 1 [(buf.validate.field).cel = {
+    message: "oauthID is required"
+    expression: "this > 0"
+  }];
+  string email = 2 [(buf.validate.field).cel = {
+    message: "email is required"
+    expression: "this.size() > 0"
+  }, (buf.validate.field).cel = {
+    message: "email is invalid"
+    expression: "this.isEmail()"
+  }];
+  string code = 3 [(buf.validate.field).cel = {
+    message: "code is required"
+    expression: "this.size() > 0"
+  }];
+  string token = 4 [(buf.validate.field).cel = {
+    message: "token is required"
+    expression: "this.size() > 0"
+  }];
+  int32 app = 5 [(buf.validate.field).cel = {
+    message: "app is required"
+    expression: "this > 0"
+  }];
+}
 message LoginReply {
   string token = 1;
   int64 expired_seconds = 2;
@@ -105,3 +144,29 @@ message LogoutReply {
 }
 
 message RefreshTokenRequest {}
+
+message VerifyEmailRequest {
+  uint32 oauthID = 1 [(buf.validate.field).cel = {
+    message: "oauthID is required"
+    expression: "this > 0"
+  }];
+  string email = 2 [(buf.validate.field).cel = {
+    message: "email is required"
+    expression: "this.size() > 0"
+  }, (buf.validate.field).cel = {
+    message: "email is invalid"
+    expression: "this.isEmail()"
+  }];
+  string token = 3 [(buf.validate.field).cel = {
+    message: "token is required"
+    expression: "this.size() > 0"
+  }];
+  int32 app = 4 [(buf.validate.field).cel = {
+    message: "app is required"
+    expression: "this > 0"
+  }];
+  CaptchaValidateRequest captcha = 5 [(buf.validate.field).required = true];
+}
+message VerifyEmailReply {
+  int64 expired_seconds = 2;
+}

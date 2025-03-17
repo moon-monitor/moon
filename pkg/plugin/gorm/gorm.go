@@ -1,8 +1,6 @@
 package gorm
 
 import (
-	"context"
-
 	"gorm.io/driver/mysql"
 	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
@@ -12,7 +10,7 @@ import (
 )
 
 type DB interface {
-	GetTx(ctx context.Context) *gorm.DB
+	GetDB() *gorm.DB
 	Close() error
 }
 
@@ -51,13 +49,9 @@ type db struct {
 	*gorm.DB
 }
 
-// GetTx This method checks if there is a transaction in the context,
+// GetDB This method checks if there is a transaction in the context,
 // and if so returns the client with the transaction
-func (t *db) GetTx(ctx context.Context) *gorm.DB {
-	tx, ok := ctx.Value(contextTxKey{}).(*gorm.DB)
-	if ok {
-		return tx
-	}
+func (t *db) GetDB() *gorm.DB {
 	return t.DB
 }
 

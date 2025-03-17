@@ -1,7 +1,6 @@
 package bo
 
 import (
-	"context"
 	"encoding/json"
 	"fmt"
 
@@ -18,29 +17,17 @@ type IOAuthUser interface {
 	GetNickname() string
 	GetAvatar() string
 	GetAPP() vobj.OAuthAPP
+
+	WithUserID(userID uint32) IOAuthUser
+	GetUserID() uint32
 }
 
 type OAuthLoginParams struct {
-	Code    string `json:"code"`
-	Email   string `json:"email"`
-	OAuthID uint32 `json:"oAuthID"`
-	Token   string `json:"token"`
-}
-
-func (o *OAuthLoginParams) GetTokenKey() string {
-	return fmt.Sprintf("oauth:%d:%s", o.OAuthID, o.Token)
-}
-
-type VerifyTokenFunc func(ctx context.Context, oauthID uint32, token string) error
-
-func (o *OAuthLoginParams) VerifyToken(ctx context.Context, cacheFunc VerifyTokenFunc) error {
-	return cacheFunc(ctx, o.OAuthID, o.Token)
-}
-
-type WaitVerifyTokenFunc func(ctx context.Context, oauthID uint32, token string) error
-
-func (o *OAuthLoginParams) WaitVerifyToken(ctx context.Context, cacheFunc WaitVerifyTokenFunc) error {
-	return cacheFunc(ctx, o.OAuthID, o.Token)
+	APP     vobj.OAuthAPP `json:"app"`
+	Code    string        `json:"code"`
+	Email   string        `json:"email"`
+	OAuthID uint32        `json:"oAuthID"`
+	Token   string        `json:"token"`
 }
 
 func NewOAuthRowData(app vobj.OAuthAPP, row string) (IOAuthUser, error) {
@@ -95,6 +82,17 @@ type GithubUser struct {
 	Type              string `json:"type"`
 	UpdatedAt         string `json:"updated_at"`
 	URL               string `json:"url"`
+
+	userID uint32
+}
+
+func (g *GithubUser) WithUserID(userID uint32) IOAuthUser {
+	g.userID = userID
+	return g
+}
+
+func (g *GithubUser) GetUserID() uint32 {
+	return g.userID
 }
 
 // GetNickname 获取昵称
@@ -168,6 +166,17 @@ type GiteeUser struct {
 	URL               string `json:"url"`
 	Watched           uint32 `json:"watched"`
 	Weibo             string `json:"weibo"`
+
+	userID uint32
+}
+
+func (g *GiteeUser) WithUserID(userID uint32) IOAuthUser {
+	g.userID = userID
+	return g
+}
+
+func (g *GiteeUser) GetUserID() uint32 {
+	return g.userID
 }
 
 // GetOAuthID 获取OAuth ID

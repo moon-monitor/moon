@@ -21,12 +21,16 @@ require (
 	go.etcd.io/etcd/client/v3 v3.5.19
 	go.uber.org/zap v1.27.0
 	golang.org/x/crypto v0.36.0
+	golang.org/x/oauth2 v0.25.0
 	google.golang.org/genproto/googleapis/api v0.0.0-20250313205543-e70fdf4c4cb4
 	google.golang.org/grpc v1.71.0
 	google.golang.org/protobuf v1.36.5
+	gopkg.in/gomail.v2 v2.0.0-20160411212932-81ebce5c23df
 	gorm.io/driver/mysql v1.5.7
 	gorm.io/driver/sqlite v1.5.7
+	gorm.io/gen v0.3.26
 	gorm.io/gorm v1.25.12
+	gorm.io/plugin/dbresolver v1.5.3
 	gorm.io/plugin/soft_delete v1.2.1
 )
 
@@ -75,9 +79,8 @@ require (
 	golang.org/x/text v0.23.0 // indirect
 	golang.org/x/tools v0.31.0 // indirect
 	google.golang.org/genproto/googleapis/rpc v0.0.0-20250227231956-55c901821b1e // indirect
+	gopkg.in/alexcesaro/quotedprintable.v3 v3.0.0-20150716171945-2caba252f4dc // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	gorm.io/datatypes v1.2.5 // indirect
-	gorm.io/gen v0.3.26 // indirect
 	gorm.io/hints v1.1.2 // indirect
-	gorm.io/plugin/dbresolver v1.5.3 // indirect
 )

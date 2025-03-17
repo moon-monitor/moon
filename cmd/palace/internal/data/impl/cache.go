@@ -2,16 +2,20 @@ package impl
 
 import (
 	"context"
+	_ "embed"
 	"time"
 
 	"github.com/go-kratos/kratos/v2/log"
 
+	"github.com/moon-monitor/moon/cmd/palace/internal/biz/bo"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/repository"
 	"github.com/moon-monitor/moon/cmd/palace/internal/conf"
 	"github.com/moon-monitor/moon/cmd/palace/internal/data"
 	"github.com/moon-monitor/moon/cmd/palace/internal/helper/middleware"
 	"github.com/moon-monitor/moon/pkg/merr"
 	"github.com/moon-monitor/moon/pkg/util/password"
+	"github.com/moon-monitor/moon/pkg/util/template"
+	"github.com/moon-monitor/moon/pkg/util/validate"
 )
 
 func NewCacheRepo(bc *conf.Bootstrap, d *data.Data, logger log.Logger) repository.Cache {
@@ -62,8 +66,8 @@ func (c *cacheReoImpl) VerifyToken(ctx context.Context, token string) error {
 	return nil
 }
 
-func (c *cacheReoImpl) VerifyOAuthToken(ctx context.Context, oauthID uint32, token string) error {
-	exist, err := c.GetCache().Client().Exists(ctx, repository.OAuthTokenKey.Key(oauthID, token)).Result()
+func (c *cacheReoImpl) VerifyOAuthToken(ctx context.Context, oauthParams *bo.OAuthLoginParams) error {
+	exist, err := c.GetCache().Client().Exists(ctx, repository.OAuthTokenKey.Key(oauthParams.OAuthID, oauthParams.Token)).Result()
 	if err != nil {
 		return merr.ErrorInternalServerError("cache err").WithCause(err)
 	}
@@ -72,9 +76,46 @@ func (c *cacheReoImpl) VerifyOAuthToken(ctx context.Context, oauthID uint32, tok
 			"exist": "false",
 		})
 	}
+	if validate.TextIsNull(oauthParams.Code) {
+		return nil
+	}
+	code, err := c.GetCache().Client().Get(ctx, repository.OAuthTokenKey.Key(oauthParams.OAuthID, oauthParams.Token)).Result()
+	if err != nil {
+		return merr.ErrorInternalServerError("cache err").WithCause(err)
+	}
+	if code != oauthParams.Code {
+		return merr.ErrorUnauthorized("oauth unauthorized").WithMetadata(map[string]string{
+			"code": "err",
+		})
+	}
 	return nil
 }
 
-func (c *cacheReoImpl) WaitVerifyOAuthToken(ctx context.Context, oauthID uint32, token string) error {
-	return c.GetCache().Client().Set(ctx, repository.OAuthTokenKey.Key(oauthID, token), 1, 10*time.Minute).Err()
+func (c *cacheReoImpl) CacheVerifyOAuthToken(ctx context.Context, oauthParams *bo.OAuthLoginParams) error {
+	return c.GetCache().Client().Set(ctx, repository.OAuthTokenKey.Key(oauthParams.OAuthID, oauthParams.Token), "##code##", 10*time.Minute).Err()
+}
+
+//go:embed template/verify_email.html
+var verifyEmailTemplate string
+
+func (c *cacheReoImpl) SendVerifyEmailCode(ctx context.Context, oauthParams *bo.OAuthLoginParams) error {
+	if err := validate.CheckEmail(oauthParams.Email); err != nil {
+		return err
+	}
+	err := c.GetCache().Client().Set(ctx, repository.OAuthTokenKey.Key(oauthParams.OAuthID, oauthParams.Token), oauthParams.Code, 5*time.Minute).Err()
+	if err != nil {
+		return err
+	}
+
+	bodyParams := map[string]string{
+		"Email":       oauthParams.Email,
+		"Code":        oauthParams.Code,
+		"RedirectURI": c.bc.GetAuth().GetOauth2().GetRedirectUri(),
+	}
+	emailBody, err := template.HtmlFormatter(verifyEmailTemplate, bodyParams)
+	if err != nil {
+		return err
+	}
+	// 发送用户密码到用户邮箱
+	return c.GetEmail().SetSubject("Email verification code.").SetTo(oauthParams.Email).SetBody(emailBody, "text/html").Send()
 }

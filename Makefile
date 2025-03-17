@@ -36,6 +36,7 @@ all:
 	make stringer-$(APP_NAME)
 	make conf-$(APP_NAME)
 	make wire-$(APP_NAME)
+	make gen
 
 .PHONY: api
 # generate api proto

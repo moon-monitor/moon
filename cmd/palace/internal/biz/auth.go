@@ -4,6 +4,8 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
+	"strings"
+	"time"
 
 	"github.com/go-kratos/kratos/v2/log"
 	"golang.org/x/oauth2"
@@ -241,33 +243,116 @@ func (a *AuthBiz) giteeLogin(ctx context.Context, code string) (string, error) {
 	return a.oauthLogin(ctx, &userInfo)
 }
 
-func (a *AuthBiz) oauthLogin(ctx context.Context, userInfo bo.IOAuthUser) (string, error) {
+func (a *AuthBiz) oauthUserFirstOrCreate(ctx context.Context, userInfo bo.IOAuthUser) (*system.OAuthUser, error) {
+	oauthUserDoExist := true
+	oauthUserDo, err := a.oauthRepo.FindByOAuthID(ctx, userInfo.GetOAuthID(), userInfo.GetAPP())
+	if err != nil {
+		if !merr.IsUserNotFound(err) {
+			return nil, err
+		}
+		oauthUserDoExist = false
+	}
+	userDo, err := a.userRepo.FindByEmail(ctx, userInfo.GetEmail())
+	if err != nil {
+		if !merr.IsUserNotFound(err) {
+			return nil, err
+		}
+	}
+	if userDo != nil {
+		userInfo.WithUserID(userDo.ID)
+	}
+	err = a.transaction.MainExec(ctx, func(ctx context.Context) error {
+		if !oauthUserDoExist {
+			oauthUserDo, err = a.oauthRepo.Create(ctx, userInfo)
+			if err != nil {
+				return err
+			}
+		}
+		if oauthUserDo.User == nil {
+			// 创建用户
+			userDo, err = a.userRepo.CreateUserWithOAuthUser(ctx, userInfo)
+			if err != nil {
+				return err
+			}
+			oauthUserDo.SysUserID = userDo.ID
+			oauthUserDo.User = userDo
+			oauthUserDo, err = a.oauthRepo.SetUser(ctx, oauthUserDo)
+			if err != nil {
+				return err
+			}
+		}
+		return nil
+	})
+	if err != nil {
+		return nil, err
+	}
 
-	sysUserDo, err := a.oauthRepo.OAuthUserFirstOrCreate(ctx, userInfo)
+	return oauthUserDo, nil
+}
+
+func (a *AuthBiz) oauthLogin(ctx context.Context, userInfo bo.IOAuthUser) (string, error) {
+	oauthUserDo, err := a.oauthUserFirstOrCreate(ctx, userInfo)
 	if err != nil {
 		return "", err
 	}
 
-	if validate.CheckEmail(sysUserDo.Email) != nil {
-		authUserDo, err := a.oauthRepo.GetSysUserByOAuthID(ctx, userInfo.GetOAuthID(), userInfo.GetAPP())
-		if err != nil {
-			return "", err
-		}
-		oauthParams := bo.OAuthLoginParams{
-			OAuthID: authUserDo.ID,
+	if oauthUserDo.User == nil || validate.CheckEmail(userInfo.GetEmail()) != nil {
+		oauthParams := &bo.OAuthLoginParams{
+			OAuthID: oauthUserDo.ID,
 			Token:   password.MD5(password.GenerateRandomPassword(64)),
 		}
-		if err := oauthParams.WaitVerifyToken(ctx, a.cacheRepo.WaitVerifyOAuthToken); err != nil {
+		if err := a.cacheRepo.CacheVerifyOAuthToken(ctx, oauthParams); err != nil {
 			return "", err
 		}
-		redirect := fmt.Sprintf("%s?oauth_id=%d&token=%s#/oauth/register/email", a.redirectURL, oauthParams.OAuthID, oauthParams.Token)
+		redirect := fmt.Sprintf("%s?oauth_id=%d&app=%d&token=%s#/oauth/register/email", a.redirectURL, oauthParams.OAuthID, userInfo.GetAPP(), oauthParams.Token)
 		return redirect, nil
 	}
 
-	loginSign, err := a.login(sysUserDo)
+	loginSign, err := a.login(oauthUserDo.User)
 	if err != nil {
 		return "", err
 	}
 	redirect := fmt.Sprintf("%s?token=%s", a.redirectURL, loginSign.Token)
 	return redirect, nil
+}
+
+// OAuthLoginWithEmail oauth2 set email login
+func (a *AuthBiz) OAuthLoginWithEmail(ctx context.Context, oauthParams *bo.OAuthLoginParams) (*bo.LoginSign, error) {
+	// 校验临时token
+	if err := a.cacheRepo.VerifyOAuthToken(ctx, oauthParams); err != nil {
+		return nil, err
+	}
+
+	oauthUserDo, err := a.oauthRepo.FindByOAuthID(ctx, oauthParams.OAuthID, oauthParams.APP)
+	if err != nil {
+		return nil, err
+	}
+	userDo := oauthUserDo.User
+	if userDo == nil {
+		return nil, merr.ErrorUnauthorized("oauth unauthorized").WithMetadata(map[string]string{
+			"exist": "false",
+		})
+	}
+	if userDo.Email == oauthParams.Email {
+		return a.login(oauthUserDo.User)
+	}
+
+	userDo.Email = oauthParams.Email
+	userDo, err = a.userRepo.SetEmail(ctx, userDo)
+	if err != nil {
+		return nil, err
+	}
+	return a.login(userDo)
+}
+
+// VerifyOAuthLoginEmail 验证oauth登录邮箱
+func (a *AuthBiz) VerifyOAuthLoginEmail(ctx context.Context, oauthParams *bo.OAuthLoginParams) error {
+	// 校验临时token
+	if err := a.cacheRepo.VerifyOAuthToken(ctx, oauthParams); err != nil {
+		return err
+	}
+	// 生成验证码
+	code := strings.ToUpper(password.MD5(time.Now().String())[:6])
+	oauthParams.Code = code
+	return a.cacheRepo.SendVerifyEmailCode(ctx, oauthParams)
 }

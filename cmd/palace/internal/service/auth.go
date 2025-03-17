@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	nhttp "net/http"
+	"time"
 
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/go-kratos/kratos/v2/transport/http"
@@ -76,6 +77,45 @@ func (s *AuthService) Logout(ctx context.Context, req *palacev1.LogoutRequest) (
 	return &palacev1.LogoutReply{Redirect: req.GetRedirect()}, nil
 }
 
+func (s *AuthService) VerifyEmail(ctx context.Context, req *palacev1.VerifyEmailRequest) (*palacev1.VerifyEmailReply, error) {
+	captchaReq := req.GetCaptcha()
+	captchaVerify := &bo.CaptchaVerify{
+		Id:     captchaReq.GetCaptchaId(),
+		Answer: captchaReq.GetAnswer(),
+		Clear:  true,
+	}
+
+	if err := s.authBiz.VerifyCaptcha(ctx, captchaVerify); err != nil {
+		return nil, err
+	}
+	oauthParams := &bo.OAuthLoginParams{
+		APP:     vobj.OAuthAPP(req.GetApp()),
+		Code:    "",
+		Email:   req.GetEmail(),
+		OAuthID: req.GetOauthID(),
+		Token:   req.GetToken(),
+	}
+	if err := s.authBiz.VerifyOAuthLoginEmail(ctx, oauthParams); err != nil {
+		return nil, err
+	}
+	return &palacev1.VerifyEmailReply{ExpiredSeconds: int64(5 * time.Minute.Seconds())}, nil
+}
+
+func (s *AuthService) LoginByEmail(ctx context.Context, req *palacev1.LoginByEmailRequest) (*palacev1.LoginReply, error) {
+	oauthParams := &bo.OAuthLoginParams{
+		APP:     vobj.OAuthAPP(req.GetApp()),
+		Code:    req.GetCode(),
+		Email:   req.GetEmail(),
+		OAuthID: req.GetOauthID(),
+		Token:   req.GetToken(),
+	}
+	loginSign, err := s.authBiz.OAuthLoginWithEmail(ctx, oauthParams)
+	if err != nil {
+		return nil, err
+	}
+	return loginSign.LoginReply(), nil
+}
+
 func (s *AuthService) VerifyToken(ctx context.Context, token string) error {
 	return s.authBiz.VerifyToken(ctx, token)
 }
@@ -103,7 +143,10 @@ func (s *AuthService) RefreshToken(ctx context.Context, req *palacev1.RefreshTok
 // OAuthLogin oauth login
 func (s *AuthService) OAuthLogin(app vobj.OAuthAPP) http.HandlerFunc {
 	return func(ctx http.Context) error {
-		oauthConf := s.authBiz.GetOAuthConf(app)
+		oauthConf, err := s.authBiz.GetOAuthConf(app)
+		if err != nil {
+			return err
+		}
 		// 重定向到指定地址
 		url := oauthConf.AuthCodeURL("state", oauth2.AccessTypeOnline)
 		req := ctx.Request()

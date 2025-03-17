@@ -4,6 +4,7 @@ import (
 	"context"
 	"time"
 
+	"github.com/moon-monitor/moon/cmd/palace/internal/biz/bo"
 	"github.com/moon-monitor/moon/pkg/plugin/cache"
 )
 
@@ -12,8 +13,10 @@ type Cache interface {
 	Unlock(ctx context.Context, key string) error
 	BanToken(ctx context.Context, token string) error
 	VerifyToken(ctx context.Context, token string) error
-	VerifyOAuthToken(ctx context.Context, oauthID uint32, token string) error
-	WaitVerifyOAuthToken(ctx context.Context, oauthID uint32, token string) error
+
+	VerifyOAuthToken(ctx context.Context, oauthParams *bo.OAuthLoginParams) error
+	CacheVerifyOAuthToken(ctx context.Context, oauthParams *bo.OAuthLoginParams) error
+	SendVerifyEmailCode(ctx context.Context, oauthParams *bo.OAuthLoginParams) error
 }
 
 const (

@@ -7,3 +7,22 @@ auth:
     prefix: ${X_AUTH_CAPTCHA_PREFIX:}
     timeout: ${X_AUTH_CAPTCHA_TIMEOUT:10s}
     expire: ${X_AUTH_CAPTCHA_EXPIRE:60s}
+  oauth2:
+    enable: ${X_AUTH_OAUTH2_ENABLE:false}
+    redirect_uri: ${X_AUTH_OAUTH2_REDIRECT_URI:}
+    configs:
+      - app: ${X_AUTH_OAUTH2_APP_0:GITHUB}
+        client_id: ${X_AUTH_OAUTH2_CLIENT_ID_0:}
+        client_secret: ${X_AUTH_OAUTH2_CLIENT_SECRET_0:}
+        callback_uri: ${X_AUTH_OAUTH2_CALLBACK_URI_0:}
+        auth_url: ${X_AUTH_OAUTH2_AUTH_URL_0:}
+        token_url: ${X_AUTH_OAUTH2_TOKEN_URL_0:}
+        scopes: ${X_AUTH_OAUTH2_SCOPES_0:[]}
+
+      - app: ${X_AUTH_OAUTH2_APP_1:GITEE}
+        client_id: ${X_AUTH_OAUTH2_CLIENT_ID_1:}
+        client_secret: ${X_AUTH_OAUTH2_CLIENT_SECRET_1:}
+        callback_uri: ${X_AUTH_OAUTH2_CALLBACK_URI_1:}
+        auth_url: ${X_AUTH_OAUTH2_AUTH_URL_1:}
+        token_url: ${X_AUTH_OAUTH2_TOKEN_URL_1:}
+        scopes: ${X_AUTH_OAUTH2_SCOPES_1:[]}

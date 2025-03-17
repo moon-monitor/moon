@@ -17,6 +17,7 @@ message Bootstrap {
   config.Log log = 5;
   config.Registry registry = 6;
   Auth auth = 7;
+  config.EmailConfig email = 8;
 }
 
 message Data {
@@ -45,8 +46,9 @@ message Auth {
       string token_url = 6;
       repeated string scopes = 7;
     }
-    string redirect_uri = 1;
-    repeated Config configs = 2;
+    bool enable = 1;
+    string redirect_uri = 2;
+    repeated Config configs = 3;
   }
   config.JWT jwt = 1;
   Captcha captcha = 2;

@@ -203,6 +203,7 @@ message EmailConfig {
   string host = 3;
   // 发送的邮箱端口
   uint32 port = 4;
+  bool enable = 5;
 }
 
 message Log {
