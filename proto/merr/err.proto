@@ -15,6 +15,7 @@ enum ClientError {
 	CAPTCHA_ERROR = 2;
 	PARAMS_ERROR = 3;
 	PASSWORD_ERROR = 4;
+	TEAM_NOT_FOUND = 5;
 }
 
 enum UnauthorizedError {

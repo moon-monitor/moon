@@ -31,6 +31,7 @@ message Data {
     string params = 7;
     bool debug = 8;
     bool use_system_log = 9;
+    string db_name = 10;
   }
   config.Database main = 1;
   Database biz = 2;
