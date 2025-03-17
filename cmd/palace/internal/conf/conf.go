@@ -22,7 +22,7 @@ func (c *Data_Database) GenDsn(dbName string) string {
 	switch c.GetDriver() {
 	case config.Database_MYSQL:
 		if validate.TextIsNull(dsn) {
-			dsn = fmt.Sprintf("%s:%s@tcp(%s:%d)/%s", c.GetUser(), c.GetPassword(), c.GetHost(), c.GetPort(), dbName)
+			dsn = fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?%s", c.GetUser(), c.GetPassword(), c.GetHost(), c.GetPort(), dbName, c.GetParams())
 		}
 	}
 	return dsn

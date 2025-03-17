@@ -92,7 +92,7 @@ func (d *Data) createDatabase(c *conf.Data_Database, sqlDB *sql.DB, teamID uint3
 	if teamDo.Capacity.AllowGroup() && c.IsGroup() {
 		dbName = fmt.Sprintf("%s_%d", dbName, teamID)
 	}
-	dsn := c.GenDsn(dbName)
+
 	switch c.GetDriver() {
 	case config.Database_MYSQL:
 		expr := fmt.Sprintf("CREATE DATABASE IF NOT EXISTS `%s` DEFAULT CHARACTER SET utf8mb4 DEFAULT COLLATE utf8mb4_general_ci;", dbName)
@@ -100,6 +100,7 @@ func (d *Data) createDatabase(c *conf.Data_Database, sqlDB *sql.DB, teamID uint3
 			return nil, err
 		}
 	}
+	dsn := c.GenDsn(dbName)
 
 	databaseConf := &config.Database{
 		Driver:       c.GetDriver(),

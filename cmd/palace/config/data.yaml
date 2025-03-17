@@ -9,11 +9,23 @@ data:
     dsn: ${X_MOON_DATA_BIZ_DSN:file:biz.db?cache=shared&mode=rwc}
     debug: ${X_MOON_DATA_BIZ_DEBUG:true}
     use_system_log: ${X_MOON_DATA_BIZ_USE_SYSTEM_LOG:false}
+    user: ${X_MOON_DATA_BIZ_USER:}
+    password: ${X_MOON_DATA_BIZ_PASSWORD:}
+    host: ${X_MOON_DATA_BIZ_HOST:127.0.0.1}
+    port: ${X_MOON_DATA_BIZ_PORT:3306}
+    params: ${X_MOON_DATA_BIZ_PARAMS:charset=utf8mb4&parseTime=True&loc=Local}
+    db_name: ${X_MOON_DATA_BIZ_DB_NAME:moon_palace_biz}
   alarm:
     driver: ${X_MOON_DATA_ALARM_DRIVER:SQLITE}
     dsn: ${X_MOON_DATA_ALARM_DSN:file:alarm.db?cache=shared&mode=rwc}
     debug: ${X_MOON_DATA_ALARM_DEBUG:true}
     use_system_log: ${X_MOON_DATA_ALARM_USE_SYSTEM_LOG:false}
+    user: ${X_MOON_DATA_ALARM_USER:}
+    password: ${X_MOON_DATA_ALARM_PASSWORD:}
+    host: ${X_MOON_DATA_ALARM_HOST:127.0.0.1}
+    port: ${X_MOON_DATA_ALARM_PORT:3306}
+    params: ${X_MOON_DATA_ALARM_PARAMS:charset=utf8mb4&parseTime=True&loc=Local}
+    db_name: ${X_MOON_DATA_ALARM_DB_NAME:moon_palace_alarm}
 
 cache:
   driver: ${X_MOON_CACHE_DRIVER:MEMORY}
