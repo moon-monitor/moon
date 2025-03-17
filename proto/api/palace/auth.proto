@@ -51,6 +51,13 @@ service Auth {
       body: "*"
     };
   }
+
+  rpc OAuth2List(OAuth2ListRequest) returns (OAuth2ListReply) {
+    option (google.api.http) = {
+      post: "/api/auth/oauth2/list"
+      body: "*"
+    };
+  }
 }
 
 message CaptchaValidateRequest {
@@ -169,4 +176,18 @@ message VerifyEmailRequest {
 }
 message VerifyEmailReply {
   int64 expired_seconds = 2;
+}
+
+message OAuth2ListRequest {}
+message OAuth2ListReply {
+  message OAuthItem {
+    // 图标
+    string icon = 1;
+    // 标签
+    string label = 2;
+    // 重定向地址
+    string redirect = 3;
+  }
+
+  repeated OAuthItem items = 1;
 }

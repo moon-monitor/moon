@@ -12,6 +12,7 @@ import (
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/bo"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/vobj"
+	"github.com/moon-monitor/moon/cmd/palace/internal/conf"
 	"github.com/moon-monitor/moon/cmd/palace/internal/helper/permission"
 	palacev1 "github.com/moon-monitor/moon/pkg/api/palace"
 	"github.com/moon-monitor/moon/pkg/merr"
@@ -22,13 +23,32 @@ type AuthService struct {
 
 	authBiz *biz.AuthBiz
 
+	oauth2List []*palacev1.OAuth2ListReply_OAuthItem
+
 	helper *log.Helper
 }
 
-func NewAuthService(authBiz *biz.AuthBiz, logger log.Logger) *AuthService {
+func builderOAuth2List(oauth2 *conf.Auth_OAuth2) []*palacev1.OAuth2ListReply_OAuthItem {
+	if !oauth2.GetEnable() {
+		return nil
+	}
+	list := oauth2.GetConfigs()
+	oauthList := make([]*palacev1.OAuth2ListReply_OAuthItem, 0, len(list))
+	for _, oauth := range list {
+		oauthList = append(oauthList, &palacev1.OAuth2ListReply_OAuthItem{
+			Icon:     oauth.GetApp().String(),
+			Label:    oauth.GetApp().String() + " login",
+			Redirect: oauth.GetAuthUrl(),
+		})
+	}
+	return oauthList
+}
+
+func NewAuthService(bc *conf.Bootstrap, authBiz *biz.AuthBiz, logger log.Logger) *AuthService {
 	return &AuthService{
-		authBiz: authBiz,
-		helper:  log.NewHelper(log.With(logger, "module", "service.auth")),
+		authBiz:    authBiz,
+		oauth2List: builderOAuth2List(bc.GetAuth().GetOauth2()),
+		helper:     log.NewHelper(log.With(logger, "module", "service.auth")),
 	}
 }
 
@@ -138,6 +158,10 @@ func (s *AuthService) RefreshToken(ctx context.Context, req *palacev1.RefreshTok
 		return nil, err
 	}
 	return loginSign.LoginReply(), nil
+}
+
+func (s *AuthService) OAuth2List(_ context.Context, _ *palacev1.OAuth2ListRequest) (*palacev1.OAuth2ListReply, error) {
+	return &palacev1.OAuth2ListReply{Items: s.oauth2List}, nil
 }
 
 // OAuthLogin oauth login

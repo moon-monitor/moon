@@ -2,6 +2,7 @@ package server
 
 import (
 	nethttp "net/http"
+	"strings"
 
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/go-kratos/kratos/v2/middleware/logging"
@@ -9,10 +10,11 @@ import (
 	"github.com/go-kratos/kratos/v2/middleware/selector"
 	"github.com/go-kratos/kratos/v2/middleware/tracing"
 	"github.com/go-kratos/kratos/v2/transport/http"
-	"github.com/moon-monitor/moon/cmd/palace/internal/service"
 
+	"github.com/moon-monitor/moon/cmd/palace/internal/biz/vobj"
 	"github.com/moon-monitor/moon/cmd/palace/internal/conf"
 	"github.com/moon-monitor/moon/cmd/palace/internal/helper/middleware"
+	"github.com/moon-monitor/moon/cmd/palace/internal/service"
 )
 
 // NewHTTPServer new an HTTP server.
@@ -48,6 +50,7 @@ func NewHTTPServer(bc *conf.Bootstrap, authService *service.AuthService, logger 
 	srv := http.NewServer(opts...)
 
 	registerDocs(bc, srv)
+	registerOAuth2(bc.GetAuth().GetOauth2(), srv, authService)
 
 	return srv
 }
@@ -57,4 +60,18 @@ func registerDocs(c *conf.Bootstrap, srv *http.Server) {
 		return
 	}
 	srv.HandlePrefix("/doc/", nethttp.StripPrefix("/doc/", nethttp.FileServer(nethttp.Dir("./swagger"))))
+}
+
+func registerOAuth2(c *conf.Auth_OAuth2, httpSrv *http.Server, authService *service.AuthService) {
+	if !c.GetEnable() {
+		return
+	}
+	auth := httpSrv.Route("/auth")
+	list := c.GetConfigs()
+	for _, config := range list {
+		app := vobj.OAuthAPP(config.GetApp())
+		appRoute := auth.Group(strings.ToLower(app.String()))
+		appRoute.GET("/", authService.OAuthLogin(app))
+		appRoute.GET("/callback", authService.OAuthLoginCallback(app))
+	}
 }
