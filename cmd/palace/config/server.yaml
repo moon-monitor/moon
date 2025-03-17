@@ -1,39 +1,34 @@
-environment: DEV
+environment: ${X_MOON_ENVIRONMENT:DEV}
 
 server:
-  name: ${X_SERVER_NAME:palace}
+  name: ${X_MOON_SERVER_NAME:palace}
   metadata:
-    secret: ${X_SERVER_SECRET:}
+    secret: ${X_MOON_SERVER_SECRET:}
   http:
-    network: ${X_HTTP_NETWORK:tcp}
-    addr: ${X_HTTP_ADDR:0.0.0.0:8080}
-    timeout: ${X_HTTP_TIMEOUT:5s}
+    network: ${X_MOON_HTTP_NETWORK:tcp}
+    addr: ${X_MOON_HTTP_ADDR:0.0.0.0:8080}
+    timeout: ${X_MOON_HTTP_TIMEOUT:5s}
     allow_operations:
       - /api.palace.Auth/GetCaptcha
-      - /api.palace.Auth/LoginByEmail
       - /api.palace.Auth/LoginByPassword
       - /api.palace.Auth/VerifyEmail
-      - /api.palace.Auth/RegisterByEmail
       - /api.palace.Auth/LoginByEmail
       - /api.palace.Auth/OAuthLoginByEmail
       - /api.palace.Auth/OAuth2List
-    allow_headers: ${X_HTTP_ALLOW_HEADERS:['*']}
-    allow_methods: ${X_HTTP_ALLOW_METHODS:['*']}
-    allow_origins: ${X_HTTP_ALLOW_ORIGINS:['*']}
+    allow_headers: ${X_MOON_HTTP_ALLOW_HEADERS:['*']}
+    allow_methods: ${X_MOON_HTTP_ALLOW_METHODS:['*']}
+    allow_origins: ${X_MOON_HTTP_ALLOW_ORIGINS:['*']}
 
   grpc:
-    network: ${X_GRPC_NETWORK:tcp}
-    addr: ${X_GRPC_ADDR:0.0.0.0:9090}
-    timeout: ${X_GRPC_TIMEOUT:5s}
+    network: ${X_MOON_GRPC_NETWORK:tcp}
+    addr: ${X_MOON_GRPC_ADDR:0.0.0.0:9090}
+    timeout: ${X_MOON_GRPC_TIMEOUT:5s}
 
 registry:
-  driver: ${X_REGISTRY_DRIVER:ETCD}
-  enable: ${X_REGISTRY_ENABLE:false}
+  driver: ${X_MOON_REGISTRY_DRIVER:ETCD}
+  enable: ${X_MOON_REGISTRY_ENABLE:false}
   etcd:
-    endpoints:
-      -  ${X_REGISTRY_ETCD_ENDPOINTS:127.0.0.1:2379}
-      -  ${X_REGISTRY_ETCD_ENDPOINTS:127.0.0.1:2380}
-      -  ${X_REGISTRY_ETCD_ENDPOINTS:127.0.0.1:2381}
-    timeout: ${X_REGISTRY_ETCD_TIMEOUT:5s}
-    username: ${X_REGISTRY_ETCD_USERNAME:}
-    password: ${X_REGISTRY_ETCD_PASSWORD:}
+    endpoints: ${X_MOON_REGISTRY_ETCD_ENDPOINTS:['127.0.0.1:2379']}
+    timeout: ${X_MOON_REGISTRY_ETCD_TIMEOUT:5s}
+    username: ${X_MOON_REGISTRY_ETCD_USERNAME:}
+    password: ${X_MOON_REGISTRY_ETCD_PASSWORD:}

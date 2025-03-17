@@ -1,6 +1,6 @@
 email:
-  enable: ${X_EMAIL_ENABLE:false}
-  user: ${X_EMAIL_USER:user}
-  pass: ${X_EMAIL_PASSWORD:pass}
-  host: ${X_EMAIL_HOST:smtp.example.com}
-  port: ${X_EMAIL_PORT:587}
+  enable: ${X_MOON_EMAIL_ENABLE:false}
+  user: ${X_MOON_EMAIL_USER:user}
+  pass: ${X_MOON_EMAIL_PASSWORD:pass}
+  host: ${X_MOON_EMAIL_HOST:smtp.example.com}
+  port: ${X_MOON_EMAIL_PORT:587}

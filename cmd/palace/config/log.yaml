@@ -1,9 +1,9 @@
 log:
-  driver: ${X_LOG_DRIVER:DEFAULT}
-  level: ${X_LOG_LEVEL:INFO}
+  driver: ${X_MOON_LOG_DRIVER:DEFAULT}
+  level: ${X_MOON_LOG_LEVEL:INFO}
   sugared:
-    format: ${X_LOG_FORMAT:console}
-    output: ${X_LOG_OUTPUT:stdout}
-    disable_caller: ${X_LOG_DISABLE_CALLER:false}
-    disable_stacktrace: ${X_LOG_DISABLE_STACKTRACE:true}
-    enable_color: ${X_LOG_DISABLE_TIMESTAMP:false}
+    format: ${X_MOON_LOG_SUGARED_FORMAT:console}
+    output: ${X_MOON_LOG_SUGARED_OUTPUT:stdout}
+    disable_caller: ${X_MOON_LOG_SUGARED_DISABLE_CALLER:false}
+    disable_stacktrace: ${X_MOON_LOG_SUGARED_DISABLE_STACKTRACE:true}
+    enable_color: ${X_MOON_LOG_SUGARED_DISABLE_TIMESTAMP:false}
