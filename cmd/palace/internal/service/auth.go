@@ -11,6 +11,8 @@ import (
 
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/bo"
+	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do"
+	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do/system"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/vobj"
 	"github.com/moon-monitor/moon/cmd/palace/internal/conf"
 	"github.com/moon-monitor/moon/cmd/palace/internal/helper/permission"
@@ -42,6 +44,13 @@ func builderOAuth2List(oauth2 *conf.Auth_OAuth2) []*palacev1.OAuth2ListReply_OAu
 		})
 	}
 	return oauthList
+}
+
+func login(loginSign *bo.LoginSign, err error) (*palacev1.LoginReply, error) {
+	if err != nil {
+		return nil, err
+	}
+	return loginSign.LoginReply(), nil
 }
 
 func NewAuthService(bc *conf.Bootstrap, authBiz *biz.AuthBiz, logger log.Logger) *AuthService {
@@ -79,11 +88,7 @@ func (s *AuthService) LoginByPassword(ctx context.Context, req *palacev1.LoginBy
 		Email:    req.GetEmail(),
 		Password: req.GetPassword(),
 	}
-	loginSign, err := s.authBiz.LoginByPassword(ctx, loginReq)
-	if err != nil {
-		return nil, err
-	}
-	return loginSign.LoginReply(), nil
+	return login(s.authBiz.LoginByPassword(ctx, loginReq))
 }
 
 func (s *AuthService) Logout(ctx context.Context, req *palacev1.LogoutRequest) (*palacev1.LogoutReply, error) {
@@ -121,7 +126,51 @@ func (s *AuthService) VerifyEmail(ctx context.Context, req *palacev1.VerifyEmail
 	return &palacev1.VerifyEmailReply{ExpiredSeconds: int64(5 * time.Minute.Seconds())}, nil
 }
 
+func (s *AuthService) RegisterByEmail(ctx context.Context, req *palacev1.RegisterByEmailRequest) (*palacev1.RegisterByEmailReply, error) {
+	captchaReq := req.GetCaptcha()
+	captchaVerify := &bo.CaptchaVerify{
+		Id:     captchaReq.GetCaptchaId(),
+		Answer: captchaReq.GetAnswer(),
+		Clear:  true,
+	}
+
+	if err := s.authBiz.VerifyCaptcha(ctx, captchaVerify); err != nil {
+		return nil, err
+	}
+	authLoginParams, err := s.authBiz.RegisterByEmail(ctx, req.GetEmail())
+	if err != nil {
+		return nil, err
+	}
+	return &palacev1.RegisterByEmailReply{
+		Token:          authLoginParams.Token,
+		ExpiredSeconds: int64(5 * time.Minute.Seconds()),
+		App:            int32(authLoginParams.APP),
+		OauthID:        authLoginParams.OAuthID,
+	}, nil
+}
+
 func (s *AuthService) LoginByEmail(ctx context.Context, req *palacev1.LoginByEmailRequest) (*palacev1.LoginReply, error) {
+	oauthParams := &bo.OAuthLoginParams{
+		APP:     vobj.OAuthAPP(req.GetApp()),
+		Code:    req.GetCode(),
+		Email:   req.GetEmail(),
+		OAuthID: 0,
+		Token:   req.GetToken(),
+	}
+	userDo := &system.User{
+		BaseModel: do.BaseModel{},
+		Username:  req.GetUsername(),
+		Nickname:  req.GetNickname(),
+		Email:     req.GetEmail(),
+		Remark:    req.GetRemark(),
+		Gender:    vobj.Gender(req.GetGender()),
+		Position:  vobj.RoleUser,
+		Status:    vobj.UserStatusNormal,
+	}
+	return login(s.authBiz.LoginWithEmail(ctx, oauthParams, userDo))
+}
+
+func (s *AuthService) OAuthLoginByEmail(ctx context.Context, req *palacev1.OAuthLoginByEmailRequest) (*palacev1.LoginReply, error) {
 	oauthParams := &bo.OAuthLoginParams{
 		APP:     vobj.OAuthAPP(req.GetApp()),
 		Code:    req.GetCode(),
@@ -129,18 +178,14 @@ func (s *AuthService) LoginByEmail(ctx context.Context, req *palacev1.LoginByEma
 		OAuthID: req.GetOauthID(),
 		Token:   req.GetToken(),
 	}
-	loginSign, err := s.authBiz.OAuthLoginWithEmail(ctx, oauthParams)
-	if err != nil {
-		return nil, err
-	}
-	return loginSign.LoginReply(), nil
+	return login(s.authBiz.OAuthLoginWithEmail(ctx, oauthParams))
 }
 
 func (s *AuthService) VerifyToken(ctx context.Context, token string) error {
 	return s.authBiz.VerifyToken(ctx, token)
 }
 
-func (s *AuthService) RefreshToken(ctx context.Context, req *palacev1.RefreshTokenRequest) (*palacev1.LoginReply, error) {
+func (s *AuthService) RefreshToken(ctx context.Context, _ *palacev1.RefreshTokenRequest) (*palacev1.LoginReply, error) {
 	token, ok := permission.GetTokenByContext(ctx)
 	if !ok {
 		return nil, merr.ErrorUnauthorized("token error")
@@ -153,11 +198,7 @@ func (s *AuthService) RefreshToken(ctx context.Context, req *palacev1.RefreshTok
 		Token:  token,
 		UserID: userID,
 	}
-	loginSign, err := s.authBiz.RefreshToken(ctx, refreshReq)
-	if err != nil {
-		return nil, err
-	}
-	return loginSign.LoginReply(), nil
+	return login(s.authBiz.RefreshToken(ctx, refreshReq))
 }
 
 func (s *AuthService) OAuth2List(_ context.Context, _ *palacev1.OAuth2ListRequest) (*palacev1.OAuth2ListReply, error) {

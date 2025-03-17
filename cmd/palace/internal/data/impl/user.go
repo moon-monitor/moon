@@ -54,35 +54,40 @@ func (u *userRepoImpl) CreateUserWithOAuthUser(ctx context.Context, user bo.IOAu
 	if !merr.IsUserNotFound(err) {
 		return nil, err
 	}
-	pass := password.New(password.GenerateRandomPassword(8))
-	enValue, err := pass.EnValue()
-	if err != nil {
-		return nil, err
-	}
 	userDo = &system.User{
 		BaseModel: do.BaseModel{},
 		Username:  user.GetUsername(),
 		Nickname:  user.GetNickname(),
-		Password:  enValue,
+		Password:  "",
 		Email:     user.GetEmail(),
 		Phone:     "",
 		Remark:    user.GetRemark(),
 		Avatar:    user.GetAvatar(),
-		Salt:      pass.Salt(),
+		Salt:      "",
 		Gender:    vobj.GenderUnknown,
 		Position:  vobj.RoleUser,
 		Status:    vobj.UserStatusNormal,
 		Roles:     nil,
 	}
-	userMutation := systemQuery.Use(u.GetMainDB().GetDB()).User
-	if err = userMutation.WithContext(ctx).Create(userDo); err != nil {
-		return nil, err
-	}
+	return u.Create(ctx, userDo)
+}
 
-	if err = u.sendUserPassword(userDo, pass.PValue()); err != nil {
+func (u *userRepoImpl) Create(ctx context.Context, user *system.User) (*system.User, error) {
+	pass := password.New(password.GenerateRandomPassword(8))
+	enValue, err := pass.EnValue()
+	if err != nil {
 		return nil, err
 	}
-	return userDo, nil
+	user.Password = enValue
+	user.Salt = pass.Salt()
+	userMutation := systemQuery.Use(u.GetMainDB().GetDB()).User
+	if err = userMutation.WithContext(ctx).Create(user); err != nil {
+		return nil, err
+	}
+	if err = u.sendUserPassword(user, pass.PValue()); err != nil {
+		return nil, err
+	}
+	return user, nil
 }
 
 func (u *userRepoImpl) FindByID(ctx context.Context, userID uint32) (*system.User, error) {

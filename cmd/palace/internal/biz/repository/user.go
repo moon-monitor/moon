@@ -12,4 +12,5 @@ type User interface {
 	FindByEmail(ctx context.Context, email string) (*system.User, error)
 	CreateUserWithOAuthUser(ctx context.Context, user bo.IOAuthUser) (*system.User, error)
 	SetEmail(ctx context.Context, user *system.User) (*system.User, error)
+	Create(ctx context.Context, user *system.User) (*system.User, error)
 }

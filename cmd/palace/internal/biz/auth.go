@@ -356,3 +356,39 @@ func (a *AuthBiz) VerifyOAuthLoginEmail(ctx context.Context, oauthParams *bo.OAu
 	oauthParams.Code = code
 	return a.cacheRepo.SendVerifyEmailCode(ctx, oauthParams)
 }
+
+// RegisterByEmail 注册账号
+func (a *AuthBiz) RegisterByEmail(ctx context.Context, email string) (*bo.OAuthLoginParams, error) {
+	oauthParams := &bo.OAuthLoginParams{
+		APP:     vobj.OAuthAPPEmail,
+		Code:    strings.ToUpper(password.MD5(time.Now().String())[:6]),
+		Email:   email,
+		OAuthID: 0,
+		Token:   password.MD5(password.GenerateRandomPassword(64)),
+	}
+	if err := a.cacheRepo.CacheVerifyOAuthToken(ctx, oauthParams); err != nil {
+		return nil, err
+	}
+	if err := a.cacheRepo.SendVerifyEmailCode(ctx, oauthParams); err != nil {
+		return nil, err
+	}
+	return oauthParams, nil
+}
+
+// LoginWithEmail 邮箱登录
+func (a *AuthBiz) LoginWithEmail(ctx context.Context, oauthParams *bo.OAuthLoginParams, user *system.User) (*bo.LoginSign, error) {
+	// 校验临时token
+	if err := a.cacheRepo.VerifyOAuthToken(ctx, oauthParams); err != nil {
+		return nil, err
+	}
+	userDo, err := a.userRepo.FindByEmail(ctx, oauthParams.Email)
+	if err == nil {
+		return a.login(userDo)
+	}
+	userDo = user
+	userDo, err = a.userRepo.Create(ctx, userDo)
+	if err != nil {
+		return nil, err
+	}
+	return a.login(userDo)
+}

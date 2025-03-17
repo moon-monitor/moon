@@ -31,9 +31,23 @@ service Auth {
     };
   }
 
+  rpc RegisterByEmail(RegisterByEmailRequest) returns (RegisterByEmailReply) {
+    option (google.api.http) = {
+      post: "/api/auth/register/email"
+      body: "*"
+    };
+  }
+
   rpc LoginByEmail(LoginByEmailRequest) returns (LoginReply) {
     option (google.api.http) = {
       post: "/api/auth/login/email"
+      body: "*"
+    };
+  }
+
+  rpc OAuthLoginByEmail(OAuthLoginByEmailRequest) returns (LoginReply) {
+    option (google.api.http) = {
+      post: "/api/auth/oauth2/login/email"
       body: "*"
     };
   }
@@ -113,6 +127,43 @@ message LoginByPasswordRequest {
   CaptchaValidateRequest captcha = 3 [(buf.validate.field).required = true];
 }
 message LoginByEmailRequest {
+  string username = 1 [(buf.validate.field).cel = {
+    message: "username is required"
+    expression: "this.size() > 0"
+  }, (buf.validate.field).cel = {
+    message: "username max length is 32"
+    expression: "this.size() <= 32"
+  }];
+  string email = 2 [(buf.validate.field).cel = {
+    message: "email is required"
+    expression: "this.size() > 0"
+  }, (buf.validate.field).cel = {
+    message: "email is invalid"
+    expression: "this.isEmail()"
+  }];
+  string code = 3 [(buf.validate.field).cel = {
+    message: "code is required"
+    expression: "this.size() > 0"
+  }];
+  string token = 4 [(buf.validate.field).cel = {
+    message: "token is required"
+    expression: "this.size() > 0"
+  }];
+  int32 app = 5 [(buf.validate.field).cel = {
+    message: "app is required"
+    expression: "this > 0"
+  }];
+  string nickname = 6 [(buf.validate.field).cel = {
+    message: "nickname max length is 32"
+    expression: "this.size() <= 32"
+  }];
+  string remark = 7 [(buf.validate.field).cel = {
+    message: "remark max length is 200"
+    expression: "this.size() <= 200"
+  }];
+  Gender gender = 8;
+}
+message OAuthLoginByEmailRequest {
   uint32 oauthID = 1 [(buf.validate.field).cel = {
     message: "oauthID is required"
     expression: "this > 0"
@@ -190,4 +241,21 @@ message OAuth2ListReply {
   }
 
   repeated OAuthItem items = 1;
+}
+
+message RegisterByEmailRequest {
+  string email = 1 [(buf.validate.field).cel = {
+    message: "email is required"
+    expression: "this.size() > 0"
+  }, (buf.validate.field).cel = {
+    message: "email is invalid"
+    expression: "this.isEmail()"
+  }];
+  CaptchaValidateRequest captcha = 2 [(buf.validate.field).required = true];
+}
+message RegisterByEmailReply {
+  string token = 1;
+  int64 expired_seconds = 2;
+  int32 app = 3;
+  uint32 oauthID = 4;
 }
