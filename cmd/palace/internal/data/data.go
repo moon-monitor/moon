@@ -5,10 +5,11 @@ import (
 
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/google/wire"
-	"github.com/moon-monitor/moon/pkg/plugin/email"
 
 	"github.com/moon-monitor/moon/cmd/palace/internal/conf"
+	"github.com/moon-monitor/moon/pkg/config"
 	"github.com/moon-monitor/moon/pkg/plugin/cache"
+	"github.com/moon-monitor/moon/pkg/plugin/email"
 	"github.com/moon-monitor/moon/pkg/plugin/gorm"
 	"github.com/moon-monitor/moon/pkg/util/safety"
 )
@@ -17,6 +18,7 @@ import (
 var ProviderSetData = wire.NewSet(New)
 
 type Data struct {
+	dataConf       *conf.Data
 	mainDB         gorm.DB
 	bizDB, eventDB *safety.Map[uint32, gorm.DB]
 	cache          cache.Cache
@@ -29,20 +31,44 @@ func (d *Data) GetMainDB() gorm.DB {
 	return d.mainDB
 }
 
-func (d *Data) GetBizDB(teamID uint32) gorm.DB {
+func (d *Data) GetBizDB(teamID uint32) (gorm.DB, error) {
 	db, ok := d.bizDB.Get(teamID)
 	if !ok {
-		// TODO create a new DB instance
+		return db, nil
 	}
-	return db
+	bizConf := d.dataConf.GetBiz()
+	c := &config.Database{
+		Driver:       bizConf.GetDriver(),
+		Dsn:          fmt.Sprintf(bizConf.GetDsn(), teamID),
+		Debug:        bizConf.GetDebug(),
+		UseSystemLog: bizConf.GetUseSystemLog(),
+	}
+	gormDB, err := gorm.NewDB(c)
+	if err != nil {
+		return nil, err
+	}
+	d.bizDB.Set(teamID, gormDB)
+	return d.GetBizDB(teamID)
 }
 
-func (d *Data) GetEventDB(teamID uint32) gorm.DB {
+func (d *Data) GetEventDB(teamID uint32) (gorm.DB, error) {
 	db, ok := d.eventDB.Get(teamID)
-	if !ok {
-		// TODO create a new DB instance
+	if ok {
+		return db, nil
 	}
-	return db
+	eventConf := d.dataConf.GetAlarm()
+	c := &config.Database{
+		Driver:       eventConf.GetDriver(),
+		Dsn:          fmt.Sprintf(eventConf.GetDsn(), teamID),
+		Debug:        eventConf.GetDebug(),
+		UseSystemLog: eventConf.GetUseSystemLog(),
+	}
+	gormDB, err := gorm.NewDB(c)
+	if err != nil {
+		return nil, err
+	}
+	d.bizDB.Set(teamID, gormDB)
+	return d.GetEventDB(teamID)
 }
 
 func (d *Data) GetCache() cache.Cache {
@@ -55,14 +81,17 @@ func (d *Data) GetEmail() email.Email {
 
 // New a data and returns.
 func New(c *conf.Bootstrap, logger log.Logger) (*Data, func(), error) {
-	var (
-		data Data
-		err  error
-	)
-	data.email = email.New(c.GetEmail())
-	data.bizDB = safety.NewMap[uint32, gorm.DB]()
-	data.eventDB = safety.NewMap[uint32, gorm.DB]()
-	data.helper = log.NewHelper(log.With(logger, "module", "data"))
+	var err error
+	data := &Data{
+		dataConf: c.GetData(),
+		mainDB:   nil,
+		bizDB:    safety.NewMap[uint32, gorm.DB](),
+		eventDB:  safety.NewMap[uint32, gorm.DB](),
+		cache:    nil,
+		email:    email.New(c.GetEmail()),
+		helper:   log.NewHelper(log.With(logger, "module", "data")),
+	}
+
 	dataConf := c.GetData()
 	data.mainDB, err = gorm.NewDB(dataConf.GetMain())
 	if err != nil {
@@ -73,9 +102,7 @@ func New(c *conf.Bootstrap, logger log.Logger) (*Data, func(), error) {
 		return nil, nil, err
 	}
 
-	// TODO get all team, to init bizDB, alarmDB
-
-	return &data, func() {
+	return data, func() {
 		data.helper.Info("closing the data resources")
 		if err = data.mainDB.Close(); err != nil {
 			data.helper.Errorw("method", "close main db", "err", err)

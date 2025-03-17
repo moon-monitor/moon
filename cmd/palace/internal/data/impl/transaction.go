@@ -87,7 +87,11 @@ func (t *transactionRepoImpl) BizExec(ctx context.Context, fn func(ctx context.C
 	if !ok {
 		return merr.ErrorInternalServerError("team id not found").WithMetadata(map[string]string{"method": "BizExec"})
 	}
-	return t.GetBizDB(teamID).GetDB().Transaction(func(tx *gorm.DB) error {
+	bizDB, err := t.GetBizDB(teamID)
+	if err != nil {
+		return merr.ErrorInternalServerError("biz db not found").WithMetadata(map[string]string{"method": "BizExec"}).WithCause(err)
+	}
+	return bizDB.GetDB().Transaction(func(tx *gorm.DB) error {
 		txCtx := WithBizTXContext(ctx, tx)
 		return fn(txCtx)
 	})
@@ -102,7 +106,11 @@ func (t *transactionRepoImpl) EventExec(ctx context.Context, fn func(ctx context
 	if !ok {
 		return merr.ErrorInternalServerError("team id not found").WithMetadata(map[string]string{"method": "EventExec"})
 	}
-	return t.GetEventDB(teamID).GetDB().Transaction(func(tx *gorm.DB) error {
+	eventDB, err := t.GetEventDB(teamID)
+	if err != nil {
+		return merr.ErrorInternalServerError("event db not found").WithMetadata(map[string]string{"method": "EventExec"}).WithCause(err)
+	}
+	return eventDB.GetDB().Transaction(func(tx *gorm.DB) error {
 		txCtx := WithEventTXContext(ctx, tx)
 		return fn(txCtx)
 	})
