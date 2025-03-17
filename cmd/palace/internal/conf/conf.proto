@@ -21,9 +21,20 @@ message Bootstrap {
 }
 
 message Data {
+  message Database {
+    config.Database.Driver driver = 1;
+    string dsn = 2;
+    string user = 3;
+    string password = 4;
+    string host = 5;
+    int32 port = 6;
+    string params = 7;
+    bool debug = 8;
+    bool use_system_log = 9;
+  }
   config.Database main = 1;
-  config.Database biz = 2;
-  config.Database alarm = 3;
+  Database biz = 2;
+  Database alarm = 3;
 }
 
 message Auth {
