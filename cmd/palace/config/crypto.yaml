@@ -1,0 +1,6 @@
+crypto:
+  driver: ${X_MOON_CRYPTO_DRIVER:AES}
+  aes:
+    mode: ${X_MOON_CRYPTO_AES_MODE:CBC}
+    key: ${X_MOON_CRYPTO_AES_KEY:palace-secretKey}
+    iv: ${X_MOON_CRYPTO_AES_IV:palace-secret-iv}

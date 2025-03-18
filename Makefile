@@ -36,7 +36,7 @@ all:
 	make stringer-$(APP_NAME)
 	make conf-$(APP_NAME)
 	make wire-$(APP_NAME)
-	make gen
+	make gen-$(APP_NAME)
 
 .PHONY: api
 # generate api proto
@@ -70,10 +70,13 @@ conf:
            --go_out=paths=source_relative:./pkg/config \
            --experimental_allow_proto3_optional \
            ./proto/config/*.proto
-
 .PHONY: gen
-# generate gorm gen
 gen:
+	make gen-palace
+
+.PHONY: gen-palace
+# generate gorm gen
+gen-palace:
 	go run cmd/palace/migrate/gen/gen.go
 
 .PHONY: gen-system
