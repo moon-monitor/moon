@@ -109,3 +109,16 @@ func GetTokenByContext(ctx context.Context) (string, bool) {
 func WithTokenContext(ctx context.Context, token string) context.Context {
 	return context.WithValue(ctx, tokenContextKey{}, token)
 }
+
+type operationContextKey struct{}
+
+// GetOperationByContext Retrieve the operation from the context.
+func GetOperationByContext(ctx context.Context) (string, bool) {
+	operation, ok := ctx.Value(operationContextKey{}).(string)
+	return operation, ok
+}
+
+// WithOperationContext Set the operation in the context.
+func WithOperationContext(ctx context.Context, operation string) context.Context {
+	return context.WithValue(ctx, operationContextKey{}, operation)
+}

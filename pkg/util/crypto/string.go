@@ -6,6 +6,10 @@ import (
 
 type String string
 
+func (s String) EQ(a String) bool {
+	return string(s) == string(a)
+}
+
 func (s *String) Scan(value interface{}) error {
 	aes, err := WithAes()
 	if err != nil {

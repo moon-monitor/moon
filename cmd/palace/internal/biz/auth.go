@@ -16,6 +16,7 @@ import (
 	"github.com/moon-monitor/moon/cmd/palace/internal/helper/middleware"
 	"github.com/moon-monitor/moon/cmd/palace/internal/helper/permission"
 	"github.com/moon-monitor/moon/pkg/merr"
+	"github.com/moon-monitor/moon/pkg/util/crypto"
 	"github.com/moon-monitor/moon/pkg/util/password"
 	"github.com/moon-monitor/moon/pkg/util/safety"
 	"github.com/moon-monitor/moon/pkg/util/validate"
@@ -41,9 +42,11 @@ func buildOAuthConf(c *conf.Auth_OAuth2) *safety.Map[vobj.OAuthAPP, *oauth2.Conf
 func NewAuthBiz(
 	bc *conf.Bootstrap,
 	userRepo repository.User,
+	memberRepo repository.Member,
 	captchaRepo repository.Captcha,
 	cacheRepo repository.Cache,
 	oauthRepo repository.OAuth,
+	resourceRepo repository.Resource,
 	transaction repository.Transaction,
 	logger log.Logger,
 ) *AuthBiz {
@@ -52,9 +55,11 @@ func NewAuthBiz(
 		redirectURL:  bc.GetAuth().GetOauth2().GetRedirectUri(),
 		oauthConfigs: buildOAuthConf(bc.GetAuth().GetOauth2()),
 		userRepo:     userRepo,
+		memberRepo:   memberRepo,
 		captchaRepo:  captchaRepo,
 		cacheRepo:    cacheRepo,
 		oauthRepo:    oauthRepo,
+		resourceRepo: resourceRepo,
 		transaction:  transaction,
 		helper:       log.NewHelper(log.With(logger, "module", "biz.auth")),
 	}
@@ -65,11 +70,13 @@ type AuthBiz struct {
 	redirectURL  string
 	oauthConfigs *safety.Map[vobj.OAuthAPP, *oauth2.Config]
 
-	userRepo    repository.User
-	captchaRepo repository.Captcha
-	cacheRepo   repository.Cache
-	oauthRepo   repository.OAuth
-	transaction repository.Transaction
+	userRepo     repository.User
+	memberRepo   repository.Member
+	captchaRepo  repository.Captcha
+	cacheRepo    repository.Cache
+	oauthRepo    repository.OAuth
+	resourceRepo repository.Resource
+	transaction  repository.Transaction
 
 	helper *log.Helper
 }
@@ -114,9 +121,143 @@ func (a *AuthBiz) VerifyToken(ctx context.Context, token string) error {
 	return nil
 }
 
+// VerifyPermission verify permission
+func (a *AuthBiz) VerifyPermission(ctx context.Context) error {
+	operation, ok := permission.GetOperationByContext(ctx)
+	if !ok {
+		return merr.ErrorBadRequest("operation is invalid")
+	}
+	resourceDo, err := a.resourceRepo.GetResourceByOperation(ctx, operation)
+	if err != nil {
+		return err
+	}
+	if !resourceDo.Status.IsEnabled() {
+		return merr.ErrorPermissionDenied("permission denied")
+	}
+
+	userID, ok := permission.GetUserIDByContext(ctx)
+	if !ok {
+		return merr.ErrorBadRequest("user id is invalid")
+	}
+	userDo, err := a.userRepo.FindByID(ctx, userID)
+	if err != nil {
+		return err
+	}
+	if !userDo.Status.IsNormal() {
+		return merr.ErrorUserForbidden("user forbidden")
+	}
+
+	if resourceDo.Allow.IsNone() || resourceDo.Allow.IsUser() {
+		return nil
+	}
+
+	systemPosition, err := a.verifyPermissionWithSystemPosition(ctx, userDo)
+	if err != nil {
+		return err
+	}
+	if systemPosition.IsAdminOrSuperAdmin() {
+		return nil
+	}
+	if err := a.verifyPermissionWithSystemRBAC(ctx, userDo, resourceDo); err != nil {
+		return err
+	}
+	teamPosition, memberDo, err := a.verifyPermissionWithTeamPosition(ctx, userDo)
+	if err != nil {
+		return err
+	}
+	if teamPosition.IsAdminOrSuperAdmin() {
+		return nil
+	}
+
+	if err := a.verifyPermissionWithTeamRBAC(ctx, memberDo, resourceDo); err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (a *AuthBiz) verifyPermissionWithSystemPosition(ctx context.Context, userDo *system.User) (vobj.Role, error) {
+	sysPosition, ok := permission.GetSysPositionByContext(ctx)
+	if !ok {
+		return userDo.Position, nil
+	}
+	if userDo.Position.GTE(sysPosition) {
+		return sysPosition, nil
+	}
+	return 0, merr.ErrorPermissionDenied(fmt.Sprintf("Your current role [%s] is not allowed to access this resource", sysPosition))
+}
+
+func (a *AuthBiz) verifyPermissionWithSystemRBAC(ctx context.Context, userDo *system.User, resourceDo *system.Resource) error {
+	if !resourceDo.Allow.IsSystemRBAC() {
+		return nil
+	}
+	sysRoleID, ok := permission.GetSysRoleIDByContext(ctx)
+	if ok {
+		// 判断角色是否存在，且该角色具备次API权限
+		systemRoleDo, ok := validate.SliceFindByValue(userDo.Roles, sysRoleID, func(role *system.Role) uint32 {
+			return role.ID
+		})
+		if !ok {
+			return merr.ErrorPermissionDenied("User role is invalid.")
+		}
+		if !systemRoleDo.Status.IsNormal() {
+			return merr.ErrorPermissionDenied("role is invalid [%s]", systemRoleDo.Status)
+		}
+		_, ok = validate.SliceFindByValue(systemRoleDo.Resources, resourceDo.ID, func(role *system.Resource) uint32 {
+			return role.ID
+		})
+		if ok {
+			return nil
+		}
+		return merr.ErrorPermissionDenied("User role resource is invalid.")
+	}
+	resources := make([]*system.Resource, 0, len(userDo.Roles)*10)
+	for _, role := range userDo.Roles {
+		if role.Status.IsNormal() {
+			resources = append(resources, role.Resources...)
+		}
+	}
+	_, ok = validate.SliceFindByValue(resources, resourceDo.ID, func(role *system.Resource) uint32 {
+		return role.ID
+	})
+	if ok {
+		return nil
+	}
+	return merr.ErrorPermissionDenied("User role resource is invalid.")
+}
+
+func (a *AuthBiz) verifyPermissionWithTeamPosition(ctx context.Context, userDo *system.User) (vobj.Role, *system.TeamMember, error) {
+	memberDo, err := a.memberRepo.FindByUserID(ctx, userDo.ID)
+	if err != nil {
+		return 0, nil, err
+	}
+	if !memberDo.Status.IsNormal() {
+		return 0, nil, merr.ErrorPermissionDenied("team member is invalid [%s]", memberDo.Status)
+	}
+	teamPosition, ok := permission.GetTeamPositionByContext(ctx)
+	if !ok {
+		return memberDo.Position, memberDo, nil
+	}
+	if memberDo.Position.GTE(teamPosition) {
+		return teamPosition, memberDo, nil
+	}
+	return 0, nil, merr.ErrorPermissionDenied("Your current team role [%s] is not allowed to access this resource", teamPosition)
+}
+
+func (a *AuthBiz) verifyPermissionWithTeamRBAC(ctx context.Context, memberDo *system.TeamMember, resourceDo *system.Resource) error {
+	if !resourceDo.Allow.IsTeamRBAC() {
+		return nil
+	}
+	teamRoleID, ok := permission.GetTeamRoleIDByContext(ctx)
+	if ok {
+		teamRoleDo, ok :=
+	}
+	return nil
+}
+
 // LoginByPassword login by password
 func (a *AuthBiz) LoginByPassword(ctx context.Context, req *bo.LoginByPassword) (*bo.LoginSign, error) {
-	user, err := a.userRepo.FindByEmail(ctx, req.Email)
+	user, err := a.userRepo.FindByEmail(ctx, crypto.String(req.Email))
 	if err != nil {
 		return nil, merr.ErrorPasswordError("password error").WithCause(err)
 	}
@@ -252,7 +393,7 @@ func (a *AuthBiz) oauthUserFirstOrCreate(ctx context.Context, userInfo bo.IOAuth
 		}
 		oauthUserDoExist = false
 	}
-	userDo, err := a.userRepo.FindByEmail(ctx, userInfo.GetEmail())
+	userDo, err := a.userRepo.FindByEmail(ctx, crypto.String(userInfo.GetEmail()))
 	if err != nil {
 		if !merr.IsUserNotFound(err) {
 			return nil, err
@@ -336,11 +477,11 @@ func (a *AuthBiz) OAuthLoginWithEmail(ctx context.Context, oauthParams *bo.OAuth
 			"exist": "false",
 		})
 	}
-	if userDo.Email == oauthParams.Email {
+	if userDo.Email.EQ(crypto.String(oauthParams.Email)) {
 		return a.login(oauthUserDo.User)
 	}
 
-	userDo.Email = oauthParams.Email
+	userDo.Email = crypto.String(oauthParams.Email)
 	userDo, err = a.userRepo.SetEmail(ctx, userDo)
 	if err != nil {
 		return nil, err
@@ -355,7 +496,7 @@ func (a *AuthBiz) VerifyEmail(ctx context.Context, email string) error {
 
 // LoginWithEmail 邮箱登录
 func (a *AuthBiz) LoginWithEmail(ctx context.Context, code string, user *system.User) (*bo.LoginSign, error) {
-	if err := a.cacheRepo.VerifyEmailCode(ctx, user.Email, code); err != nil {
+	if err := a.cacheRepo.VerifyEmailCode(ctx, string(user.Email), code); err != nil {
 		return nil, err
 	}
 	userDo, err := a.userRepo.FindByEmail(ctx, user.Email)

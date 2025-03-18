@@ -9,9 +9,10 @@ const tableNameTeamMember = "sys_team_members"
 
 type TeamMember struct {
 	do.TeamModel
-	UserID    uint32    `gorm:"column:user_id;type:int unsigned;not null;comment:用户ID" json:"user_id,omitempty"`
-	InviterID uint32    `gorm:"column:inviter_id;type:int unsigned;not null;comment:邀请者ID" json:"inviter_id,omitempty"`
-	Position  vobj.Role `gorm:"column:position;type:tinyint(2);not null;comment:职位" json:"position"`
+	UserID    uint32            `gorm:"column:user_id;type:int unsigned;not null;comment:用户ID" json:"user_id,omitempty"`
+	InviterID uint32            `gorm:"column:inviter_id;type:int unsigned;not null;comment:邀请者ID" json:"inviter_id,omitempty"`
+	Position  vobj.Role         `gorm:"column:position;type:tinyint(2);not null;comment:职位" json:"position"`
+	Status    vobj.MemberStatus `gorm:"column:status;type:tinyint(2);not null;comment:状态" json:"status"`
 
 	User    *User       `gorm:"foreignKey:UserID;references:ID" json:"user"`
 	Inviter *User       `gorm:"foreignKey:InviterID;references:ID" json:"inviter"`

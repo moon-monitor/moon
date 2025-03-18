@@ -16,6 +16,7 @@ enum ClientError {
 	PARAMS_ERROR = 3;
 	PASSWORD_ERROR = 4;
 	TEAM_NOT_FOUND = 5;
+	PERMISSION_DENIED = 6;
 }
 
 enum UnauthorizedError {

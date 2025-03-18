@@ -12,5 +12,4 @@ const (
 	ResourceAllowTeam                            // team
 	ResourceAllowTeamRBAC                        // team-rbac
 	ResourceAllowUser                            // user
-	ResourceAllowBan                             // ban
 )

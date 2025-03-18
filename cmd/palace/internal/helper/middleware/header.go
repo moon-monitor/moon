@@ -44,6 +44,8 @@ func withAllHeaders(ctx context.Context) (context.Context, error) {
 	if !ok {
 		return nil, merr.ErrorBadRequest("not allow request")
 	}
+
+	ctx = permission.WithOperationContext(ctx, tr.Operation())
 	if teamIDStr := tr.RequestHeader().Get(XHeaderTeamID); teamIDStr != "" {
 		teamID, err := strconv.ParseUint(teamIDStr, 10, 32)
 		if err != nil {

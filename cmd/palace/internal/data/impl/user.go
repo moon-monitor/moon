@@ -19,6 +19,7 @@ import (
 	"github.com/moon-monitor/moon/cmd/palace/internal/data"
 	systemQuery "github.com/moon-monitor/moon/cmd/palace/internal/data/query/system"
 	"github.com/moon-monitor/moon/pkg/merr"
+	"github.com/moon-monitor/moon/pkg/util/crypto"
 	"github.com/moon-monitor/moon/pkg/util/password"
 	"github.com/moon-monitor/moon/pkg/util/template"
 	"github.com/moon-monitor/moon/pkg/util/validate"
@@ -47,7 +48,7 @@ func userNotFound(err error) error {
 }
 
 func (u *userRepoImpl) CreateUserWithOAuthUser(ctx context.Context, user bo.IOAuthUser) (userDo *system.User, err error) {
-	userDo, err = u.FindByEmail(ctx, user.GetEmail())
+	userDo, err = u.FindByEmail(ctx, crypto.String(user.GetEmail()))
 	if err == nil {
 		return userDo, nil
 	}
@@ -59,7 +60,7 @@ func (u *userRepoImpl) CreateUserWithOAuthUser(ctx context.Context, user bo.IOAu
 		Username:  user.GetUsername(),
 		Nickname:  user.GetNickname(),
 		Password:  "",
-		Email:     user.GetEmail(),
+		Email:     crypto.String(user.GetEmail()),
 		Phone:     "",
 		Remark:    user.GetRemark(),
 		Avatar:    user.GetAvatar(),
@@ -92,14 +93,14 @@ func (u *userRepoImpl) Create(ctx context.Context, user *system.User) (*system.U
 
 func (u *userRepoImpl) FindByID(ctx context.Context, userID uint32) (*system.User, error) {
 	userQuery := systemQuery.Use(u.GetMainDB().GetDB()).User
-	user, err := userQuery.WithContext(ctx).Where(userQuery.ID.Eq(userID)).First()
+	user, err := userQuery.WithContext(ctx).Where(userQuery.ID.Eq(userID)).Preload(userQuery.Roles.Resources).First()
 	if err != nil {
 		return nil, userNotFound(err)
 	}
 	return user, nil
 }
 
-func (u *userRepoImpl) FindByEmail(ctx context.Context, email string) (*system.User, error) {
+func (u *userRepoImpl) FindByEmail(ctx context.Context, email crypto.String) (*system.User, error) {
 	userQuery := systemQuery.Use(u.GetMainDB().GetDB()).User
 	user, err := userQuery.WithContext(ctx).Where(userQuery.Email.Eq(email)).First()
 	if err != nil {
@@ -112,7 +113,7 @@ func (u *userRepoImpl) SetEmail(ctx context.Context, user *system.User) (*system
 	userMutation := systemQuery.Use(u.GetMainDB().GetDB()).User
 	wrapper := []gen.Condition{
 		userMutation.ID.Eq(user.ID),
-		userMutation.Email.Eq(""),
+		userMutation.Email.Eq(crypto.String("")),
 	}
 	pass := password.New(password.GenerateRandomPassword(8))
 	enValue, err := pass.EnValue()
@@ -145,12 +146,12 @@ func (u *userRepoImpl) SetEmail(ctx context.Context, user *system.User) (*system
 var welcomeEmailBody string
 
 func (u *userRepoImpl) sendUserPassword(user *system.User, pass string) error {
-	if err := validate.CheckEmail(user.Email); err != nil {
+	if err := validate.CheckEmail(string(user.Email)); err != nil {
 		return nil
 	}
 
 	bodyParams := map[string]string{
-		"Username":    user.Email,
+		"Username":    string(user.Email),
 		"Password":    pass,
 		"RedirectURI": u.bc.GetAuth().GetOauth2().GetRedirectUri(),
 	}
@@ -159,5 +160,5 @@ func (u *userRepoImpl) sendUserPassword(user *system.User, pass string) error {
 		return err
 	}
 	// 发送用户密码到用户邮箱
-	return u.GetEmail().SetSubject("Welcome to the Moon Monitoring System.").SetTo(user.Email).SetBody(emailBody, "text/html").Send()
+	return u.GetEmail().SetSubject("Welcome to the Moon Monitoring System.").SetTo(string(user.Email)).SetBody(emailBody, "text/html").Send()
 }
