@@ -43,6 +43,8 @@ Moon is an open-source project, and we welcome developers and technology enthusi
 
 ## How to Contribute
 
+1. **Read the Documentation**: Before starting, please read [GOPHER.md](./docs/dev/GOPHER.md) and [DEV.md](./docs/dev/DEV.md) and [COMMIT.md](./docs/dev/COMMIT.md).
+
 1. **Submit Issues**: If you find a bug or have a feature suggestion, please submit it in the [Issues](https://github.com/moon-monitor/moon/issues) section.
 
 2. **Submit Pull Requests**: If you have code contributions, feel free to fork the project and submit a [Pull Request](https://github.com/moon-monitor/moon/pulls). Ensure your code complies with the project's coding standards and passes all tests.
@@ -61,12 +63,12 @@ Thank you to all the developers who have contributed to the Moon project! Your e
 
 Moon is open-source under the [MIT License](LICENSE), and you are free to use and modify it.
 
-<hr>
+---
 
 # Moon - Simplifying Monitoring, Empowering Operations.
 
 [GitHub]() | [Documentation]() | [Community Forum]()
 
-<hr>
+---
 
 The Moon project is maintained by developers worldwide. We look forward to your participation!
