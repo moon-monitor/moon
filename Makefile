@@ -70,32 +70,29 @@ conf:
            --go_out=paths=source_relative:./pkg/config \
            --experimental_allow_proto3_optional \
            ./proto/config/*.proto
-.PHONY: gen
-gen:
-	make gen-palace
 
 .PHONY: gen-palace
 # generate gorm gen
 gen-palace:
 	go run cmd/palace/migrate/gen/gen.go
 
-.PHONY: gen-system
+.PHONY: gen-palace-system
 # generate gorm gen system
-gen-system:
+gen-palace-system:
 	go run cmd/palace/migrate/gen/gen.go sys
 
-.PHONY: gen-biz
-gen-biz:
+.PHONY: gen-palace-biz
+gen-palace-biz:
 	go run cmd/palace/migrate/gen/gen.go biz
 
-.PHONY: gen-event
-gen-event:
+.PHONY: gen-palace-event
+gen-palace-event:
 	go run cmd/palace/migrate/gen/gen.go event
-
 
 .PHONY: conf-palace
 # generate palace-config
 conf-palace:
+	make conf
 	protoc --proto_path=./proto/config \
            --proto_path=./proto/third_party \
            --proto_path=./cmd/palace/internal/conf \
