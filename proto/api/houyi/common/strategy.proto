@@ -1,0 +1,106 @@
+syntax = "proto3";
+
+package api.houyi.common;
+
+import "google/protobuf/duration.proto";
+import "houyi/common/team.proto";
+import "houyi/common/datasource.proto";
+
+option go_package = "github.com/moon-monitor/moon/pkg/api/houyi/common;common";
+option java_multiple_files = true;
+option java_package = "com.api.houyi.common";
+
+enum StrategyType {
+  METRIC = 0;
+  DOMAIN = 1;
+  HTTP = 2;
+  PING = 3;
+  EVENT = 4;
+  LOGS = 5;
+}
+
+message MetricStrategyItem {
+  // 判断条件
+  enum Condition {
+    // 等于
+    EQ = 0;
+    // 不等于
+    NE = 1;
+    // 大于
+    GT = 2;
+    // 大于等于
+    GTE = 3;
+    // 小于
+    LT = 4;
+    // 小于等于
+    LTE = 5;
+    // 在范围内
+    In = 6;
+    // 不在范围内
+    NotIn = 7;
+  }
+
+  // 采样方式
+  enum SampleMode {
+    // m时间内出现n次
+    For = 0;
+    // m时间内最多出现n次
+    Max = 1;
+    // m时间内最少出现n次
+    Min = 2;
+  }
+
+  message LabelNotices {
+    string key = 1;
+    string value = 2;
+    repeated string receiver_routes = 3;
+  }
+
+  message MetricRuleItem {
+    uint32 strategy_id = 1;
+    uint32 level_id = 2;
+    SampleMode sample_mode = 3;
+    int64 count = 4;
+    Condition condition = 5;
+    repeated double values = 6;
+    repeated string receiver_routes = 7;
+    repeated LabelNotices label_notices = 8;
+    google.protobuf.Duration duration = 9;
+  }
+
+  houyi.common.TeamItem team = 1;
+  repeated houyi.common.MetricDatasourceItem datasource = 2;
+  string name = 3;
+  string expr = 4;
+  repeated string receiver_routes = 5;
+  map<string, string> labels = 6;
+  map<string, string> annotations = 7;
+  uint32 strategy_id = 8;
+  repeated MetricRuleItem rules = 9;
+}
+
+message DomainStrategyItem {
+  TeamItem team = 1;
+}
+
+message HttpStrategyItem {
+  TeamItem team = 1;
+}
+
+message PingStrategyItem {
+  TeamItem team = 1;
+}
+
+message EventStrategyItem {
+  TeamItem team = 1;
+}
+
+message LogsStrategyItem {
+  TeamItem team = 1;
+}
+
+message RemoveStrategyItem {
+  StrategyType type = 1;
+  uint32 strategy_id = 2;
+  uint32 team_id = 3;
+}

@@ -1,0 +1,38 @@
+syntax = "proto3";
+
+package api.houyi.common;
+
+import "houyi/common/team.proto";
+
+option go_package = "github.com/moon-monitor/moon/pkg/api/houyi/common;common";
+option java_multiple_files = true;
+option java_package = "com.api.houyi.common";
+
+message BasicAuth {
+  string username = 1;
+  string password = 2;
+}
+
+message MetricDatasourceItem {
+  enum Driver {
+    // prometheus
+    PROMETHEUS = 0;
+    // victoria metrics
+    VICTORIA_METRICS = 1;
+  }
+
+  message Prometheus {
+    string endpoint = 1;
+    BasicAuth basic_auth = 2;
+  }
+
+  message VictoriaMetrics {
+    string endpoint = 1;
+    BasicAuth basic_auth = 2;
+  }
+
+  houyi.common.TeamItem team = 1;
+  Driver driver = 2;
+  Prometheus prometheus = 3;
+  VictoriaMetrics victoria_metrics = 4;
+}

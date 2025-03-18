@@ -1,0 +1,96 @@
+syntax = "proto3";
+
+package api.houyi.v1;
+
+import "google/api/annotations.proto";
+import "google/protobuf/timestamp.proto";
+import "houyi/common/strategy.proto";
+
+option go_package = "github.com/moon-monitor/moon/pkg/api/houyi/v1;v1";
+option java_multiple_files = true;
+option java_package = "com.api.houyi.v1";
+
+service Sync {
+	rpc MetricStrategy (MetricStrategyRequest) returns (SyncStrategyReply) {
+		option (google.api.http) = {
+			post: "/v1/sync/metric"
+			body: "*"
+		};
+	}
+
+	rpc DomainStrategy (DomainStrategyRequest) returns (SyncStrategyReply) {
+		option (google.api.http) = {
+			post: "/v1/sync/domain"
+			body: "*"
+		};
+	}
+
+	rpc HttpStrategy (HttpStrategyRequest) returns (SyncStrategyReply) {
+		option (google.api.http) = {
+			post: "/v1/sync/http"
+			body: "*"
+		};
+	}
+
+	rpc PingStrategy (PingStrategyRequest) returns (SyncStrategyReply) {
+		option (google.api.http) = {
+			post: "/v1/sync/ping"
+			body: "*"
+		};
+	}
+
+	rpc EventStrategy (EventStrategyRequest) returns (SyncStrategyReply) {
+		option (google.api.http) = {
+			post: "/v1/sync/event"
+			body: "*"
+		};
+	}
+
+	rpc LogsStrategy (LogsStrategyRequest) returns (SyncStrategyReply) {
+		option (google.api.http) = {
+			post: "/v1/sync/logs"
+			body: "*"
+		};
+	}
+
+	rpc RemoveStrategy (RemoveStrategyRequest) returns (SyncStrategyReply) {
+		option (google.api.http) = {
+			post: "/v1/sync/remove"
+			body: "*"
+		};
+	}
+}
+
+message MetricStrategyRequest {
+	google.protobuf.Timestamp sync_time = 1;
+	houyi.common.MetricStrategyItem strategies = 2;
+}
+message DomainStrategyRequest {
+	google.protobuf.Timestamp sync_time = 1;
+	houyi.common.DomainStrategyItem strategies = 2;
+}
+message HttpStrategyRequest {
+	google.protobuf.Timestamp sync_time = 1;
+	houyi.common.HttpStrategyItem strategies = 2;
+}
+message PingStrategyRequest {
+	google.protobuf.Timestamp sync_time = 1;
+	houyi.common.PingStrategyItem strategies = 2;
+}
+message EventStrategyRequest {
+	google.protobuf.Timestamp sync_time = 1;
+	houyi.common.EventStrategyItem strategies = 2;
+}
+message LogsStrategyRequest {
+	google.protobuf.Timestamp sync_time = 1;
+	houyi.common.LogsStrategyItem strategies = 2;
+}
+message RemoveStrategyRequest {
+	google.protobuf.Timestamp sync_time = 1;
+	repeated houyi.common.RemoveStrategyItem strategies = 2;
+}
+
+message SyncStrategyReply {
+	int32 code = 1;
+	string message = 2;
+}
