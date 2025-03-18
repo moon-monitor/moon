@@ -4,10 +4,7 @@ import (
 	"database/sql/driver"
 )
 
-type String struct {
-	original string
-	hash     []byte
-}
+type String string
 
 func (s *String) Scan(value interface{}) error {
 	aes, err := WithAes()
@@ -18,8 +15,7 @@ func (s *String) Scan(value interface{}) error {
 	if err != nil {
 		return err
 	}
-	s.hash = value.([]byte)
-	s.original = string(decrypt)
+	*s = String(decrypt)
 	return nil
 }
 
@@ -28,5 +24,5 @@ func (s String) Value() (driver.Value, error) {
 	if err != nil {
 		return nil, err
 	}
-	return aes.Encrypt([]byte(s.original))
+	return aes.Encrypt([]byte(s))
 }
