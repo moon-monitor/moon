@@ -35,16 +35,16 @@ const (
 // NewAes creates a new AES instance with the provided options.
 func NewAes(opts ...AesOption) (AES, error) {
 	a := &aesImpl{
-		key: []byte(defaultAesKey),
-		iv:  []byte(defaultAesIv),
-		mod: config.Crypto_AesConfig_MOD_CBC,
+		key:  []byte(defaultAesKey),
+		iv:   []byte(defaultAesIv),
+		mode: config.Crypto_AesConfig_CBC,
 	}
 
 	for _, opt := range opts {
 		opt(a)
 	}
 
-	if a.mod == config.Crypto_AesConfig_MOD_ECB {
+	if a.mode == config.Crypto_AesConfig_ECB {
 		key, err := aesSha1Padding(a.key, 128)
 		if err != nil {
 			return nil, err
@@ -90,7 +90,7 @@ func aesSha1Padding(keyBytes []byte, encryptLength int) ([]byte, error) {
 
 type aesImpl struct {
 	key, iv []byte
-	mod     config.Crypto_AesConfig_MOD
+	mode    config.Crypto_AesConfig_MODE
 
 	block cipher.Block
 }
@@ -104,29 +104,29 @@ type AES interface {
 
 // Encrypt encrypts the plaintext using AES.
 func (a *aesImpl) Encrypt(plaintext []byte) ([]byte, error) {
-	switch a.mod {
-	case config.Crypto_AesConfig_MOD_CBC:
+	switch a.mode {
+	case config.Crypto_AesConfig_CBC:
 		return a.encryptCBC(plaintext)
-	case config.Crypto_AesConfig_MOD_GCM:
+	case config.Crypto_AesConfig_GCM:
 		return a.encryptGCM(plaintext)
-	case config.Crypto_AesConfig_MOD_ECB:
+	case config.Crypto_AesConfig_ECB:
 		return a.encryptECB(plaintext)
 	default:
-		return nil, merr.ErrorInternalServerError("unsupported AES mode %v", a.mod)
+		return nil, merr.ErrorInternalServerError("unsupported AES mode %v", a.mode)
 	}
 }
 
 // Decrypt decrypts the ciphertext using AES.
 func (a *aesImpl) Decrypt(ciphertext []byte) ([]byte, error) {
-	switch a.mod {
-	case config.Crypto_AesConfig_MOD_CBC:
+	switch a.mode {
+	case config.Crypto_AesConfig_CBC:
 		return a.decryptCBC(ciphertext)
-	case config.Crypto_AesConfig_MOD_GCM:
+	case config.Crypto_AesConfig_GCM:
 		return a.decryptGCM(ciphertext)
-	case config.Crypto_AesConfig_MOD_ECB:
+	case config.Crypto_AesConfig_ECB:
 		return a.decryptECB(ciphertext)
 	default:
-		return nil, merr.ErrorInternalServerError("unsupported AES mode %v", a.mod)
+		return nil, merr.ErrorInternalServerError("unsupported AES mode %v", a.mode)
 	}
 }
 

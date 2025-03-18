@@ -7,6 +7,7 @@ import (
 
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/go-kratos/kratos/v2/transport/http"
+	"github.com/moon-monitor/moon/pkg/util/crypto"
 	"golang.org/x/oauth2"
 
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz"
@@ -124,7 +125,7 @@ func (s *AuthService) LoginByEmail(ctx context.Context, req *palacev1.LoginByEma
 		BaseModel: do.BaseModel{},
 		Username:  req.GetUsername(),
 		Nickname:  req.GetNickname(),
-		Email:     req.GetEmail(),
+		Email:     crypto.String(req.GetEmail()),
 		Remark:    req.GetRemark(),
 		Gender:    vobj.Gender(req.GetGender()),
 		Position:  vobj.RoleUser,

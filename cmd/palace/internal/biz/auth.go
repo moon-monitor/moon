@@ -250,9 +250,36 @@ func (a *AuthBiz) verifyPermissionWithTeamRBAC(ctx context.Context, memberDo *sy
 	}
 	teamRoleID, ok := permission.GetTeamRoleIDByContext(ctx)
 	if ok {
-		teamRoleDo, ok :=
+		teamRoleDo, ok := validate.SliceFindByValue(memberDo.Roles, teamRoleID, func(role *system.TeamRole) uint32 {
+			return role.ID
+		})
+		if !ok {
+			return merr.ErrorPermissionDenied("team role is invalid")
+		}
+		if !teamRoleDo.Status.IsNormal() {
+			return merr.ErrorPermissionDenied("team role is invalid [%s]", teamRoleDo.Status)
+		}
+		_, ok = validate.SliceFindByValue(teamRoleDo.Resources, resourceDo.ID, func(role *system.Resource) uint32 {
+			return role.ID
+		})
+		if ok {
+			return nil
+		}
+		return merr.ErrorPermissionDenied("team role resource is invalid.")
 	}
-	return nil
+	resources := make([]*system.Resource, 0, len(memberDo.Roles)*10)
+	for _, role := range memberDo.Roles {
+		if role.Status.IsNormal() {
+			resources = append(resources, role.Resources...)
+		}
+	}
+	_, ok = validate.SliceFindByValue(resources, resourceDo.ID, func(role *system.Resource) uint32 {
+		return role.ID
+	})
+	if ok {
+		return nil
+	}
+	return merr.ErrorPermissionDenied("team role resource is invalid.")
 }
 
 // LoginByPassword login by password

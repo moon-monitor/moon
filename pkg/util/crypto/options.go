@@ -19,8 +19,8 @@ func WithKey(key []byte) AesOption {
 }
 
 // WithMod sets the AES mode.
-func WithMod(mod config.Crypto_AesConfig_MOD) AesOption {
+func WithMod(mode config.Crypto_AesConfig_MODE) AesOption {
 	return func(a *aesImpl) {
-		a.mod = mod
+		a.mode = mode
 	}
 }

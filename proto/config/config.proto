@@ -122,21 +122,17 @@ message Cache {
 }
 
 message Crypto {
-  enum Driver {
-    Driver_AES = 0;
-  }
   message AesConfig {
-    enum MOD {
-      MOD_ECB = 0;
-      MOD_CBC = 1;
-      MOD_GCM = 2;
+    enum MODE {
+      ECB = 0;
+      CBC = 1;
+      GCM = 2;
     }
     string key = 1;
     string iv = 2;
-    MOD mod = 3;
+    MODE mode = 3;
   }
-  Driver driver = 1;
-  AesConfig aes = 2;
+  AesConfig aes = 1;
 }
 
 // 微服务配置
