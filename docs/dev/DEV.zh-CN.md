@@ -11,7 +11,7 @@
 
 # 写在前面
 
-在开发前，请确保你已经阅读了[README.md](../README.zh-CN.md), 以及[GOPHER.md](./GOPHER.zh-CN.md), 前者帮助你了解`Iter-X`,
+在开发前，请确保你已经阅读了[README.md](../README.zh-CN.md), 以及[GOPHER.md](./GOPHER.zh-CN.md), 前者帮助你了解`Moon`,
 后者给你一些关于此项目的编程经验和团队规范
 
 # 环境篇
