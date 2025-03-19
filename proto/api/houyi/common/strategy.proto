@@ -12,11 +12,12 @@ option java_package = "com.api.houyi.common";
 
 enum StrategyType {
   METRIC = 0;
-  DOMAIN = 1;
-  HTTP = 2;
-  PING = 3;
-  EVENT = 4;
-  LOGS = 5;
+  EVENT = 1;
+  LOGS = 2;
+  CERTIFICATE = 3;
+  PORT = 4;
+  HTTP = 5;
+  PING = 6;
 }
 
 message MetricStrategyItem {
@@ -79,24 +80,110 @@ message MetricStrategyItem {
   repeated MetricRuleItem rules = 9;
 }
 
-message DomainStrategyItem {
-  TeamItem team = 1;
+message CertificateStrategyItem {
+  // 判断条件
+  enum Condition {
+    // 等于
+    EQ = 0;
+    // 大于
+    GT = 1;
+    // 大于等于
+    GTE = 2;
+    // 小于
+    LT = 3;
+    // 小于等于
+    LTE = 4;
+    // 在当前时间之前
+    Before = 5;
+    // 在当前时间之后
+    After = 6;
+  }
+
+  message CertificateRuleItem {
+    uint32 strategy_id = 1;
+    uint32 level_id = 2;
+    Condition condition = 3;
+    int64 value = 4; // day or timestamp
+    repeated string receiver_routes = 5;
+  }
+
+  houyi.common.TeamItem team = 1;
+  repeated houyi.common.CertificateDatasourceItem datasource = 2;
+  string name = 3;
+  repeated string receiver_routes = 4;
+  map<string, string> labels = 5;
+  map<string, string> annotations = 6;
+  uint32 strategy_id = 7;
+  repeated CertificateRuleItem rules = 8;
+}
+
+message ServerPortStrategyItem {
+  enum Condition {
+    // 关闭
+    CLOSE = 0;
+    // 打开
+    OPEN = 1;
+  }
+  houyi.common.TeamItem team = 1;
+  repeated houyi.common.ServerPortDatasourceItem datasource = 2;
+  string name = 3;
+  repeated string receiver_routes = 4;
+  map<string, string> labels = 5;
+  map<string, string> annotations = 6;
+  uint32 strategy_id = 7;
+  Condition condition = 8;
 }
 
 message HttpStrategyItem {
-  TeamItem team = 1;
+  enum Condition {
+    // 等于
+    EQ = 0;
+    // 大于
+    GT = 1;
+    // 大于等于
+    GTE = 2;
+    // 小于
+    LT = 3;
+    // 小于等于
+    LTE = 4;
+  }
+
+  enum Judgment {
+    OR = 0;
+    AND = 1;
+  }
+
+  message HttpRuleItem {
+    uint32 strategy_id = 1;
+    uint32 level_id = 2;
+    Condition response_time_condition = 3;
+    google.protobuf.Duration response_time = 4;
+    Condition status_code_condition = 5;
+    int32 status_code = 6;
+    Judgment judgment = 7;
+    repeated string receiver_routes = 8;
+  }
+
+  houyi.common.TeamItem team = 1;
+  repeated houyi.common.HttpDatasourceItem datasource = 2;
+  string name = 3;
+  repeated string receiver_routes = 4;
+  map<string, string> labels = 5;
+  map<string, string> annotations = 6;
+  uint32 strategy_id = 7;
+  repeated HttpRuleItem rules = 8;
 }
 
 message PingStrategyItem {
-  TeamItem team = 1;
+  houyi.common.TeamItem team = 1;
 }
 
 message EventStrategyItem {
-  TeamItem team = 1;
+  houyi.common.TeamItem team = 1;
 }
 
 message LogsStrategyItem {
-  TeamItem team = 1;
+  houyi.common.TeamItem team = 1;
 }
 
 message RemoveStrategyItem {

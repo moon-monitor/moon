@@ -18,9 +18,16 @@ service Sync {
 		};
 	}
 
-	rpc DomainStrategy (DomainStrategyRequest) returns (SyncStrategyReply) {
+	rpc CertificateStrategy (CertificateStrategyRequest) returns (SyncStrategyReply) {
 		option (google.api.http) = {
-			post: "/v1/sync/domain"
+			post: "/v1/sync/certificate"
+			body: "*"
+		};
+	}
+
+	rpc ServerPortStrategy (ServerPortStrategyRequest) returns (SyncStrategyReply) {
+		option (google.api.http) = {
+			post: "/v1/sync/server-port"
 			body: "*"
 		};
 	}
@@ -65,9 +72,13 @@ message MetricStrategyRequest {
 	google.protobuf.Timestamp sync_time = 1;
 	houyi.common.MetricStrategyItem strategies = 2;
 }
-message DomainStrategyRequest {
+message CertificateStrategyRequest {
 	google.protobuf.Timestamp sync_time = 1;
-	houyi.common.DomainStrategyItem strategies = 2;
+	houyi.common.CertificateStrategyItem strategies = 2;
+}
+message ServerPortStrategyRequest {
+	google.protobuf.Timestamp sync_time = 1;
+	houyi.common.ServerPortStrategyItem strategies = 2;
 }
 message HttpStrategyRequest {
 	google.protobuf.Timestamp sync_time = 1;
