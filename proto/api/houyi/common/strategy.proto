@@ -175,7 +175,36 @@ message HttpStrategyItem {
 }
 
 message PingStrategyItem {
+  enum Condition {
+    // 等于
+    EQ = 0;
+    // 大于
+    GT = 1;
+    // 大于等于
+    GTE = 2;
+    // 小于
+    LT = 3;
+    // 小于等于
+    LTE = 4;
+  }
+
+  message PingRuleItem {
+    uint32 strategy_id = 1;
+    uint32 level_id = 2;
+    Condition response_time_condition = 3;
+    google.protobuf.Duration response_time = 4;
+    repeated string receiver_routes = 5;
+  }
+
   houyi.common.TeamItem team = 1;
+  repeated houyi.common.PingDatasourceItem datasource = 2;
+  string name = 3;
+  repeated string receiver_routes = 4;
+  map<string, string> labels = 5;
+  map<string, string> annotations = 6;
+  uint32 strategy_id = 7;
+  repeated PingRuleItem rules = 8;
+  bool loss_packet = 9;
 }
 
 message EventStrategyItem {
