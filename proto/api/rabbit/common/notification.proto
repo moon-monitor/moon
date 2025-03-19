@@ -1,0 +1,51 @@
+syntax = "proto3";
+
+package api.rabbit.common;
+
+option go_package = "github.com/moon-monitor/moon/pkg/api/rabbit/common;common";
+option java_multiple_files = true;
+option java_package = "com.api.rabbit.common";
+
+enum HookAPP {
+  OTHER = 0;
+  DINGTALK = 1;
+  WECHAT = 2;
+  FEISHU = 3;
+}
+
+message HookItem {
+  HookAPP app = 1;
+  string url = 2;
+  string secret = 3;
+  string token = 4;
+}
+
+message Recipient {
+  repeated string emails = 1;
+  repeated string sms = 2;
+  repeated string voices = 3;
+  repeated HookItem hooks = 4;
+}
+
+message Template {
+  message Email {
+    string subject = 1;
+    string body = 2;
+    string content_type = 3;
+    string attachment = 4;
+  }
+
+  message Hook {
+    HookAPP app = 1;
+    map<string, string> templates = 2;
+  }
+
+  map<string, Email> emails = 1;
+  repeated Hook hooks = 3;
+}
+
+message NoticeGroup {
+  uint32 id = 1;
+  string name = 2;
+  Recipient recipient = 3;
+}
