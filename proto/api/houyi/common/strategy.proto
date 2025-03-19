@@ -66,7 +66,6 @@ message MetricStrategyItem {
     repeated double values = 6;
     repeated string receiver_routes = 7;
     repeated LabelNotices label_notices = 8;
-    google.protobuf.Duration duration = 9;
   }
 
   houyi.common.TeamItem team = 1;
@@ -78,6 +77,7 @@ message MetricStrategyItem {
   map<string, string> annotations = 7;
   uint32 strategy_id = 8;
   repeated MetricRuleItem rules = 9;
+  google.protobuf.Duration duration = 10;
 }
 
 message CertificateStrategyItem {
@@ -208,11 +208,127 @@ message PingStrategyItem {
 }
 
 message EventStrategyItem {
+  enum DataType {
+    STRING = 0;
+    NUMBER = 1;
+    BOOLEAN = 2;
+  }
+
+  enum StringCondition {
+    // 等于
+    StringEQ = 0;
+    // 不等于
+    StringNE = 1;
+    // 包含
+    StringContains = 2;
+    // 不包含
+    StringNotContains = 3;
+    // 前缀
+    StringPrefix = 4;
+    // 后缀
+    StringSuffix = 5;
+    // 正则匹配
+    StringRegex = 6;
+  }
+
+  enum NumberCondition {
+    // 等于
+    NumberEQ = 0;
+    // 不等于
+    NumberNE = 1;
+    // 大于
+    NumberGT = 2;
+    // 大于等于
+    NumberGTE = 3;
+    // 小于
+    NumberLT = 4;
+    // 小于等于
+    NumberLTE = 5;
+  }
+
+  enum BooleanCondition {
+    // 等于
+    BooleanEQ = 0;
+    // 不等于
+    BooleanNE = 1;
+  }
+
+  message LabelNotices {
+    string index = 1;
+    string value = 2;
+    repeated string receiver_routes = 3;
+  }
+
+  message EventRuleItem {
+    uint32 strategy_id = 1;
+    uint32 level_id = 2;
+    DataType data_type = 3;
+    string index = 4;
+    string value = 5;
+    StringCondition string_condition = 6;
+    NumberCondition number_condition = 7;
+    BooleanCondition boolean_condition = 8;
+    repeated string receiver_routes = 9;
+    repeated LabelNotices label_notices = 10;
+  }
+
   houyi.common.TeamItem team = 1;
+  repeated houyi.common.EventDatasourceItem datasource = 2;
+  string name = 3;
+  string topic = 4;
+  repeated string receiver_routes = 5;
+  map<string, string> labels = 6;
+  map<string, string> annotations = 7;
+  uint32 strategy_id = 8;
+  repeated EventRuleItem rules = 9;
 }
 
 message LogsStrategyItem {
+  enum Condition {
+    // 等于
+    EQ = 0;
+    // 不等于
+    NE = 1;
+    // 大于
+    GT = 2;
+    // 大于等于
+    GTE = 3;
+    // 小于
+    LT = 4;
+    // 小于等于
+    LTE = 5;
+  }
+
+  // 采样方式
+  enum SampleMode {
+    // m时间内出现n次
+    For = 0;
+    // m时间内最多出现n次
+    Max = 1;
+    // m时间内最少出现n次
+    Min = 2;
+  }
+
+  message LogsRuleItem {
+    uint32 strategy_id = 1;
+    uint32 level_id = 2;
+    Condition condition = 3;
+    int64 value = 4;
+    string keyword = 5;
+    SampleMode sample_mode = 6;
+    repeated string receiver_routes = 7;
+  }
+
   houyi.common.TeamItem team = 1;
+  repeated houyi.common.LogDatasourceItem datasource = 2;
+  string name = 3;
+  string expr = 4;
+  repeated string receiver_routes = 5;
+  map<string, string> labels = 6;
+  map<string, string> annotations = 7;
+  uint32 strategy_id = 8;
+  repeated LogsRuleItem rules = 9;
+  google.protobuf.Duration duration = 10;
 }
 
 message RemoveStrategyItem {
