@@ -17,7 +17,6 @@ WORKDIR /moon
 
 COPY --from=builder /moon/bin /moon/bin
 COPY --from=builder /moon/cmd/${APP_NAME}/config /moon/config
-COPY --from=builder /moon/swagger /moon/swagger
 
 RUN mv /moon/bin/${APP_NAME} /moon/bin/server
 

@@ -1,0 +1,20 @@
+receivers:
+  - id: 1
+    name: xxx
+    team_id: 1
+    recipient:
+      emails:
+        - 123@qq:com
+        - 1234@qq:com
+      smss:
+        - 12345678901
+      voices: []
+      hooks:
+        - dingtalk
+        - wechat
+        - feishu
+        - other
+    templates:
+      email: xxx_template
+      sms: xxx_template
+      hook: xxx_template

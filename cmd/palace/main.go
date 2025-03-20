@@ -12,6 +12,7 @@ import (
 	mlog "github.com/moon-monitor/moon/pkg/log"
 	"github.com/moon-monitor/moon/pkg/plugin/registry"
 	"github.com/moon-monitor/moon/pkg/plugin/server"
+	"github.com/moon-monitor/moon/pkg/util/load"
 )
 
 // Version is the version of the compiled software.
@@ -38,8 +39,8 @@ func main() {
 }
 
 func run(cfgPath string) {
-	bc, err := conf.Load(cfgPath)
-	if err != nil {
+	var bc conf.Bootstrap
+	if err := load.Load(cfgPath, &bc); err != nil {
 		panic(err)
 	}
 	logger, err := mlog.New(bc.IsDev(), bc.GetLog())
@@ -47,7 +48,7 @@ func run(cfgPath string) {
 		panic(err)
 	}
 
-	app, cleanup, err := wireApp(bc, logger)
+	app, cleanup, err := wireApp(&bc, logger)
 	if err != nil {
 		panic(err)
 	}
@@ -61,6 +62,7 @@ func newApp(c *conf.Bootstrap, srv *server.Server, logger log.Logger) *kratos.Ap
 	serverConf := c.GetServer()
 	envOpts := []hello.Option{
 		hello.WithVersion(Version),
+		hello.WithEnv(c.GetEnvironment()),
 		hello.WithName(serverConf.GetName()),
 		hello.WithMetadata(serverConf.GetMetadata()),
 	}

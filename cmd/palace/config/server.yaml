@@ -9,6 +9,7 @@ server:
     addr: ${X_MOON_HTTP_ADDR:0.0.0.0:8080}
     timeout: ${X_MOON_HTTP_TIMEOUT:5s}
     allow_operations:
+      - /api.common.Health/Check
       - /api.palace.Auth/GetCaptcha
       - /api.palace.Auth/LoginByPassword
       - /api.palace.Auth/VerifyEmail

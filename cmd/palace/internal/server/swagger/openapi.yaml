@@ -1,0 +1,280 @@
+# Generated with protoc-gen-openapi
+# https://github.com/google/gnostic/tree/master/cmd/protoc-gen-openapi
+
+openapi: 3.0.3
+info:
+    title: ""
+    version: 0.0.1
+paths:
+    /api/auth/captcha:
+        get:
+            tags:
+                - Auth
+            operationId: Auth_GetCaptcha
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.palace.GetCaptchaReply'
+    /api/auth/login/email:
+        post:
+            tags:
+                - Auth
+            operationId: Auth_LoginByEmail
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/api.palace.LoginByEmailRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.palace.LoginReply'
+    /api/auth/logout:
+        post:
+            tags:
+                - Auth
+            operationId: Auth_Logout
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/api.palace.LogoutRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.palace.LogoutReply'
+    /api/auth/oauth2/list:
+        post:
+            tags:
+                - Auth
+            operationId: Auth_OAuth2List
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/api.palace.OAuth2ListRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.palace.OAuth2ListReply'
+    /api/auth/oauth2/login/email:
+        post:
+            tags:
+                - Auth
+            operationId: Auth_OAuthLoginByEmail
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/api.palace.OAuthLoginByEmailRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.palace.LoginReply'
+    /api/auth/refresh:
+        post:
+            tags:
+                - Auth
+            operationId: Auth_RefreshToken
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/api.palace.RefreshTokenRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.palace.LoginReply'
+    /api/auth/verify/email:
+        post:
+            tags:
+                - Auth
+            operationId: Auth_VerifyEmail
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/api.palace.VerifyEmailRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.palace.VerifyEmailReply'
+    /health:
+        get:
+            tags:
+                - Health
+            operationId: Health_Check
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.common.CheckReply'
+components:
+    schemas:
+        api.common.CheckReply:
+            type: object
+            properties:
+                healthy:
+                    type: boolean
+                version:
+                    type: string
+        api.palace.CaptchaValidateRequest:
+            type: object
+            properties:
+                captchaId:
+                    type: string
+                answer:
+                    type: string
+        api.palace.GetCaptchaReply:
+            type: object
+            properties:
+                captchaId:
+                    type: string
+                captchaImg:
+                    type: string
+                expiredSeconds:
+                    type: string
+        api.palace.LoginByEmailRequest:
+            type: object
+            properties:
+                username:
+                    type: string
+                email:
+                    type: string
+                code:
+                    type: string
+                nickname:
+                    type: string
+                remark:
+                    type: string
+                gender:
+                    type: integer
+                    format: enum
+        api.palace.LoginByPasswordRequest:
+            type: object
+            properties:
+                email:
+                    type: string
+                password:
+                    type: string
+                captcha:
+                    $ref: '#/components/schemas/api.palace.CaptchaValidateRequest'
+        api.palace.LoginReply:
+            type: object
+            properties:
+                token:
+                    type: string
+                expiredSeconds:
+                    type: string
+                user:
+                    $ref: '#/components/schemas/api.palace.UserBaseItem'
+        api.palace.LogoutReply:
+            type: object
+            properties:
+                redirect:
+                    type: string
+        api.palace.LogoutRequest:
+            type: object
+            properties:
+                redirect:
+                    type: string
+        api.palace.OAuth2ListReply:
+            type: object
+            properties:
+                items:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/api.palace.OAuth2ListReply_OAuthItem'
+        api.palace.OAuth2ListReply_OAuthItem:
+            type: object
+            properties:
+                icon:
+                    type: string
+                    description: 图标
+                label:
+                    type: string
+                    description: 标签
+                redirect:
+                    type: string
+                    description: 重定向地址
+        api.palace.OAuth2ListRequest:
+            type: object
+            properties: {}
+        api.palace.OAuthLoginByEmailRequest:
+            type: object
+            properties:
+                oauthID:
+                    type: integer
+                    format: uint32
+                email:
+                    type: string
+                code:
+                    type: string
+                token:
+                    type: string
+                app:
+                    type: integer
+                    format: int32
+        api.palace.RefreshTokenRequest:
+            type: object
+            properties: {}
+        api.palace.UserBaseItem:
+            type: object
+            properties:
+                username:
+                    type: string
+                nickname:
+                    type: string
+                avatar:
+                    type: string
+                gender:
+                    type: integer
+                    format: enum
+                userId:
+                    type: integer
+                    format: uint32
+        api.palace.VerifyEmailReply:
+            type: object
+            properties:
+                expiredSeconds:
+                    type: string
+        api.palace.VerifyEmailRequest:
+            type: object
+            properties:
+                email:
+                    type: string
+                captcha:
+                    $ref: '#/components/schemas/api.palace.CaptchaValidateRequest'
+tags:
+    - name: Auth
+    - name: Health
+      description: Health Check API

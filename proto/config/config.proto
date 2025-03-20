@@ -218,6 +218,7 @@ message EmailConfig {
   // 发送的邮箱端口
   uint32 port = 4;
   bool enable = 5;
+  string name = 6;
 }
 
 message Log {
@@ -378,4 +379,12 @@ message Event {
   optional Mqtt mqtt = 3;
   // kafka配置
   optional Kafka kafka = 4;
+}
+
+message AliyunSMSConfig {
+  string access_key_id = 1;
+  string access_key_secret = 2;
+  string sign_name = 3;
+  string endpoint = 4;
+  string name = 5;
 }

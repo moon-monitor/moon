@@ -9,10 +9,10 @@ ifeq ($(GOHOSTOS), windows)
 	#Git_Bash= $(subst cmd\,bin\bash.exe,$(dir $(shell where git)))
 	Git_Bash=$(subst \,/,$(subst cmd\,bin\bash.exe,$(dir $(shell where git))))
 	INTERNAL_PROTO_FILES=$(shell $(Git_Bash) -c "find cmd -name *.proto")
-	API_PROTO_FILES=$(shell $(Git_Bash) -c "find proto/api -name *.proto")
+	API_PROTO_FILES=$(shell $(Git_Bash) -c "find proto/api/$(APP_NAME) -name *.proto")
 else
 	INTERNAL_PROTO_FILES=$(shell find cmd -name *.proto)
-	API_PROTO_FILES=$(shell find proto/api -name *.proto)
+	API_PROTO_FILES=$(shell find proto/api/$(APP_NAME) -name *.proto)
 endif
 
 .PHONY: init
@@ -43,13 +43,15 @@ all:
 api:
 	mkdir -p ./pkg/api
 	protoc --proto_path=./proto/api \
+	       --proto_path=./proto/api \
+	       --proto_path=./proto/config \
 	       --proto_path=./proto/third_party \
  	       --go_out=paths=source_relative:./pkg/api \
  	       --go-http_out=paths=source_relative:./pkg/api \
  	       --go-grpc_out=paths=source_relative:./pkg/api \
-	       --openapi_out=fq_schema_naming=true,default_response=false:./swagger \
+	       --openapi_out=fq_schema_naming=true,default_response=false:./cmd/$(APP_NAME)/internal/server/swagger \
 	       --experimental_allow_proto3_optional \
-	       $(API_PROTO_FILES)
+	       $(API_PROTO_FILES) ./proto/api/common/*.proto
 
 .PHONY: errors
 # generate errors
@@ -76,19 +78,6 @@ conf:
 gen-palace:
 	go run cmd/palace/migrate/gen/gen.go
 
-.PHONY: gen-palace-system
-# generate gorm gen system
-gen-palace-system:
-	go run cmd/palace/migrate/gen/gen.go sys
-
-.PHONY: gen-palace-biz
-gen-palace-biz:
-	go run cmd/palace/migrate/gen/gen.go biz
-
-.PHONY: gen-palace-event
-gen-palace-event:
-	go run cmd/palace/migrate/gen/gen.go event
-
 .PHONY: conf-palace
 # generate palace-config
 conf-palace:
@@ -100,13 +89,37 @@ conf-palace:
            --experimental_allow_proto3_optional \
            ./cmd/palace/internal/conf/*.proto
 
+.PHONY: conf-rabbit
+conf-rabbit:
+	make conf
+	make api app=rabbit
+	protoc --proto_path=./proto/config \
+           --proto_path=./proto/api \
+           --proto_path=./proto/third_party \
+           --proto_path=./cmd/rabbit/internal/conf \
+           --go_out=paths=source_relative:./cmd/rabbit/internal/conf \
+           --experimental_allow_proto3_optional \
+           ./cmd/rabbit/internal/conf/*.proto
+		   
 .PPHONY: wire-palace
 wire-palace:
 	cd ./cmd/palace && wire
 
+.PHONY: wire-rabbit
+wire-rabbit:
+	cd ./cmd/rabbit && wire
+
 .PPHONY: stringer-palace
 stringer-palace:
 	cd ./cmd/palace/internal/biz/vobj && go generate
+
+.PHONY: stringer-rabbit
+stringer-rabbit:
+	@echo "Generating rabbit proto"
+
+.PHONY: gen-rabbit
+gen-rabbit:
+	@echo "Generating rabbit proto"
 
 .PHONY: build
 build:

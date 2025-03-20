@@ -1,10 +1,11 @@
-package middleware
+package middler
 
 import (
 	"net/http"
 	"strings"
 
 	"github.com/gorilla/handlers"
+
 	"github.com/moon-monitor/moon/pkg/config"
 )
 
