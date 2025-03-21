@@ -2,7 +2,7 @@ package hook
 
 import "context"
 
-type Hook interface {
+type Sender interface {
 	Send(ctx context.Context, message Message) error
 }
 

@@ -6,6 +6,7 @@ import (
 	"crypto/sha256"
 	"encoding/base64"
 	"encoding/json"
+	"io"
 	"net/http"
 	"strconv"
 	"time"
@@ -16,9 +17,9 @@ import (
 	"github.com/moon-monitor/moon/pkg/util/httpx"
 )
 
-var _ Hook = (*feishuHook)(nil)
+var _ Sender = (*feishuHook)(nil)
 
-func NewFeishuHook(api, secret string, opts ...FeishuHookOption) *feishuHook {
+func NewFeishuHook(api, secret string, opts ...FeishuHookOption) Sender {
 	h := &feishuHook{api: api, secret: secret}
 	for _, opt := range opts {
 		opt(h)
@@ -56,41 +57,47 @@ func (l *feishuHookResp) Error() error {
 	return merr.ErrorBadRequest("code: %d, msg: %s, data: %v", l.Code, l.Msg, l.Data)
 }
 
-func (f *feishuHook) Send(ctx context.Context, message Message) error {
+func (f *feishuHook) Send(ctx context.Context, message Message) (err error) {
+	defer func() {
+		if err != nil {
+			f.helper.Warnw("msg", "send feishu hook failed", "error", err, "req", string(message))
+		}
+	}()
 	msg := make(map[string]any)
 	if err := json.Unmarshal(message, &msg); err != nil {
-		f.helper.Debugf("unmarshal feishu hook message failed: %v", err)
+		f.helper.Warnf("unmarshal feishu hook message failed: %v", err)
 		return err
 	}
 	requestTime := time.Now().Unix()
 	msg["timestamp"] = strconv.FormatInt(requestTime, 10)
 	sign, err := f.sign(requestTime)
 	if err != nil {
-		f.helper.Debugf("gen feishu hook sign failed: %v", err)
+		f.helper.Warnf("gen feishu hook sign failed: %v", err)
 		return err
 	}
 	msg["sign"] = sign
 	requestBody, err := json.Marshal(msg)
 	if err != nil {
-		f.helper.Debugf("marshal feishu hook message failed: %v", err)
+		f.helper.Warnf("marshal feishu hook message failed: %v", err)
 		return err
 	}
 	response, err := httpx.PostJson(ctx, f.api, requestBody)
 	if err != nil {
-		f.helper.Debugf("send feishu hook failed: %v", err)
+		f.helper.Warnf("send feishu hook failed: %v", err)
 		return err
 	}
 	defer response.Body.Close()
 
 	if response.StatusCode != http.StatusOK {
-		f.helper.Debugf("send feishu hook failed: status code: %d", response.StatusCode)
+		f.helper.Warnf("send feishu hook failed: status code: %d", response.StatusCode)
 		return merr.ErrorBadRequest("status code: %d", response.StatusCode)
 	}
 
 	var resp feishuHookResp
 	if err := json.NewDecoder(response.Body).Decode(&resp); err != nil {
-		f.helper.Debugf("unmarshal feishu hook response failed: %v", err)
-		return err
+		f.helper.Warnf("unmarshal feishu hook response failed: %v", err)
+		body, _ := io.ReadAll(response.Body)
+		return merr.ErrorBadRequest("unmarshal feishu hook response failed: %v, response: %s", err, string(body))
 	}
 
 	return resp.Error()
@@ -104,7 +111,7 @@ func (f *feishuHook) sign(timestamp int64) (string, error) {
 	h := hmac.New(sha256.New, []byte(signString))
 	_, err := h.Write(data)
 	if err != nil {
-		f.helper.Debugf("gen feishu hook sign failed: %v", err)
+		f.helper.Warnf("gen feishu hook sign failed: %v", err)
 		return "", err
 	}
 

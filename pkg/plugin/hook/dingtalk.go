@@ -7,6 +7,7 @@ import (
 	"encoding/base64"
 	"encoding/json"
 	"fmt"
+	"io"
 	"net/url"
 	"strings"
 	"time"
@@ -17,9 +18,9 @@ import (
 	"github.com/moon-monitor/moon/pkg/util/httpx"
 )
 
-var _ Hook = (*dingTalkHook)(nil)
+var _ Sender = (*dingTalkHook)(nil)
 
-func NewDingTalkHook(api, secret string, opts ...DingTalkHookOption) *dingTalkHook {
+func NewDingTalkHook(api, secret string, opts ...DingTalkHookOption) Sender {
 	d := &dingTalkHook{api: api, secret: secret}
 	for _, opt := range opts {
 		opt(d)
@@ -56,7 +57,12 @@ func WithDingTalkLogger(logger log.Logger) DingTalkHookOption {
 	}
 }
 
-func (d *dingTalkHook) Send(ctx context.Context, message Message) error {
+func (d *dingTalkHook) Send(ctx context.Context, message Message) (err error) {
+	defer func() {
+		if err != nil {
+			d.helper.Warnw("msg", "send dingtalk hook failed", "error", err, "req", string(message))
+		}
+	}()
 	timestamp := time.Now().UnixMilli()
 	sign := d.sign(timestamp)
 	query := d.parseQuery(map[string]any{
@@ -67,15 +73,16 @@ func (d *dingTalkHook) Send(ctx context.Context, message Message) error {
 	api := d.parseApi(d.api, query)
 	response, err := httpx.PostJson(ctx, api, message)
 	if err != nil {
-		d.helper.Debugf("send dingtalk hook failed: %v", err)
+		d.helper.Warnf("send dingtalk hook failed: %v", err)
 		return err
 	}
 	defer response.Body.Close()
 
 	var resp dingTalkHookResp
 	if err := json.NewDecoder(response.Body).Decode(&resp); err != nil {
-		d.helper.Debugf("unmarshal dingtalk hook response failed: %v", err)
-		return err
+		d.helper.Warnf("unmarshal dingtalk hook response failed: %v", err)
+		body, _ := io.ReadAll(response.Body)
+		return merr.ErrorBadRequest("unmarshal dingtalk hook response failed: %v, response: %s", err, string(body))
 	}
 
 	return resp.Error()
@@ -83,17 +90,18 @@ func (d *dingTalkHook) Send(ctx context.Context, message Message) error {
 
 // parseApi parse api and query
 func (d *dingTalkHook) parseApi(api string, query string) string {
-	suffix := []string{"/", "&"}
-	for _, s := range suffix {
-		if strings.HasSuffix(api, s) {
-			api = strings.TrimSuffix(api, s)
-			break
-		}
+	if strings.HasSuffix(api, "?") {
+		return api + query
 	}
-	if !strings.HasSuffix(api, "?") {
-		return api + "?" + query
+
+	if strings.HasSuffix(query, "&") {
+		return api + query
 	}
-	return api + query
+
+	if strings.Contains(query, "&") || strings.Contains(query, "?") {
+		return api + "&" + query
+	}
+	return api + "?" + query
 }
 
 // parseQuery parse struct to query params

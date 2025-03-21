@@ -2,6 +2,7 @@ package hook
 
 import (
 	"context"
+	"io"
 	"net/http"
 
 	"github.com/go-kratos/kratos/v2/log"
@@ -10,9 +11,9 @@ import (
 	"github.com/moon-monitor/moon/pkg/util/httpx"
 )
 
-var _ Hook = (*otherHook)(nil)
+var _ Sender = (*otherHook)(nil)
 
-func NewOtherHook(api string, opts ...OtherHookOption) Hook {
+func NewOtherHook(api string, opts ...OtherHookOption) Sender {
 	h := &otherHook{
 		api: api,
 	}
@@ -56,17 +57,27 @@ type otherHook struct {
 }
 
 // Send implements Hook.
-func (o *otherHook) Send(ctx context.Context, message Message) error {
+func (o *otherHook) Send(ctx context.Context, message Message) (err error) {
+	defer func() {
+		if err != nil {
+			o.helper.Warnw("msg", "send other hook failed", "error", err, "req", string(message))
+		}
+	}()
 	response, err := httpx.PostJson(ctx, o.api, []byte(message))
 	if err != nil {
-		o.helper.Debugf("send other hook failed: %v", err)
+		o.helper.Warnf("send other hook failed: %v", err)
 		return err
 	}
 	defer response.Body.Close()
 
+	body, err := io.ReadAll(response.Body)
+	if err != nil {
+		o.helper.Warnf("read other hook response body failed: %v", err)
+		return merr.ErrorBadRequest("read other hook response body failed: %v", err)
+	}
 	if response.StatusCode != http.StatusOK {
-		o.helper.Debugf("send other hook failed: status code: %d", response.StatusCode)
-		return merr.ErrorBadRequest("status code: %d", response.StatusCode)
+		o.helper.Warnf("send other hook failed: status code: %d, response: %s", response.StatusCode, string(body))
+		return merr.ErrorBadRequest("status code: %d, response: %s", response.StatusCode, string(body))
 	}
 
 	return nil

@@ -3,6 +3,7 @@ package hook
 import (
 	"context"
 	"encoding/json"
+	"io"
 	"net/http"
 
 	"github.com/go-kratos/kratos/v2/log"
@@ -11,9 +12,9 @@ import (
 	"github.com/moon-monitor/moon/pkg/util/httpx"
 )
 
-var _ Hook = (*wechatHook)(nil)
+var _ Sender = (*wechatHook)(nil)
 
-func NewWechatHook(api string, opts ...WechatHookOption) *wechatHook {
+func NewWechatHook(api string, opts ...WechatHookOption) Sender {
 	h := &wechatHook{api: api}
 	for _, opt := range opts {
 		opt(h)
@@ -49,23 +50,29 @@ func (l *wechatHookResp) Error() error {
 	return merr.ErrorBadRequest("errcode: %d, errmsg: %s", l.ErrCode, l.ErrMsg)
 }
 
-func (h *wechatHook) Send(ctx context.Context, message Message) error {
+func (h *wechatHook) Send(ctx context.Context, message Message) (err error) {
+	defer func() {
+		if err != nil {
+			h.helper.Warnw("msg", "send wechat hook failed", "error", err, "req", string(message))
+		}
+	}()
 	response, err := httpx.PostJson(ctx, h.api, message)
 	if err != nil {
-		h.helper.Debugf("send wechat hook failed: %v", err)
+		h.helper.Warnf("send wechat hook failed: %v", err)
 		return err
 	}
 	defer response.Body.Close()
 
 	if response.StatusCode != http.StatusOK {
-		h.helper.Debugf("send wechat hook failed: status code: %d", response.StatusCode)
+		h.helper.Warnf("send wechat hook failed: status code: %d", response.StatusCode)
 		return merr.ErrorBadRequest("status code: %d", response.StatusCode)
 	}
 
 	var resp wechatHookResp
 	if err := json.NewDecoder(response.Body).Decode(&resp); err != nil {
-		h.helper.Debugf("send wechat hook failed: %v", err)
-		return err
+		h.helper.Warnf("unmarshal wechat hook response failed: %v", err)
+		body, _ := io.ReadAll(response.Body)
+		return merr.ErrorBadRequest("unmarshal wechat hook response failed: %v, response: %s", err, string(body))
 	}
 
 	return resp.Error()
