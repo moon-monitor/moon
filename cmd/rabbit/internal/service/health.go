@@ -7,6 +7,7 @@ import (
 
 	"github.com/moon-monitor/moon/cmd/rabbit/internal/biz"
 	"github.com/moon-monitor/moon/pkg/api/common"
+	"github.com/moon-monitor/moon/pkg/hello"
 )
 
 type HealthService struct {
@@ -26,7 +27,13 @@ func NewHealthService(healthBiz *biz.HealthBiz, registerBiz *biz.RegisterBiz, lo
 }
 
 func (s *HealthService) Check(ctx context.Context, req *common.CheckRequest) (*common.CheckReply, error) {
-	return &common.CheckReply{}, nil
+	if err := s.healthBiz.Check(ctx); err != nil {
+		return nil, err
+	}
+	return &common.CheckReply{
+		Healthy: true,
+		Version: hello.GetEnv().Version(),
+	}, nil
 }
 
 func (s *HealthService) Online(ctx context.Context) error {

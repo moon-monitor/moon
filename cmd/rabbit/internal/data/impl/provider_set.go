@@ -7,4 +7,5 @@ import (
 // ProviderSetImpl is a provider set.
 var ProviderSetImpl = wire.NewSet(
 	NewCacheRepo,
+	NewPingRepo,
 )
