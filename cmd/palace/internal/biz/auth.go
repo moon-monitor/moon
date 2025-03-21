@@ -184,7 +184,7 @@ func (a *AuthBiz) verifyPermissionWithSystemPosition(ctx context.Context, userDo
 	if userDo.Position.GTE(sysPosition) {
 		return sysPosition, nil
 	}
-	return 0, merr.ErrorPermissionDenied(fmt.Sprintf("Your current role [%s] is not allowed to access this resource", sysPosition))
+	return 0, merr.ErrorPermissionDenied("Your current role [%s] is not allowed to access this resource", sysPosition)
 }
 
 func (a *AuthBiz) verifyPermissionWithSystemRBAC(ctx context.Context, userDo *system.User, resourceDo *system.Resource) error {
@@ -373,7 +373,6 @@ func (a *AuthBiz) githubLogin(ctx context.Context, code string) (string, error) 
 		return "", err
 	}
 
-	// fmt.Println(userInfo.String())
 	return a.oauthLogin(ctx, &userInfo)
 }
 

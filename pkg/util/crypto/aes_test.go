@@ -32,7 +32,7 @@ func Test_Default(t *testing.T) {
 
 func Test_ECB(t *testing.T) {
 	// 创建一个新的 AES 实例，使用 ECB 模式
-	aes, err := crypto.NewAes(crypto.WithMod(config.Crypto_AesConfig_MOD_ECB))
+	aes, err := crypto.NewAes(crypto.WithMod(config.Crypto_AesConfig_ECB))
 	if err != nil {
 		panic(err)
 	}
@@ -56,7 +56,7 @@ func Test_ECB(t *testing.T) {
 
 func Test_GCM(t *testing.T) {
 	// 创建一个新的 AES 实例，使用 GCM 模式
-	aes, err := crypto.NewAes(crypto.WithMod(config.Crypto_AesConfig_MOD_GCM))
+	aes, err := crypto.NewAes(crypto.WithMod(config.Crypto_AesConfig_GCM))
 	if err != nil {
 		panic(err)
 	}
