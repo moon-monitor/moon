@@ -10,6 +10,7 @@ import (
 	"github.com/moon-monitor/moon/cmd/rabbit/internal/conf"
 	"github.com/moon-monitor/moon/pkg/api/common"
 	"github.com/moon-monitor/moon/pkg/config"
+	"github.com/moon-monitor/moon/pkg/util/pointer"
 )
 
 func NewRegisterBiz(bc *conf.Bootstrap, serverRegisterRepo repository.ServerRegister, logger log.Logger) *RegisterBiz {
@@ -29,12 +30,26 @@ type RegisterBiz struct {
 }
 
 func (b *RegisterBiz) register() *common.ServerRegisterRequest {
+	serverConfig := b.bc.GetServer()
 	params := &common.ServerRegisterRequest{
-		Server:    b.bc.GetMicroServer(),
+		Server: &config.MicroServer{
+			Endpoint: serverConfig.GetOutEndpoint(),
+			Secret:   pointer.Of(serverConfig.GetMetadata()["secret"]),
+			Timeout:  nil,
+			Network:  config.Network(serverConfig.GetNetwork()),
+			Version:  serverConfig.GetMetadata()["version"],
+			Name:     serverConfig.GetName(),
+		},
 		Discovery: nil,
-		TeamIds:   b.bc.GetTeamIds(),
+		TeamIds:   serverConfig.GetTeamIds(),
 		IsOnline:  true,
 		Uuid:      b.uuid,
+	}
+	switch serverConfig.GetNetwork() {
+	case config.Network_GRPC:
+		params.Server.Timeout = serverConfig.GetGrpc().GetTimeout()
+	case config.Network_HTTP:
+		params.Server.Timeout = serverConfig.GetHttp().GetTimeout()
 	}
 	register := b.bc.GetRegistry()
 	if register != nil {

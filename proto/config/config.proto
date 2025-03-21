@@ -15,11 +15,24 @@ enum Environment {
   PROD = 3;
 }
 
+enum Network {
+    // http
+    HTTP = 0;
+    // https
+    HTTPS = 1;
+    // grpc
+    GRPC = 2;
+}
+
 message Server {
   string name = 1;
   map<string, string> metadata = 2;
   HTTPServer http = 3;
   GRPCServer grpc = 4;
+  google.protobuf.Duration online_interval = 5;
+  repeated uint32 team_ids = 6;
+  string out_endpoint = 7;
+  Network network = 8;
 }
 
 // http server config
@@ -137,14 +150,6 @@ message Crypto {
 
 // micro server config
 message MicroServer {
-  enum Network {
-    // http
-    HTTP = 0;
-    // https
-    HTTPS = 1;
-    // grpc
-    GRPC = 2;
-  }
   // endpoint
   string endpoint = 1;
   // secret
