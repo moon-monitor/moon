@@ -15,15 +15,19 @@ func TestNewTicker(t *testing.T) {
 	defer cancel()
 	interval := 1 * time.Second
 	start := time.Now()
-	task := func() error {
-		diff := time.Now().Sub(start)
-		diff = diff.Round(time.Second)
-		if diff < interval {
-			t.Errorf("Expected task to be executed after %v, but it was executed after %v", interval, diff)
-			return fmt.Errorf("task executed after %v", diff)
-		}
-		t.Logf("Task executed after %v", diff)
-		return nil
+	task := &server.TickTask{
+		Fn: func(ctx context.Context) error {
+			diff := time.Now().Sub(start)
+			diff = diff.Round(time.Second)
+			if diff < interval {
+				t.Errorf("Expected task to be executed after %v, but it was executed after %v", interval, diff)
+				return fmt.Errorf("task executed after %v", diff)
+			}
+			t.Logf("Task executed after %v", diff)
+			return nil
+		},
+		Name:    "定时器",
+		Timeout: 0,
 	}
 
 	ticker := server.NewTicker(interval, task)
@@ -47,17 +51,21 @@ func TestTestNewTickers(t *testing.T) {
 		5 * time.Second,
 	}
 	start := time.Now()
-	task := make(map[time.Duration]server.TickTask)
+	task := make(map[time.Duration]*server.TickTask)
 	for _, v := range list {
-		task[v] = func() error {
-			diff := time.Now().Sub(start)
-			diff = diff.Round(time.Second)
-			if diff < v {
-				t.Errorf("Expected task to be executed after %v, but it was executed after %v", v, diff)
-				return fmt.Errorf("task executed after %v: %v", v, diff)
-			}
-			t.Logf("Task executed after %v: %v", v, diff)
-			return nil
+		task[v] = &server.TickTask{
+			Fn: func(ctx context.Context) error {
+				diff := time.Now().Sub(start)
+				diff = diff.Round(time.Second)
+				if diff < v {
+					t.Errorf("Expected task to be executed after %v, but it was executed after %v", v, diff)
+					return fmt.Errorf("task executed after %v: %v", v, diff)
+				}
+				t.Logf("Task executed after %v: %v", v, diff)
+				return nil
+			},
+			Name:    fmt.Sprintf("%v", v),
+			Timeout: 0,
 		}
 	}
 
