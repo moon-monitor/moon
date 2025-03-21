@@ -22,13 +22,13 @@ message Server {
   GRPCServer grpc = 4;
 }
 
-// http服务配置
+// http server config
 message HTTPServer {
-  // 网络类型
+  // network type
   string network = 1;
-  // 服务地址
+  // endpoint
   string addr = 2;
-  // 读写超时时间
+  // read timeout
   google.protobuf.Duration timeout = 3;
   repeated string allow_operations = 4;
   repeated string allow_headers = 5;
@@ -36,23 +36,23 @@ message HTTPServer {
   repeated string allow_origins = 7;
 }
 
-// grpc服务配置
+// grpc server config
 message GRPCServer {
-  // 网络类型
+  // network type
   string network = 1;
-  // 服务地址
+  // endpoint
   string addr = 2;
-  // 读写超时时间
+  // read timeout
   google.protobuf.Duration timeout = 3;
 }
 
-// jwt配置
+// jwt config
 message JWT {
-  // 签名密钥
+  // sign key
   string sign_key = 1;
-  // 签发者
+  // issuer
   string issuer = 2;
-  // 有效期
+  // expire
   google.protobuf.Duration expire = 4;
 }
 
@@ -72,11 +72,10 @@ message Database {
     // Clickhouse
     CLICKHOUSE = 5;
   }
-  // 驱动， 支持gorm即可
+  // driver, support gorm
   Driver driver = 1;
-  // 数据库连接串
+  // database connection string
   string dsn = 2;
-  // 是否开启调试
   bool debug = 3;
   bool use_system_log = 4;
 }
@@ -88,18 +87,19 @@ message Cache {
     REDIS = 1;
   }
   Driver driver = 1;
-  // 网络类型
+  // network type
   string network = 2;
-  // 地址
+  // address
   string addr = 3;
-  // 密码
+  // password
   string password = 4;
-  // 数据库
+  // database
   uint32 db = 5;
-  // 读写超时
+  // read timeout
   google.protobuf.Duration read_timeout = 6;
+  // write timeout
   google.protobuf.Duration write_timeout = 7;
-  // 连接超时
+  // dial timeout
   google.protobuf.Duration dial_timeout = 8;
   string client_name = 9;
   int64 protocol = 10;
@@ -135,7 +135,7 @@ message Crypto {
   AesConfig aes = 1;
 }
 
-// 微服务配置
+// micro server config
 message MicroServer {
   enum Network {
     // http
@@ -145,77 +145,82 @@ message MicroServer {
     // grpc
     GRPC = 2;
   }
-  // 服务地址
+  // endpoint
   string endpoint = 1;
-  // 密钥
+  // secret
   optional string secret = 2;
-  // 超时时间
+  // timeout
   optional google.protobuf.Duration timeout = 3;
-  // 网络类型， http, https, grpc
+  // network type, http, https, grpc
   Network network = 4;
-  // node版本
-  string nodeVersion = 5;
-  // name 服务名
+  // node version
+  string version = 5;
+  // name service name
   string name = 6;
 }
 
-// 链路追踪配置
+// trace config
 message Tracer {
   enum Driver {
     // jaeger
     JAEGER = 0;
   }
-  // jaeger配置
+  // jaeger config
   message Jaeger {
-    // 端点
+    // endpoint
     string endpoint = 1;
   }
-  // 驱动， 支持jaeger
+  // driver, support jaeger
   Driver driver = 1;
-  // jaeger配置
+  // jaeger config
   Jaeger jaeger = 2;
 }
 
-// 服务注册发现配置
+// etcd data source config
+message Etcd {
+  repeated string endpoints = 1;
+  string username = 2;
+  string password = 3;
+  google.protobuf.Duration timeout = 4;
+  google.protobuf.Duration auto_sync_interval = 5;
+  google.protobuf.Duration dial_keep_alive_time = 6;
+  google.protobuf.Duration dial_keep_alive_timeout = 7;
+  int64 max_call_send_msg_size = 8;
+  int64 max_call_recv_msg_size = 9;
+  bool reject_old_cluster = 10;
+  bool permit_without_stream = 11;
+  uint64 max_unary_retries = 12;
+  google.protobuf.Duration backoff_wait_between = 13;
+  double backoff_jitter_fraction = 14;
+}
+
+// server register config
 message Registry {
   enum Driver {
-    // etcd
     ETCD = 0;
   }
-  // ETCD数据源配置
-  message Etcd {
-    repeated string endpoints = 1;
-    string username = 2;
-    string password = 3;
-    google.protobuf.Duration timeout = 4;
-    google.protobuf.Duration auto_sync_interval = 5;
-    google.protobuf.Duration dial_keep_alive_time = 6;
-    google.protobuf.Duration dial_keep_alive_timeout = 7;
-    int64 max_call_send_msg_size = 8;
-    int64 max_call_recv_msg_size = 9;
-    bool reject_old_cluster = 10;
-    bool permit_without_stream = 11;
-    uint64 max_unary_retries = 12;
-    google.protobuf.Duration backoff_wait_between = 13;
-    double backoff_jitter_fraction = 14;
-  }
 
-  // 类型， 名称和数据源保持一致，例如etcd
   Driver driver = 1;
   bool enable = 2;
-  // 数据源
   Etcd etcd = 3;
 }
 
-// 邮件发送配置
+// server discovery config
+message Discovery {
+  enum Driver {
+    ETCD = 0;
+  }
+
+  Driver driver = 1;
+  bool enable = 2;
+  Etcd etcd = 3;
+}
+
+// email config
 message EmailConfig {
-  // 用户
   string user = 1;
-  // 发送的邮箱密码
   string pass = 2;
-  // 发送的邮箱服务器
   string host = 3;
-  // 发送的邮箱端口
   uint32 port = 4;
   bool enable = 5;
   string name = 6;
@@ -227,15 +232,10 @@ message Log {
     SUGARED = 1;
   }
   enum Level {
-    // debug
     DEBUG = 0;
-    // info
     INFO = 1;
-    // warn
     WARN = 2;
-    // error
     ERROR = 3;
-    // fatal
     FATAL = 4;
   }
   message SugaredLogConfig {
@@ -250,7 +250,7 @@ message Log {
   optional SugaredLogConfig sugared = 3;
 }
 
-// oss相关
+// oss related
 
 // minio
 message Minio{
@@ -258,7 +258,7 @@ message Minio{
   string accessKeyID = 2;
   string accessKeySecret = 3;
   string bucketName = 4;
-  // 是否使用https
+  // use https
   bool secure = 5;
 }
 
@@ -295,22 +295,22 @@ message Oss {
     ALI = 2;
     LOCAL = 3;
   }
-  // 文件大小限制
+  // file size limit
   message Limit {
     optional int64 max_byte_size = 1;
     optional int64 min_byte_size = 2;
   }
-  // oss类型
+  // oss type
   Driver driver = 1;
   Minio minio = 2;
   TencentOss tencentOss = 3;
   AliOss aliOss = 4;
   LocalStorage local = 5;
-  // 文件大小
+  // file size
   map <string, Limit> limitSize = 6;
 }
 
-// mq配置
+// mq config
 message Event {
   enum Driver {
     // rocketmq
@@ -322,31 +322,31 @@ message Event {
   }
   // rocketmq配置
   message RocketMQ {
-    // 组名
+    // group name
     string groupName = 1;
-    // 端点
+    // endpoint
     string endpoint = 2;
-    // 区域
+    // region
     string region = 3;
-    // 访问密钥
+    // access key
     string accessKey = 4;
-    // 秘密密钥
+    // secret key
     string secretKey = 5;
-    // 命名空间
+    // namespace
     string namespace = 6;
   }
 
   // mqtt配置
   message Mqtt {
-    // broker地址
+    // broker address
     string  broker = 1;
-    // 用户名
+    // username
     string  username = 2;
-    // 密码
+    // password
     string  password = 3;
-    // client
+    // client id
     string clientId = 4;
-    // 是否自动重连
+    // auto reconnect
     bool autoReconnect = 5;
     // qos  0 1 2
     int32  qos = 6;
@@ -354,30 +354,30 @@ message Event {
 
   // kafka配置
   message Kafka{
-    // broker地址
+    // broker address
     string brokers = 1;
     // topic
     string topic = 2;
-    // 消费组
+    // group name
     string groupName = 3;
-    // 策略
+    // strategy
     string strategy = 4;
-    // 用户名
+    // username
     string username = 5;
-    // 密码
+    // password
     string password = 6;
-    // 是否开启sasl
+    // enable sasl
     bool saslEnable = 7;
     // version
     string version = 8;
   }
-  // mq类型
+  // mq type
   Driver driver = 1;
-  // rocketmq配置
+  // rocketmq config
   optional RocketMQ rocketMQ = 2;
-  // mqtt配置
+  // mqtt config
   optional Mqtt mqtt = 3;
-  // kafka配置
+  // kafka config
   optional Kafka kafka = 4;
 }
 

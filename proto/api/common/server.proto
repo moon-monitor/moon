@@ -1,0 +1,29 @@
+syntax = "proto3";
+
+package api.common;
+
+import "buf/validate/validate.proto";
+import "google/api/annotations.proto";
+import "config.proto";
+
+option go_package = "github.com/moon-monitor/moon/pkg/api/common;common";
+option java_multiple_files = true;
+option java_package = "com.api.common";
+
+service Server {
+	rpc Register (ServerRegisterRequest) returns (ServerRegisterReply) {
+		option (google.api.http) = {
+			post: "/v1/server/register"
+			body: "*"
+		};
+	}
+}
+
+message ServerRegisterRequest {
+	config.MicroServer server = 1 [(buf.validate.field).required = true];
+	config.Discovery discovery = 2 [(buf.validate.field).required = true];
+	repeated uint32 team_ids = 3 [(buf.validate.field).required = true];
+	bool is_online = 4 [(buf.validate.field).required = true];
+	string uuid = 5 [(buf.validate.field).required = true];
+}
+message ServerRegisterReply {}

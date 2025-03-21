@@ -138,6 +138,24 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/api.common.CheckReply'
+    /v1/server/register:
+        post:
+            tags:
+                - Server
+            operationId: Server_Register
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/api.common.ServerRegisterRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.common.ServerRegisterReply'
 components:
     schemas:
         api.common.CheckReply:
@@ -146,6 +164,25 @@ components:
                 healthy:
                     type: boolean
                 version:
+                    type: string
+        api.common.ServerRegisterReply:
+            type: object
+            properties: {}
+        api.common.ServerRegisterRequest:
+            type: object
+            properties:
+                server:
+                    $ref: '#/components/schemas/config.MicroServer'
+                discovery:
+                    $ref: '#/components/schemas/config.Discovery'
+                teamIds:
+                    type: array
+                    items:
+                        type: integer
+                        format: uint32
+                isOnline:
+                    type: boolean
+                uuid:
                     type: string
         api.palace.CaptchaValidateRequest:
             type: object
@@ -274,7 +311,83 @@ components:
                     type: string
                 captcha:
                     $ref: '#/components/schemas/api.palace.CaptchaValidateRequest'
+        config.Discovery:
+            type: object
+            properties:
+                driver:
+                    type: integer
+                    format: enum
+                enable:
+                    type: boolean
+                etcd:
+                    $ref: '#/components/schemas/config.Etcd'
+            description: server discovery config
+        config.Etcd:
+            type: object
+            properties:
+                endpoints:
+                    type: array
+                    items:
+                        type: string
+                username:
+                    type: string
+                password:
+                    type: string
+                timeout:
+                    pattern: ^-?(?:0|[1-9][0-9]{0,11})(?:\.[0-9]{1,9})?s$
+                    type: string
+                autoSyncInterval:
+                    pattern: ^-?(?:0|[1-9][0-9]{0,11})(?:\.[0-9]{1,9})?s$
+                    type: string
+                dialKeepAliveTime:
+                    pattern: ^-?(?:0|[1-9][0-9]{0,11})(?:\.[0-9]{1,9})?s$
+                    type: string
+                dialKeepAliveTimeout:
+                    pattern: ^-?(?:0|[1-9][0-9]{0,11})(?:\.[0-9]{1,9})?s$
+                    type: string
+                maxCallSendMsgSize:
+                    type: string
+                maxCallRecvMsgSize:
+                    type: string
+                rejectOldCluster:
+                    type: boolean
+                permitWithoutStream:
+                    type: boolean
+                maxUnaryRetries:
+                    type: string
+                backoffWaitBetween:
+                    pattern: ^-?(?:0|[1-9][0-9]{0,11})(?:\.[0-9]{1,9})?s$
+                    type: string
+                backoffJitterFraction:
+                    type: number
+                    format: double
+            description: etcd data source config
+        config.MicroServer:
+            type: object
+            properties:
+                endpoint:
+                    type: string
+                    description: endpoint
+                secret:
+                    type: string
+                    description: secret
+                timeout:
+                    pattern: ^-?(?:0|[1-9][0-9]{0,11})(?:\.[0-9]{1,9})?s$
+                    type: string
+                    description: timeout
+                network:
+                    type: integer
+                    description: network type, http, https, grpc
+                    format: enum
+                version:
+                    type: string
+                    description: node version
+                name:
+                    type: string
+                    description: name service name
+            description: micro server config
 tags:
     - name: Auth
     - name: Health
       description: Health Check API
+    - name: Server
