@@ -3,19 +3,11 @@ environment: ${X_MOON_ENVIRONMENT:DEV}
 server:
   name: ${X_MOON_SERVER_NAME:palace}
   metadata:
-    secret: ${X_MOON_SERVER_SECRET:}
+    summary: ${X_MOON_SUMMARY:}
   http:
     network: ${X_MOON_HTTP_NETWORK:tcp}
     addr: ${X_MOON_HTTP_ADDR:0.0.0.0:8080}
     timeout: ${X_MOON_HTTP_TIMEOUT:5s}
-    allow_operations:
-      - /api.common.Health/Check
-      - /api.palace.Auth/GetCaptcha
-      - /api.palace.Auth/LoginByPassword
-      - /api.palace.Auth/VerifyEmail
-      - /api.palace.Auth/LoginByEmail
-      - /api.palace.Auth/OAuthLoginByEmail
-      - /api.palace.Auth/OAuth2List
     allow_headers: ${X_MOON_HTTP_ALLOW_HEADERS:['*']}
     allow_methods: ${X_MOON_HTTP_ALLOW_METHODS:['*']}
     allow_origins: ${X_MOON_HTTP_ALLOW_ORIGINS:['*']}

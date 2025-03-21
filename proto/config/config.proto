@@ -43,10 +43,9 @@ message HTTPServer {
   string addr = 2;
   // read timeout
   google.protobuf.Duration timeout = 3;
-  repeated string allow_operations = 4;
-  repeated string allow_headers = 5;
-  repeated string allow_methods = 6;
-  repeated string allow_origins = 7;
+  repeated string allow_headers = 4;
+  repeated string allow_methods = 5;
+  repeated string allow_origins = 6;
 }
 
 // grpc server config
@@ -66,7 +65,9 @@ message JWT {
   // issuer
   string issuer = 2;
   // expire
-  google.protobuf.Duration expire = 4;
+  google.protobuf.Duration expire = 3;
+  // allow operations
+  repeated string allow_operations = 4;
 }
 
 // 数据库配置

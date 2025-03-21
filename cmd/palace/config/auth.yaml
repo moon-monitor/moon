@@ -3,6 +3,14 @@ auth:
     sign_key: ${X_MOON_AUTH_JWT_SIGN_KEY:secret}
     issuer: ${X_MOON_AUTH_JWT_ISSUER:moon-palace}
     expire: ${X_MOON_AUTH_JWT_EXPIRE:3600s}
+    allow_operations:
+      - /api.common.Health/Check
+      - /api.palace.Auth/GetCaptcha
+      - /api.palace.Auth/LoginByPassword
+      - /api.palace.Auth/VerifyEmail
+      - /api.palace.Auth/LoginByEmail
+      - /api.palace.Auth/OAuthLoginByEmail
+      - /api.palace.Auth/OAuth2List
   captcha:
     prefix: ${X_MOON_AUTH_CAPTCHA_PREFIX:}
     timeout: ${X_MOON_AUTH_CAPTCHA_TIMEOUT:10s}

@@ -8,7 +8,6 @@ import (
 
 	"github.com/go-kratos/kratos/v2/middleware"
 	"github.com/go-kratos/kratos/v2/middleware/auth/jwt"
-	"github.com/go-kratos/kratos/v2/middleware/selector"
 	"github.com/go-kratos/kratos/v2/transport"
 	jwtv5 "github.com/golang-jwt/jwt/v5"
 
@@ -129,16 +128,4 @@ func NewJwtClaims(c *config.JWT, base *JwtBaseInfo) *JwtClaims {
 // GetToken get token
 func (l *JwtClaims) GetToken() (string, error) {
 	return jwtv5.NewWithClaims(jwtv5.SigningMethodHS256, l).SignedString([]byte(l.signKey))
-}
-
-// AllowListMatcher new allow operation list matcher
-func AllowListMatcher(list ...string) selector.MatchFunc {
-	whiteList := make(map[string]struct{})
-	for _, v := range list {
-		whiteList[v] = struct{}{}
-	}
-	return func(ctx context.Context, operation string) bool {
-		_, ok := whiteList[operation]
-		return !ok
-	}
 }

@@ -10,6 +10,7 @@ import (
 	"github.com/moon-monitor/moon/cmd/rabbit/internal/conf"
 	"github.com/moon-monitor/moon/pkg/api/common"
 	"github.com/moon-monitor/moon/pkg/config"
+	"github.com/moon-monitor/moon/pkg/hello"
 	"github.com/moon-monitor/moon/pkg/util/pointer"
 )
 
@@ -31,13 +32,14 @@ type RegisterBiz struct {
 
 func (b *RegisterBiz) register(online bool) *common.ServerRegisterRequest {
 	serverConfig := b.bc.GetServer()
+	jwtConf := b.bc.GetAuth().GetJwt()
 	params := &common.ServerRegisterRequest{
 		Server: &config.MicroServer{
 			Endpoint: serverConfig.GetOutEndpoint(),
-			Secret:   pointer.Of(serverConfig.GetMetadata()["secret"]),
+			Secret:   pointer.Of(jwtConf.GetSignKey()),
 			Timeout:  nil,
 			Network:  config.Network(serverConfig.GetNetwork()),
-			Version:  serverConfig.GetMetadata()["version"],
+			Version:  hello.GetEnv().Version(),
 			Name:     serverConfig.GetName(),
 		},
 		Discovery: nil,

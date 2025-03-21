@@ -8,6 +8,7 @@ import (
 	"github.com/moon-monitor/moon/cmd/rabbit/internal/conf"
 	"github.com/moon-monitor/moon/cmd/rabbit/internal/service"
 	commonv1 "github.com/moon-monitor/moon/pkg/api/common"
+	rabbitv1 "github.com/moon-monitor/moon/pkg/api/rabbit/v1"
 	"github.com/moon-monitor/moon/pkg/plugin/server"
 )
 
@@ -20,8 +21,14 @@ func RegisterService(
 	rpcSrv *grpc.Server,
 	httpSrv *http.Server,
 	healthService *service.HealthService,
+	sendService *service.SendService,
+	syncService *service.SyncService,
 ) *server.Server {
 	commonv1.RegisterHealthServer(rpcSrv, healthService)
 	commonv1.RegisterHealthHTTPServer(httpSrv, healthService)
+	rabbitv1.RegisterSendServer(rpcSrv, sendService)
+	rabbitv1.RegisterSyncServer(rpcSrv, syncService)
+	rabbitv1.RegisterSendHTTPServer(httpSrv, sendService)
+	rabbitv1.RegisterSyncHTTPServer(httpSrv, syncService)
 	return &server.Server{RpcSrv: rpcSrv, HttpSrv: httpSrv}
 }

@@ -1,0 +1,72 @@
+syntax = "proto3";
+
+package api.rabbit.v1;
+
+import "google/api/annotations.proto";
+import "rabbit/common/notification.proto";
+
+option go_package = "github.com/moon-monitor/moon/pkg/api/rabbit/v1;v1";
+option java_multiple_files = true;
+option java_package = "com.api.rabbit.v1";
+
+service Send {
+	rpc Email (SendEmailRequest) returns (SendEmailReply) {
+		option (google.api.http) = {
+			post: "/v1/send/email"
+			body: "*"
+		};
+	}
+
+	rpc Sms (SendSmsRequest) returns (SendSmsReply) {
+		option (google.api.http) = {
+			post: "/v1/send/sms"
+			body: "*"
+		};
+	}
+
+	rpc Hook (SendHookRequest) returns (SendHookReply) {
+		option (google.api.http) = {
+			post: "/v1/send/hook"
+			body: "*"
+		};
+	}
+
+	rpc SendAll (SendAllRequest) returns (SendAllReply) {
+		option (google.api.http) = {
+			post: "/v1/send/all"
+			body: "*"
+		};
+	}
+}
+
+message SendEmailRequest {
+	repeated string emails = 1;
+	string template_name = 2;
+	string parameters = 3;
+	string subject = 4;
+	string content_type = 5;
+	string attachment = 6;
+	string cc = 7;
+}
+message SendEmailReply {}
+
+message SendSmsRequest {
+	repeated string phones = 1;
+	string template_name = 2;
+	string parameters = 3;
+	string template_code = 4;
+}
+message SendSmsReply {}
+
+message SendHookRequest {
+	repeated common.HookItem hooks = 1;
+	string template_name = 2;
+	string parameters = 3;
+}
+message SendHookReply {}
+
+message SendAllRequest {
+	repeated string receivers = 1;
+	string parameters = 2;
+}
+message SendAllReply {}

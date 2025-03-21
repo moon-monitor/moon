@@ -26,13 +26,13 @@ var docFS embed.FS
 func NewHTTPServer(bc *conf.Bootstrap, authService *service.AuthService, logger log.Logger) *http.Server {
 	serverConf := bc.GetServer()
 	httpConf := serverConf.GetHttp()
-	authConf := bc.GetAuth()
+	jwtConf := bc.GetAuth().GetJwt()
 
 	authMiddleware := selector.Server(
-		middleware.JwtServer(authConf.GetJwt().GetSignKey()),
+		middleware.JwtServer(jwtConf.GetSignKey()),
 		middleware.MustLogin(authService.VerifyToken),
 		middleware.BindHeaders(),
-	).Match(middleware.AllowListMatcher(httpConf.GetAllowOperations()...)).Build()
+	).Match(middler.AllowListMatcher(jwtConf.GetAllowOperations()...)).Build()
 	opts := []http.ServerOption{
 		http.Filter(middler.Cors(httpConf)),
 		http.Middleware(
