@@ -6,6 +6,7 @@ import (
 	"net/http"
 	"net/url"
 	"strings"
+	"sync"
 )
 
 type Client interface {
@@ -21,9 +22,24 @@ type Client interface {
 	PostJson(api string, body []byte) (*http.Response, error)
 }
 
+var (
+	httpClient     = http.DefaultClient
+	httpClientOnce sync.Once
+)
+
+func SetHttpClient(cli *http.Client) {
+	httpClientOnce.Do(func() {
+		httpClient = cli
+	})
+}
+
+func GetHttpClient() *http.Client {
+	return httpClient
+}
+
 func NewClient(opts ...Option) Client {
 	cli := &client{
-		cli:    http.DefaultClient,
+		cli:    httpClient,
 		header: make(http.Header),
 		ctx:    context.Background(),
 	}
