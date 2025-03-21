@@ -29,7 +29,7 @@ type RegisterBiz struct {
 	helper             *log.Helper
 }
 
-func (b *RegisterBiz) register() *common.ServerRegisterRequest {
+func (b *RegisterBiz) register(online bool) *common.ServerRegisterRequest {
 	serverConfig := b.bc.GetServer()
 	params := &common.ServerRegisterRequest{
 		Server: &config.MicroServer{
@@ -42,7 +42,7 @@ func (b *RegisterBiz) register() *common.ServerRegisterRequest {
 		},
 		Discovery: nil,
 		TeamIds:   serverConfig.GetTeamIds(),
-		IsOnline:  true,
+		IsOnline:  online,
 		Uuid:      b.uuid,
 	}
 	switch serverConfig.GetNetwork() {
@@ -63,9 +63,9 @@ func (b *RegisterBiz) register() *common.ServerRegisterRequest {
 }
 
 func (b *RegisterBiz) Online(ctx context.Context) error {
-	return b.serverRegisterRepo.Register(ctx, b.register())
+	return b.serverRegisterRepo.Register(ctx, b.register(true))
 }
 
 func (b *RegisterBiz) Offline(ctx context.Context) error {
-	return b.serverRegisterRepo.Register(ctx, b.register())
+	return b.serverRegisterRepo.Register(ctx, b.register(false))
 }
