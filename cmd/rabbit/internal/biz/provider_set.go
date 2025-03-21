@@ -5,4 +5,7 @@ import (
 )
 
 // ProviderSetBiz set biz dependency
-var ProviderSetBiz = wire.NewSet(NewHealthBiz)
+var ProviderSetBiz = wire.NewSet(
+	NewHealthBiz,
+	NewRegisterBiz,
+)

@@ -194,24 +194,21 @@ message Etcd {
   double backoff_jitter_fraction = 14;
 }
 
+enum RegistryDriver {
+  ETCD = 0;
+}
+
+
 // server register config
 message Registry {
-  enum Driver {
-    ETCD = 0;
-  }
-
-  Driver driver = 1;
+  RegistryDriver driver = 1;
   bool enable = 2;
   Etcd etcd = 3;
 }
 
 // server discovery config
 message Discovery {
-  enum Driver {
-    ETCD = 0;
-  }
-
-  Driver driver = 1;
+  RegistryDriver driver = 1;
   bool enable = 2;
   Etcd etcd = 3;
 }

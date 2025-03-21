@@ -4,24 +4,35 @@ import (
 	"context"
 
 	"github.com/go-kratos/kratos/v2/log"
+
 	"github.com/moon-monitor/moon/cmd/rabbit/internal/biz"
-	commonapi "github.com/moon-monitor/moon/pkg/api/common"
+	"github.com/moon-monitor/moon/pkg/api/common"
 )
 
 type HealthService struct {
-	commonapi.UnimplementedHealthServer
+	common.UnimplementedHealthServer
 
-	healthBiz *biz.HealthBiz
-	helper    *log.Helper
+	healthBiz   *biz.HealthBiz
+	registerBiz *biz.RegisterBiz
+	helper      *log.Helper
 }
 
-func NewHealthService(healthBiz *biz.HealthBiz, logger log.Logger) *HealthService {
+func NewHealthService(healthBiz *biz.HealthBiz, registerBiz *biz.RegisterBiz, logger log.Logger) *HealthService {
 	return &HealthService{
-		healthBiz: healthBiz,
-		helper:    log.NewHelper(log.With(logger, "module", "service.health")),
+		healthBiz:   healthBiz,
+		registerBiz: registerBiz,
+		helper:      log.NewHelper(log.With(logger, "module", "service.health")),
 	}
 }
 
-func (s *HealthService) Check(ctx context.Context, req *commonapi.CheckRequest) (*commonapi.CheckReply, error) {
-	return &commonapi.CheckReply{}, nil
+func (s *HealthService) Check(ctx context.Context, req *common.CheckRequest) (*common.CheckReply, error) {
+	return &common.CheckReply{}, nil
+}
+
+func (s *HealthService) Online(ctx context.Context) error {
+	return s.registerBiz.Online(ctx)
+}
+
+func (s *HealthService) Offline(ctx context.Context) error {
+	return s.registerBiz.Offline(ctx)
 }

@@ -2,6 +2,7 @@ syntax = "proto3";
 
 package cmd.rabbit.internal.conf;
 
+import "google/protobuf/duration.proto";
 import "rabbit/common/notification.proto";
 import "config.proto";
 
@@ -22,6 +23,9 @@ message Bootstrap {
   repeated api.rabbit.common.HookItem hooks = 11;
   repeated api.rabbit.common.Receiver receivers = 12;
   api.rabbit.common.Template templates = 13;
+  config.MicroServer micro_server = 14;
+  repeated uint32 team_ids = 15;
+  google.protobuf.Duration online_interval = 16;
 }
 
 message Data {

@@ -12,7 +12,7 @@ import (
 // NewRegister Create a service registration instance
 func NewRegister(c *config.Registry) (registry.Registrar, error) {
 	switch c.GetDriver() {
-	case config.Registry_ETCD:
+	case config.RegistryDriver_ETCD:
 		etcdConf := c.GetEtcd()
 		client, err := clientv3.New(clientv3.Config{
 			Endpoints:             etcdConf.GetEndpoints(),
