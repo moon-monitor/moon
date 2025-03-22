@@ -55,7 +55,7 @@ func (t *Ticker) Start(ctx context.Context) error {
 		for {
 			select {
 			case <-t.ticker.C:
-				t.call(ctx)
+				t.call(ctx, false)
 			case <-t.stop:
 				return
 			case <-ctx.Done():
@@ -66,14 +66,14 @@ func (t *Ticker) Start(ctx context.Context) error {
 	return nil
 }
 
-func (t *Ticker) call(ctx context.Context) {
+func (t *Ticker) call(ctx context.Context, isStop bool) {
 	timeout := t.task.Timeout
 	if timeout == 0 {
 		timeout = 10 * time.Second
 	}
 	ctx, cancel := context.WithTimeout(ctx, timeout)
 	defer cancel()
-	if err := t.task.Fn(ctx, false); err != nil {
+	if err := t.task.Fn(ctx, isStop); err != nil {
 		t.helper.Errorf("execute task %s error: %v", t.task.Name, err)
 	}
 }
@@ -81,9 +81,7 @@ func (t *Ticker) call(ctx context.Context) {
 func (t *Ticker) Stop(ctx context.Context) error {
 	close(t.stop)
 	t.ticker.Stop()
-	if err := t.task.Fn(ctx, true); err != nil {
-		t.helper.Errorf("execute task %s error: %v", t.task.Name, err)
-	}
+	t.call(ctx, true)
 	return nil
 }
 

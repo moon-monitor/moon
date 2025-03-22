@@ -83,6 +83,24 @@ func TestTestNewTickers(t *testing.T) {
 		t.Fatalf("Failed to start timer: %v", err)
 	}
 
+	tickers.Add(1*time.Second, &server.TickTask{
+		Fn: func(ctx context.Context, isStop bool) error {
+			t.Logf("Add 1s Task executed after 1s")
+			return nil
+		},
+		Name:    "1s",
+		Timeout: 0,
+	})
+
+	tickers.Add(2*time.Second, &server.TickTask{
+		Fn: func(ctx context.Context, isStop bool) error {
+			t.Logf("Add 2s Task executed after 2s")
+			return nil
+		},
+		Name:    "1s",
+		Timeout: 0,
+	})
+
 	<-ctx.Done()
 	tickers.Stop(ctx)
 }
