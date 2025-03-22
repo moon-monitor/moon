@@ -58,7 +58,7 @@ func run(cfgPath string) {
 	}
 }
 
-func newApp(c *conf.Bootstrap, srv *server.Server, logger log.Logger) *kratos.App {
+func newApp(c *conf.Bootstrap, srvs server.Servers, logger log.Logger) *kratos.App {
 	serverConf := c.GetServer()
 	envOpts := []hello.Option{
 		hello.WithVersion(Version),
@@ -75,7 +75,7 @@ func newApp(c *conf.Bootstrap, srv *server.Server, logger log.Logger) *kratos.Ap
 		kratos.Version(env.Version()),
 		kratos.Metadata(env.Metadata()),
 		kratos.Logger(logger),
-		kratos.Server(srv.GetServers()...),
+		kratos.Server(srvs...),
 	}
 	registerConf := c.GetRegistry()
 	if registerConf != nil && registerConf.GetEnable() {

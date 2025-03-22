@@ -27,7 +27,7 @@ func NewTicker(interval time.Duration, task *TickTask, opts ...TickerOption) *Ti
 }
 
 type TickTask struct {
-	Fn      func(ctx context.Context) error
+	Fn      func(ctx context.Context, isStop bool) error
 	Name    string
 	Timeout time.Duration
 }
@@ -67,9 +67,13 @@ func (t *Ticker) Start(ctx context.Context) error {
 }
 
 func (t *Ticker) call(ctx context.Context) {
-	ctx, cancel := context.WithTimeout(ctx, t.task.Timeout)
+	timeout := t.task.Timeout
+	if timeout == 0 {
+		timeout = 10 * time.Second
+	}
+	ctx, cancel := context.WithTimeout(ctx, timeout)
 	defer cancel()
-	if err := t.task.Fn(ctx); err != nil {
+	if err := t.task.Fn(ctx, false); err != nil {
 		t.helper.Errorf("execute task %s error: %v", t.task.Name, err)
 	}
 }
@@ -77,6 +81,9 @@ func (t *Ticker) call(ctx context.Context) {
 func (t *Ticker) Stop(ctx context.Context) error {
 	close(t.stop)
 	t.ticker.Stop()
+	if err := t.task.Fn(ctx, true); err != nil {
+		t.helper.Errorf("execute task %s error: %v", t.task.Name, err)
+	}
 	return nil
 }
 

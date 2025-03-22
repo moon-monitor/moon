@@ -16,7 +16,11 @@ func TestNewTicker(t *testing.T) {
 	interval := 1 * time.Second
 	start := time.Now()
 	task := &server.TickTask{
-		Fn: func(ctx context.Context) error {
+		Fn: func(ctx context.Context, isStop bool) error {
+			if isStop {
+				t.Logf("Task stopped")
+				return nil
+			}
 			diff := time.Now().Sub(start)
 			diff = diff.Round(time.Second)
 			if diff < interval {
@@ -54,7 +58,11 @@ func TestTestNewTickers(t *testing.T) {
 	task := make(map[time.Duration]*server.TickTask)
 	for _, v := range list {
 		task[v] = &server.TickTask{
-			Fn: func(ctx context.Context) error {
+			Fn: func(ctx context.Context, isStop bool) error {
+				if isStop {
+					t.Logf("Task stopped")
+					return nil
+				}
 				diff := time.Now().Sub(start)
 				diff = diff.Round(time.Second)
 				if diff < v {

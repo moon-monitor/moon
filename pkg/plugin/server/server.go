@@ -3,8 +3,6 @@ package server
 import (
 	"github.com/go-kratos/kratos/v2/encoding/json"
 	"github.com/go-kratos/kratos/v2/transport"
-	"github.com/go-kratos/kratos/v2/transport/grpc"
-	"github.com/go-kratos/kratos/v2/transport/http"
 	"google.golang.org/protobuf/encoding/protojson"
 )
 
@@ -17,15 +15,9 @@ func init() {
 }
 
 // Server 服务
-type Server struct {
-	RpcSrv  *grpc.Server
-	HttpSrv *http.Server
-}
+type Servers []transport.Server
 
 // GetServers 注册服务
-func (s *Server) GetServers() []transport.Server {
-	return []transport.Server{
-		s.RpcSrv,
-		s.HttpSrv,
-	}
+func (s Servers) Append(servers ...transport.Server) Servers {
+	return append(s, servers...)
 }
