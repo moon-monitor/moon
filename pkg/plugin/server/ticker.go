@@ -2,12 +2,11 @@ package server
 
 import (
 	"context"
+	"sync"
 	"time"
 
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/go-kratos/kratos/v2/transport"
-
-	"github.com/moon-monitor/moon/pkg/util/safety"
 )
 
 var _ transport.Server = (*Ticker)(nil)
@@ -56,7 +55,7 @@ func (t *Ticker) Start(ctx context.Context) error {
 		for {
 			select {
 			case <-t.ticker.C:
-				t.Call(ctx)
+				t.call(ctx)
 			case <-t.stop:
 				return
 			case <-ctx.Done():
@@ -67,7 +66,7 @@ func (t *Ticker) Start(ctx context.Context) error {
 	return nil
 }
 
-func (t *Ticker) Call(ctx context.Context) {
+func (t *Ticker) call(ctx context.Context) {
 	ctx, cancel := context.WithTimeout(ctx, t.task.Timeout)
 	defer cancel()
 	if err := t.task.Fn(ctx); err != nil {
@@ -83,56 +82,85 @@ func (t *Ticker) Stop(ctx context.Context) error {
 
 var _ transport.Server = (*Tickers)(nil)
 
-func NewTickers(tasks map[time.Duration]*TickTask) *Tickers {
-	id := safety.NewInt64(0)
-	tickerMap := safety.NewMap[int64, *Ticker]()
-	recycle := safety.NewSlice[int64](100)
-	for interval, task := range tasks {
-		tickerMap.Set(id.Inc(), NewTicker(interval, task))
+func NewTickers(opts ...TickersOption) *Tickers {
+	t := &Tickers{
+		autoID:  uint64(1),
+		tickers: make(map[uint64]*Ticker),
+		recycle: make([]uint64, 0, 100),
+		logger:  log.DefaultLogger,
 	}
-	return &Tickers{
-		autoID:  id,
-		tickers: tickerMap,
-		recycle: recycle,
+	for _, opt := range opts {
+		opt(t)
 	}
+
+	return t
 }
 
 type Tickers struct {
-	autoID  *safety.Int64
-	recycle *safety.Slice[int64]
-	tickers *safety.Map[int64, *Ticker]
+	mu      sync.RWMutex
+	autoID  uint64
+	recycle []uint64
+	tickers map[uint64]*Ticker
+	logger  log.Logger
 }
 
-func (t *Tickers) Add(interval time.Duration, task *TickTask) int64 {
-	id, ok := t.recycle.Pop()
-	if !ok {
-		id = t.autoID.Inc()
+type TickersOption func(*Tickers)
+
+func WithTickersLogger(logger log.Logger) TickersOption {
+	return func(t *Tickers) {
+		t.logger = logger
 	}
-	ticker := NewTicker(interval, task)
+}
+
+func WithTickersTasks(tasks map[time.Duration]*TickTask) TickersOption {
+	return func(t *Tickers) {
+		for interval, task := range tasks {
+			t.Add(interval, task)
+		}
+	}
+}
+
+func (t *Tickers) Add(interval time.Duration, task *TickTask) uint64 {
+	t.mu.Lock()
+	defer t.mu.Unlock()
+	id := t.autoID
+	if len(t.recycle) > 0 {
+		id = t.recycle[0]
+		t.recycle = t.recycle[1:]
+	} else {
+		t.autoID++
+	}
+	ticker := NewTicker(interval, task, WithTickerLogger(t.logger))
 	defer ticker.Start(context.Background())
-	t.tickers.Set(id, ticker)
+	t.tickers[id] = ticker
 	return id
 }
 
-func (t *Tickers) Remove(id int64) {
-	ticker, ok := t.tickers.Get(id)
+func (t *Tickers) Remove(id uint64) {
+	t.mu.Lock()
+	defer t.mu.Unlock()
+	ticker, ok := t.tickers[id]
 	if !ok {
 		return
 	}
 	ticker.Stop(context.Background())
-	t.tickers.Delete(id)
-	t.recycle.Append(id)
+	delete(t.tickers, id)
+	t.recycle = append(t.recycle, id)
 }
 
 func (t *Tickers) Start(ctx context.Context) error {
-	for _, ticker := range t.tickers.List() {
+	t.mu.RLock()
+	defer t.mu.RUnlock()
+	for _, ticker := range t.tickers {
 		ticker.Start(ctx)
 	}
 	return nil
 }
 
 func (t *Tickers) Stop(ctx context.Context) error {
-	for _, ticker := range t.tickers.List() {
+	t.mu.RLock()
+	defer t.mu.RUnlock()
+	for _, ticker := range t.tickers {
 		ticker.Stop(ctx)
 	}
 	return nil

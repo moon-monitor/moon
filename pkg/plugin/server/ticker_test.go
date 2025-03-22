@@ -69,7 +69,7 @@ func TestTestNewTickers(t *testing.T) {
 		}
 	}
 
-	tickers := server.NewTickers(task)
+	tickers := server.NewTickers(server.WithTickersTasks(task))
 	err := tickers.Start(ctx)
 	if err != nil {
 		t.Fatalf("Failed to start timer: %v", err)
