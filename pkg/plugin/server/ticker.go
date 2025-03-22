@@ -168,5 +168,8 @@ func (t *Tickers) Stop(ctx context.Context) error {
 	for _, ticker := range t.tickers {
 		ticker.Stop(ctx)
 	}
+	t.tickers = make(map[uint64]*Ticker)
+	t.recycle = make([]uint64, 0, 100)
+	t.autoID = 1
 	return nil
 }
