@@ -127,6 +127,12 @@ build:
 	@echo "Building moon app=$(APPP_NAME)"
 	mkdir -p bin/ && go build -ldflags "-X main.Version=$(VERSION)" -o ./bin/ ./cmd/$(APP_NAME)
 
+.PHONY: run
+run:
+	@if [ -z "$(APP_NAME)" ]; then echo "app name is required"; echo "usage: make run app=<app_name>"; exit 1; fi
+	@echo "Running moon app=$(APP_NAME)"
+	go run ./cmd/$(APP_NAME) -c ./cmd/$(APP_NAME)/config
+
 .PHONY: docker-build
 docker-build:
 	@if [ -z "$(APP_NAME)" ]; then echo "app name is required"; echo "usage: make docker-build app=<app_name>"; exit 1; fi

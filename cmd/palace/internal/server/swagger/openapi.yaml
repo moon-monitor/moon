@@ -126,6 +126,592 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/api.palace.VerifyEmailReply'
+    /api/resource/batch/status:
+        put:
+            tags:
+                - Resource
+            operationId: Resource_BatchUpdateResourceStatus
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/api.palace.BatchUpdateResourceStatusRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.palace.BatchUpdateResourceStatusReply'
+    /api/resource/list:
+        post:
+            tags:
+                - Resource
+            operationId: Resource_ListResource
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/api.palace.ListResourceRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.palace.ListResourceReply'
+    /api/resource/save:
+        put:
+            tags:
+                - Resource
+            operationId: Resource_SaveResource
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/api.palace.SaveResourceRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.palace.SaveResourceReply'
+    /api/resource/{id}:
+        get:
+            tags:
+                - Resource
+            operationId: Resource_GetResource
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: integer
+                    format: uint32
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.palace.GetResourceReply'
+        delete:
+            tags:
+                - Resource
+            operationId: Resource_DeleteResource
+            parameters:
+                - name: id
+                  in: path
+                  required: true
+                  schema:
+                    type: integer
+                    format: uint32
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.palace.DeleteResourceReply'
+    /api/system/user:
+        put:
+            tags:
+                - System
+            operationId: System_UpdateUser
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/api.palace.UpdateUserRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.palace.UpdateUserReply'
+    /api/system/user/password:
+        put:
+            tags:
+                - System
+            operationId: System_ResetUserPassword
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/api.palace.ResetUserPasswordRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.palace.ResetUserPasswordReply'
+    /api/system/user/position:
+        put:
+            tags:
+                - System
+            operationId: System_UpdateUserPosition
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/api.palace.UpdateUserPositionRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.palace.UpdateUserPositionReply'
+    /api/system/user/status:
+        put:
+            tags:
+                - System
+            operationId: System_UpdateUserStatus
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/api.palace.UpdateUserStatusRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.palace.UpdateUserStatusReply'
+    /api/system/user/{userID}:
+        get:
+            tags:
+                - System
+            operationId: System_GetUser
+            parameters:
+                - name: userID
+                  in: path
+                  required: true
+                  schema:
+                    type: integer
+                    format: uint32
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.palace.GetUserReply'
+    /api/team/detail/{teamID}:
+        get:
+            tags:
+                - Team
+            operationId: Team_GetTeam
+            parameters:
+                - name: teamID
+                  in: path
+                  required: true
+                  schema:
+                    type: integer
+                    format: uint32
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.palace.GetTeamReply'
+    /api/team/invite/member/{teamID}:
+        post:
+            tags:
+                - Team
+            operationId: Team_InviteMember
+            parameters:
+                - name: teamID
+                  in: path
+                  required: true
+                  schema:
+                    type: integer
+                    format: uint32
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/api.palace.InviteMemberRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.palace.InviteMemberReply'
+    /api/team/members/{teamID}:
+        post:
+            tags:
+                - Team
+            operationId: Team_GetTeamMembers
+            parameters:
+                - name: teamID
+                  in: path
+                  required: true
+                  schema:
+                    type: integer
+                    format: uint32
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/api.palace.GetTeamMembersRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.palace.GetTeamMembersReply'
+    /api/team/remove/member/{teamID}:
+        post:
+            tags:
+                - Team
+            operationId: Team_RemoveMember
+            parameters:
+                - name: teamID
+                  in: path
+                  required: true
+                  schema:
+                    type: integer
+                    format: uint32
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/api.palace.RemoveMemberRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.palace.RemoveMemberReply'
+    /api/team/resources/{teamID}:
+        get:
+            tags:
+                - Team
+            operationId: Team_GetTeamResources
+            parameters:
+                - name: teamID
+                  in: path
+                  required: true
+                  schema:
+                    type: integer
+                    format: uint32
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.palace.GetTeamResourcesReply'
+    /api/team/roles/{teamID}:
+        put:
+            tags:
+                - Team
+            operationId: Team_SaveTeamRole
+            parameters:
+                - name: teamID
+                  in: path
+                  required: true
+                  schema:
+                    type: integer
+                    format: uint32
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/api.palace.SaveTeamRoleRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.palace.SaveTeamRoleReply'
+        post:
+            tags:
+                - Team
+            operationId: Team_GetTeamRoles
+            parameters:
+                - name: teamID
+                  in: path
+                  required: true
+                  schema:
+                    type: integer
+                    format: uint32
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/api.palace.GetTeamRolesRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.palace.GetTeamRolesReply'
+        delete:
+            tags:
+                - Team
+            operationId: Team_DeleteTeamRole
+            parameters:
+                - name: teamID
+                  in: path
+                  required: true
+                  schema:
+                    type: integer
+                    format: uint32
+                - name: roleID
+                  in: query
+                  schema:
+                    type: integer
+                    format: uint32
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.palace.DeleteTeamRoleReply'
+    /api/team/save:
+        put:
+            tags:
+                - Team
+            operationId: Team_SaveTeam
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/api.palace.SaveTeamRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.palace.SaveTeamReply'
+    /api/team/transfer/{teamID}:
+        post:
+            tags:
+                - Team
+            operationId: Team_TransferTeam
+            parameters:
+                - name: teamID
+                  in: path
+                  required: true
+                  schema:
+                    type: integer
+                    format: uint32
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/api.palace.TransferTeamRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.palace.TransferTeamReply'
+    /api/team/update/member/position/{teamID}:
+        post:
+            tags:
+                - Team
+            operationId: Team_UpdateMemberPosition
+            parameters:
+                - name: teamID
+                  in: path
+                  required: true
+                  schema:
+                    type: integer
+                    format: uint32
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/api.palace.UpdateMemberPositionRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.palace.UpdateMemberPositionReply'
+    /api/team/update/member/roles/{teamID}:
+        post:
+            tags:
+                - Team
+            operationId: Team_UpdateMemberRoles
+            parameters:
+                - name: teamID
+                  in: path
+                  required: true
+                  schema:
+                    type: integer
+                    format: uint32
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/api.palace.UpdateMemberRolesRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.palace.UpdateMemberRolesReply'
+    /api/team/update/member/status/{teamID}:
+        post:
+            tags:
+                - Team
+            operationId: Team_UpdateMemberStatus
+            parameters:
+                - name: teamID
+                  in: path
+                  required: true
+                  schema:
+                    type: integer
+                    format: uint32
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/api.palace.UpdateMemberStatusRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.palace.UpdateMemberStatusReply'
+    /api/user/self:
+        get:
+            tags:
+                - User
+            operationId: User_SelfInfo
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.palace.SelfInfoReply'
+        put:
+            tags:
+                - User
+            operationId: User_UpdateSelfInfo
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/api.palace.UpdateSelfInfoRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.palace.UpdateSelfInfoReply'
+    /api/user/self/create-team:
+        post:
+            tags:
+                - User
+            operationId: User_CreateTeam
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/api.palace.CreateTeamRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.palace.CreateTeamReply'
+    /api/user/self/join-team:
+        post:
+            tags:
+                - User
+            operationId: User_JoinTeam
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/api.palace.JoinTeamRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.palace.JoinTeamReply'
+    /api/user/self/leave-team:
+        post:
+            tags:
+                - User
+            operationId: User_LeaveTeam
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/api.palace.LeaveTeamRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.palace.LeaveTeamReply'
+    /api/user/self/password:
+        put:
+            tags:
+                - User
+            operationId: User_UpdateSelfPassword
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/api.palace.UpdateSelfPasswordRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.palace.UpdateSelfPasswordReply'
     /health:
         get:
             tags:
@@ -184,12 +770,52 @@ components:
                     type: boolean
                 uuid:
                     type: string
+        api.palace.BatchUpdateResourceStatusReply:
+            type: object
+            properties:
+                message:
+                    type: string
+        api.palace.BatchUpdateResourceStatusRequest:
+            type: object
+            properties:
+                ids:
+                    type: array
+                    items:
+                        type: integer
+                        format: uint32
+                status:
+                    type: integer
+                    format: enum
         api.palace.CaptchaValidateRequest:
             type: object
             properties:
                 captchaId:
                     type: string
                 answer:
+                    type: string
+        api.palace.CreateTeamReply:
+            type: object
+            properties:
+                message:
+                    type: string
+        api.palace.CreateTeamRequest:
+            type: object
+            properties:
+                name:
+                    type: string
+                remark:
+                    type: string
+                logo:
+                    type: string
+        api.palace.DeleteResourceReply:
+            type: object
+            properties:
+                message:
+                    type: string
+        api.palace.DeleteTeamRoleReply:
+            type: object
+            properties:
+                message:
                     type: string
         api.palace.GetCaptchaReply:
             type: object
@@ -199,6 +825,129 @@ components:
                 captchaImg:
                     type: string
                 expiredSeconds:
+                    type: string
+        api.palace.GetResourceReply:
+            type: object
+            properties:
+                detail:
+                    $ref: '#/components/schemas/api.palace.common.ResourceItem'
+        api.palace.GetTeamMembersReply:
+            type: object
+            properties:
+                items:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/api.palace.common.TeamMemberItem'
+        api.palace.GetTeamMembersRequest:
+            type: object
+            properties:
+                teamID:
+                    type: integer
+                    format: uint32
+        api.palace.GetTeamReply:
+            type: object
+            properties:
+                detail:
+                    $ref: '#/components/schemas/api.palace.common.TeamItem'
+        api.palace.GetTeamResourcesReply:
+            type: object
+            properties:
+                items:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/api.palace.common.ResourceItem'
+        api.palace.GetTeamRolesReply:
+            type: object
+            properties:
+                items:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/api.palace.common.TeamRoleItem'
+        api.palace.GetTeamRolesRequest:
+            type: object
+            properties:
+                teamID:
+                    type: integer
+                    format: uint32
+        api.palace.GetUserReply:
+            type: object
+            properties:
+                user:
+                    $ref: '#/components/schemas/api.palace.common.UserItem'
+        api.palace.InviteMemberReply:
+            type: object
+            properties:
+                message:
+                    type: string
+        api.palace.InviteMemberRequest:
+            type: object
+            properties:
+                teamID:
+                    type: integer
+                    format: uint32
+                userEmail:
+                    type: integer
+                    format: uint32
+                position:
+                    type: integer
+                    format: enum
+                roleIds:
+                    type: array
+                    items:
+                        type: integer
+                        format: uint32
+        api.palace.JoinTeamReply:
+            type: object
+            properties:
+                message:
+                    type: string
+        api.palace.JoinTeamRequest:
+            type: object
+            properties:
+                teamID:
+                    type: integer
+                    format: uint32
+                reason:
+                    type: string
+        api.palace.LeaveTeamReply:
+            type: object
+            properties:
+                message:
+                    type: string
+        api.palace.LeaveTeamRequest:
+            type: object
+            properties:
+                teamID:
+                    type: integer
+                    format: uint32
+                reason:
+                    type: string
+        api.palace.ListResourceReply:
+            type: object
+            properties:
+                items:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/api.palace.common.ResourceItem'
+        api.palace.ListResourceRequest:
+            type: object
+            properties:
+                status:
+                    type: array
+                    items:
+                        type: integer
+                        format: enum
+                module:
+                    type: array
+                    items:
+                        type: integer
+                        format: enum
+                domain:
+                    type: array
+                    items:
+                        type: integer
+                        format: enum
+                keyword:
                     type: string
         api.palace.LoginByEmailRequest:
             type: object
@@ -233,7 +982,7 @@ components:
                 expiredSeconds:
                     type: string
                 user:
-                    $ref: '#/components/schemas/api.palace.UserBaseItem'
+                    $ref: '#/components/schemas/api.palace.common.UserBaseItem'
         api.palace.LogoutReply:
             type: object
             properties:
@@ -284,7 +1033,379 @@ components:
         api.palace.RefreshTokenRequest:
             type: object
             properties: {}
-        api.palace.UserBaseItem:
+        api.palace.RemoveMemberReply:
+            type: object
+            properties:
+                message:
+                    type: string
+        api.palace.RemoveMemberRequest:
+            type: object
+            properties:
+                teamID:
+                    type: integer
+                    format: uint32
+                memberID:
+                    type: integer
+                    format: uint32
+        api.palace.ResetUserPasswordReply:
+            type: object
+            properties:
+                message:
+                    type: string
+        api.palace.ResetUserPasswordRequest:
+            type: object
+            properties:
+                userIDs:
+                    type: array
+                    items:
+                        type: integer
+                        format: uint32
+        api.palace.SaveResourceReply:
+            type: object
+            properties:
+                message:
+                    type: string
+        api.palace.SaveResourceRequest:
+            type: object
+            properties:
+                name:
+                    type: string
+                    description: api name
+                path:
+                    type: string
+                    description: api path
+                remark:
+                    type: string
+                    description: api remark
+                module:
+                    type: integer
+                    description: api module
+                    format: enum
+                domain:
+                    type: integer
+                    description: api domain
+                    format: enum
+                id:
+                    type: integer
+                    description: api id
+                    format: uint32
+        api.palace.SaveTeamReply:
+            type: object
+            properties:
+                message:
+                    type: string
+        api.palace.SaveTeamRequest:
+            type: object
+            properties:
+                teamID:
+                    type: integer
+                    format: uint32
+                name:
+                    type: string
+                remark:
+                    type: string
+                logo:
+                    type: string
+        api.palace.SaveTeamRoleReply:
+            type: object
+            properties:
+                message:
+                    type: string
+        api.palace.SaveTeamRoleRequest:
+            type: object
+            properties:
+                teamID:
+                    type: integer
+                    format: uint32
+                roleID:
+                    type: integer
+                    format: uint32
+                name:
+                    type: string
+                remark:
+                    type: string
+                resourceIDs:
+                    type: array
+                    items:
+                        type: integer
+                        format: uint32
+        api.palace.SelfInfoReply:
+            type: object
+            properties:
+                user:
+                    $ref: '#/components/schemas/api.palace.common.UserItem'
+        api.palace.TransferTeamReply:
+            type: object
+            properties:
+                message:
+                    type: string
+        api.palace.TransferTeamRequest:
+            type: object
+            properties:
+                teamID:
+                    type: integer
+                    format: uint32
+                newLeaderID:
+                    type: integer
+                    format: uint32
+        api.palace.UpdateMemberPositionReply:
+            type: object
+            properties:
+                message:
+                    type: string
+        api.palace.UpdateMemberPositionRequest:
+            type: object
+            properties:
+                teamID:
+                    type: integer
+                    format: uint32
+                memberID:
+                    type: integer
+                    format: uint32
+                position:
+                    type: integer
+                    format: enum
+        api.palace.UpdateMemberRolesReply:
+            type: object
+            properties:
+                message:
+                    type: string
+        api.palace.UpdateMemberRolesRequest:
+            type: object
+            properties:
+                teamID:
+                    type: integer
+                    format: uint32
+                memberIDs:
+                    type: array
+                    items:
+                        type: integer
+                        format: uint32
+                roleIDs:
+                    type: array
+                    items:
+                        type: integer
+                        format: uint32
+        api.palace.UpdateMemberStatusReply:
+            type: object
+            properties:
+                message:
+                    type: string
+        api.palace.UpdateMemberStatusRequest:
+            type: object
+            properties:
+                teamID:
+                    type: integer
+                    format: uint32
+                memberIDs:
+                    type: array
+                    items:
+                        type: integer
+                        format: uint32
+                status:
+                    type: integer
+                    format: enum
+        api.palace.UpdateSelfInfoReply:
+            type: object
+            properties:
+                message:
+                    type: string
+        api.palace.UpdateSelfInfoRequest:
+            type: object
+            properties:
+                nickname:
+                    type: string
+                avatar:
+                    type: string
+                gender:
+                    type: integer
+                    format: enum
+        api.palace.UpdateSelfPasswordReply:
+            type: object
+            properties:
+                message:
+                    type: string
+        api.palace.UpdateSelfPasswordRequest:
+            type: object
+            properties:
+                oldPassword:
+                    type: string
+                newPassword:
+                    type: string
+        api.palace.UpdateUserPositionReply:
+            type: object
+            properties:
+                message:
+                    type: string
+        api.palace.UpdateUserPositionRequest:
+            type: object
+            properties:
+                userID:
+                    type: integer
+                    format: uint32
+                position:
+                    type: integer
+                    format: enum
+        api.palace.UpdateUserReply:
+            type: object
+            properties:
+                message:
+                    type: string
+        api.palace.UpdateUserRequest:
+            type: object
+            properties:
+                userID:
+                    type: integer
+                    format: uint32
+                nickname:
+                    type: string
+                avatar:
+                    type: string
+                gender:
+                    type: integer
+                    format: enum
+        api.palace.UpdateUserStatusReply:
+            type: object
+            properties:
+                message:
+                    type: string
+        api.palace.UpdateUserStatusRequest:
+            type: object
+            properties:
+                userIDs:
+                    type: array
+                    items:
+                        type: integer
+                        format: uint32
+                status:
+                    type: integer
+                    format: enum
+        api.palace.VerifyEmailReply:
+            type: object
+            properties:
+                expiredSeconds:
+                    type: string
+        api.palace.VerifyEmailRequest:
+            type: object
+            properties:
+                email:
+                    type: string
+                captcha:
+                    $ref: '#/components/schemas/api.palace.CaptchaValidateRequest'
+        api.palace.common.ResourceItem:
+            type: object
+            properties:
+                id:
+                    type: integer
+                    description: api id
+                    format: uint32
+                name:
+                    type: string
+                    description: api name
+                path:
+                    type: string
+                    description: api path
+                status:
+                    type: integer
+                    description: api status
+                    format: enum
+                remark:
+                    type: string
+                    description: api remark
+                createdAt:
+                    type: string
+                    description: api created at
+                updatedAt:
+                    type: string
+                    description: api updated at
+                module:
+                    type: integer
+                    description: api module
+                    format: enum
+                domain:
+                    type: integer
+                    description: api domain
+                    format: enum
+            description: system-api
+        api.palace.common.TeamItem:
+            type: object
+            properties:
+                id:
+                    type: integer
+                    format: uint32
+                uuid:
+                    type: string
+                name:
+                    type: string
+                remark:
+                    type: string
+                logo:
+                    type: string
+                status:
+                    type: integer
+                    format: enum
+                creator:
+                    $ref: '#/components/schemas/api.palace.common.UserItem'
+                leader:
+                    $ref: '#/components/schemas/api.palace.common.UserItem'
+                admins:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/api.palace.common.UserItem'
+                createdAt:
+                    type: string
+                updatedAt:
+                    type: string
+        api.palace.common.TeamMemberItem:
+            type: object
+            properties:
+                id:
+                    type: integer
+                    format: uint32
+                user:
+                    $ref: '#/components/schemas/api.palace.common.UserItem'
+                position:
+                    type: integer
+                    format: enum
+                status:
+                    type: integer
+                    format: enum
+                inviter:
+                    $ref: '#/components/schemas/api.palace.common.UserItem'
+                roles:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/api.palace.common.TeamRoleItem'
+                createdAt:
+                    type: string
+                updatedAt:
+                    type: string
+        api.palace.common.TeamRoleItem:
+            type: object
+            properties:
+                id:
+                    type: integer
+                    format: uint32
+                name:
+                    type: string
+                remark:
+                    type: string
+                status:
+                    type: integer
+                    format: enum
+                resources:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/api.palace.common.ResourceItem'
+                members:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/api.palace.common.TeamMemberItem'
+                createdAt:
+                    type: string
+                updatedAt:
+                    type: string
+        api.palace.common.UserBaseItem:
             type: object
             properties:
                 username:
@@ -299,18 +1420,18 @@ components:
                 userId:
                     type: integer
                     format: uint32
-        api.palace.VerifyEmailReply:
+        api.palace.common.UserItem:
             type: object
             properties:
-                expiredSeconds:
+                username:
                     type: string
-        api.palace.VerifyEmailRequest:
-            type: object
-            properties:
-                email:
+                nickname:
                     type: string
-                captcha:
-                    $ref: '#/components/schemas/api.palace.CaptchaValidateRequest'
+                avatar:
+                    type: string
+                gender:
+                    type: integer
+                    format: enum
         config.Discovery:
             type: object
             properties:
@@ -390,4 +1511,8 @@ tags:
     - name: Auth
     - name: Health
       description: Health Check API
+    - name: Resource
     - name: Server
+    - name: System
+    - name: Team
+    - name: User

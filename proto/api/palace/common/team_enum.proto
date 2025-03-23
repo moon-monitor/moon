@@ -1,0 +1,37 @@
+syntax = "proto3";
+
+package api.palace.common;
+
+option go_package = "github.com/moon-monitor/moon/pkg/api/palace/common;common";
+option java_multiple_files = true;
+option java_package = "com.api.palace.common";
+
+enum TeamStatus {
+	TEAM_STATUS_UNKNOWN = 0;
+	TEAM_STATUS_NORMAL = 1;
+	TEAM_STATUS_FORBIDDEN = 2;
+	TEAM_STATUS_DELETED = 3;
+}
+
+enum MemberPosition {
+	MEMBER_POSITION_UNKNOWN = 0;
+	MEMBER_POSITION_SUPER_ADMIN = 1;
+	MEMBER_POSITION_ADMIN = 2;
+	MEMBER_POSITION_MEMBER = 3;
+	MEMBER_POSITION_GUEST = 4;
+}
+
+enum MemberStatus {
+	MEMBER_STATUS_UNKNOWN = 0;
+	MEMBER_STATUS_NORMAL = 1;
+	MEMBER_STATUS_FORBIDDEN = 2;
+	MEMBER_STATUS_DELETED = 3;
+	MEMBER_STATUS_PENDING_CONFIRM = 4;
+	MEMBER_STATUS_DEPARTED = 5;
+}
+
+enum RoleStatus {
+	ROLE_STATUS_UNKNOWN = 0;
+	ROLE_STATUS_NORMAL = 1;
+	ROLE_STATUS_FORBIDDEN = 2;
+}

@@ -4,7 +4,8 @@ package api.palace;
 
 import "google/api/annotations.proto";
 import "buf/validate/validate.proto";
-import "palace/user.proto";
+import "palace/common/system.proto";
+import "palace/common/system_enum.proto";
 
 option go_package = "github.com/moon-monitor/moon/pkg/api/palace;palace";
 option java_multiple_files = true;
@@ -85,14 +86,6 @@ message GetCaptchaReply {
   int64 expired_seconds = 3;
 }
 
-message UserBaseItem {
-  string username = 1;
-  string nickname = 2;
-  string avatar = 3;
-  Gender gender = 4;
-  uint32 user_id = 5;
-}
-
 message LoginByPasswordRequest {
   string email = 1 [(buf.validate.field).cel = {
     message: "email is required"
@@ -137,7 +130,7 @@ message LoginByEmailRequest {
     message: "remark max length is 200"
     expression: "this.size() <= 200"
   }];
-  Gender gender = 6;
+  api.palace.common.Gender gender = 6;
 }
 message OAuthLoginByEmailRequest {
   uint32 oauthID = 1 [(buf.validate.field).cel = {
@@ -167,7 +160,7 @@ message OAuthLoginByEmailRequest {
 message LoginReply {
   string token = 1;
   int64 expired_seconds = 2;
-  UserBaseItem user = 3;
+  api.palace.common.UserBaseItem user = 3;
 }
 
 message LogoutRequest {

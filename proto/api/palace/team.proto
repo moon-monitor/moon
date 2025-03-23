@@ -1,0 +1,246 @@
+syntax = "proto3";
+
+package api.palace;
+
+import "google/api/annotations.proto";
+import "buf/validate/validate.proto";
+import "palace/common/team.proto";
+import "palace/common/team_enum.proto";
+import "palace/common/system.proto";
+
+option go_package = "github.com/moon-monitor/moon/pkg/api/palace;palace";
+option java_multiple_files = true;
+option java_package = "com.api.palace";
+
+service Team {
+	rpc SaveTeam (SaveTeamRequest) returns (SaveTeamReply) {
+		option (google.api.http) = {
+			put: "/api/team/save"
+			body: "*"
+		};
+	}	
+
+	rpc GetTeam (GetTeamRequest) returns (GetTeamReply) {
+		option (google.api.http) = {
+			get: "/api/team/detail/{teamID}"
+		};
+	}
+
+	rpc GetTeamResources (GetTeamResourcesRequest) returns (GetTeamResourcesReply) {
+		option (google.api.http) = {
+			get: "/api/team/resources/{teamID}"
+		};
+	}
+
+	rpc TransferTeam (TransferTeamRequest) returns (TransferTeamReply) {
+		option (google.api.http) = {
+			post: "/api/team/transfer/{teamID}"
+			body: "*"
+		};
+	}
+
+	rpc InviteMember (InviteMemberRequest) returns (InviteMemberReply) {
+		option (google.api.http) = {
+			post: "/api/team/invite/member/{teamID}"
+			body: "*"
+		};
+	}
+
+	rpc RemoveMember (RemoveMemberRequest) returns (RemoveMemberReply) {
+		option (google.api.http) = {
+			post: "/api/team/remove/member/{teamID}"
+			body: "*"
+		};
+	}
+
+	rpc GetTeamMembers (GetTeamMembersRequest) returns (GetTeamMembersReply) {
+		option (google.api.http) = {
+			post: "/api/team/members/{teamID}"
+			body: "*"
+		};
+	}
+
+	rpc UpdateMemberPosition (UpdateMemberPositionRequest) returns (UpdateMemberPositionReply) {
+		option (google.api.http) = {
+			post: "/api/team/update/member/position/{teamID}"
+			body: "*"
+		};
+	}
+
+	rpc UpdateMemberStatus (UpdateMemberStatusRequest) returns (UpdateMemberStatusReply) {
+		option (google.api.http) = {
+			post: "/api/team/update/member/status/{teamID}"
+			body: "*"
+		};
+	}
+
+	rpc UpdateMemberRoles (UpdateMemberRolesRequest) returns (UpdateMemberRolesReply) {
+		option (google.api.http) = {
+			post: "/api/team/update/member/roles/{teamID}"
+			body: "*"
+		};
+	}
+	
+	rpc GetTeamRoles (GetTeamRolesRequest) returns (GetTeamRolesReply) {
+		option (google.api.http) = {
+			post: "/api/team/roles/{teamID}"
+			body: "*"
+		};
+	}
+
+	rpc SaveTeamRole (SaveTeamRoleRequest) returns (SaveTeamRoleReply) {
+		option (google.api.http) = {
+			put: "/api/team/roles/{teamID}"
+			body: "*"
+		};
+	}
+
+	rpc DeleteTeamRole (DeleteTeamRoleRequest) returns (DeleteTeamRoleReply) {
+		option (google.api.http) = {
+			delete: "/api/team/roles/{teamID}"
+		};
+	}
+}
+
+message SaveTeamRequest {
+	uint32 teamID = 1 [(buf.validate.field).required = true];
+	string name = 2 [(buf.validate.field).cel = {
+		message: "name is required"
+		expression: "this.size() > 0"
+	}, (buf.validate.field).cel = {
+		message: "name max length is 32"
+		expression: "this.size() <= 32"
+	}];
+	string remark = 3 [(buf.validate.field).cel = {
+		message: "remark max length is 200"
+		expression: "this.size() <= 200"
+	}];
+	string logo = 4 [(buf.validate.field).cel = {
+		message: "logo max length is 255"
+		expression: "this.size() <= 255"
+	}];
+}
+message SaveTeamReply {
+	string message = 1;
+}
+
+message GetTeamRequest {
+	uint32 teamID = 1 [(buf.validate.field).required = true];
+}
+message GetTeamReply {
+	api.palace.common.TeamItem detail = 1;
+}
+
+message GetTeamResourcesRequest {
+	uint32 teamID = 1 [(buf.validate.field).required = true];
+}
+message GetTeamResourcesReply {
+	repeated api.palace.common.ResourceItem items = 1;
+}
+
+message TransferTeamRequest {
+	uint32 teamID = 1 [(buf.validate.field).required = true];
+	uint32 newLeaderID = 2 [(buf.validate.field).required = true];
+}
+message TransferTeamReply {
+	string message = 1;
+}
+
+message InviteMemberRequest {
+	uint32 teamID = 1 [(buf.validate.field).required = true];
+	uint32 userEmail = 2 [(buf.validate.field).required = true];
+	api.palace.common.MemberPosition position = 3 [(buf.validate.field).required = true];
+	repeated uint32 roleIds = 4;
+}
+message InviteMemberReply {
+	string message = 1;
+}
+
+message RemoveMemberRequest {
+	uint32 teamID = 1 [(buf.validate.field).required = true];
+	uint32 memberID = 2 [(buf.validate.field).required = true];
+}
+message RemoveMemberReply {
+	string message = 1;
+}
+
+message GetTeamMembersRequest {
+	uint32 teamID = 1 [(buf.validate.field).required = true];
+}
+message GetTeamMembersReply {
+	repeated api.palace.common.TeamMemberItem items = 1;
+}
+
+message GetTeamRolesRequest {
+	uint32 teamID = 1 [(buf.validate.field).required = true];
+}
+message GetTeamRolesReply {
+	repeated api.palace.common.TeamRoleItem items = 1;
+}
+
+message SaveTeamRoleRequest {
+	uint32 teamID = 1 [(buf.validate.field).required = true];
+	uint32 roleID = 2 [(buf.validate.field).required = true];
+	string name = 3 [(buf.validate.field).cel = {
+		message: "name max length is 32"
+		expression: "this.size() <= 32"
+	}, (buf.validate.field).required = true];
+	string remark = 4 [(buf.validate.field).cel = {
+		message: "remark max length is 200"
+		expression: "this.size() <= 200"
+	}];
+	repeated uint32 resourceIDs = 6;
+}
+message SaveTeamRoleReply {
+	string message = 1;
+}
+
+message UpdateMemberPositionRequest {
+	uint32 teamID = 1 [(buf.validate.field).required = true];
+	uint32 memberID = 2 [(buf.validate.field).required = true];
+	api.palace.common.MemberPosition position = 3 [(buf.validate.field).required = true];
+}
+message UpdateMemberPositionReply {
+	string message = 1;
+}
+
+message UpdateMemberStatusRequest {
+	uint32 teamID = 1 [(buf.validate.field).required = true];
+	repeated uint32 memberIDs = 2 [(buf.validate.field).cel = {
+		message: "memberIDs is required"
+		expression: "this.size() > 0"
+	}, (buf.validate.field).cel = {
+		message: "memberIDs max size is 100"
+		expression: "this.size() <= 100"
+	}];
+	api.palace.common.MemberStatus status = 3 [(buf.validate.field).required = true];	
+}
+message UpdateMemberStatusReply {
+	string message = 1;
+}
+
+message UpdateMemberRolesRequest {
+	uint32 teamID = 1 [(buf.validate.field).required = true];
+	repeated uint32 memberIDs = 2 [(buf.validate.field).cel = {
+		message: "memberIDs is required"
+		expression: "this.size() > 0"
+	}, (buf.validate.field).cel = {
+		message: "memberIDs max size is 100"
+		expression: "this.size() <= 100"
+	}];
+	repeated uint32 roleIDs = 3 [(buf.validate.field).cel = {
+		message: "roleIDs is required"
+		expression: "this.size() > 0"
+	}];
+}
+message UpdateMemberRolesReply {
+	string message = 1;
+}
+
+message DeleteTeamRoleRequest {
+	uint32 teamID = 1 [(buf.validate.field).required = true];
+	uint32 roleID = 2 [(buf.validate.field).required = true];
+}
+message DeleteTeamRoleReply {
+	string message = 1;
+}

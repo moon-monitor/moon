@@ -1,0 +1,100 @@
+syntax = "proto3";
+
+package api.palace;
+
+import "google/api/annotations.proto";
+import "buf/validate/validate.proto";
+import "palace/common/system.proto";
+import "palace/common/system_enum.proto";
+
+option go_package = "github.com/moon-monitor/moon/pkg/api/palace;palace";
+option java_multiple_files = true;
+option java_package = "com.api.palace";
+
+service System {
+	rpc UpdateUser (UpdateUserRequest) returns (UpdateUserReply) {
+		option (google.api.http) = {
+			put: "/api/system/user"
+			body: "*"
+		};
+	}
+
+	rpc UpdateUserStatus (UpdateUserStatusRequest) returns (UpdateUserStatusReply) {
+		option (google.api.http) = {
+			put: "/api/system/user/status"
+			body: "*"
+		};
+	}
+
+	rpc ResetUserPassword (ResetUserPasswordRequest) returns (ResetUserPasswordReply) {
+		option (google.api.http) = {
+			put: "/api/system/user/password"
+			body: "*"
+		};
+	}
+
+	rpc UpdateUserPosition (UpdateUserPositionRequest) returns (UpdateUserPositionReply) {
+		option (google.api.http) = {
+			put: "/api/system/user/position"
+			body: "*"
+		};
+	}
+
+	rpc GetUser (GetUserRequest) returns (GetUserReply) {
+		option (google.api.http) = {
+			get: "/api/system/user/{userID}"
+		};
+	}
+}
+
+message UpdateUserRequest {
+	uint32 userID = 1 [(buf.validate.field).required = true];
+	string nickname = 2 [(buf.validate.field).required = true];
+	string avatar = 3 [(buf.validate.field).required = true];
+	api.palace.common.Gender gender = 4 [(buf.validate.field).required = true];
+}
+message UpdateUserReply {
+	string message = 1;
+}
+
+message UpdateUserStatusRequest {
+	repeated uint32 userIDs = 1 [(buf.validate.field).cel = {
+		message: "userIDs is required"
+		expression: "this.size() > 0"
+	}, (buf.validate.field).cel = {
+		message: "userIDs max size is 100"
+		expression: "this.size() <= 100"
+	}];
+	api.palace.common.UserStatus status = 2 [(buf.validate.field).required = true];
+}
+message UpdateUserStatusReply {
+	string message = 1;
+}
+
+message ResetUserPasswordRequest {
+	repeated uint32 userIDs = 1 [(buf.validate.field).cel = {
+		message: "userIDs is required"
+		expression: "this.size() > 0"
+	}, (buf.validate.field).cel = {
+		message: "userIDs max size is 100"
+		expression: "this.size() <= 100"
+	}];
+}
+message ResetUserPasswordReply {
+	string message = 1;
+}
+
+message UpdateUserPositionRequest {
+	uint32 userID = 1 [(buf.validate.field).required = true];
+	api.palace.common.UserPosition position = 2 [(buf.validate.field).required = true];
+}
+message UpdateUserPositionReply {
+	string message = 1;
+}
+
+message GetUserRequest {
+	uint32 userID = 1 [(buf.validate.field).required = true];
+}
+message GetUserReply {
+	api.palace.common.UserItem user = 1;
+}
