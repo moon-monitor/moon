@@ -63,6 +63,12 @@ service System {
     };
   }
 
+  rpc GetSystemRole (GetSystemRoleRequest) returns (GetSystemRoleReply) {
+    option (google.api.http) = {
+      get: "/api/system/role/{roleID}"
+    };
+  }
+
   rpc SaveRole (SaveRoleRequest) returns (SaveRoleReply) {
     option (google.api.http) = {
       post: "/api/system/role"
@@ -73,6 +79,20 @@ service System {
   rpc UpdateRoleStatus (UpdateRoleStatusRequest) returns (UpdateRoleStatusReply) {
     option (google.api.http) = {
       put: "/api/system/role/status"
+      body: "*"
+    };
+  }
+
+  rpc UpdateUserRoles (UpdateUserRolesRequest) returns (UpdateUserRolesReply) {
+    option (google.api.http) = {
+      put: "/api/system/user/roles"
+      body: "*"
+    };
+  }
+
+  rpc UpdateRoleUsers (UpdateRoleUsersRequest) returns (UpdateRoleUsersReply) {
+    option (google.api.http) = {
+      put: "/api/system/role/users"
       body: "*"
     };
   }
@@ -172,4 +192,27 @@ message UpdateRoleStatusRequest {
 }
 message UpdateRoleStatusReply {
   string message = 1;
+}
+
+message UpdateUserRolesRequest {
+  uint32 userID = 1 [(buf.validate.field).required = true];
+  repeated uint32 roleIDs = 2 [(buf.validate.field).required = true];
+}
+message UpdateUserRolesReply {
+  string message = 1;
+}
+
+message UpdateRoleUsersRequest {
+  uint32 roleID = 1 [(buf.validate.field).required = true];
+  repeated uint32 userIDs = 2 [(buf.validate.field).required = true];
+}
+message UpdateRoleUsersReply {
+  string message = 1;
+}
+
+message GetSystemRoleRequest {
+  uint32 roleID = 1 [(buf.validate.field).required = true];
+}
+message GetSystemRoleReply {
+  api.palace.common.SystemRoleItem role = 1;
 }

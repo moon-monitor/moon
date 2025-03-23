@@ -253,6 +253,43 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/api.palace.UpdateRoleStatusReply'
+    /api/system/role/users:
+        put:
+            tags:
+                - System
+            operationId: System_UpdateRoleUsers
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/api.palace.UpdateRoleUsersRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.palace.UpdateRoleUsersReply'
+    /api/system/role/{roleID}:
+        get:
+            tags:
+                - System
+            operationId: System_GetSystemRole
+            parameters:
+                - name: roleID
+                  in: path
+                  required: true
+                  schema:
+                    type: integer
+                    format: uint32
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.palace.GetSystemRoleReply'
     /api/system/team/list:
         post:
             tags:
@@ -343,6 +380,24 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/api.palace.UpdateUserPositionReply'
+    /api/system/user/roles:
+        put:
+            tags:
+                - System
+            operationId: System_UpdateUserRoles
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/api.palace.UpdateUserRolesRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.palace.UpdateUserRolesReply'
     /api/system/user/status:
         put:
             tags:
@@ -928,6 +983,11 @@ components:
             properties:
                 detail:
                     $ref: '#/components/schemas/api.palace.common.ResourceItem'
+        api.palace.GetSystemRoleReply:
+            type: object
+            properties:
+                role:
+                    $ref: '#/components/schemas/api.palace.common.SystemRoleItem'
         api.palace.GetTeamListReply:
             type: object
             properties:
@@ -1402,6 +1462,22 @@ components:
                 status:
                     type: integer
                     format: enum
+        api.palace.UpdateRoleUsersReply:
+            type: object
+            properties:
+                message:
+                    type: string
+        api.palace.UpdateRoleUsersRequest:
+            type: object
+            properties:
+                roleID:
+                    type: integer
+                    format: uint32
+                userIDs:
+                    type: array
+                    items:
+                        type: integer
+                        format: uint32
         api.palace.UpdateSelfInfoReply:
             type: object
             properties:
@@ -1461,6 +1537,22 @@ components:
                 gender:
                     type: integer
                     format: enum
+        api.palace.UpdateUserRolesReply:
+            type: object
+            properties:
+                message:
+                    type: string
+        api.palace.UpdateUserRolesRequest:
+            type: object
+            properties:
+                userID:
+                    type: integer
+                    format: uint32
+                roleIDs:
+                    type: array
+                    items:
+                        type: integer
+                        format: uint32
         api.palace.UpdateUserStatusReply:
             type: object
             properties:
@@ -1555,6 +1647,19 @@ components:
                     type: string
                 disabled:
                     type: boolean
+        api.palace.common.SystemRoleItem:
+            type: object
+            properties:
+                id:
+                    type: integer
+                    format: uint32
+                name:
+                    type: string
+                remark:
+                    type: string
+                status:
+                    type: integer
+                    format: enum
         api.palace.common.TeamItem:
             type: object
             properties:

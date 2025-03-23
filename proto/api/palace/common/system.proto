@@ -3,6 +3,7 @@ syntax = "proto3";
 package api.palace.common;
 
 import "palace/common/system_enum.proto";
+import "palace/common/common_enum.proto";
 
 option go_package = "github.com/moon-monitor/moon/pkg/api/palace/common;common";
 option java_multiple_files = true;
@@ -43,4 +44,11 @@ message UserItem {
   string nickname = 2;
   string avatar = 3;
   api.palace.common.Gender gender = 4;
+}
+
+message SystemRoleItem {
+  uint32 id = 1;
+  string name = 2;
+  string remark = 3;
+  api.palace.common.RoleStatus status = 4;
 }
