@@ -7,6 +7,7 @@ import "buf/validate/validate.proto";
 import "palace/common/system.proto";
 import "palace/common/system_enum.proto";
 import "palace/common/common.proto";
+import "palace/common/common_enum.proto";
 import "palace/common/team.proto";
 
 option go_package = "github.com/moon-monitor/moon/pkg/api/palace;palace";
@@ -14,123 +15,161 @@ option java_multiple_files = true;
 option java_package = "com.api.palace";
 
 service System {
-	rpc UpdateUser (UpdateUserRequest) returns (UpdateUserReply) {
-		option (google.api.http) = {
-			put: "/api/system/user"
-			body: "*"
-		};
-	}
+  rpc UpdateUser (UpdateUserRequest) returns (UpdateUserReply) {
+    option (google.api.http) = {
+      put: "/api/system/user"
+      body: "*"
+    };
+  }
 
-	rpc UpdateUserStatus (UpdateUserStatusRequest) returns (UpdateUserStatusReply) {
-		option (google.api.http) = {
-			put: "/api/system/user/status"
-			body: "*"
-		};
-	}
+  rpc UpdateUserStatus (UpdateUserStatusRequest) returns (UpdateUserStatusReply) {
+    option (google.api.http) = {
+      put: "/api/system/user/status"
+      body: "*"
+    };
+  }
 
-	rpc ResetUserPassword (ResetUserPasswordRequest) returns (ResetUserPasswordReply) {
-		option (google.api.http) = {
-			put: "/api/system/user/password"
-			body: "*"
-		};
-	}
+  rpc ResetUserPassword (ResetUserPasswordRequest) returns (ResetUserPasswordReply) {
+    option (google.api.http) = {
+      put: "/api/system/user/password"
+      body: "*"
+    };
+  }
 
-	rpc UpdateUserPosition (UpdateUserPositionRequest) returns (UpdateUserPositionReply) {
-		option (google.api.http) = {
-			put: "/api/system/user/position"
-			body: "*"
-		};
-	}
+  rpc UpdateUserPosition (UpdateUserPositionRequest) returns (UpdateUserPositionReply) {
+    option (google.api.http) = {
+      put: "/api/system/user/position"
+      body: "*"
+    };
+  }
 
-	rpc GetUser (GetUserRequest) returns (GetUserReply) {
-		option (google.api.http) = {
-			get: "/api/system/user/{userID}"
-		};
-	}
+  rpc GetUser (GetUserRequest) returns (GetUserReply) {
+    option (google.api.http) = {
+      get: "/api/system/user/{userID}"
+    };
+  }
 
-	rpc GetUserList (GetUserListRequest) returns (GetUserListReply) {
-		option (google.api.http) = {
-			post: "/api/system/user/list"
-			body: "*"
-		};
-	}
+  rpc GetUserList (GetUserListRequest) returns (GetUserListReply) {
+    option (google.api.http) = {
+      post: "/api/system/user/list"
+      body: "*"
+    };
+  }
 
-	rpc GetTeamList (GetTeamListRequest) returns (GetTeamListReply) {
-		option (google.api.http) = {
-			post: "/api/system/team/list"
-			body: "*"
-		};
-	}
+  rpc GetTeamList (GetTeamListRequest) returns (GetTeamListReply) {
+    option (google.api.http) = {
+      post: "/api/system/team/list"
+      body: "*"
+    };
+  }
+
+  rpc SaveRole (SaveRoleRequest) returns (SaveRoleReply) {
+    option (google.api.http) = {
+      post: "/api/system/role"
+      body: "*"
+    };
+  }
+
+  rpc UpdateRoleStatus (UpdateRoleStatusRequest) returns (UpdateRoleStatusReply) {
+    option (google.api.http) = {
+      put: "/api/system/role/status"
+      body: "*"
+    };
+  }
 }
 
 message UpdateUserRequest {
-	uint32 userID = 1 [(buf.validate.field).required = true];
-	string nickname = 2 [(buf.validate.field).required = true];
-	string avatar = 3 [(buf.validate.field).required = true];
-	api.palace.common.Gender gender = 4 [(buf.validate.field).required = true];
+  uint32 userID = 1 [(buf.validate.field).required = true];
+  string nickname = 2 [(buf.validate.field).required = true];
+  string avatar = 3 [(buf.validate.field).required = true];
+  api.palace.common.Gender gender = 4 [(buf.validate.field).required = true];
 }
 message UpdateUserReply {
-	string message = 1;
+  string message = 1;
 }
 
 message UpdateUserStatusRequest {
-	repeated uint32 userIDs = 1 [(buf.validate.field).cel = {
-		message: "userIDs is required"
-		expression: "this.size() > 0"
-	}, (buf.validate.field).cel = {
-		message: "userIDs max size is 100"
-		expression: "this.size() <= 100"
-	}];
-	api.palace.common.UserStatus status = 2 [(buf.validate.field).required = true];
+  repeated uint32 userIDs = 1 [(buf.validate.field).cel = {
+    message: "userIDs is required"
+    expression: "this.size() > 0"
+  }, (buf.validate.field).cel = {
+    message: "userIDs max size is 100"
+    expression: "this.size() <= 100"
+  }];
+  api.palace.common.UserStatus status = 2 [(buf.validate.field).required = true];
 }
 message UpdateUserStatusReply {
-	string message = 1;
+  string message = 1;
 }
 
 message ResetUserPasswordRequest {
-	repeated uint32 userIDs = 1 [(buf.validate.field).cel = {
-		message: "userIDs is required"
-		expression: "this.size() > 0"
-	}, (buf.validate.field).cel = {
-		message: "userIDs max size is 100"
-		expression: "this.size() <= 100"
-	}];
+  repeated uint32 userIDs = 1 [(buf.validate.field).cel = {
+    message: "userIDs is required"
+    expression: "this.size() > 0"
+  }, (buf.validate.field).cel = {
+    message: "userIDs max size is 100"
+    expression: "this.size() <= 100"
+  }];
 }
 message ResetUserPasswordReply {
-	string message = 1;
+  string message = 1;
 }
 
 message UpdateUserPositionRequest {
-	uint32 userID = 1 [(buf.validate.field).required = true];
-	api.palace.common.UserPosition position = 2 [(buf.validate.field).required = true];
+  uint32 userID = 1 [(buf.validate.field).required = true];
+  api.palace.common.UserPosition position = 2 [(buf.validate.field).required = true];
 }
 message UpdateUserPositionReply {
-	string message = 1;
+  string message = 1;
 }
 
 message GetUserRequest {
-	uint32 userID = 1 [(buf.validate.field).required = true];
+  uint32 userID = 1 [(buf.validate.field).required = true];
 }
 message GetUserReply {
-	api.palace.common.UserItem user = 1;
+  api.palace.common.UserItem user = 1;
 }
 
 message GetUserListRequest {
-	repeated api.palace.common.UserStatus status = 1;
-	repeated api.palace.common.UserPosition position = 2;
-	api.palace.common.Pagination pagination = 3;
+  repeated api.palace.common.UserStatus status = 1;
+  repeated api.palace.common.UserPosition position = 2;
+  api.palace.common.Pagination pagination = 3;
 }
 message GetUserListReply {
-	repeated api.palace.common.UserItem users = 1;
-	api.palace.common.PaginationReply pagination = 2;
+  repeated api.palace.common.UserItem users = 1;
+  api.palace.common.PaginationReply pagination = 2;
 }
 
 message GetTeamListRequest {
-	api.palace.common.Pagination pagination = 1;
-	repeated api.palace.common.SelectItem status = 2;
-	string keyword = 3;
+  api.palace.common.Pagination pagination = 1;
+  repeated api.palace.common.SelectItem status = 2;
+  string keyword = 3;
 }
 message GetTeamListReply {
-	repeated api.palace.common.TeamItem items = 1;
-	api.palace.common.PaginationReply pagination = 2;
+  repeated api.palace.common.TeamItem items = 1;
+  api.palace.common.PaginationReply pagination = 2;
+}
+
+message SaveRoleRequest {
+  uint32 roleID = 1;
+  string name = 2 [(buf.validate.field).cel = {
+    message: "name max length is 32"
+    expression: "this.size() <= 32"
+  }, (buf.validate.field).required = true];
+  string remark = 3 [(buf.validate.field).cel = {
+    message: "remark max length is 200"
+    expression: "this.size() <= 200"
+  }];
+  repeated uint32 resourceIDs = 4 [(buf.validate.field).required = true];
+}
+message SaveRoleReply {
+  string message = 1;
+}
+
+message UpdateRoleStatusRequest {
+  uint32 roleID = 1 [(buf.validate.field).required = true];
+  api.palace.common.RoleStatus status = 2 [(buf.validate.field).required = true];
+}
+message UpdateRoleStatusReply {
+  string message = 1;
 }

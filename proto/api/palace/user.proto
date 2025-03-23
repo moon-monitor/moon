@@ -12,109 +12,109 @@ option java_multiple_files = true;
 option java_package = "com.api.palace";
 
 service User {
-	rpc SelfInfo (SelfInfoRequest) returns (SelfInfoReply) {
-		option (google.api.http) = {
-			get: "/api/user/self"
-		};
-	}
+  rpc SelfInfo (SelfInfoRequest) returns (SelfInfoReply) {
+    option (google.api.http) = {
+      get: "/api/user/self"
+    };
+  }
 
-	rpc UpdateSelfInfo (UpdateSelfInfoRequest) returns (UpdateSelfInfoReply) {
-		option (google.api.http) = {
-			put: "/api/user/self"
-			body: "*"
-		};
-	}
+  rpc UpdateSelfInfo (UpdateSelfInfoRequest) returns (UpdateSelfInfoReply) {
+    option (google.api.http) = {
+      put: "/api/user/self"
+      body: "*"
+    };
+  }
 
-	rpc UpdateSelfPassword (UpdateSelfPasswordRequest) returns (UpdateSelfPasswordReply) {
-		option (google.api.http) = {
-			put: "/api/user/self/password"
-			body: "*"
-		};
-	}
+  rpc UpdateSelfPassword (UpdateSelfPasswordRequest) returns (UpdateSelfPasswordReply) {
+    option (google.api.http) = {
+      put: "/api/user/self/password"
+      body: "*"
+    };
+  }
 
-	rpc LeaveTeam (LeaveTeamRequest) returns (LeaveTeamReply) {
-		option (google.api.http) = {
-			post: "/api/user/self/leave-team"
-			body: "*"
-		};
-	}
+  rpc LeaveTeam (LeaveTeamRequest) returns (LeaveTeamReply) {
+    option (google.api.http) = {
+      post: "/api/user/self/leave-team"
+      body: "*"
+    };
+  }
 
-	rpc JoinTeam (JoinTeamRequest) returns (JoinTeamReply) {
-		option (google.api.http) = {
-			post: "/api/user/self/join-team"
-			body: "*"
-		};
-	}
+  rpc JoinTeam (JoinTeamRequest) returns (JoinTeamReply) {
+    option (google.api.http) = {
+      post: "/api/user/self/join-team"
+      body: "*"
+    };
+  }
 
-	rpc CreateTeam (CreateTeamRequest) returns (CreateTeamReply) {
-		option (google.api.http) = {
-			post: "/api/user/self/create-team"
-			body: "*"
-		};
-	}
+  rpc CreateTeam (CreateTeamRequest) returns (CreateTeamReply) {
+    option (google.api.http) = {
+      post: "/api/user/self/create-team"
+      body: "*"
+    };
+  }
 }
 
 message SelfInfoRequest {}
 message SelfInfoReply {
-	api.palace.common.UserItem user = 1;
+  api.palace.common.UserItem user = 1;
 }
 
 message UpdateSelfInfoRequest {
-	string nickname = 1 [(buf.validate.field).required = true];
-	string avatar = 2 [(buf.validate.field).required = true];
-	api.palace.common.Gender gender = 3 [(buf.validate.field).required = true];
+  string nickname = 1 [(buf.validate.field).required = true];
+  string avatar = 2 [(buf.validate.field).required = true];
+  api.palace.common.Gender gender = 3 [(buf.validate.field).required = true];
 }
 message UpdateSelfInfoReply {
-	string message = 1;
+  string message = 1;
 }
 
 message UpdateSelfPasswordRequest {
-	string oldPassword = 1 [(buf.validate.field).required = true];
-	string newPassword = 2 [(buf.validate.field).required = true];
+  string oldPassword = 1 [(buf.validate.field).required = true];
+  string newPassword = 2 [(buf.validate.field).required = true];
 }
 message UpdateSelfPasswordReply {
-	string message = 1;
+  string message = 1;
 }
 
 message LeaveTeamRequest {
-	uint32 teamID = 1 [(buf.validate.field).required = true];
-	string reason = 2 [(buf.validate.field).cel = {
-		message: "reason max length is 200"
-		expression: "this.size() <= 200"
-	}, (buf.validate.field).required = true];
+  uint32 teamID = 1 [(buf.validate.field).required = true];
+  string reason = 2 [(buf.validate.field).cel = {
+    message: "reason max length is 200"
+    expression: "this.size() <= 200"
+  }, (buf.validate.field).required = true];
 }
 message LeaveTeamReply {
-	string message = 1;
+  string message = 1;
 }
 
 message JoinTeamRequest {
-	uint32 teamID = 1 [(buf.validate.field).required = true];
-	string reason = 2 [(buf.validate.field).cel = {
-		message: "reason max length is 200"
-		expression: "this.size() <= 200"
-	}, (buf.validate.field).required = true];
+  uint32 teamID = 1 [(buf.validate.field).required = true];
+  string reason = 2 [(buf.validate.field).cel = {
+    message: "reason max length is 200"
+    expression: "this.size() <= 200"
+  }, (buf.validate.field).required = true];
 }
 message JoinTeamReply {
-	string message = 1;
+  string message = 1;
 }
 
 message CreateTeamRequest {
-	string name = 1 [(buf.validate.field).cel = {
-		message: "name is required"
-		expression: "this.size() > 0"
-	}, (buf.validate.field).cel = {
-		message: "name max length is 32"
-		expression: "this.size() <= 32"
-	}];
-	string remark = 2 [(buf.validate.field).cel = {
-		message: "remark max length is 200"
-		expression: "this.size() <= 200"
-	}];
-	string logo = 3 [(buf.validate.field).cel = {
-		message: "logo max length is 255"
-		expression: "this.size() <= 255"
-	}];
+  string name = 1 [(buf.validate.field).cel = {
+    message: "name is required"
+    expression: "this.size() > 0"
+  }, (buf.validate.field).cel = {
+    message: "name max length is 32"
+    expression: "this.size() <= 32"
+  }];
+  string remark = 2 [(buf.validate.field).cel = {
+    message: "remark max length is 200"
+    expression: "this.size() <= 200"
+  }];
+  string logo = 3 [(buf.validate.field).cel = {
+    message: "logo max length is 255"
+    expression: "this.size() <= 255"
+  }];
 }
 message CreateTeamReply {
-	string message = 1;
+  string message = 1;
 }

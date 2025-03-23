@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+package api.palace.common;
+
+option go_package = "github.com/moon-monitor/moon/pkg/api/palace/common;common";
+option java_multiple_files = true;
+option java_package = "com.api.palace.common";
+
+enum RoleStatus {
+  ROLE_STATUS_UNKNOWN = 0;
+  ROLE_STATUS_NORMAL = 1;
+  ROLE_STATUS_FORBIDDEN = 2;
+}

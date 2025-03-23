@@ -12,103 +12,103 @@ option java_multiple_files = true;
 option java_package = "com.api.palace";
 
 service Resource {
-	rpc SaveResource (SaveResourceRequest) returns (SaveResourceReply) {
-		option (google.api.http) = {
-			put: "/api/resource/save"
-			body: "*"
-		};
-	}
-	rpc BatchUpdateResourceStatus (BatchUpdateResourceStatusRequest) returns (BatchUpdateResourceStatusReply) {
-		option (google.api.http) = {
-			put: "/api/resource/batch/status"
-			body: "*"
-		};
-	}
-	rpc DeleteResource (DeleteResourceRequest) returns (DeleteResourceReply) {
-		option (google.api.http) = {
-			delete: "/api/resource/{id}"
-		};
-	}
-	rpc GetResource (GetResourceRequest) returns (GetResourceReply) {
-		option (google.api.http) = {
-			get: "/api/resource/{id}"
-		};
-	}
-	rpc ListResource (ListResourceRequest) returns (ListResourceReply) {
-		option (google.api.http) = {
-			post: "/api/resource/list"
-			body: "*"
-		};
-	}
+  rpc SaveResource (SaveResourceRequest) returns (SaveResourceReply) {
+    option (google.api.http) = {
+      put: "/api/resource/save"
+      body: "*"
+    };
+  }
+  rpc BatchUpdateResourceStatus (BatchUpdateResourceStatusRequest) returns (BatchUpdateResourceStatusReply) {
+    option (google.api.http) = {
+      put: "/api/resource/batch/status"
+      body: "*"
+    };
+  }
+  rpc DeleteResource (DeleteResourceRequest) returns (DeleteResourceReply) {
+    option (google.api.http) = {
+      delete: "/api/resource/{id}"
+    };
+  }
+  rpc GetResource (GetResourceRequest) returns (GetResourceReply) {
+    option (google.api.http) = {
+      get: "/api/resource/{id}"
+    };
+  }
+  rpc ListResource (ListResourceRequest) returns (ListResourceReply) {
+    option (google.api.http) = {
+      post: "/api/resource/list"
+      body: "*"
+    };
+  }
 }
 
 message SaveResourceRequest {
-	// api name
-	string name = 1 [(buf.validate.field).cel = {
-		message: "name is required"
-		expression: "this.size() > 0"
-	}, (buf.validate.field).cel = {
-		message: "name max length is 32"
-		expression: "this.size() <= 32"
-	}];
-	// api path
-	string path = 2 [(buf.validate.field).cel = {
-		message: "path is required"
-		expression: "this.size() > 0"
-	}, (buf.validate.field).cel = {
-		message: "path max length is 128"
-		expression: "this.size() <= 128"
-	}];
-	// api remark
-	string remark = 3 [(buf.validate.field).cel = {
-		message: "remark max length is 200"
-		expression: "this.size() <= 200"
-	}];
-	// api module
-	api.palace.common.ResourceModule module = 4 [(buf.validate.field).required = true, (buf.validate.field).cel = {
-		message: "module is required"
-		expression: "this > 0"
-	}];
-	// api domain
-	api.palace.common.ResourceDomain domain = 5 [(buf.validate.field).required = true, (buf.validate.field).cel = {
-		message: "domain is required"
-		expression: "this > 0"
-	}];
-	// api id
-	uint32 id = 6;
+  // api name
+  string name = 1 [(buf.validate.field).cel = {
+    message: "name is required"
+    expression: "this.size() > 0"
+  }, (buf.validate.field).cel = {
+    message: "name max length is 32"
+    expression: "this.size() <= 32"
+  }];
+  // api path
+  string path = 2 [(buf.validate.field).cel = {
+    message: "path is required"
+    expression: "this.size() > 0"
+  }, (buf.validate.field).cel = {
+    message: "path max length is 128"
+    expression: "this.size() <= 128"
+  }];
+  // api remark
+  string remark = 3 [(buf.validate.field).cel = {
+    message: "remark max length is 200"
+    expression: "this.size() <= 200"
+  }];
+  // api module
+  api.palace.common.ResourceModule module = 4 [(buf.validate.field).required = true, (buf.validate.field).cel = {
+    message: "module is required"
+    expression: "this > 0"
+  }];
+  // api domain
+  api.palace.common.ResourceDomain domain = 5 [(buf.validate.field).required = true, (buf.validate.field).cel = {
+    message: "domain is required"
+    expression: "this > 0"
+  }];
+  // api id
+  uint32 id = 6;
 }
 message SaveResourceReply {
-	string message = 1;
+  string message = 1;
 }
 
 message BatchUpdateResourceStatusRequest {
-	repeated uint32 ids = 1 [(buf.validate.field).required = true];
-	api.palace.common.ResourceStatus status = 2 [(buf.validate.field).required = true];
+  repeated uint32 ids = 1 [(buf.validate.field).required = true];
+  api.palace.common.ResourceStatus status = 2 [(buf.validate.field).required = true];
 }
 message BatchUpdateResourceStatusReply {
-	string message = 1;
+  string message = 1;
 }
 
 message DeleteResourceRequest {
-	uint32 id = 1 [(buf.validate.field).required = true];
+  uint32 id = 1 [(buf.validate.field).required = true];
 }
 message DeleteResourceReply {
-	string message = 1;
+  string message = 1;
 }
 
 message GetResourceRequest {
-	uint32 id = 1 [(buf.validate.field).required = true];
+  uint32 id = 1 [(buf.validate.field).required = true];
 }
 message GetResourceReply {
-	api.palace.common.ResourceItem detail = 1;
+  api.palace.common.ResourceItem detail = 1;
 }
 
 message ListResourceRequest {
-	repeated api.palace.common.ResourceStatus status = 1;
-	repeated api.palace.common.ResourceModule module = 2;
-	repeated api.palace.common.ResourceDomain domain = 3;
-	string keyword = 4;
+  repeated api.palace.common.ResourceStatus status = 1;
+  repeated api.palace.common.ResourceModule module = 2;
+  repeated api.palace.common.ResourceDomain domain = 3;
+  string keyword = 4;
 }
 message ListResourceReply {
-	repeated api.palace.common.ResourceItem items = 1;
+  repeated api.palace.common.ResourceItem items = 1;
 }

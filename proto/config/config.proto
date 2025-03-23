@@ -16,12 +16,12 @@ enum Environment {
 }
 
 enum Network {
-    // http
-    HTTP = 0;
-    // https
-    HTTPS = 1;
-    // grpc
-    GRPC = 2;
+  // http
+  HTTP = 0;
+  // https
+  HTTPS = 1;
+  // grpc
+  GRPC = 2;
 }
 
 message Server {

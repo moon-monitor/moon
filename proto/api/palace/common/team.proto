@@ -3,6 +3,7 @@ syntax = "proto3";
 package api.palace.common;
 
 import "palace/common/team_enum.proto";
+import "palace/common/common_enum.proto";
 import "palace/common/system.proto";
 
 option go_package = "github.com/moon-monitor/moon/pkg/api/palace/common;common";
@@ -10,37 +11,37 @@ option java_multiple_files = true;
 option java_package = "com.api.palace.common";
 
 message TeamItem {
-	uint32 id = 1;
-	string uuid = 2;
-	string name = 3;
-	string remark = 4;
-	string logo = 5;
-	api.palace.common.TeamStatus status = 6;
-	api.palace.common.UserItem creator = 7;
-	api.palace.common.UserItem leader = 8;
-	repeated api.palace.common.UserItem admins = 9;
-	string createdAt = 10;
-	string updatedAt = 11;
+  uint32 id = 1;
+  string uuid = 2;
+  string name = 3;
+  string remark = 4;
+  string logo = 5;
+  api.palace.common.TeamStatus status = 6;
+  api.palace.common.UserItem creator = 7;
+  api.palace.common.UserItem leader = 8;
+  repeated api.palace.common.UserItem admins = 9;
+  string createdAt = 10;
+  string updatedAt = 11;
 }
 
 message TeamRoleItem {
-	uint32 id = 1;
-	string name = 2;
-	string remark = 3;
-	api.palace.common.RoleStatus status = 4;
-	repeated api.palace.common.ResourceItem resources = 5;
-	repeated TeamMemberItem members = 6;
-	string createdAt = 7;
-	string updatedAt = 8;
+  uint32 id = 1;
+  string name = 2;
+  string remark = 3;
+  api.palace.common.RoleStatus status = 4;
+  repeated api.palace.common.ResourceItem resources = 5;
+  repeated TeamMemberItem members = 6;
+  string createdAt = 7;
+  string updatedAt = 8;
 }
 
 message TeamMemberItem {
-	uint32 id = 1;
-	api.palace.common.UserItem user = 2;
-	api.palace.common.MemberPosition position = 3;
-	api.palace.common.MemberStatus status = 4;
-	api.palace.common.UserItem inviter = 5;
-	repeated TeamRoleItem roles = 6;
-	string createdAt = 7;
-	string updatedAt = 8;
+  uint32 id = 1;
+  api.palace.common.UserItem user = 2;
+  api.palace.common.MemberPosition position = 3;
+  api.palace.common.MemberStatus status = 4;
+  api.palace.common.UserItem inviter = 5;
+  repeated TeamRoleItem roles = 6;
+  string createdAt = 7;
+  string updatedAt = 8;
 }

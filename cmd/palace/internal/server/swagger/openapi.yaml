@@ -217,6 +217,42 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/api.palace.DeleteResourceReply'
+    /api/system/role:
+        post:
+            tags:
+                - System
+            operationId: System_SaveRole
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/api.palace.SaveRoleRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.palace.SaveRoleReply'
+    /api/system/role/status:
+        put:
+            tags:
+                - System
+            operationId: System_UpdateRoleStatus
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/api.palace.UpdateRoleStatusRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.palace.UpdateRoleStatusReply'
     /api/system/team/list:
         post:
             tags:
@@ -1216,6 +1252,26 @@ components:
                     type: integer
                     description: api id
                     format: uint32
+        api.palace.SaveRoleReply:
+            type: object
+            properties:
+                message:
+                    type: string
+        api.palace.SaveRoleRequest:
+            type: object
+            properties:
+                roleID:
+                    type: integer
+                    format: uint32
+                name:
+                    type: string
+                remark:
+                    type: string
+                resourceIDs:
+                    type: array
+                    items:
+                        type: integer
+                        format: uint32
         api.palace.SaveTeamReply:
             type: object
             properties:
@@ -1329,6 +1385,20 @@ components:
                     items:
                         type: integer
                         format: uint32
+                status:
+                    type: integer
+                    format: enum
+        api.palace.UpdateRoleStatusReply:
+            type: object
+            properties:
+                message:
+                    type: string
+        api.palace.UpdateRoleStatusRequest:
+            type: object
+            properties:
+                roleID:
+                    type: integer
+                    format: uint32
                 status:
                     type: integer
                     format: enum

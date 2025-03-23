@@ -7,18 +7,18 @@ option java_multiple_files = true;
 option java_package = "com.api.palace.common";
 
 message Pagination {
-	uint32 page = 1;
-	uint32 limit = 2;
+  uint32 page = 1;
+  uint32 limit = 2;
 }
 
 message PaginationReply {
-	uint32 total = 1;
-	uint32 page = 2;
-	uint32 limit = 3;
+  uint32 total = 1;
+  uint32 page = 2;
+  uint32 limit = 3;
 }
 
 message SelectItem {
-	uint32 value = 1;
-	string label = 2;
-	bool disabled = 3;
+  uint32 value = 1;
+  string label = 2;
+  bool disabled = 3;
 }

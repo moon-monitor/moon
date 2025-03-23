@@ -10,37 +10,37 @@ option java_package = "com.api.palace.common";
 
 // system-api
 message ResourceItem {
-	// api id
-	uint32 id = 1;
-	// api name
-	string name = 2;
-	// api path
-	string path = 3;
-	// api status
-	api.palace.common.ResourceStatus status = 4;
-	// api remark
-	string remark = 5;
-	// api created at
-	string createdAt = 6;
-	// api updated at
-	string updatedAt = 7;
-	// api module
-	api.palace.common.ResourceModule module = 8;
-	// api domain
-	api.palace.common.ResourceDomain domain = 9;
+  // api id
+  uint32 id = 1;
+  // api name
+  string name = 2;
+  // api path
+  string path = 3;
+  // api status
+  api.palace.common.ResourceStatus status = 4;
+  // api remark
+  string remark = 5;
+  // api created at
+  string createdAt = 6;
+  // api updated at
+  string updatedAt = 7;
+  // api module
+  api.palace.common.ResourceModule module = 8;
+  // api domain
+  api.palace.common.ResourceDomain domain = 9;
 }
 
 message UserBaseItem {
-	string username = 1;
-	string nickname = 2;
-	string avatar = 3;
-	api.palace.common.Gender gender = 4;
-	uint32 user_id = 5;
-  }
+  string username = 1;
+  string nickname = 2;
+  string avatar = 3;
+  api.palace.common.Gender gender = 4;
+  uint32 user_id = 5;
+}
 
 message UserItem {
-	string username = 1;
-	string nickname = 2;
-	string avatar = 3;
-	api.palace.common.Gender gender = 4;
+  string username = 1;
+  string nickname = 2;
+  string avatar = 3;
+  api.palace.common.Gender gender = 4;
 }

@@ -10,10 +10,10 @@ option java_package = "com.api.rabbit.common";
 
 // email config
 message EmailConfig {
-	string user = 1 [(buf.validate.field).required = true];
-	string pass = 2 [(buf.validate.field).required = true];
-	string host = 3 [(buf.validate.field).required = true];
-	uint32 port = 4 [(buf.validate.field).required = true];
-	bool enable = 5;
-	string name = 6;
+  string user = 1 [(buf.validate.field).required = true];
+  string pass = 2 [(buf.validate.field).required = true];
+  string host = 3 [(buf.validate.field).required = true];
+  uint32 port = 4 [(buf.validate.field).required = true];
+  bool enable = 5;
+  string name = 6;
 }
