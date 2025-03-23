@@ -3,7 +3,10 @@ syntax = "proto3";
 package api.rabbit.v1;
 
 import "google/api/annotations.proto";
+import "buf/validate/validate.proto";
 import "rabbit/common/notification.proto";
+import "rabbit/common/email.proto";
+import "rabbit/common/sms.proto";
 
 option go_package = "github.com/moon-monitor/moon/pkg/api/rabbit/v1;v1";
 option java_multiple_files = true;
@@ -30,43 +33,39 @@ service Send {
 			body: "*"
 		};
 	}
-
-	rpc SendAll (SendAllRequest) returns (SendAllReply) {
-		option (google.api.http) = {
-			post: "/v1/send/all"
-			body: "*"
-		};
-	}
 }
 
 message SendEmailRequest {
-	repeated string emails = 1;
-	string template_name = 2;
-	string parameters = 3;
-	string subject = 4;
-	string content_type = 5;
-	string attachment = 6;
-	string cc = 7;
+	repeated string emails = 1 [(buf.validate.field).cel = {
+		expression: "this.size() > 0 && this.size() < 100"
+		message: "emails must be between 1 and 100"
+	}];
+	string body = 2 [(buf.validate.field).required = true];
+	string subject = 3 [(buf.validate.field).required = true];
+	string content_type = 4;
+	string attachment = 5;
+	repeated string cc = 6;
+	optional rabbit.common.EmailConfig email_config = 7;
 }
 message SendEmailReply {}
 
 message SendSmsRequest {
-	repeated string phones = 1;
-	string template_name = 2;
-	string parameters = 3;
-	string template_code = 4;
+	repeated string phones = 1 [(buf.validate.field).cel = {
+		message: "phones must be between 1 and 10"
+		expression: "size(phones) >= 1 && size(phones) <= 100"
+	}];
+	string template_parameters = 2;
+	string template_code = 3;
+	optional rabbit.common.AliyunSMSConfig sms_config = 4;
 }
 message SendSmsReply {}
 
 message SendHookRequest {
-	repeated common.HookItem hooks = 1;
-	string template_name = 2;
-	string parameters = 3;
+	repeated common.HookItem hooks = 1 [(buf.validate.field).cel = {
+		message: "hooks must be between 1 and 10"
+		expression: "this.size() >= 1 && this.size() <= 100"
+	}];
+	string body = 2;
 }
 message SendHookReply {}
 
-message SendAllRequest {
-	repeated string receivers = 1;
-	string parameters = 2;
-}
-message SendAllReply {}

@@ -18,24 +18,6 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/api.common.CheckReply'
-    /v1/send/all:
-        post:
-            tags:
-                - Send
-            operationId: Send_SendAll
-            requestBody:
-                content:
-                    application/json:
-                        schema:
-                            $ref: '#/components/schemas/api.rabbit.v1.SendAllRequest'
-                required: true
-            responses:
-                "200":
-                    description: OK
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/api.rabbit.v1.SendAllReply'
     /v1/send/email:
         post:
             tags:
@@ -208,6 +190,36 @@ components:
                     type: boolean
                 uuid:
                     type: string
+        api.rabbit.common.AliyunSMSConfig:
+            type: object
+            properties:
+                accessKeyId:
+                    type: string
+                accessKeySecret:
+                    type: string
+                signName:
+                    type: string
+                endpoint:
+                    type: string
+                name:
+                    type: string
+        api.rabbit.common.EmailConfig:
+            type: object
+            properties:
+                user:
+                    type: string
+                pass:
+                    type: string
+                host:
+                    type: string
+                port:
+                    type: integer
+                    format: uint32
+                enable:
+                    type: boolean
+                name:
+                    type: string
+            description: email config
         api.rabbit.common.HookItem:
             type: object
             properties:
@@ -273,18 +285,6 @@ components:
                     type: string
                 hook:
                     type: string
-        api.rabbit.v1.SendAllReply:
-            type: object
-            properties: {}
-        api.rabbit.v1.SendAllRequest:
-            type: object
-            properties:
-                receivers:
-                    type: array
-                    items:
-                        type: string
-                parameters:
-                    type: string
         api.rabbit.v1.SendEmailReply:
             type: object
             properties: {}
@@ -295,9 +295,7 @@ components:
                     type: array
                     items:
                         type: string
-                templateName:
-                    type: string
-                parameters:
+                body:
                     type: string
                 subject:
                     type: string
@@ -306,7 +304,11 @@ components:
                 attachment:
                     type: string
                 cc:
-                    type: string
+                    type: array
+                    items:
+                        type: string
+                emailConfig:
+                    $ref: '#/components/schemas/api.rabbit.common.EmailConfig'
         api.rabbit.v1.SendHookReply:
             type: object
             properties: {}
@@ -317,9 +319,7 @@ components:
                     type: array
                     items:
                         $ref: '#/components/schemas/api.rabbit.common.HookItem'
-                templateName:
-                    type: string
-                parameters:
+                body:
                     type: string
         api.rabbit.v1.SendSmsReply:
             type: object
@@ -331,12 +331,12 @@ components:
                     type: array
                     items:
                         type: string
-                templateName:
-                    type: string
-                parameters:
+                templateParameters:
                     type: string
                 templateCode:
                     type: string
+                smsConfig:
+                    $ref: '#/components/schemas/api.rabbit.common.AliyunSMSConfig'
         api.rabbit.v1.SyncHooksReply:
             type: object
             properties: {}

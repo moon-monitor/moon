@@ -19,9 +19,9 @@ message Bootstrap {
   Auth auth = 7;
   repeated config.EmailConfig email_config = 8;
   repeated config.AliyunSMSConfig aliyun_sms_config = 9;
-  repeated api.rabbit.common.HookItem hooks = 11;
-  repeated api.rabbit.common.Receiver receivers = 12;
-  api.rabbit.common.Template templates = 13;
+  repeated api.rabbit.common.HookItem hooks = 10;
+  repeated api.rabbit.common.Receiver receivers = 11;
+  api.rabbit.common.Template templates = 12;
   config.MicroServer palace = 14;
 }
 
@@ -29,6 +29,11 @@ message Data {
 }
 
 message Auth {
+  message Token {
+    string token = 1;
+    string name = 2;
+  }
   config.JWT jwt = 1;
+  repeated Token tokens = 2;
 }
 

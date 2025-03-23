@@ -9,6 +9,22 @@ import (
 	"github.com/moon-monitor/moon/pkg/merr"
 )
 
+func TextFormatterX(format string, data any) (s string) {
+	f, err := TextFormatter(format, data)
+	if err != nil {
+		return format
+	}
+	return f
+}
+
+func HtmlFormatterX(format string, data any) (s string) {
+	f, err := HtmlFormatter(format, data)
+	if err != nil {
+		return format
+	}
+	return f
+}
+
 func TextFormatter(format string, data any) (s string, err error) {
 	if format == "" {
 		return "", merr.ErrorInternalServerError("format is null")
