@@ -217,6 +217,24 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/api.palace.DeleteResourceReply'
+    /api/system/team/list:
+        post:
+            tags:
+                - System
+            operationId: System_GetTeamList
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/api.palace.GetTeamListRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.palace.GetTeamListReply'
     /api/system/user:
         put:
             tags:
@@ -235,6 +253,24 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/api.palace.UpdateUserReply'
+    /api/system/user/list:
+        post:
+            tags:
+                - System
+            operationId: System_GetUserList
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/api.palace.GetUserListRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.palace.GetUserListReply'
     /api/system/user/password:
         put:
             tags:
@@ -831,6 +867,26 @@ components:
             properties:
                 detail:
                     $ref: '#/components/schemas/api.palace.common.ResourceItem'
+        api.palace.GetTeamListReply:
+            type: object
+            properties:
+                items:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/api.palace.common.TeamItem'
+                pagination:
+                    $ref: '#/components/schemas/api.palace.common.PaginationReply'
+        api.palace.GetTeamListRequest:
+            type: object
+            properties:
+                pagination:
+                    $ref: '#/components/schemas/api.palace.common.Pagination'
+                status:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/api.palace.common.SelectItem'
+                keyword:
+                    type: string
         api.palace.GetTeamMembersReply:
             type: object
             properties:
@@ -869,6 +925,30 @@ components:
                 teamID:
                     type: integer
                     format: uint32
+        api.palace.GetUserListReply:
+            type: object
+            properties:
+                users:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/api.palace.common.UserItem'
+                pagination:
+                    $ref: '#/components/schemas/api.palace.common.PaginationReply'
+        api.palace.GetUserListRequest:
+            type: object
+            properties:
+                status:
+                    type: array
+                    items:
+                        type: integer
+                        format: enum
+                position:
+                    type: array
+                    items:
+                        type: integer
+                        format: enum
+                pagination:
+                    $ref: '#/components/schemas/api.palace.common.Pagination'
         api.palace.GetUserReply:
             type: object
             properties:
@@ -1292,6 +1372,27 @@ components:
                     type: string
                 captcha:
                     $ref: '#/components/schemas/api.palace.CaptchaValidateRequest'
+        api.palace.common.Pagination:
+            type: object
+            properties:
+                page:
+                    type: integer
+                    format: uint32
+                limit:
+                    type: integer
+                    format: uint32
+        api.palace.common.PaginationReply:
+            type: object
+            properties:
+                total:
+                    type: integer
+                    format: uint32
+                page:
+                    type: integer
+                    format: uint32
+                limit:
+                    type: integer
+                    format: uint32
         api.palace.common.ResourceItem:
             type: object
             properties:
@@ -1327,6 +1428,16 @@ components:
                     description: api domain
                     format: enum
             description: system-api
+        api.palace.common.SelectItem:
+            type: object
+            properties:
+                value:
+                    type: integer
+                    format: uint32
+                label:
+                    type: string
+                disabled:
+                    type: boolean
         api.palace.common.TeamItem:
             type: object
             properties:

@@ -6,6 +6,8 @@ import "google/api/annotations.proto";
 import "buf/validate/validate.proto";
 import "palace/common/system.proto";
 import "palace/common/system_enum.proto";
+import "palace/common/common.proto";
+import "palace/common/team.proto";
 
 option go_package = "github.com/moon-monitor/moon/pkg/api/palace;palace";
 option java_multiple_files = true;
@@ -43,6 +45,20 @@ service System {
 	rpc GetUser (GetUserRequest) returns (GetUserReply) {
 		option (google.api.http) = {
 			get: "/api/system/user/{userID}"
+		};
+	}
+
+	rpc GetUserList (GetUserListRequest) returns (GetUserListReply) {
+		option (google.api.http) = {
+			post: "/api/system/user/list"
+			body: "*"
+		};
+	}
+
+	rpc GetTeamList (GetTeamListRequest) returns (GetTeamListReply) {
+		option (google.api.http) = {
+			post: "/api/system/team/list"
+			body: "*"
 		};
 	}
 }
@@ -97,4 +113,24 @@ message GetUserRequest {
 }
 message GetUserReply {
 	api.palace.common.UserItem user = 1;
+}
+
+message GetUserListRequest {
+	repeated api.palace.common.UserStatus status = 1;
+	repeated api.palace.common.UserPosition position = 2;
+	api.palace.common.Pagination pagination = 3;
+}
+message GetUserListReply {
+	repeated api.palace.common.UserItem users = 1;
+	api.palace.common.PaginationReply pagination = 2;
+}
+
+message GetTeamListRequest {
+	api.palace.common.Pagination pagination = 1;
+	repeated api.palace.common.SelectItem status = 2;
+	string keyword = 3;
+}
+message GetTeamListReply {
+	repeated api.palace.common.TeamItem items = 1;
+	api.palace.common.PaginationReply pagination = 2;
 }
