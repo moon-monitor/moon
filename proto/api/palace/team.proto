@@ -100,6 +100,13 @@ service Team {
 			delete: "/api/team/roles/{teamID}"
 		};
 	}
+
+	rpc SaveEmailConfig (SaveEmailConfigRequest) returns (SaveEmailConfigReply) {
+		option (google.api.http) = {
+			put: "/api/team/email/config/{teamID}"
+			body: "*"
+		};
+	}
 }
 
 message SaveTeamRequest {
@@ -242,5 +249,17 @@ message DeleteTeamRoleRequest {
 	uint32 roleID = 2 [(buf.validate.field).required = true];
 }
 message DeleteTeamRoleReply {
+	string message = 1;
+}
+
+message SaveEmailConfigRequest {
+	uint32 teamID = 1 [(buf.validate.field).required = true];
+	string user = 2 [(buf.validate.field).required = true];
+	string pass = 3 [(buf.validate.field).required = true];
+	string host = 4 [(buf.validate.field).required = true];
+	uint32 port = 5 [(buf.validate.field).required = true];
+	bool enable = 6;
+}
+message SaveEmailConfigReply {
 	string message = 1;
 }

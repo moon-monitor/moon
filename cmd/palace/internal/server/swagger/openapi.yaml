@@ -363,6 +363,31 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/api.palace.GetTeamReply'
+    /api/team/email/config/{teamID}:
+        put:
+            tags:
+                - Team
+            operationId: Team_SaveEmailConfig
+            parameters:
+                - name: teamID
+                  in: path
+                  required: true
+                  schema:
+                    type: integer
+                    format: uint32
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/api.palace.SaveEmailConfigRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.palace.SaveEmailConfigReply'
     /api/team/invite/member/{teamID}:
         post:
             tags:
@@ -1140,6 +1165,28 @@ components:
                     items:
                         type: integer
                         format: uint32
+        api.palace.SaveEmailConfigReply:
+            type: object
+            properties:
+                message:
+                    type: string
+        api.palace.SaveEmailConfigRequest:
+            type: object
+            properties:
+                teamID:
+                    type: integer
+                    format: uint32
+                user:
+                    type: string
+                pass:
+                    type: string
+                host:
+                    type: string
+                port:
+                    type: integer
+                    format: uint32
+                enable:
+                    type: boolean
         api.palace.SaveResourceReply:
             type: object
             properties:

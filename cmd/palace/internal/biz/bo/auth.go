@@ -3,6 +3,7 @@ package bo
 import (
 	"github.com/moon-monitor/moon/cmd/palace/internal/helper/middleware"
 	"github.com/moon-monitor/moon/pkg/api/palace"
+	"github.com/moon-monitor/moon/pkg/api/palace/common"
 )
 
 type Captcha struct {
@@ -35,15 +36,15 @@ type LoginSign struct {
 }
 
 // BaseToProto Convert BaseInfo to proto's BaseInfo.
-func (b *LoginSign) BaseToProto() *palace.UserBaseItem {
+func (b *LoginSign) BaseToProto() *common.UserBaseItem {
 	if b == nil || b.Base == nil {
 		return nil
 	}
-	return &palace.UserBaseItem{
+	return &common.UserBaseItem{
 		Username: b.Base.Username,
 		Nickname: b.Base.Nickname,
 		Avatar:   b.Base.Avatar,
-		Gender:   palace.Gender(b.Base.Gender),
+		Gender:   common.Gender(b.Base.Gender),
 		UserId:   b.Base.UserID,
 	}
 }
