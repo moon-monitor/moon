@@ -2,13 +2,15 @@ syntax = "proto3";
 
 package api.palace.common;
 
+import "buf/validate/validate.proto";
+
 option go_package = "github.com/moon-monitor/moon/pkg/api/palace/common;common";
 option java_multiple_files = true;
 option java_package = "com.api.palace.common";
 
-message Pagination {
-  uint32 page = 1;
-  uint32 limit = 2;
+message PaginationRequest {
+  uint32 page = 1 [(buf.validate.field).uint32.gt = 0];
+  uint32 limit = 2 [(buf.validate.field).uint32.gt = 0, (buf.validate.field).uint32.lte = 10000];
 }
 
 message PaginationReply {
@@ -21,4 +23,11 @@ message SelectItem {
   uint32 value = 1;
   string label = 2;
   bool disabled = 3;
+}
+
+
+message EmptyRequest {}
+
+message EmptyReply {
+  string message = 1;
 }

@@ -6,13 +6,14 @@ import "google/api/annotations.proto";
 import "buf/validate/validate.proto";
 import "palace/common/system.proto";
 import "palace/common/system_enum.proto";
+import "palace/common/common.proto";
 
 option go_package = "github.com/moon-monitor/moon/pkg/api/palace;palace";
 option java_multiple_files = true;
 option java_package = "com.api.palace";
 
 service Auth {
-  rpc GetCaptcha(GetCaptchaRequest) returns (GetCaptchaReply) {
+  rpc GetCaptcha(api.palace.common.EmptyRequest) returns (GetCaptchaReply) {
     option (google.api.http) = {
       get: "/api/auth/captcha"
     };
@@ -53,14 +54,14 @@ service Auth {
     };
   }
 
-  rpc RefreshToken(RefreshTokenRequest) returns (LoginReply) {
+  rpc RefreshToken(api.palace.common.EmptyRequest) returns (LoginReply) {
     option (google.api.http) = {
       post: "/api/auth/refresh"
       body: "*"
     };
   }
 
-  rpc OAuth2List(OAuth2ListRequest) returns (OAuth2ListReply) {
+  rpc OAuth2List(api.palace.common.EmptyRequest) returns (OAuth2ListReply) {
     option (google.api.http) = {
       post: "/api/auth/oauth2/list"
       body: "*"
@@ -79,7 +80,6 @@ message CaptchaValidateRequest {
   }];
 }
 
-message GetCaptchaRequest {}
 message GetCaptchaReply {
   string captchaId = 1;
   string captchaImg = 2;
@@ -170,8 +170,6 @@ message LogoutReply {
   string redirect = 1;
 }
 
-message RefreshTokenRequest {}
-
 message VerifyEmailRequest {
   string email = 1 [(buf.validate.field).cel = {
     message: "email is required"
@@ -186,7 +184,6 @@ message VerifyEmailReply {
   int64 expired_seconds = 2;
 }
 
-message OAuth2ListRequest {}
 message OAuth2ListReply {
   message OAuthItem {
     // 图标

@@ -6,47 +6,48 @@ import "google/api/annotations.proto";
 import "buf/validate/validate.proto";
 import "palace/common/system.proto";
 import "palace/common/system_enum.proto";
+import "palace/common/common.proto";
 
 option go_package = "github.com/moon-monitor/moon/pkg/api/palace;palace";
 option java_multiple_files = true;
 option java_package = "com.api.palace";
 
 service User {
-  rpc SelfInfo (SelfInfoRequest) returns (SelfInfoReply) {
+  rpc SelfInfo (api.palace.common.EmptyRequest) returns (SelfInfoReply) {
     option (google.api.http) = {
       get: "/api/user/self"
     };
   }
 
-  rpc UpdateSelfInfo (UpdateSelfInfoRequest) returns (UpdateSelfInfoReply) {
+  rpc UpdateSelfInfo (UpdateSelfInfoRequest) returns (api.palace.common.EmptyReply) {
     option (google.api.http) = {
       put: "/api/user/self"
       body: "*"
     };
   }
 
-  rpc UpdateSelfPassword (UpdateSelfPasswordRequest) returns (UpdateSelfPasswordReply) {
+  rpc UpdateSelfPassword (UpdateSelfPasswordRequest) returns (api.palace.common.EmptyReply) {
     option (google.api.http) = {
       put: "/api/user/self/password"
       body: "*"
     };
   }
 
-  rpc LeaveTeam (LeaveTeamRequest) returns (LeaveTeamReply) {
+  rpc LeaveTeam (LeaveTeamRequest) returns (api.palace.common.EmptyReply) {
     option (google.api.http) = {
       post: "/api/user/self/leave-team"
       body: "*"
     };
   }
 
-  rpc JoinTeam (JoinTeamRequest) returns (JoinTeamReply) {
+  rpc JoinTeam (JoinTeamRequest) returns (api.palace.common.EmptyReply) {
     option (google.api.http) = {
       post: "/api/user/self/join-team"
       body: "*"
     };
   }
 
-  rpc CreateTeam (CreateTeamRequest) returns (CreateTeamReply) {
+  rpc CreateTeam (CreateTeamRequest) returns (api.palace.common.EmptyReply) {
     option (google.api.http) = {
       post: "/api/user/self/create-team"
       body: "*"
@@ -54,7 +55,6 @@ service User {
   }
 }
 
-message SelfInfoRequest {}
 message SelfInfoReply {
   api.palace.common.UserItem user = 1;
 }
@@ -64,16 +64,10 @@ message UpdateSelfInfoRequest {
   string avatar = 2 [(buf.validate.field).required = true];
   api.palace.common.Gender gender = 3 [(buf.validate.field).required = true];
 }
-message UpdateSelfInfoReply {
-  string message = 1;
-}
 
 message UpdateSelfPasswordRequest {
   string oldPassword = 1 [(buf.validate.field).required = true];
   string newPassword = 2 [(buf.validate.field).required = true];
-}
-message UpdateSelfPasswordReply {
-  string message = 1;
 }
 
 message LeaveTeamRequest {
@@ -83,9 +77,6 @@ message LeaveTeamRequest {
     expression: "this.size() <= 200"
   }, (buf.validate.field).required = true];
 }
-message LeaveTeamReply {
-  string message = 1;
-}
 
 message JoinTeamRequest {
   uint32 teamID = 1 [(buf.validate.field).required = true];
@@ -93,9 +84,6 @@ message JoinTeamRequest {
     message: "reason max length is 200"
     expression: "this.size() <= 200"
   }, (buf.validate.field).required = true];
-}
-message JoinTeamReply {
-  string message = 1;
 }
 
 message CreateTeamRequest {
@@ -114,7 +102,4 @@ message CreateTeamRequest {
     message: "logo max length is 255"
     expression: "this.size() <= 255"
   }];
-}
-message CreateTeamReply {
-  string message = 1;
 }

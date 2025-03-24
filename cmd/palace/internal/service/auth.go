@@ -18,6 +18,7 @@ import (
 	"github.com/moon-monitor/moon/cmd/palace/internal/conf"
 	"github.com/moon-monitor/moon/cmd/palace/internal/helper/permission"
 	palacev1 "github.com/moon-monitor/moon/pkg/api/palace"
+	"github.com/moon-monitor/moon/pkg/api/palace/common"
 	"github.com/moon-monitor/moon/pkg/merr"
 )
 
@@ -62,7 +63,7 @@ func NewAuthService(bc *conf.Bootstrap, authBiz *biz.AuthBiz, logger log.Logger)
 	}
 }
 
-func (s *AuthService) GetCaptcha(ctx context.Context, _ *palacev1.GetCaptchaRequest) (*palacev1.GetCaptchaReply, error) {
+func (s *AuthService) GetCaptcha(ctx context.Context, _ *common.EmptyRequest) (*palacev1.GetCaptchaReply, error) {
 	captchaBo, err := s.authBiz.GetCaptcha(ctx)
 	if err != nil {
 		return nil, err
@@ -149,7 +150,7 @@ func (s *AuthService) VerifyToken(ctx context.Context, token string) error {
 	return s.authBiz.VerifyToken(ctx, token)
 }
 
-func (s *AuthService) RefreshToken(ctx context.Context, _ *palacev1.RefreshTokenRequest) (*palacev1.LoginReply, error) {
+func (s *AuthService) RefreshToken(ctx context.Context, _ *common.EmptyRequest) (*palacev1.LoginReply, error) {
 	token, ok := permission.GetTokenByContext(ctx)
 	if !ok {
 		return nil, merr.ErrorUnauthorized("token error")
@@ -165,7 +166,7 @@ func (s *AuthService) RefreshToken(ctx context.Context, _ *palacev1.RefreshToken
 	return login(s.authBiz.RefreshToken(ctx, refreshReq))
 }
 
-func (s *AuthService) OAuth2List(_ context.Context, _ *palacev1.OAuth2ListRequest) (*palacev1.OAuth2ListReply, error) {
+func (s *AuthService) OAuth2List(_ context.Context, _ *common.EmptyRequest) (*palacev1.OAuth2ListReply, error) {
 	return &palacev1.OAuth2ListReply{Items: s.oauth2List}, nil
 }
 

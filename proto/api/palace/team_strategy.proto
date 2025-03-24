@@ -1,0 +1,185 @@
+syntax = "proto3";
+
+package api.palace;
+
+import "google/api/annotations.proto";
+import "buf/validate/validate.proto";
+import "palace/common/common.proto";
+import "palace/common/team_strategy.proto";
+import "palace/common/team_enum.proto";
+
+option go_package = "github.com/moon-monitor/moon/pkg/api/palace;palace";
+option java_multiple_files = true;
+option java_package = "com.api.palace";
+
+service TeamStrategy {
+	rpc SaveTeamStrategyGroup (SaveTeamStrategyGroupRequest) returns (api.palace.common.EmptyReply) {
+		option (google.api.http) = {
+			post: "/api/team/strategy/group"
+			body: "*"
+		};
+	}
+
+	rpc UpdateTeamStrategyGroupStatus (UpdateTeamStrategyGroupStatusRequest) returns (api.palace.common.EmptyReply) {
+		option (google.api.http) = {
+			put: "/api/team/strategy/group/status"
+			body: "*"
+		};
+	}
+
+	rpc DeleteTeamStrategyGroup (DeleteTeamStrategyGroupRequest) returns (api.palace.common.EmptyReply) {
+		option (google.api.http) = {
+			delete: "/api/team/strategy/group"
+		};
+	}
+
+	rpc GetTeamStrategyGroup (GetTeamStrategyGroupRequest) returns (GetTeamStrategyGroupReply) {
+		option (google.api.http) = {
+			get: "/api/team/strategy/group"
+		};
+	}
+
+	rpc ListTeamStrategyGroup (ListTeamStrategyGroupRequest) returns (ListTeamStrategyGroupReply) {
+		option (google.api.http) = {
+			post: "/api/team/strategy/group/list"
+			body: "*"
+		};
+	}
+
+	rpc SaveTeamStrategy (SaveTeamStrategyRequest) returns (api.palace.common.EmptyReply) {
+		option (google.api.http) = {
+			post: "/api/team/strategy/list"
+			body: "*"
+		};
+	}
+
+	rpc UpdateTeamStrategiesStatus (UpdateTeamStrategiesStatusRequest) returns (api.palace.common.EmptyReply) {
+		option (google.api.http) = {
+			put: "/api/team/strategy/status"
+			body: "*"
+		};
+	}
+
+	rpc DeleteTeamStrategy (DeleteTeamStrategyRequest) returns (api.palace.common.EmptyReply) {
+		option (google.api.http) = {
+			delete: "/api/team/strategy"
+		};
+	}
+
+	rpc GetTeamStrategy (GetTeamStrategyRequest) returns (GetTeamStrategyReply) {
+		option (google.api.http) = {
+			get: "/api/team/strategy"
+		};
+	}
+	
+	rpc ListTeamStrategy (ListTeamStrategyRequest) returns (ListTeamStrategyReply) {
+		option (google.api.http) = {
+			post: "/api/team/strategy/list"
+			body: "*"
+		};
+	}
+
+	rpc SubscribeTeamStrategy (SubscribeTeamStrategyRequest) returns (api.palace.common.EmptyReply) {
+		option (google.api.http) = {
+			post: "/api/team/strategy/subscribe"
+			body: "*"
+		};
+	}
+
+	rpc SubscribeTeamStrategies (SubscribeTeamStrategiesRequest) returns (api.palace.common.EmptyReply) {
+		option (google.api.http) = {
+			post: "/api/team/strategy/subscribe/list"
+			body: "*"
+		};
+	}
+
+	rpc SelfSubscribeTeamStrategies (SelfSubscribeTeamStrategiesRequest) returns (SelfSubscribeTeamStrategiesReply) {
+		option (google.api.http) = {
+			post: "/api/team/strategy/subscribe/self"
+			body: "*"
+		};
+	}
+}
+
+message SaveTeamStrategyGroupRequest {
+	uint32 groupID = 1;
+	string name = 2 [(buf.validate.field).string.max_len = 128];
+	string remark = 3 [(buf.validate.field).string.max_len = 255];
+}
+
+message UpdateTeamStrategyGroupStatusRequest {
+	uint32 groupID = 1;
+	api.palace.common.TeamStrategyGroupStatus status = 2;
+}
+
+message DeleteTeamStrategyGroupRequest {
+	uint32 groupID = 1 [(buf.validate.field).required = true];
+}
+
+message GetTeamStrategyGroupRequest {
+	uint32 groupID = 1 [(buf.validate.field).required = true];
+}
+message GetTeamStrategyGroupReply {
+	api.palace.common.TeamStrategyGroupItem detail = 1;
+}
+
+message ListTeamStrategyGroupRequest {
+	api.palace.common.PaginationRequest pagination = 1;
+	string keyword = 2 [(buf.validate.field).string.max_len = 20];
+	repeated api.palace.common.TeamStrategyGroupStatus status = 3;
+}
+message ListTeamStrategyGroupReply {
+	repeated api.palace.common.TeamStrategyGroupItem items = 1;
+	api.palace.common.PaginationReply pagination = 2;
+}
+
+message SaveTeamStrategyRequest {
+	uint32 strategyID = 1;
+	uint32 groupID = 2 [(buf.validate.field).required = true];
+	string name = 3 [(buf.validate.field).string.max_len = 128];
+	string remark = 4 [(buf.validate.field).string.max_len = 255];
+}
+
+message UpdateTeamStrategiesStatusRequest {
+	repeated uint32 strategyIDs = 1 [(buf.validate.field).required = true];
+	api.palace.common.TeamStrategyStatus status = 2;
+}
+
+message DeleteTeamStrategyRequest {
+	uint32 strategyID = 1 [(buf.validate.field).required = true];
+}
+
+message GetTeamStrategyRequest {
+	uint32 strategyID = 1 [(buf.validate.field).required = true];
+}
+message GetTeamStrategyReply {
+	api.palace.common.TeamStrategyItem detail = 1;
+}
+
+message ListTeamStrategyRequest {
+	api.palace.common.PaginationRequest pagination = 1;
+	uint32 groupID = 2;
+	repeated api.palace.common.TeamStrategyStatus status = 3;
+}
+message ListTeamStrategyReply {
+	repeated api.palace.common.TeamStrategyItem items = 1;
+	api.palace.common.PaginationReply pagination = 2;
+}
+
+message SubscribeTeamStrategyRequest {
+	uint32 strategyID = 1 [(buf.validate.field).required = true];
+	bool isSubscribe = 2;
+}
+
+message SubscribeTeamStrategiesRequest {
+	api.palace.common.PaginationRequest pagination = 1;
+	uint32 strategyID = 2 [(buf.validate.field).uint32.gt = 0];
+}
+
+message SelfSubscribeTeamStrategiesRequest {
+	api.palace.common.PaginationRequest pagination = 1;
+}
+message SelfSubscribeTeamStrategiesReply {
+	repeated api.palace.common.TeamStrategyItem items = 1;
+	api.palace.common.PaginationReply pagination = 2;
+}

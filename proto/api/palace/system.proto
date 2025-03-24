@@ -15,28 +15,28 @@ option java_multiple_files = true;
 option java_package = "com.api.palace";
 
 service System {
-  rpc UpdateUser (UpdateUserRequest) returns (UpdateUserReply) {
+  rpc UpdateUser (UpdateUserRequest) returns (api.palace.common.EmptyReply) {
     option (google.api.http) = {
       put: "/api/system/user"
       body: "*"
     };
   }
 
-  rpc UpdateUserStatus (UpdateUserStatusRequest) returns (UpdateUserStatusReply) {
+  rpc UpdateUserStatus (UpdateUserStatusRequest) returns (api.palace.common.EmptyReply) {
     option (google.api.http) = {
       put: "/api/system/user/status"
       body: "*"
     };
   }
 
-  rpc ResetUserPassword (ResetUserPasswordRequest) returns (ResetUserPasswordReply) {
+  rpc ResetUserPassword (ResetUserPasswordRequest) returns (api.palace.common.EmptyReply) {
     option (google.api.http) = {
       put: "/api/system/user/password"
       body: "*"
     };
   }
 
-  rpc UpdateUserPosition (UpdateUserPositionRequest) returns (UpdateUserPositionReply) {
+  rpc UpdateUserPosition (UpdateUserPositionRequest) returns (api.palace.common.EmptyReply) {
     option (google.api.http) = {
       put: "/api/system/user/position"
       body: "*"
@@ -65,32 +65,32 @@ service System {
 
   rpc GetSystemRole (GetSystemRoleRequest) returns (GetSystemRoleReply) {
     option (google.api.http) = {
-      get: "/api/system/role/{roleID}"
+      get: "/api/system/role"
     };
   }
 
-  rpc SaveRole (SaveRoleRequest) returns (SaveRoleReply) {
+  rpc SaveRole (SaveRoleRequest) returns (api.palace.common.EmptyReply) {
     option (google.api.http) = {
       post: "/api/system/role"
       body: "*"
     };
   }
 
-  rpc UpdateRoleStatus (UpdateRoleStatusRequest) returns (UpdateRoleStatusReply) {
+  rpc UpdateRoleStatus (UpdateRoleStatusRequest) returns (api.palace.common.EmptyReply) {
     option (google.api.http) = {
       put: "/api/system/role/status"
       body: "*"
     };
   }
 
-  rpc UpdateUserRoles (UpdateUserRolesRequest) returns (UpdateUserRolesReply) {
+  rpc UpdateUserRoles (UpdateUserRolesRequest) returns (api.palace.common.EmptyReply) {
     option (google.api.http) = {
       put: "/api/system/user/roles"
       body: "*"
     };
   }
 
-  rpc UpdateRoleUsers (UpdateRoleUsersRequest) returns (UpdateRoleUsersReply) {
+  rpc UpdateRoleUsers (UpdateRoleUsersRequest) returns (api.palace.common.EmptyReply) {
     option (google.api.http) = {
       put: "/api/system/role/users"
       body: "*"
@@ -104,9 +104,6 @@ message UpdateUserRequest {
   string avatar = 3 [(buf.validate.field).required = true];
   api.palace.common.Gender gender = 4 [(buf.validate.field).required = true];
 }
-message UpdateUserReply {
-  string message = 1;
-}
 
 message UpdateUserStatusRequest {
   repeated uint32 userIDs = 1 [(buf.validate.field).cel = {
@@ -118,9 +115,6 @@ message UpdateUserStatusRequest {
   }];
   api.palace.common.UserStatus status = 2 [(buf.validate.field).required = true];
 }
-message UpdateUserStatusReply {
-  string message = 1;
-}
 
 message ResetUserPasswordRequest {
   repeated uint32 userIDs = 1 [(buf.validate.field).cel = {
@@ -131,16 +125,10 @@ message ResetUserPasswordRequest {
     expression: "this.size() <= 100"
   }];
 }
-message ResetUserPasswordReply {
-  string message = 1;
-}
 
 message UpdateUserPositionRequest {
   uint32 userID = 1 [(buf.validate.field).required = true];
   api.palace.common.UserPosition position = 2 [(buf.validate.field).required = true];
-}
-message UpdateUserPositionReply {
-  string message = 1;
 }
 
 message GetUserRequest {
@@ -153,7 +141,7 @@ message GetUserReply {
 message GetUserListRequest {
   repeated api.palace.common.UserStatus status = 1;
   repeated api.palace.common.UserPosition position = 2;
-  api.palace.common.Pagination pagination = 3;
+  api.palace.common.PaginationRequest pagination = 3;
 }
 message GetUserListReply {
   repeated api.palace.common.UserItem users = 1;
@@ -161,7 +149,7 @@ message GetUserListReply {
 }
 
 message GetTeamListRequest {
-  api.palace.common.Pagination pagination = 1;
+  api.palace.common.PaginationRequest pagination = 1;
   repeated api.palace.common.SelectItem status = 2;
   string keyword = 3;
 }
@@ -182,32 +170,20 @@ message SaveRoleRequest {
   }];
   repeated uint32 resourceIDs = 4 [(buf.validate.field).required = true];
 }
-message SaveRoleReply {
-  string message = 1;
-}
 
 message UpdateRoleStatusRequest {
   uint32 roleID = 1 [(buf.validate.field).required = true];
   api.palace.common.RoleStatus status = 2 [(buf.validate.field).required = true];
-}
-message UpdateRoleStatusReply {
-  string message = 1;
 }
 
 message UpdateUserRolesRequest {
   uint32 userID = 1 [(buf.validate.field).required = true];
   repeated uint32 roleIDs = 2 [(buf.validate.field).required = true];
 }
-message UpdateUserRolesReply {
-  string message = 1;
-}
 
 message UpdateRoleUsersRequest {
   uint32 roleID = 1 [(buf.validate.field).required = true];
   repeated uint32 userIDs = 2 [(buf.validate.field).required = true];
-}
-message UpdateRoleUsersReply {
-  string message = 1;
 }
 
 message GetSystemRoleRequest {

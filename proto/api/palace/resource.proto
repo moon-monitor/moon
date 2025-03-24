@@ -6,25 +6,26 @@ import "google/api/annotations.proto";
 import "buf/validate/validate.proto";
 import "palace/common/system.proto";
 import "palace/common/system_enum.proto";
+import "palace/common/common.proto";
 
 option go_package = "github.com/moon-monitor/moon/pkg/api/palace;palace";
 option java_multiple_files = true;
 option java_package = "com.api.palace";
 
 service Resource {
-  rpc SaveResource (SaveResourceRequest) returns (SaveResourceReply) {
+  rpc SaveResource (SaveResourceRequest) returns (api.palace.common.EmptyReply) {
     option (google.api.http) = {
       put: "/api/resource/save"
       body: "*"
     };
   }
-  rpc BatchUpdateResourceStatus (BatchUpdateResourceStatusRequest) returns (BatchUpdateResourceStatusReply) {
+  rpc BatchUpdateResourceStatus (BatchUpdateResourceStatusRequest) returns (api.palace.common.EmptyReply) {
     option (google.api.http) = {
       put: "/api/resource/batch/status"
       body: "*"
     };
   }
-  rpc DeleteResource (DeleteResourceRequest) returns (DeleteResourceReply) {
+  rpc DeleteResource (DeleteResourceRequest) returns (api.palace.common.EmptyReply) {
     option (google.api.http) = {
       delete: "/api/resource/{id}"
     };
@@ -77,23 +78,14 @@ message SaveResourceRequest {
   // api id
   uint32 id = 6;
 }
-message SaveResourceReply {
-  string message = 1;
-}
 
 message BatchUpdateResourceStatusRequest {
   repeated uint32 ids = 1 [(buf.validate.field).required = true];
   api.palace.common.ResourceStatus status = 2 [(buf.validate.field).required = true];
 }
-message BatchUpdateResourceStatusReply {
-  string message = 1;
-}
 
 message DeleteResourceRequest {
   uint32 id = 1 [(buf.validate.field).required = true];
-}
-message DeleteResourceReply {
-  string message = 1;
 }
 
 message GetResourceRequest {

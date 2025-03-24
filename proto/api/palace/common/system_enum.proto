@@ -42,4 +42,3 @@ enum UserPosition {
   USER_POSITION_USER = 3;
   USER_POSITION_GUEST = 4;
 }
-

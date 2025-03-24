@@ -63,7 +63,7 @@ paths:
                 content:
                     application/json:
                         schema:
-                            $ref: '#/components/schemas/api.palace.OAuth2ListRequest'
+                            $ref: '#/components/schemas/api.palace.common.EmptyRequest'
                 required: true
             responses:
                 "200":
@@ -99,7 +99,7 @@ paths:
                 content:
                     application/json:
                         schema:
-                            $ref: '#/components/schemas/api.palace.RefreshTokenRequest'
+                            $ref: '#/components/schemas/api.palace.common.EmptyRequest'
                 required: true
             responses:
                 "200":
@@ -143,7 +143,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/api.palace.BatchUpdateResourceStatusReply'
+                                $ref: '#/components/schemas/api.palace.common.EmptyReply'
     /api/resource/list:
         post:
             tags:
@@ -179,7 +179,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/api.palace.SaveResourceReply'
+                                $ref: '#/components/schemas/api.palace.common.EmptyReply'
     /api/resource/{id}:
         get:
             tags:
@@ -216,8 +216,25 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/api.palace.DeleteResourceReply'
+                                $ref: '#/components/schemas/api.palace.common.EmptyReply'
     /api/system/role:
+        get:
+            tags:
+                - System
+            operationId: System_GetSystemRole
+            parameters:
+                - name: roleID
+                  in: query
+                  schema:
+                    type: integer
+                    format: uint32
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.palace.GetSystemRoleReply'
         post:
             tags:
                 - System
@@ -234,7 +251,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/api.palace.SaveRoleReply'
+                                $ref: '#/components/schemas/api.palace.common.EmptyReply'
     /api/system/role/status:
         put:
             tags:
@@ -252,7 +269,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/api.palace.UpdateRoleStatusReply'
+                                $ref: '#/components/schemas/api.palace.common.EmptyReply'
     /api/system/role/users:
         put:
             tags:
@@ -270,26 +287,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/api.palace.UpdateRoleUsersReply'
-    /api/system/role/{roleID}:
-        get:
-            tags:
-                - System
-            operationId: System_GetSystemRole
-            parameters:
-                - name: roleID
-                  in: path
-                  required: true
-                  schema:
-                    type: integer
-                    format: uint32
-            responses:
-                "200":
-                    description: OK
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/api.palace.GetSystemRoleReply'
+                                $ref: '#/components/schemas/api.palace.common.EmptyReply'
     /api/system/team/list:
         post:
             tags:
@@ -325,7 +323,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/api.palace.UpdateUserReply'
+                                $ref: '#/components/schemas/api.palace.common.EmptyReply'
     /api/system/user/list:
         post:
             tags:
@@ -361,7 +359,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/api.palace.ResetUserPasswordReply'
+                                $ref: '#/components/schemas/api.palace.common.EmptyReply'
     /api/system/user/position:
         put:
             tags:
@@ -379,7 +377,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/api.palace.UpdateUserPositionReply'
+                                $ref: '#/components/schemas/api.palace.common.EmptyReply'
     /api/system/user/roles:
         put:
             tags:
@@ -397,7 +395,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/api.palace.UpdateUserRolesReply'
+                                $ref: '#/components/schemas/api.palace.common.EmptyReply'
     /api/system/user/status:
         put:
             tags:
@@ -415,7 +413,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/api.palace.UpdateUserStatusReply'
+                                $ref: '#/components/schemas/api.palace.common.EmptyReply'
     /api/system/user/{userID}:
         get:
             tags:
@@ -435,18 +433,11 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/api.palace.GetUserReply'
-    /api/team/detail/{teamID}:
+    /api/team/detail:
         get:
             tags:
                 - Team
             operationId: Team_GetTeam
-            parameters:
-                - name: teamID
-                  in: path
-                  required: true
-                  schema:
-                    type: integer
-                    format: uint32
             responses:
                 "200":
                     description: OK
@@ -454,18 +445,11 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/api.palace.GetTeamReply'
-    /api/team/email/config/{teamID}:
+    /api/team/email/config:
         put:
             tags:
                 - Team
             operationId: Team_SaveEmailConfig
-            parameters:
-                - name: teamID
-                  in: path
-                  required: true
-                  schema:
-                    type: integer
-                    format: uint32
             requestBody:
                 content:
                     application/json:
@@ -478,19 +462,12 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/api.palace.SaveEmailConfigReply'
-    /api/team/invite/member/{teamID}:
+                                $ref: '#/components/schemas/api.palace.common.EmptyReply'
+    /api/team/invite/member:
         post:
             tags:
                 - Team
             operationId: Team_InviteMember
-            parameters:
-                - name: teamID
-                  in: path
-                  required: true
-                  schema:
-                    type: integer
-                    format: uint32
             requestBody:
                 content:
                     application/json:
@@ -503,24 +480,17 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/api.palace.InviteMemberReply'
-    /api/team/members/{teamID}:
+                                $ref: '#/components/schemas/api.palace.common.EmptyReply'
+    /api/team/members:
         post:
             tags:
                 - Team
             operationId: Team_GetTeamMembers
-            parameters:
-                - name: teamID
-                  in: path
-                  required: true
-                  schema:
-                    type: integer
-                    format: uint32
             requestBody:
                 content:
                     application/json:
                         schema:
-                            $ref: '#/components/schemas/api.palace.GetTeamMembersRequest'
+                            $ref: '#/components/schemas/api.palace.common.EmptyRequest'
                 required: true
             responses:
                 "200":
@@ -529,18 +499,11 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/api.palace.GetTeamMembersReply'
-    /api/team/remove/member/{teamID}:
+    /api/team/remove/member:
         post:
             tags:
                 - Team
             operationId: Team_RemoveMember
-            parameters:
-                - name: teamID
-                  in: path
-                  required: true
-                  schema:
-                    type: integer
-                    format: uint32
             requestBody:
                 content:
                     application/json:
@@ -553,19 +516,12 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/api.palace.RemoveMemberReply'
-    /api/team/resources/{teamID}:
+                                $ref: '#/components/schemas/api.palace.common.EmptyReply'
+    /api/team/resources:
         get:
             tags:
                 - Team
             operationId: Team_GetTeamResources
-            parameters:
-                - name: teamID
-                  in: path
-                  required: true
-                  schema:
-                    type: integer
-                    format: uint32
             responses:
                 "200":
                     description: OK
@@ -573,18 +529,11 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/api.palace.GetTeamResourcesReply'
-    /api/team/roles/{teamID}:
+    /api/team/roles:
         put:
             tags:
                 - Team
             operationId: Team_SaveTeamRole
-            parameters:
-                - name: teamID
-                  in: path
-                  required: true
-                  schema:
-                    type: integer
-                    format: uint32
             requestBody:
                 content:
                     application/json:
@@ -597,23 +546,16 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/api.palace.SaveTeamRoleReply'
+                                $ref: '#/components/schemas/api.palace.common.EmptyReply'
         post:
             tags:
                 - Team
             operationId: Team_GetTeamRoles
-            parameters:
-                - name: teamID
-                  in: path
-                  required: true
-                  schema:
-                    type: integer
-                    format: uint32
             requestBody:
                 content:
                     application/json:
                         schema:
-                            $ref: '#/components/schemas/api.palace.GetTeamRolesRequest'
+                            $ref: '#/components/schemas/api.palace.common.EmptyRequest'
                 required: true
             responses:
                 "200":
@@ -627,12 +569,6 @@ paths:
                 - Team
             operationId: Team_DeleteTeamRole
             parameters:
-                - name: teamID
-                  in: path
-                  required: true
-                  schema:
-                    type: integer
-                    format: uint32
                 - name: roleID
                   in: query
                   schema:
@@ -644,7 +580,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/api.palace.DeleteTeamRoleReply'
+                                $ref: '#/components/schemas/api.palace.common.EmptyReply'
     /api/team/save:
         put:
             tags:
@@ -662,19 +598,225 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/api.palace.SaveTeamReply'
-    /api/team/transfer/{teamID}:
+                                $ref: '#/components/schemas/api.palace.common.EmptyReply'
+    /api/team/strategy:
+        get:
+            tags:
+                - TeamStrategy
+            operationId: TeamStrategy_GetTeamStrategy
+            parameters:
+                - name: strategyID
+                  in: query
+                  schema:
+                    type: integer
+                    format: uint32
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.palace.GetTeamStrategyReply'
+        delete:
+            tags:
+                - TeamStrategy
+            operationId: TeamStrategy_DeleteTeamStrategy
+            parameters:
+                - name: strategyID
+                  in: query
+                  schema:
+                    type: integer
+                    format: uint32
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.palace.common.EmptyReply'
+    /api/team/strategy/group:
+        get:
+            tags:
+                - TeamStrategy
+            operationId: TeamStrategy_GetTeamStrategyGroup
+            parameters:
+                - name: groupID
+                  in: query
+                  schema:
+                    type: integer
+                    format: uint32
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.palace.GetTeamStrategyGroupReply'
+        post:
+            tags:
+                - TeamStrategy
+            operationId: TeamStrategy_SaveTeamStrategyGroup
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/api.palace.SaveTeamStrategyGroupRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.palace.common.EmptyReply'
+        delete:
+            tags:
+                - TeamStrategy
+            operationId: TeamStrategy_DeleteTeamStrategyGroup
+            parameters:
+                - name: groupID
+                  in: query
+                  schema:
+                    type: integer
+                    format: uint32
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.palace.common.EmptyReply'
+    /api/team/strategy/group/list:
+        post:
+            tags:
+                - TeamStrategy
+            operationId: TeamStrategy_ListTeamStrategyGroup
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/api.palace.ListTeamStrategyGroupRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.palace.ListTeamStrategyGroupReply'
+    /api/team/strategy/group/status:
+        put:
+            tags:
+                - TeamStrategy
+            operationId: TeamStrategy_UpdateTeamStrategyGroupStatus
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/api.palace.UpdateTeamStrategyGroupStatusRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.palace.common.EmptyReply'
+    /api/team/strategy/list:
+        post:
+            tags:
+                - TeamStrategy
+            operationId: TeamStrategy_ListTeamStrategy
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/api.palace.ListTeamStrategyRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.palace.ListTeamStrategyReply'
+    /api/team/strategy/status:
+        put:
+            tags:
+                - TeamStrategy
+            operationId: TeamStrategy_UpdateTeamStrategiesStatus
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/api.palace.UpdateTeamStrategiesStatusRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.palace.common.EmptyReply'
+    /api/team/strategy/subscribe:
+        post:
+            tags:
+                - TeamStrategy
+            operationId: TeamStrategy_SubscribeTeamStrategy
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/api.palace.SubscribeTeamStrategyRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.palace.common.EmptyReply'
+    /api/team/strategy/subscribe/list:
+        post:
+            tags:
+                - TeamStrategy
+            operationId: TeamStrategy_SubscribeTeamStrategies
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/api.palace.SubscribeTeamStrategiesRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.palace.common.EmptyReply'
+    /api/team/strategy/subscribe/self:
+        post:
+            tags:
+                - TeamStrategy
+            operationId: TeamStrategy_SelfSubscribeTeamStrategies
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/api.palace.SelfSubscribeTeamStrategiesRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.palace.SelfSubscribeTeamStrategiesReply'
+    /api/team/transfer:
         post:
             tags:
                 - Team
             operationId: Team_TransferTeam
-            parameters:
-                - name: teamID
-                  in: path
-                  required: true
-                  schema:
-                    type: integer
-                    format: uint32
             requestBody:
                 content:
                     application/json:
@@ -687,19 +829,12 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/api.palace.TransferTeamReply'
-    /api/team/update/member/position/{teamID}:
+                                $ref: '#/components/schemas/api.palace.common.EmptyReply'
+    /api/team/update/member/position:
         post:
             tags:
                 - Team
             operationId: Team_UpdateMemberPosition
-            parameters:
-                - name: teamID
-                  in: path
-                  required: true
-                  schema:
-                    type: integer
-                    format: uint32
             requestBody:
                 content:
                     application/json:
@@ -712,19 +847,12 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/api.palace.UpdateMemberPositionReply'
-    /api/team/update/member/roles/{teamID}:
+                                $ref: '#/components/schemas/api.palace.common.EmptyReply'
+    /api/team/update/member/roles:
         post:
             tags:
                 - Team
             operationId: Team_UpdateMemberRoles
-            parameters:
-                - name: teamID
-                  in: path
-                  required: true
-                  schema:
-                    type: integer
-                    format: uint32
             requestBody:
                 content:
                     application/json:
@@ -737,19 +865,12 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/api.palace.UpdateMemberRolesReply'
-    /api/team/update/member/status/{teamID}:
+                                $ref: '#/components/schemas/api.palace.common.EmptyReply'
+    /api/team/update/member/status:
         post:
             tags:
                 - Team
             operationId: Team_UpdateMemberStatus
-            parameters:
-                - name: teamID
-                  in: path
-                  required: true
-                  schema:
-                    type: integer
-                    format: uint32
             requestBody:
                 content:
                     application/json:
@@ -762,7 +883,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/api.palace.UpdateMemberStatusReply'
+                                $ref: '#/components/schemas/api.palace.common.EmptyReply'
     /api/user/self:
         get:
             tags:
@@ -791,7 +912,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/api.palace.UpdateSelfInfoReply'
+                                $ref: '#/components/schemas/api.palace.common.EmptyReply'
     /api/user/self/create-team:
         post:
             tags:
@@ -809,7 +930,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/api.palace.CreateTeamReply'
+                                $ref: '#/components/schemas/api.palace.common.EmptyReply'
     /api/user/self/join-team:
         post:
             tags:
@@ -827,7 +948,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/api.palace.JoinTeamReply'
+                                $ref: '#/components/schemas/api.palace.common.EmptyReply'
     /api/user/self/leave-team:
         post:
             tags:
@@ -845,7 +966,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/api.palace.LeaveTeamReply'
+                                $ref: '#/components/schemas/api.palace.common.EmptyReply'
     /api/user/self/password:
         put:
             tags:
@@ -863,7 +984,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/api.palace.UpdateSelfPasswordReply'
+                                $ref: '#/components/schemas/api.palace.common.EmptyReply'
     /health:
         get:
             tags:
@@ -922,11 +1043,6 @@ components:
                     type: boolean
                 uuid:
                     type: string
-        api.palace.BatchUpdateResourceStatusReply:
-            type: object
-            properties:
-                message:
-                    type: string
         api.palace.BatchUpdateResourceStatusRequest:
             type: object
             properties:
@@ -945,11 +1061,6 @@ components:
                     type: string
                 answer:
                     type: string
-        api.palace.CreateTeamReply:
-            type: object
-            properties:
-                message:
-                    type: string
         api.palace.CreateTeamRequest:
             type: object
             properties:
@@ -958,16 +1069,6 @@ components:
                 remark:
                     type: string
                 logo:
-                    type: string
-        api.palace.DeleteResourceReply:
-            type: object
-            properties:
-                message:
-                    type: string
-        api.palace.DeleteTeamRoleReply:
-            type: object
-            properties:
-                message:
                     type: string
         api.palace.GetCaptchaReply:
             type: object
@@ -1001,7 +1102,7 @@ components:
             type: object
             properties:
                 pagination:
-                    $ref: '#/components/schemas/api.palace.common.Pagination'
+                    $ref: '#/components/schemas/api.palace.common.PaginationRequest'
                 status:
                     type: array
                     items:
@@ -1015,12 +1116,6 @@ components:
                     type: array
                     items:
                         $ref: '#/components/schemas/api.palace.common.TeamMemberItem'
-        api.palace.GetTeamMembersRequest:
-            type: object
-            properties:
-                teamID:
-                    type: integer
-                    format: uint32
         api.palace.GetTeamReply:
             type: object
             properties:
@@ -1040,12 +1135,16 @@ components:
                     type: array
                     items:
                         $ref: '#/components/schemas/api.palace.common.TeamRoleItem'
-        api.palace.GetTeamRolesRequest:
+        api.palace.GetTeamStrategyGroupReply:
             type: object
             properties:
-                teamID:
-                    type: integer
-                    format: uint32
+                detail:
+                    $ref: '#/components/schemas/api.palace.common.TeamStrategyGroupItem'
+        api.palace.GetTeamStrategyReply:
+            type: object
+            properties:
+                detail:
+                    $ref: '#/components/schemas/api.palace.common.TeamStrategyItem'
         api.palace.GetUserListReply:
             type: object
             properties:
@@ -1069,26 +1168,17 @@ components:
                         type: integer
                         format: enum
                 pagination:
-                    $ref: '#/components/schemas/api.palace.common.Pagination'
+                    $ref: '#/components/schemas/api.palace.common.PaginationRequest'
         api.palace.GetUserReply:
             type: object
             properties:
                 user:
                     $ref: '#/components/schemas/api.palace.common.UserItem'
-        api.palace.InviteMemberReply:
-            type: object
-            properties:
-                message:
-                    type: string
         api.palace.InviteMemberRequest:
             type: object
             properties:
-                teamID:
-                    type: integer
-                    format: uint32
                 userEmail:
-                    type: integer
-                    format: uint32
+                    type: string
                 position:
                     type: integer
                     format: enum
@@ -1097,11 +1187,6 @@ components:
                     items:
                         type: integer
                         format: uint32
-        api.palace.JoinTeamReply:
-            type: object
-            properties:
-                message:
-                    type: string
         api.palace.JoinTeamRequest:
             type: object
             properties:
@@ -1109,11 +1194,6 @@ components:
                     type: integer
                     format: uint32
                 reason:
-                    type: string
-        api.palace.LeaveTeamReply:
-            type: object
-            properties:
-                message:
                     type: string
         api.palace.LeaveTeamRequest:
             type: object
@@ -1150,6 +1230,49 @@ components:
                         format: enum
                 keyword:
                     type: string
+        api.palace.ListTeamStrategyGroupReply:
+            type: object
+            properties:
+                items:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/api.palace.common.TeamStrategyGroupItem'
+                pagination:
+                    $ref: '#/components/schemas/api.palace.common.PaginationReply'
+        api.palace.ListTeamStrategyGroupRequest:
+            type: object
+            properties:
+                pagination:
+                    $ref: '#/components/schemas/api.palace.common.PaginationRequest'
+                keyword:
+                    type: string
+                status:
+                    type: array
+                    items:
+                        type: integer
+                        format: enum
+        api.palace.ListTeamStrategyReply:
+            type: object
+            properties:
+                items:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/api.palace.common.TeamStrategyItem'
+                pagination:
+                    $ref: '#/components/schemas/api.palace.common.PaginationReply'
+        api.palace.ListTeamStrategyRequest:
+            type: object
+            properties:
+                pagination:
+                    $ref: '#/components/schemas/api.palace.common.PaginationRequest'
+                groupID:
+                    type: integer
+                    format: uint32
+                status:
+                    type: array
+                    items:
+                        type: integer
+                        format: enum
         api.palace.LoginByEmailRequest:
             type: object
             properties:
@@ -1213,9 +1336,6 @@ components:
                 redirect:
                     type: string
                     description: 重定向地址
-        api.palace.OAuth2ListRequest:
-            type: object
-            properties: {}
         api.palace.OAuthLoginByEmailRequest:
             type: object
             properties:
@@ -1231,27 +1351,10 @@ components:
                 app:
                     type: integer
                     format: int32
-        api.palace.RefreshTokenRequest:
-            type: object
-            properties: {}
-        api.palace.RemoveMemberReply:
-            type: object
-            properties:
-                message:
-                    type: string
         api.palace.RemoveMemberRequest:
             type: object
             properties:
-                teamID:
-                    type: integer
-                    format: uint32
-                memberID:
-                    type: integer
-                    format: uint32
-        api.palace.ResetUserPasswordReply:
-            type: object
-            properties:
-                message:
+                userEmail:
                     type: string
         api.palace.ResetUserPasswordRequest:
             type: object
@@ -1261,17 +1364,9 @@ components:
                     items:
                         type: integer
                         format: uint32
-        api.palace.SaveEmailConfigReply:
-            type: object
-            properties:
-                message:
-                    type: string
         api.palace.SaveEmailConfigRequest:
             type: object
             properties:
-                teamID:
-                    type: integer
-                    format: uint32
                 user:
                     type: string
                 pass:
@@ -1283,11 +1378,6 @@ components:
                     format: uint32
                 enable:
                     type: boolean
-        api.palace.SaveResourceReply:
-            type: object
-            properties:
-                message:
-                    type: string
         api.palace.SaveResourceRequest:
             type: object
             properties:
@@ -1312,11 +1402,6 @@ components:
                     type: integer
                     description: api id
                     format: uint32
-        api.palace.SaveRoleReply:
-            type: object
-            properties:
-                message:
-                    type: string
         api.palace.SaveRoleRequest:
             type: object
             properties:
@@ -1332,34 +1417,18 @@ components:
                     items:
                         type: integer
                         format: uint32
-        api.palace.SaveTeamReply:
-            type: object
-            properties:
-                message:
-                    type: string
         api.palace.SaveTeamRequest:
             type: object
             properties:
-                teamID:
-                    type: integer
-                    format: uint32
                 name:
                     type: string
                 remark:
                     type: string
                 logo:
                     type: string
-        api.palace.SaveTeamRoleReply:
-            type: object
-            properties:
-                message:
-                    type: string
         api.palace.SaveTeamRoleRequest:
             type: object
             properties:
-                teamID:
-                    type: integer
-                    format: uint32
                 roleID:
                     type: integer
                     format: uint32
@@ -1372,53 +1441,82 @@ components:
                     items:
                         type: integer
                         format: uint32
+        api.palace.SaveTeamStrategyGroupRequest:
+            type: object
+            properties:
+                groupID:
+                    type: integer
+                    format: uint32
+                name:
+                    type: string
+                remark:
+                    type: string
+        api.palace.SaveTeamStrategyRequest:
+            type: object
+            properties:
+                strategyID:
+                    type: integer
+                    format: uint32
+                groupID:
+                    type: integer
+                    format: uint32
+                name:
+                    type: string
+                remark:
+                    type: string
         api.palace.SelfInfoReply:
             type: object
             properties:
                 user:
                     $ref: '#/components/schemas/api.palace.common.UserItem'
-        api.palace.TransferTeamReply:
+        api.palace.SelfSubscribeTeamStrategiesReply:
             type: object
             properties:
-                message:
-                    type: string
+                items:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/api.palace.common.TeamStrategyItem'
+                pagination:
+                    $ref: '#/components/schemas/api.palace.common.PaginationReply'
+        api.palace.SelfSubscribeTeamStrategiesRequest:
+            type: object
+            properties:
+                pagination:
+                    $ref: '#/components/schemas/api.palace.common.PaginationRequest'
+        api.palace.SubscribeTeamStrategiesRequest:
+            type: object
+            properties:
+                pagination:
+                    $ref: '#/components/schemas/api.palace.common.PaginationRequest'
+                strategyID:
+                    type: integer
+                    format: uint32
+        api.palace.SubscribeTeamStrategyRequest:
+            type: object
+            properties:
+                strategyID:
+                    type: integer
+                    format: uint32
+                isSubscribe:
+                    type: boolean
         api.palace.TransferTeamRequest:
             type: object
             properties:
-                teamID:
-                    type: integer
-                    format: uint32
                 newLeaderID:
                     type: integer
                     format: uint32
-        api.palace.UpdateMemberPositionReply:
-            type: object
-            properties:
-                message:
-                    type: string
         api.palace.UpdateMemberPositionRequest:
             type: object
             properties:
-                teamID:
-                    type: integer
-                    format: uint32
                 memberID:
                     type: integer
                     format: uint32
                 position:
                     type: integer
                     format: enum
-        api.palace.UpdateMemberRolesReply:
-            type: object
-            properties:
-                message:
-                    type: string
         api.palace.UpdateMemberRolesRequest:
             type: object
             properties:
-                teamID:
-                    type: integer
-                    format: uint32
                 memberIDs:
                     type: array
                     items:
@@ -1429,17 +1527,9 @@ components:
                     items:
                         type: integer
                         format: uint32
-        api.palace.UpdateMemberStatusReply:
-            type: object
-            properties:
-                message:
-                    type: string
         api.palace.UpdateMemberStatusRequest:
             type: object
             properties:
-                teamID:
-                    type: integer
-                    format: uint32
                 memberIDs:
                     type: array
                     items:
@@ -1448,11 +1538,6 @@ components:
                 status:
                     type: integer
                     format: enum
-        api.palace.UpdateRoleStatusReply:
-            type: object
-            properties:
-                message:
-                    type: string
         api.palace.UpdateRoleStatusRequest:
             type: object
             properties:
@@ -1462,11 +1547,6 @@ components:
                 status:
                     type: integer
                     format: enum
-        api.palace.UpdateRoleUsersReply:
-            type: object
-            properties:
-                message:
-                    type: string
         api.palace.UpdateRoleUsersRequest:
             type: object
             properties:
@@ -1478,11 +1558,6 @@ components:
                     items:
                         type: integer
                         format: uint32
-        api.palace.UpdateSelfInfoReply:
-            type: object
-            properties:
-                message:
-                    type: string
         api.palace.UpdateSelfInfoRequest:
             type: object
             properties:
@@ -1493,11 +1568,6 @@ components:
                 gender:
                     type: integer
                     format: enum
-        api.palace.UpdateSelfPasswordReply:
-            type: object
-            properties:
-                message:
-                    type: string
         api.palace.UpdateSelfPasswordRequest:
             type: object
             properties:
@@ -1505,11 +1575,26 @@ components:
                     type: string
                 newPassword:
                     type: string
-        api.palace.UpdateUserPositionReply:
+        api.palace.UpdateTeamStrategiesStatusRequest:
             type: object
             properties:
-                message:
-                    type: string
+                strategyIDs:
+                    type: array
+                    items:
+                        type: integer
+                        format: uint32
+                status:
+                    type: integer
+                    format: enum
+        api.palace.UpdateTeamStrategyGroupStatusRequest:
+            type: object
+            properties:
+                groupID:
+                    type: integer
+                    format: uint32
+                status:
+                    type: integer
+                    format: enum
         api.palace.UpdateUserPositionRequest:
             type: object
             properties:
@@ -1519,11 +1604,6 @@ components:
                 position:
                     type: integer
                     format: enum
-        api.palace.UpdateUserReply:
-            type: object
-            properties:
-                message:
-                    type: string
         api.palace.UpdateUserRequest:
             type: object
             properties:
@@ -1537,11 +1617,6 @@ components:
                 gender:
                     type: integer
                     format: enum
-        api.palace.UpdateUserRolesReply:
-            type: object
-            properties:
-                message:
-                    type: string
         api.palace.UpdateUserRolesRequest:
             type: object
             properties:
@@ -1553,11 +1628,6 @@ components:
                     items:
                         type: integer
                         format: uint32
-        api.palace.UpdateUserStatusReply:
-            type: object
-            properties:
-                message:
-                    type: string
         api.palace.UpdateUserStatusRequest:
             type: object
             properties:
@@ -1581,21 +1651,29 @@ components:
                     type: string
                 captcha:
                     $ref: '#/components/schemas/api.palace.CaptchaValidateRequest'
-        api.palace.common.Pagination:
+        api.palace.common.EmptyReply:
             type: object
             properties:
-                page:
-                    type: integer
-                    format: uint32
-                limit:
-                    type: integer
-                    format: uint32
+                message:
+                    type: string
+        api.palace.common.EmptyRequest:
+            type: object
+            properties: {}
         api.palace.common.PaginationReply:
             type: object
             properties:
                 total:
                     type: integer
                     format: uint32
+                page:
+                    type: integer
+                    format: uint32
+                limit:
+                    type: integer
+                    format: uint32
+        api.palace.common.PaginationRequest:
+            type: object
+            properties:
                 page:
                     type: integer
                     format: uint32
@@ -1738,6 +1816,51 @@ components:
                     type: string
                 updatedAt:
                     type: string
+        api.palace.common.TeamStrategyGroupItem:
+            type: object
+            properties:
+                groupID:
+                    type: integer
+                    format: uint32
+                name:
+                    type: string
+                remark:
+                    type: string
+                status:
+                    type: integer
+                    format: enum
+                strategyCount:
+                    type: string
+                enableStrategyCount:
+                    type: string
+                createdAt:
+                    type: string
+                updatedAt:
+                    type: string
+                creator:
+                    $ref: '#/components/schemas/api.palace.common.UserItem'
+        api.palace.common.TeamStrategyItem:
+            type: object
+            properties:
+                strategyID:
+                    type: integer
+                    format: uint32
+                groupID:
+                    type: integer
+                    format: uint32
+                name:
+                    type: string
+                remark:
+                    type: string
+                status:
+                    type: integer
+                    format: enum
+                creator:
+                    $ref: '#/components/schemas/api.palace.common.UserItem'
+                createdAt:
+                    type: string
+                updatedAt:
+                    type: string
         api.palace.common.UserBaseItem:
             type: object
             properties:
@@ -1848,4 +1971,5 @@ tags:
     - name: Server
     - name: System
     - name: Team
+    - name: TeamStrategy
     - name: User

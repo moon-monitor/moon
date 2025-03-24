@@ -1,0 +1,33 @@
+syntax = "proto3";
+
+package api.palace.common;
+
+import "palace/common/team_enum.proto";
+import "palace/common/system.proto";
+
+option go_package = "github.com/moon-monitor/moon/pkg/api/palace/common;common";
+option java_multiple_files = true;
+option java_package = "com.api.palace.common";
+
+message TeamStrategyGroupItem {
+	uint32 groupID = 1;
+	string name = 2;
+	string remark = 3;
+	api.palace.common.TeamStrategyGroupStatus status = 4;
+	int64 strategyCount = 5;
+	int64 enableStrategyCount = 6;
+	string createdAt = 7;
+	string updatedAt = 8;
+	api.palace.common.UserItem creator = 9;
+}
+
+message TeamStrategyItem {
+	uint32 strategyID = 1;
+	uint32 groupID = 2;
+	string name = 3;
+	string remark = 4;
+	api.palace.common.TeamStrategyStatus status = 5;
+	api.palace.common.UserItem creator = 6;
+	string createdAt = 7;
+	string updatedAt = 8;
+}
