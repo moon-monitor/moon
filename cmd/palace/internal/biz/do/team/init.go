@@ -5,5 +5,9 @@ func Models() []any {
 		&Dict{},
 		&StrategyGroup{},
 		&Strategy{},
+		&NoticeGroup{},
+		&NoticeHook{},
+		&TimeEngine{},
+		&TimeEngineRule{},
 	}
 }
