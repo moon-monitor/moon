@@ -23,7 +23,7 @@ type User struct {
 	Position vobj.Role       `gorm:"column:position;type:tinyint(2);not null;comment:系统默认角色类型" json:"position"`
 	Status   vobj.UserStatus `gorm:"column:status;type:tinyint(2);not null;comment:状态" json:"status"`
 
-	Roles []*Role `gorm:"many2many:sys_user_roles;foreignKey:ID;joinForeignKey:UserID;references:ID;joinReferences:RoleID" json:"roles"`
+	Roles []*SysRole `gorm:"many2many:sys_user_roles;foreignKey:ID;joinForeignKey:UserID;references:ID;joinReferences:RoleID" json:"roles"`
 }
 
 func (u *User) TableName() string {

@@ -11,4 +11,5 @@ const (
 	TeamStatusForbidden                   // forbidden
 	TeamStatusDeleted                     // deleted
 	TeamStatusApproval                    // approval
+	TeamStatusRejected                    // rejected
 )

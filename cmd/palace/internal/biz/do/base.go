@@ -49,7 +49,8 @@ func (u *CreatorModel) BeforeCreate(tx *gorm.DB) (err error) {
 
 type TeamModel struct {
 	BaseModel
-	TeamID uint32 `gorm:"column:team_id;type:int unsigned;not null;comment:团队ID" json:"team_id,omitempty"`
+	CreatorID uint32 `gorm:"column:creator;type:int unsigned;not null;comment:创建者" json:"creator_id,omitempty"`
+	TeamID    uint32 `gorm:"column:team_id;type:int unsigned;not null;comment:团队ID" json:"team_id,omitempty"`
 }
 
 func (u *TeamModel) BeforeCreate(tx *gorm.DB) (err error) {
@@ -57,6 +58,10 @@ func (u *TeamModel) BeforeCreate(tx *gorm.DB) (err error) {
 	u.TeamID, exist = permission.GetTeamIDByContext(u.GetContext())
 	if !exist || u.TeamID == 0 {
 		return merr.ErrorInternalServerError("team id not found")
+	}
+	u.CreatorID, exist = permission.GetUserIDByContext(u.GetContext())
+	if !exist || u.CreatorID == 0 {
+		return merr.ErrorInternalServerError("user id not found")
 	}
 	tx.WithContext(u.GetContext())
 	return

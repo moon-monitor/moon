@@ -211,7 +211,7 @@ func (a *AuthBiz) verifyPermissionWithSystemRBAC(ctx context.Context, userDo *sy
 	sysRoleID, ok := permission.GetSysRoleIDByContext(ctx)
 	if ok {
 		// 判断角色是否存在，且该角色具备次API权限
-		systemRoleDo, ok := validate.SliceFindByValue(userDo.Roles, sysRoleID, func(role *system.Role) uint32 {
+		systemRoleDo, ok := validate.SliceFindByValue(userDo.Roles, sysRoleID, func(role *system.SysRole) uint32 {
 			return role.ID
 		})
 		if !ok {

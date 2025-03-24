@@ -7,7 +7,7 @@ import (
 
 const tableNameRole = "sys_roles"
 
-type Role struct {
+type SysRole struct {
 	do.BaseModel
 	Name   string          `gorm:"column:name;type:varchar(64);not null;comment:角色名" json:"name"`
 	Remark string          `gorm:"column:remark;type:varchar(255);not null;comment:备注" json:"remark"`
@@ -17,6 +17,6 @@ type Role struct {
 	Resources []*Resource `gorm:"many2many:sys_role_resources;foreignKey:ID;joinForeignKey:RoleID;references:ID;joinReferences:ResourceID" json:"resources"`
 }
 
-func (u *Role) TableName() string {
+func (u *SysRole) TableName() string {
 	return tableNameRole
 }

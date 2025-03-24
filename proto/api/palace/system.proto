@@ -96,6 +96,20 @@ service System {
       body: "*"
     };
   }
+
+  rpc GetTeamAuditList (GetTeamAuditListRequest) returns (GetTeamAuditListReply) {
+    option (google.api.http) = {
+      post: "/api/system/team/audit/list"
+      body: "*"
+    };
+  }
+
+  rpc UpdateTeamAuditStatus (UpdateTeamAuditStatusRequest) returns (api.palace.common.EmptyReply) {
+    option (google.api.http) = {
+      put: "/api/system/team/audit/status"
+      body: "*"
+    };
+  }
 }
 
 message UpdateUserRequest {
@@ -192,3 +206,25 @@ message GetSystemRoleRequest {
 message GetSystemRoleReply {
   api.palace.common.SystemRoleItem role = 1;
 }
+
+message GetTeamAuditListRequest {
+  api.palace.common.PaginationRequest pagination = 1;
+  repeated api.palace.common.TeamAuditStatus status = 2;
+  string keyword = 3;
+  uint32 userID = 4;
+}
+message GetTeamAuditListReply {
+  repeated api.palace.common.TeamAuditItem items = 1;
+  api.palace.common.PaginationReply pagination = 2;
+}
+
+message UpdateTeamAuditStatusRequest {
+  uint32 auditID = 1 [(buf.validate.field).required = true];
+  api.palace.common.TeamAuditStatus status = 2 [(buf.validate.field).required = true];
+  string reason = 3 [(buf.validate.field).cel = {
+    message: "reason max length is 200"
+    expression: "this.size() <= 200"
+  }];
+}
+
+

@@ -288,6 +288,42 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/api.palace.common.EmptyReply'
+    /api/system/team/audit/list:
+        post:
+            tags:
+                - System
+            operationId: System_GetTeamAuditList
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/api.palace.GetTeamAuditListRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.palace.GetTeamAuditListReply'
+    /api/system/team/audit/status:
+        put:
+            tags:
+                - System
+            operationId: System_UpdateTeamAuditStatus
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/api.palace.UpdateTeamAuditStatusRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.palace.common.EmptyReply'
     /api/system/team/list:
         post:
             tags:
@@ -1089,6 +1125,30 @@ components:
             properties:
                 role:
                     $ref: '#/components/schemas/api.palace.common.SystemRoleItem'
+        api.palace.GetTeamAuditListReply:
+            type: object
+            properties:
+                items:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/api.palace.common.TeamAuditItem'
+                pagination:
+                    $ref: '#/components/schemas/api.palace.common.PaginationReply'
+        api.palace.GetTeamAuditListRequest:
+            type: object
+            properties:
+                pagination:
+                    $ref: '#/components/schemas/api.palace.common.PaginationRequest'
+                status:
+                    type: array
+                    items:
+                        type: integer
+                        format: enum
+                keyword:
+                    type: string
+                userID:
+                    type: integer
+                    format: uint32
         api.palace.GetTeamListReply:
             type: object
             properties:
@@ -1575,6 +1635,17 @@ components:
                     type: string
                 newPassword:
                     type: string
+        api.palace.UpdateTeamAuditStatusRequest:
+            type: object
+            properties:
+                auditID:
+                    type: integer
+                    format: uint32
+                status:
+                    type: integer
+                    format: enum
+                reason:
+                    type: string
         api.palace.UpdateTeamStrategiesStatusRequest:
             type: object
             properties:
@@ -1738,6 +1809,35 @@ components:
                 status:
                     type: integer
                     format: enum
+        api.palace.common.TeamAuditItem:
+            type: object
+            properties:
+                id:
+                    type: integer
+                    format: uint32
+                user:
+                    $ref: '#/components/schemas/api.palace.common.UserBaseItem'
+                status:
+                    type: integer
+                    format: enum
+                reason:
+                    type: string
+                createdAt:
+                    type: string
+                team:
+                    $ref: '#/components/schemas/api.palace.common.TeamBaseItem'
+        api.palace.common.TeamBaseItem:
+            type: object
+            properties:
+                id:
+                    type: integer
+                    format: uint32
+                name:
+                    type: string
+                remark:
+                    type: string
+                logo:
+                    type: string
         api.palace.common.TeamItem:
             type: object
             properties:

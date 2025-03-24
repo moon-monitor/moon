@@ -52,3 +52,19 @@ message SystemRoleItem {
   string remark = 3;
   api.palace.common.RoleStatus status = 4;
 }
+
+message TeamBaseItem {
+  uint32 id = 1;
+  string name = 2;
+  string remark = 3;
+  string logo = 4;
+}
+
+message TeamAuditItem {
+  uint32 id = 1;
+  UserBaseItem user = 2;
+  api.palace.common.TeamAuditStatus status = 3;
+  string reason = 4;
+  string createdAt = 5;
+  TeamBaseItem team = 6;
+}

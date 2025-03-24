@@ -6,8 +6,9 @@ func Models() []any {
 		&Team{},
 		&TeamRole{},
 		&TeamMember{},
-		&Role{},
+		&SysRole{},
 		&Resource{},
 		&OAuthUser{},
+		&TeamAudit{},
 	}
 }
