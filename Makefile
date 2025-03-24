@@ -101,7 +101,7 @@ conf-rabbit:
            --experimental_allow_proto3_optional \
            ./cmd/rabbit/internal/conf/*.proto
 		   
-.PPHONY: wire-palace
+.PHONY: wire-palace
 wire-palace:
 	cd ./cmd/palace && wire
 
@@ -109,7 +109,7 @@ wire-palace:
 wire-rabbit:
 	cd ./cmd/rabbit && wire
 
-.PPHONY: stringer-palace
+.PHONY: stringer-palace
 stringer-palace:
 	cd ./cmd/palace/internal/biz/vobj && go generate
 
@@ -131,6 +131,7 @@ build:
 run:
 	@if [ -z "$(APP_NAME)" ]; then echo "app name is required"; echo "usage: make run app=<app_name>"; exit 1; fi
 	@echo "Running moon app=$(APP_NAME)"
+	make all
 	go run ./cmd/$(APP_NAME) -c ./cmd/$(APP_NAME)/config
 
 .PHONY: docker-build

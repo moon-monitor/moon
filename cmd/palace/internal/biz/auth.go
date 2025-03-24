@@ -47,6 +47,7 @@ func NewAuthBiz(
 	cacheRepo repository.Cache,
 	oauthRepo repository.OAuth,
 	resourceRepo repository.Resource,
+	teamRepo repository.Team,
 	transaction repository.Transaction,
 	logger log.Logger,
 ) *AuthBiz {
@@ -60,6 +61,7 @@ func NewAuthBiz(
 		cacheRepo:    cacheRepo,
 		oauthRepo:    oauthRepo,
 		resourceRepo: resourceRepo,
+		teamRepo:     teamRepo,
 		transaction:  transaction,
 		helper:       log.NewHelper(log.With(logger, "module", "biz.auth")),
 	}
@@ -76,6 +78,7 @@ type AuthBiz struct {
 	cacheRepo    repository.Cache
 	oauthRepo    repository.OAuth
 	resourceRepo repository.Resource
+	teamRepo     repository.Team
 	transaction  repository.Transaction
 
 	helper *log.Helper
@@ -161,9 +164,23 @@ func (a *AuthBiz) VerifyPermission(ctx context.Context) error {
 	if err := a.verifyPermissionWithSystemRBAC(ctx, userDo, resourceDo); err != nil {
 		return err
 	}
+	teamID, ok := permission.GetTeamIDByContext(ctx)
+	if !ok {
+		return merr.ErrorPermissionDenied("team id is invalid")
+	}
+	teamDo, err := a.teamRepo.FindByID(ctx, teamID)
+	if err != nil {
+		return err
+	}
+	if !teamDo.Status.IsNormal() {
+		return merr.ErrorPermissionDenied("team is invalid")
+	}
 	teamPosition, memberDo, err := a.verifyPermissionWithTeamPosition(ctx, userDo)
 	if err != nil {
 		return err
+	}
+	if teamDo.ID != memberDo.TeamID {
+		return merr.ErrorPermissionDenied("team id is invalid")
 	}
 	if teamPosition.IsAdminOrSuperAdmin() {
 		return nil
