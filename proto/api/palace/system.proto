@@ -110,6 +110,13 @@ service System {
       body: "*"
     };
   }
+
+  rpc OperateLogList (OperateLogListRequest) returns (OperateLogListReply) {
+    option (google.api.http) = {
+      post: "/api/system/operate/log/list"
+      body: "*"
+    };
+  }
 }
 
 message UpdateUserRequest {
@@ -227,4 +234,10 @@ message UpdateTeamAuditStatusRequest {
   }];
 }
 
+message OperateLogListRequest {
+  api.palace.common.PaginationRequest pagination = 1;
+  repeated api.palace.common.OperateType type = 2;
+  string keyword = 3;
+  uint32 userID = 4;
+}
 
