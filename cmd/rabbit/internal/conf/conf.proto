@@ -2,7 +2,6 @@ syntax = "proto3";
 
 package cmd.rabbit.internal.conf;
 
-import "rabbit/common/notification.proto";
 import "config.proto";
 
 option go_package = "github.com/moon-monitor/moon/cmd/rabbit/internal/conf;conf";
@@ -19,10 +18,7 @@ message Bootstrap {
   Auth auth = 7;
   repeated config.EmailConfig email_config = 8;
   repeated config.AliyunSMSConfig aliyun_sms_config = 9;
-  repeated api.rabbit.common.HookItem hooks = 10;
-  repeated api.rabbit.common.Receiver receivers = 11;
-  api.rabbit.common.Template templates = 12;
-  config.MicroServer palace = 14;
+  config.MicroServer palace = 10;
 }
 
 message Data {

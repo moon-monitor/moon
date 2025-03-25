@@ -35,7 +35,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/api.rabbit.v1.SendEmailReply'
+                                $ref: '#/components/schemas/api.rabbit.common.EmptyReply'
     /v1/send/hook:
         post:
             tags:
@@ -53,7 +53,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/api.rabbit.v1.SendHookReply'
+                                $ref: '#/components/schemas/api.rabbit.common.EmptyReply'
     /v1/send/sms:
         post:
             tags:
@@ -71,7 +71,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/api.rabbit.v1.SendSmsReply'
+                                $ref: '#/components/schemas/api.rabbit.common.EmptyReply'
     /v1/server/register:
         post:
             tags:
@@ -90,16 +90,16 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/api.common.ServerRegisterReply'
-    /v1/sync/hooks:
+    /v1/sync/email:
         post:
             tags:
                 - Sync
-            operationId: Sync_Hooks
+            operationId: Sync_Email
             requestBody:
                 content:
                     application/json:
                         schema:
-                            $ref: '#/components/schemas/api.rabbit.v1.SyncHooksRequest'
+                            $ref: '#/components/schemas/api.rabbit.v1.SyncEmailRequest'
                 required: true
             responses:
                 "200":
@@ -107,25 +107,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/api.rabbit.v1.SyncHooksReply'
-    /v1/sync/receivers:
-        post:
-            tags:
-                - Sync
-            operationId: Sync_Receivers
-            requestBody:
-                content:
-                    application/json:
-                        schema:
-                            $ref: '#/components/schemas/api.rabbit.v1.SyncReceiversRequest'
-                required: true
-            responses:
-                "200":
-                    description: OK
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/api.rabbit.v1.SyncReceiversReply'
+                                $ref: '#/components/schemas/api.rabbit.common.EmptyReply'
     /v1/sync/sms:
         post:
             tags:
@@ -143,25 +125,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/api.rabbit.v1.SyncSmsReply'
-    /v1/sync/templates:
-        post:
-            tags:
-                - Sync
-            operationId: Sync_Templates
-            requestBody:
-                content:
-                    application/json:
-                        schema:
-                            $ref: '#/components/schemas/api.rabbit.v1.SyncTemplatesRequest'
-                required: true
-            responses:
-                "200":
-                    description: OK
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/api.rabbit.v1.SyncTemplatesReply'
+                                $ref: '#/components/schemas/api.rabbit.common.EmptyReply'
 components:
     schemas:
         api.common.CheckReply:
@@ -220,6 +184,11 @@ components:
                 name:
                     type: string
             description: email config
+        api.rabbit.common.EmptyReply:
+            type: object
+            properties:
+                message:
+                    type: string
         api.rabbit.common.HookItem:
             type: object
             properties:
@@ -242,52 +211,6 @@ components:
                     type: object
                     additionalProperties:
                         type: string
-        api.rabbit.common.Receiver:
-            type: object
-            properties:
-                id:
-                    type: integer
-                    format: uint32
-                name:
-                    type: string
-                teamId:
-                    type: integer
-                    format: uint32
-                recipient:
-                    $ref: '#/components/schemas/api.rabbit.common.Receiver_Recipient'
-                templates:
-                    $ref: '#/components/schemas/api.rabbit.common.Receiver_Templates'
-        api.rabbit.common.Receiver_Recipient:
-            type: object
-            properties:
-                emails:
-                    type: array
-                    items:
-                        type: string
-                smss:
-                    type: array
-                    items:
-                        type: string
-                voices:
-                    type: array
-                    items:
-                        type: string
-                hooks:
-                    type: array
-                    items:
-                        type: string
-        api.rabbit.common.Receiver_Templates:
-            type: object
-            properties:
-                email:
-                    type: string
-                sms:
-                    type: string
-                hook:
-                    type: string
-        api.rabbit.v1.SendEmailReply:
-            type: object
-            properties: {}
         api.rabbit.v1.SendEmailRequest:
             type: object
             properties:
@@ -309,9 +232,6 @@ components:
                         type: string
                 emailConfig:
                     $ref: '#/components/schemas/api.rabbit.common.EmailConfig'
-        api.rabbit.v1.SendHookReply:
-            type: object
-            properties: {}
         api.rabbit.v1.SendHookRequest:
             type: object
             properties:
@@ -321,9 +241,6 @@ components:
                         $ref: '#/components/schemas/api.rabbit.common.HookItem'
                 body:
                     type: string
-        api.rabbit.v1.SendSmsReply:
-            type: object
-            properties: {}
         api.rabbit.v1.SendSmsRequest:
             type: object
             properties:
@@ -337,91 +254,20 @@ components:
                     type: string
                 smsConfig:
                     $ref: '#/components/schemas/api.rabbit.common.AliyunSMSConfig'
-        api.rabbit.v1.SyncHooksReply:
-            type: object
-            properties: {}
-        api.rabbit.v1.SyncHooksRequest:
+        api.rabbit.v1.SyncEmailRequest:
             type: object
             properties:
-                hooks:
+                email:
                     type: array
                     items:
-                        $ref: '#/components/schemas/api.rabbit.common.HookItem'
-        api.rabbit.v1.SyncReceiversReply:
-            type: object
-            properties: {}
-        api.rabbit.v1.SyncReceiversRequest:
-            type: object
-            properties:
-                receivers:
-                    type: array
-                    items:
-                        $ref: '#/components/schemas/api.rabbit.common.Receiver'
-        api.rabbit.v1.SyncSmsReply:
-            type: object
-            properties: {}
+                        $ref: '#/components/schemas/api.rabbit.common.EmailConfig'
         api.rabbit.v1.SyncSmsRequest:
             type: object
             properties:
                 sms:
                     type: array
                     items:
-                        $ref: '#/components/schemas/config.EmailConfig'
-        api.rabbit.v1.SyncTemplatesReply:
-            type: object
-            properties: {}
-        api.rabbit.v1.SyncTemplatesRequest:
-            type: object
-            properties:
-                emails:
-                    type: array
-                    items:
-                        $ref: '#/components/schemas/api.rabbit.v1.SyncTemplatesRequest_EmailTemplate'
-                sms:
-                    type: array
-                    items:
-                        $ref: '#/components/schemas/api.rabbit.v1.SyncTemplatesRequest_SmsTemplate'
-                hooks:
-                    type: array
-                    items:
-                        $ref: '#/components/schemas/api.rabbit.v1.SyncTemplatesRequest_HookTemplate'
-        api.rabbit.v1.SyncTemplatesRequest_EmailTemplate:
-            type: object
-            properties:
-                name:
-                    type: string
-                parameters:
-                    type: string
-                subject:
-                    type: string
-                contentType:
-                    type: string
-                attachment:
-                    type: string
-                cc:
-                    type: string
-        api.rabbit.v1.SyncTemplatesRequest_HookTemplate:
-            type: object
-            properties:
-                name:
-                    type: string
-                dingtalk:
-                    type: string
-                wechat:
-                    type: string
-                feishu:
-                    type: string
-                other:
-                    type: string
-        api.rabbit.v1.SyncTemplatesRequest_SmsTemplate:
-            type: object
-            properties:
-                name:
-                    type: string
-                parameters:
-                    type: string
-                templateCode:
-                    type: string
+                        $ref: '#/components/schemas/api.rabbit.common.EmailConfig'
         config.Discovery:
             type: object
             properties:
@@ -433,23 +279,6 @@ components:
                 etcd:
                     $ref: '#/components/schemas/config.Etcd'
             description: server discovery config
-        config.EmailConfig:
-            type: object
-            properties:
-                user:
-                    type: string
-                pass:
-                    type: string
-                host:
-                    type: string
-                port:
-                    type: integer
-                    format: uint32
-                enable:
-                    type: boolean
-                name:
-                    type: string
-            description: email config
         config.Etcd:
             type: object
             properties:

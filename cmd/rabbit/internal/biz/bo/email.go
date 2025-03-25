@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"strings"
 
-	"github.com/moon-monitor/moon/pkg/api/rabbit/common"
 	"github.com/moon-monitor/moon/pkg/config"
 	"github.com/moon-monitor/moon/pkg/plugin/email"
 	"github.com/moon-monitor/moon/pkg/util/template"
@@ -25,24 +24,6 @@ type SendEmailConfig struct {
 
 func (s *SendEmailConfig) WithGlobalConfig(config map[string]*config.EmailConfig) *SendEmailConfig {
 	s.global = config
-	return s
-}
-
-func (s *SendEmailConfig) ParseByTemplate(templates map[string]*common.Template_Email) *SendEmailConfig {
-	template, ok := templates[s.TemplateName]
-	if !ok {
-		return s
-	}
-
-	s.Parameters = template.Parameters
-	s.Subject = template.Subject
-	s.ContentType = template.ContentType
-	s.Attachment = template.Attachment
-	s.Cc = template.Cc
-	s.config = template.EmailConfig
-	if s.config == nil || !s.config.Enable {
-		s.config = s.global[s.config.Name]
-	}
 	return s
 }
 

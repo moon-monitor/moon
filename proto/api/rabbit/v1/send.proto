@@ -7,27 +7,28 @@ import "buf/validate/validate.proto";
 import "rabbit/common/notification.proto";
 import "rabbit/common/email.proto";
 import "rabbit/common/sms.proto";
+import "rabbit/common/common.proto";
 
 option go_package = "github.com/moon-monitor/moon/pkg/api/rabbit/v1;v1";
 option java_multiple_files = true;
 option java_package = "com.api.rabbit.v1";
 
 service Send {
-  rpc Email (SendEmailRequest) returns (SendEmailReply) {
+  rpc Email (SendEmailRequest) returns (rabbit.common.EmptyReply) {
     option (google.api.http) = {
       post: "/v1/send/email"
       body: "*"
     };
   }
 
-  rpc Sms (SendSmsRequest) returns (SendSmsReply) {
+  rpc Sms (SendSmsRequest) returns (rabbit.common.EmptyReply) {
     option (google.api.http) = {
       post: "/v1/send/sms"
       body: "*"
     };
   }
 
-  rpc Hook (SendHookRequest) returns (SendHookReply) {
+  rpc Hook (SendHookRequest) returns (rabbit.common.EmptyReply) {
     option (google.api.http) = {
       post: "/v1/send/hook"
       body: "*"
@@ -47,25 +48,22 @@ message SendEmailRequest {
   repeated string cc = 6;
   optional rabbit.common.EmailConfig email_config = 7;
 }
-message SendEmailReply {}
 
 message SendSmsRequest {
   repeated string phones = 1 [(buf.validate.field).cel = {
     message: "phones must be between 1 and 10"
     expression: "size(phones) >= 1 && size(phones) <= 100"
   }];
-  string template_parameters = 2;
-  string template_code = 3;
+  string template_parameters = 2 [(buf.validate.field).required = true];
+  string template_code = 3 [(buf.validate.field).required = true];
   optional rabbit.common.AliyunSMSConfig sms_config = 4;
 }
-message SendSmsReply {}
 
 message SendHookRequest {
-  repeated common.HookItem hooks = 1 [(buf.validate.field).cel = {
+  repeated rabbit.common.HookItem hooks = 1 [(buf.validate.field).cel = {
     message: "hooks must be between 1 and 10"
     expression: "this.size() >= 1 && this.size() <= 100"
   }];
-  string body = 2;
+  string body = 2 [(buf.validate.field).required = true];
 }
-message SendHookReply {}
 

@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 
+	common "github.com/moon-monitor/moon/pkg/api/rabbit/common"
 	apiv1 "github.com/moon-monitor/moon/pkg/api/rabbit/v1"
 )
 
@@ -14,14 +15,14 @@ func NewSendService() *SendService {
 	return &SendService{}
 }
 
-func (s *SendService) Email(ctx context.Context, req *apiv1.SendEmailRequest) (*apiv1.SendEmailReply, error) {
-	return &apiv1.SendEmailReply{}, nil
+func (s *SendService) Email(ctx context.Context, req *apiv1.SendEmailRequest) (*common.EmptyReply, error) {
+	return &common.EmptyReply{}, nil
 }
 
-func (s *SendService) Sms(ctx context.Context, req *apiv1.SendSmsRequest) (*apiv1.SendSmsReply, error) {
-	return &apiv1.SendSmsReply{}, nil
+func (s *SendService) Sms(ctx context.Context, req *apiv1.SendSmsRequest) (*common.EmptyReply, error) {
+	return &common.EmptyReply{}, nil
 }
 
-func (s *SendService) Hook(ctx context.Context, req *apiv1.SendHookRequest) (*apiv1.SendHookReply, error) {
-	return &apiv1.SendHookReply{}, nil
+func (s *SendService) Hook(ctx context.Context, req *apiv1.SendHookRequest) (*common.EmptyReply, error) {
+	return &common.EmptyReply{}, nil
 }
