@@ -19,6 +19,25 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/api.palace.GetCaptchaReply'
+    /api/auth/filing/information:
+        post:
+            tags:
+                - Auth
+            description: GetFilingInformation gets the filing information
+            operationId: Auth_GetFilingInformation
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/api.palace.GetFilingInformationRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.palace.GetFilingInformationReply'
     /api/auth/login/email:
         post:
             tags:
@@ -133,6 +152,25 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/api.palace.VerifyEmailReply'
+    /api/auth/verify/new-permission:
+        post:
+            tags:
+                - Auth
+            description: VerifyNewPermission verifies the user's permission
+            operationId: Auth_VerifyNewPermission
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/api.palace.VerifyNewPermissionRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.palace.common.EmptyReply'
     /api/resource/batch/status:
         put:
             tags:
@@ -1088,6 +1126,32 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/api.palace.common.EmptyReply'
+    /api/user/self/positions:
+        get:
+            tags:
+                - User
+            description: SelfPositions retrieves the list of positions the current user has
+            operationId: User_SelfPositions
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.palace.SelfPositionsReply'
+    /api/user/self/roles:
+        get:
+            tags:
+                - User
+            description: SelfRoles retrieves the list of roles the current user has
+            operationId: User_SelfRoles
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.palace.SelfRolesReply'
     /api/user/self/subscribe/team/strategies:
         post:
             tags:
@@ -1228,6 +1292,24 @@ components:
                     type: string
                     description: Captcha expiration time in seconds
             description: GetCaptchaReply contains the response data for the GetCaptcha method
+        api.palace.GetFilingInformationReply:
+            type: object
+            properties:
+                url:
+                    type: string
+                    description: URL of the filing information
+                filingInformation:
+                    type: string
+                    description: Filing information
+            description: GetFilingInformationReply contains the response data for getting the filing information
+        api.palace.GetFilingInformationRequest:
+            type: object
+            properties:
+                origin:
+                    type: integer
+                    description: Origin of the filing information
+                    format: uint32
+            description: GetFilingInformationRequest represents the request data for getting the filing information
         api.palace.GetResourceReply:
             type: object
             properties:
@@ -1829,6 +1911,36 @@ components:
                         - $ref: '#/components/schemas/api.palace.common.UserItem'
                     description: Detailed information about the user
             description: SelfInfoReply contains the response data for retrieving the current user's information
+        api.palace.SelfPositionsReply:
+            type: object
+            properties:
+                systemPositions:
+                    type: array
+                    items:
+                        type: integer
+                        format: enum
+                    description: List of system position items
+                teamPositions:
+                    type: array
+                    items:
+                        type: integer
+                        format: enum
+                    description: List of team position items
+            description: SelfPositionsReply contains the response data for retrieving the list of positions the current user has
+        api.palace.SelfRolesReply:
+            type: object
+            properties:
+                systemRoles:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/api.palace.common.SystemRoleItem'
+                    description: List of system role items
+                teamRoles:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/api.palace.common.TeamRoleItem'
+                    description: List of team role items
+            description: SelfRolesReply contains the response data for retrieving the list of roles the current user has
         api.palace.SelfSubscribeTeamStrategiesReply:
             type: object
             properties:
@@ -2099,6 +2211,30 @@ components:
                         - $ref: '#/components/schemas/api.palace.CaptchaValidateRequest'
                     description: Captcha validation information
             description: VerifyEmailRequest represents the request data for email verification
+        api.palace.VerifyNewPermissionRequest:
+            type: object
+            properties:
+                systemRoleID:
+                    type: integer
+                    description: System role ID
+                    format: uint32
+                teamRoleID:
+                    type: integer
+                    description: Team role ID
+                    format: uint32
+                teamID:
+                    type: integer
+                    description: Team ID
+                    format: uint32
+                systemPosition:
+                    type: integer
+                    description: system position
+                    format: enum
+                teamPosition:
+                    type: integer
+                    description: team position
+                    format: enum
+            description: VerifyNewPermissionRequest represents the request data for verifying the user's permission
         api.palace.common.EmptyReply:
             type: object
             properties:

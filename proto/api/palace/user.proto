@@ -8,6 +8,7 @@ import "palace/common/system.proto";
 import "palace/common/system_enum.proto";
 import "palace/common/common.proto";
 import "palace/common/team.proto";
+import "palace/common/team_enum.proto";
 import "palace/common/team_strategy.proto";
 
 option go_package = "github.com/moon-monitor/moon/pkg/api/palace;palace";
@@ -75,6 +76,20 @@ service User {
     option (google.api.http) = {
       post: "/api/user/self/subscribe/team/strategies"
       body: "*"
+    };
+  }
+
+  // SelfRoles retrieves the list of roles the current user has
+  rpc SelfRoles (api.palace.common.EmptyRequest) returns (SelfRolesReply) {
+    option (google.api.http) = {
+      get: "/api/user/self/roles"
+    };
+  }
+
+  // SelfPositions retrieves the list of positions the current user has
+  rpc SelfPositions (api.palace.common.EmptyRequest) returns (SelfPositionsReply) {
+    option (google.api.http) = {
+      get: "/api/user/self/positions"
     };
   }
 }
@@ -169,3 +184,20 @@ message SelfSubscribeTeamStrategiesReply {
   // Pagination response details
   api.palace.common.PaginationReply pagination = 2;
 }
+
+// SelfRolesReply contains the response data for retrieving the list of roles the current user has
+message SelfRolesReply {
+  // List of system role items
+  repeated api.palace.common.SystemRoleItem systemRoles = 1;
+  // List of team role items
+  repeated api.palace.common.TeamRoleItem teamRoles = 2;
+}
+
+// SelfPositionsReply contains the response data for retrieving the list of positions the current user has
+message SelfPositionsReply {
+  // List of system position items
+  repeated api.palace.common.UserPosition systemPositions = 1;
+  // List of team position items
+  repeated api.palace.common.MemberPosition teamPositions = 2;
+}
+

@@ -7,6 +7,7 @@ import "buf/validate/validate.proto";
 import "palace/common/system.proto";
 import "palace/common/system_enum.proto";
 import "palace/common/common.proto";
+import "palace/common/team_enum.proto";
 
 option go_package = "github.com/moon-monitor/moon/pkg/api/palace;palace";
 option java_multiple_files = true;
@@ -73,6 +74,22 @@ service Auth {
   rpc OAuth2List(api.palace.common.EmptyRequest) returns (OAuth2ListReply) {
     option (google.api.http) = {
       post: "/api/auth/oauth2/list"
+      body: "*"
+    };
+  }
+
+  // GetFilingInformation gets the filing information
+  rpc GetFilingInformation(GetFilingInformationRequest) returns (GetFilingInformationReply) {
+    option (google.api.http) = {
+      post: "/api/auth/filing/information"
+      body: "*"
+    };
+  }
+
+  // VerifyNewPermission verifies the user's permission
+  rpc VerifyNewPermission(VerifyNewPermissionRequest) returns (api.palace.common.EmptyReply) {
+    option (google.api.http) = {
+      post: "/api/auth/verify/new-permission"
       body: "*"
     };
   }
@@ -251,3 +268,30 @@ message OAuth2ListReply {
   repeated OAuthItem items = 1;
 }
 
+// VerifyNewPermissionRequest represents the request data for verifying the user's permission
+message VerifyNewPermissionRequest {
+  // System role ID
+  uint32 systemRoleID = 1;
+  // Team role ID
+  uint32 teamRoleID = 2;
+  // Team ID
+  uint32 teamID = 3;
+  // system position
+  api.palace.common.UserPosition systemPosition = 4;
+  // team position
+  api.palace.common.MemberPosition teamPosition = 5;
+}
+
+// GetFilingInformationRequest represents the request data for getting the filing information
+message GetFilingInformationRequest {
+  // Origin of the filing information
+  uint32 origin = 1;
+}
+
+// GetFilingInformationReply contains the response data for getting the filing information
+message GetFilingInformationReply {
+  // URL of the filing information
+  string url = 1;
+  // Filing information
+  string filingInformation = 2;
+}
