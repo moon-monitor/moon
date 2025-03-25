@@ -7,6 +7,8 @@ import "buf/validate/validate.proto";
 import "palace/common/system.proto";
 import "palace/common/system_enum.proto";
 import "palace/common/common.proto";
+import "palace/common/team.proto";
+import "palace/common/team_strategy.proto";
 
 option go_package = "github.com/moon-monitor/moon/pkg/api/palace;palace";
 option java_multiple_files = true;
@@ -53,6 +55,19 @@ service User {
       body: "*"
     };
   }
+
+  rpc SelfTeamList (api.palace.common.EmptyRequest) returns (SelfTeamListReply) {
+    option (google.api.http) = {
+      get: "/api/user/self/team-list"
+    };
+  }
+
+  rpc SelfSubscribeTeamStrategies (SelfSubscribeTeamStrategiesRequest) returns (SelfSubscribeTeamStrategiesReply) {
+    option (google.api.http) = {
+      post: "/api/user/self/subscribe/team/strategies"
+      body: "*"
+    };
+  }
 }
 
 message SelfInfoReply {
@@ -79,7 +94,10 @@ message LeaveTeamRequest {
 }
 
 message JoinTeamRequest {
-  uint32 teamID = 1 [(buf.validate.field).required = true];
+  string teamName = 1 [(buf.validate.field).required = true, (buf.validate.field).cel = {
+    message: "team name max length is 32"
+    expression: "this.size() <= 32"
+  }];
   string reason = 2 [(buf.validate.field).cel = {
     message: "reason max length is 200"
     expression: "this.size() <= 200"
@@ -102,4 +120,16 @@ message CreateTeamRequest {
     message: "logo max length is 255"
     expression: "this.size() <= 255"
   }];
+}
+
+message SelfTeamListReply {
+  repeated api.palace.common.TeamItem items = 1;
+}
+
+message SelfSubscribeTeamStrategiesRequest {
+	api.palace.common.PaginationRequest pagination = 1;
+}
+message SelfSubscribeTeamStrategiesReply {
+	repeated api.palace.common.TeamStrategyItem items = 1;
+	api.palace.common.PaginationReply pagination = 2;
 }

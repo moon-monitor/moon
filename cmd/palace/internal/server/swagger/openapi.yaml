@@ -830,24 +830,6 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/api.palace.common.EmptyReply'
-    /api/team/strategy/subscribe/self:
-        post:
-            tags:
-                - TeamStrategy
-            operationId: TeamStrategy_SelfSubscribeTeamStrategies
-            requestBody:
-                content:
-                    application/json:
-                        schema:
-                            $ref: '#/components/schemas/api.palace.SelfSubscribeTeamStrategiesRequest'
-                required: true
-            responses:
-                "200":
-                    description: OK
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/api.palace.SelfSubscribeTeamStrategiesReply'
     /api/team/transfer:
         post:
             tags:
@@ -1021,6 +1003,36 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/api.palace.common.EmptyReply'
+    /api/user/self/subscribe/team/strategies:
+        post:
+            tags:
+                - User
+            operationId: User_SelfSubscribeTeamStrategies
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/api.palace.SelfSubscribeTeamStrategiesRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.palace.SelfSubscribeTeamStrategiesReply'
+    /api/user/self/team-list:
+        get:
+            tags:
+                - User
+            operationId: User_SelfTeamList
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.palace.SelfTeamListReply'
     /health:
         get:
             tags:
@@ -1250,9 +1262,8 @@ components:
         api.palace.JoinTeamRequest:
             type: object
             properties:
-                teamID:
-                    type: integer
-                    format: uint32
+                teamName:
+                    type: string
                 reason:
                     type: string
         api.palace.LeaveTeamRequest:
@@ -1543,6 +1554,13 @@ components:
             properties:
                 pagination:
                     $ref: '#/components/schemas/api.palace.common.PaginationRequest'
+        api.palace.SelfTeamListReply:
+            type: object
+            properties:
+                items:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/api.palace.common.TeamItem'
         api.palace.SubscribeTeamStrategiesRequest:
             type: object
             properties:
@@ -1867,6 +1885,12 @@ components:
                     type: string
                 updatedAt:
                     type: string
+                memberCount:
+                    type: string
+                strategyCount:
+                    type: string
+                datasourceCount:
+                    type: string
         api.palace.common.TeamMemberItem:
             type: object
             properties:
@@ -1961,6 +1985,8 @@ components:
                     type: string
                 updatedAt:
                     type: string
+                team:
+                    $ref: '#/components/schemas/api.palace.common.TeamItem'
         api.palace.common.UserBaseItem:
             type: object
             properties:

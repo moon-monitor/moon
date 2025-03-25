@@ -3,6 +3,7 @@ syntax = "proto3";
 package api.palace.common;
 
 import "palace/common/team_enum.proto";
+import "palace/common/team.proto";
 import "palace/common/system.proto";
 
 option go_package = "github.com/moon-monitor/moon/pkg/api/palace/common;common";
@@ -30,4 +31,5 @@ message TeamStrategyItem {
 	api.palace.common.UserItem creator = 6;
 	string createdAt = 7;
 	string updatedAt = 8;
+	api.palace.common.TeamItem team = 9;
 }

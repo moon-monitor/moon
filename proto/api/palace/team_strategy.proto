@@ -92,13 +92,6 @@ service TeamStrategy {
 			body: "*"
 		};
 	}
-
-	rpc SelfSubscribeTeamStrategies (SelfSubscribeTeamStrategiesRequest) returns (SelfSubscribeTeamStrategiesReply) {
-		option (google.api.http) = {
-			post: "/api/team/strategy/subscribe/self"
-			body: "*"
-		};
-	}
 }
 
 message SaveTeamStrategyGroupRequest {
@@ -176,10 +169,4 @@ message SubscribeTeamStrategiesRequest {
 	uint32 strategyID = 2 [(buf.validate.field).uint32.gt = 0];
 }
 
-message SelfSubscribeTeamStrategiesRequest {
-	api.palace.common.PaginationRequest pagination = 1;
-}
-message SelfSubscribeTeamStrategiesReply {
-	repeated api.palace.common.TeamStrategyItem items = 1;
-	api.palace.common.PaginationReply pagination = 2;
-}
+

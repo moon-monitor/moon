@@ -22,6 +22,9 @@ message TeamItem {
   repeated api.palace.common.UserItem admins = 9;
   string createdAt = 10;
   string updatedAt = 11;
+  int64 memberCount = 12;
+  int64 strategyCount = 13;
+  int64 datasourceCount = 14;
 }
 
 message TeamRoleItem {
