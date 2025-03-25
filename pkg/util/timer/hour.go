@@ -73,6 +73,29 @@ func NewHourMinuteRange(startHourMinute, endHourMinute HourMinute) (Matcher, err
 	return &hourMinuteRange{Start: startHourMinute, End: endHourMinute}, nil
 }
 
+// NewHourMinuteRangeWithSlice creates an hourMinuteRange Matcher based on the start and end hour-minute rules.
+// hour: A slice containing 4 integers representing the start hour, start minute, end hour, and end minute.
+// Returns a Matcher that matches the specified hour-minute range.
+func NewHourMinuteRangeWithSlice(hour []int) (Matcher, error) {
+	if len(hour) != 4 {
+		return nil, merr.ErrorParamsError("invalid hour minute range: %v", hour)
+	}
+
+	startHour := hour[0]
+	startMinute := hour[1]
+	endHour := hour[2]
+	endMinute := hour[3]
+	startHourMinute, err := NewHourMinute(startHour, startMinute)
+	if err != nil {
+		return nil, err
+	}
+	endHourMinute, err := NewHourMinute(endHour, endMinute)
+	if err != nil {
+		return nil, err
+	}
+	return &hourMinuteRange{Start: *startHourMinute, End: *endHourMinute}, nil
+}
+
 // hourMinuteRange is a struct for defining an hour-minute range, implementing the Matcher interface.
 type hourMinuteRange struct {
 	Start HourMinute `json:"start"`
@@ -95,6 +118,17 @@ func (h *hourMinuteRange) Match(t time.Time) bool {
 		return false
 	}
 	return true
+}
+
+// NewHourMinute creates an HourMinute Matcher based on the hour and minute rule.
+// hour: The hour to match.
+// minute: The minute to match.
+// Returns a Matcher that matches the specified hour and minute.
+func NewHourMinute(hour, minute int) (*HourMinute, error) {
+	if hour < 0 || hour > 23 || minute < 0 || minute > 59 {
+		return nil, merr.ErrorParamsError("invalid hour minute: %d-%d", hour, minute)
+	}
+	return &HourMinute{Hour: hour, Minute: minute}, nil
 }
 
 // HourMinute is a struct for defining a specific hour and minute.

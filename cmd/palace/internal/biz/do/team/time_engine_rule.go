@@ -6,6 +6,8 @@ import (
 
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/vobj"
+	"github.com/moon-monitor/moon/pkg/merr"
+	"github.com/moon-monitor/moon/pkg/util/timer"
 )
 
 const tableNameTimeEngineRule = "team_time_engine_rules"
@@ -33,4 +35,23 @@ func (r Rules) Value() (driver.Value, error) {
 
 func (r *Rules) Scan(value interface{}) error {
 	return json.Unmarshal(value.([]byte), r)
+}
+
+func (t *TimeEngineRule) ToTimerMatcher() (timer.Matcher, error) {
+	switch t.Type {
+	case vobj.TimeEngineRuleTypeHourRange:
+		return timer.NewHourRange(t.Rule)
+	case vobj.TimeEngineRuleTypeDaysOfWeek:
+		return timer.NewDaysOfWeek(t.Rule)
+	case vobj.TimeEngineRuleTypeDayOfMonth:
+		return timer.NewDayOfMonths(t.Rule)
+	case vobj.TimeEngineRuleTypeMonth:
+		return timer.NewMonth(t.Rule)
+	case vobj.TimeEngineRuleTypeHourMinuteRange:
+		return timer.NewHourMinuteRangeWithSlice(t.Rule)
+	case vobj.TimeEngineRuleTypeHour:
+		return timer.NewHour(t.Rule)
+	default:
+		return nil, merr.ErrorParamsError("invalid time engine rule type: %d", t.Type)
+	}
 }

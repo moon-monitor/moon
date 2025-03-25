@@ -6,8 +6,10 @@ package vobj
 type TimeEngineRuleType int8
 
 const (
-	TimeEngineRuleTypeHourRange   TimeEngineRuleType = iota // hour
-	TimeEngineRuleTypeDaysOfWeek                            // week
-	TimeEngineRuleTypeDaysOfMonth                           // day
-	TimeEngineRuleTypeMonths                                // month
+	TimeEngineRuleTypeHourRange       TimeEngineRuleType = iota // hour-range
+	TimeEngineRuleTypeHour                                      // hour
+	TimeEngineRuleTypeHourMinuteRange                           // hour-minute-range
+	TimeEngineRuleTypeDaysOfWeek                                // days-of-week
+	TimeEngineRuleTypeDayOfMonth                                // day-of-month
+	TimeEngineRuleTypeMonth                                     // month
 )
