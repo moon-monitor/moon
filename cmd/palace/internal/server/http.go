@@ -5,6 +5,7 @@ import (
 	"strings"
 
 	"github.com/go-kratos/kratos/v2/log"
+	middle "github.com/go-kratos/kratos/v2/middleware"
 	"github.com/go-kratos/kratos/v2/middleware/logging"
 	"github.com/go-kratos/kratos/v2/middleware/recovery"
 	"github.com/go-kratos/kratos/v2/middleware/selector"
@@ -28,11 +29,13 @@ func NewHTTPServer(bc *conf.Bootstrap, authService *service.AuthService, logger 
 	httpConf := serverConf.GetHttp()
 	jwtConf := bc.GetAuth().GetJwt()
 
-	authMiddleware := selector.Server(
+	selectorMiddleware := []middle.Middleware{
 		middleware.JwtServer(jwtConf.GetSignKey()),
-		middleware.MustLogin(authService.VerifyToken),
 		middleware.BindHeaders(),
-	).Match(middler.AllowListMatcher(jwtConf.GetAllowOperations()...)).Build()
+		middleware.MustLogin(authService.VerifyToken),
+		middleware.MustPermission(authService.VerifyPermission),
+	}
+	authMiddleware := selector.Server(selectorMiddleware...).Match(middler.AllowListMatcher(jwtConf.GetAllowOperations()...)).Build()
 	opts := []http.ServerOption{
 		http.Filter(middler.Cors(httpConf)),
 		http.Middleware(

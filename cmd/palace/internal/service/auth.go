@@ -7,7 +7,6 @@ import (
 
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/go-kratos/kratos/v2/transport/http"
-	"github.com/moon-monitor/moon/pkg/util/crypto"
 	"golang.org/x/oauth2"
 
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz"
@@ -20,16 +19,15 @@ import (
 	palacev1 "github.com/moon-monitor/moon/pkg/api/palace"
 	"github.com/moon-monitor/moon/pkg/api/palace/common"
 	"github.com/moon-monitor/moon/pkg/merr"
+	"github.com/moon-monitor/moon/pkg/util/crypto"
 )
 
 type AuthService struct {
 	palacev1.UnimplementedAuthServer
-
-	authBiz *biz.AuthBiz
-
-	oauth2List []*palacev1.OAuth2ListReply_OAuthItem
-
-	helper *log.Helper
+	authBiz       *biz.AuthBiz
+	permissionBiz *biz.PermissionBiz
+	oauth2List    []*palacev1.OAuth2ListReply_OAuthItem
+	helper        *log.Helper
 }
 
 func builderOAuth2List(oauth2 *conf.Auth_OAuth2) []*palacev1.OAuth2ListReply_OAuthItem {
@@ -55,11 +53,17 @@ func login(loginSign *bo.LoginSign, err error) (*palacev1.LoginReply, error) {
 	return loginSign.LoginReply(), nil
 }
 
-func NewAuthService(bc *conf.Bootstrap, authBiz *biz.AuthBiz, logger log.Logger) *AuthService {
+func NewAuthService(
+	bc *conf.Bootstrap,
+	authBiz *biz.AuthBiz,
+	permissionBiz *biz.PermissionBiz,
+	logger log.Logger,
+) *AuthService {
 	return &AuthService{
-		authBiz:    authBiz,
-		oauth2List: builderOAuth2List(bc.GetAuth().GetOauth2()),
-		helper:     log.NewHelper(log.With(logger, "module", "service.auth")),
+		authBiz:       authBiz,
+		permissionBiz: permissionBiz,
+		oauth2List:    builderOAuth2List(bc.GetAuth().GetOauth2()),
+		helper:        log.NewHelper(log.With(logger, "module", "service.auth")),
 	}
 }
 
@@ -148,6 +152,10 @@ func (s *AuthService) OAuthLoginByEmail(ctx context.Context, req *palacev1.OAuth
 
 func (s *AuthService) VerifyToken(ctx context.Context, token string) error {
 	return s.authBiz.VerifyToken(ctx, token)
+}
+
+func (s *AuthService) VerifyPermission(ctx context.Context) error {
+	return s.permissionBiz.VerifyPermission(ctx)
 }
 
 func (s *AuthService) RefreshToken(ctx context.Context, _ *common.EmptyRequest) (*palacev1.LoginReply, error) {

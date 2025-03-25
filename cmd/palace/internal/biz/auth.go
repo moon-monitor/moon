@@ -42,12 +42,9 @@ func buildOAuthConf(c *conf.Auth_OAuth2) *safety.Map[vobj.OAuthAPP, *oauth2.Conf
 func NewAuthBiz(
 	bc *conf.Bootstrap,
 	userRepo repository.User,
-	memberRepo repository.Member,
 	captchaRepo repository.Captcha,
 	cacheRepo repository.Cache,
 	oauthRepo repository.OAuth,
-	resourceRepo repository.Resource,
-	teamRepo repository.Team,
 	transaction repository.Transaction,
 	logger log.Logger,
 ) *AuthBiz {
@@ -56,12 +53,9 @@ func NewAuthBiz(
 		redirectURL:  bc.GetAuth().GetOauth2().GetRedirectUri(),
 		oauthConfigs: buildOAuthConf(bc.GetAuth().GetOauth2()),
 		userRepo:     userRepo,
-		memberRepo:   memberRepo,
 		captchaRepo:  captchaRepo,
 		cacheRepo:    cacheRepo,
 		oauthRepo:    oauthRepo,
-		resourceRepo: resourceRepo,
-		teamRepo:     teamRepo,
 		transaction:  transaction,
 		helper:       log.NewHelper(log.With(logger, "module", "biz.auth")),
 	}
@@ -72,14 +66,11 @@ type AuthBiz struct {
 	redirectURL  string
 	oauthConfigs *safety.Map[vobj.OAuthAPP, *oauth2.Config]
 
-	userRepo     repository.User
-	memberRepo   repository.Member
-	captchaRepo  repository.Captcha
-	cacheRepo    repository.Cache
-	oauthRepo    repository.OAuth
-	resourceRepo repository.Resource
-	teamRepo     repository.Team
-	transaction  repository.Transaction
+	userRepo    repository.User
+	captchaRepo repository.Captcha
+	cacheRepo   repository.Cache
+	oauthRepo   repository.OAuth
+	transaction repository.Transaction
 
 	helper *log.Helper
 }
@@ -122,181 +113,6 @@ func (a *AuthBiz) VerifyToken(ctx context.Context, token string) error {
 		return merr.ErrorUserForbidden("user forbidden")
 	}
 	return nil
-}
-
-// VerifyPermission verify permission
-func (a *AuthBiz) VerifyPermission(ctx context.Context) error {
-	operation, ok := permission.GetOperationByContext(ctx)
-	if !ok {
-		return merr.ErrorBadRequest("operation is invalid")
-	}
-	resourceDo, err := a.resourceRepo.GetResourceByOperation(ctx, operation)
-	if err != nil {
-		return err
-	}
-	if !resourceDo.Status.IsEnabled() {
-		return merr.ErrorPermissionDenied("permission denied")
-	}
-
-	userID, ok := permission.GetUserIDByContext(ctx)
-	if !ok {
-		return merr.ErrorBadRequest("user id is invalid")
-	}
-	userDo, err := a.userRepo.FindByID(ctx, userID)
-	if err != nil {
-		return err
-	}
-	if !userDo.Status.IsNormal() {
-		return merr.ErrorUserForbidden("user forbidden")
-	}
-
-	if resourceDo.Allow.IsNone() || resourceDo.Allow.IsUser() {
-		return nil
-	}
-
-	systemPosition, err := a.verifyPermissionWithSystemPosition(ctx, userDo)
-	if err != nil {
-		return err
-	}
-	if systemPosition.IsAdminOrSuperAdmin() {
-		return nil
-	}
-	if err := a.verifyPermissionWithSystemRBAC(ctx, userDo, resourceDo); err != nil {
-		return err
-	}
-	teamID, ok := permission.GetTeamIDByContext(ctx)
-	if !ok {
-		return merr.ErrorPermissionDenied("team id is invalid")
-	}
-	teamDo, err := a.teamRepo.FindByID(ctx, teamID)
-	if err != nil {
-		return err
-	}
-	if !teamDo.Status.IsNormal() {
-		return merr.ErrorPermissionDenied("team is invalid")
-	}
-	teamPosition, memberDo, err := a.verifyPermissionWithTeamPosition(ctx, userDo)
-	if err != nil {
-		return err
-	}
-	if teamDo.ID != memberDo.TeamID {
-		return merr.ErrorPermissionDenied("team id is invalid")
-	}
-	if teamPosition.IsAdminOrSuperAdmin() {
-		return nil
-	}
-
-	if err := a.verifyPermissionWithTeamRBAC(ctx, memberDo, resourceDo); err != nil {
-		return err
-	}
-
-	return nil
-}
-
-func (a *AuthBiz) verifyPermissionWithSystemPosition(ctx context.Context, userDo *system.User) (vobj.Role, error) {
-	sysPosition, ok := permission.GetSysPositionByContext(ctx)
-	if !ok {
-		return userDo.Position, nil
-	}
-	if userDo.Position.GTE(sysPosition) {
-		return sysPosition, nil
-	}
-	return 0, merr.ErrorPermissionDenied("Your current role [%s] is not allowed to access this resource", sysPosition)
-}
-
-func (a *AuthBiz) verifyPermissionWithSystemRBAC(ctx context.Context, userDo *system.User, resourceDo *system.Resource) error {
-	if !resourceDo.Allow.IsSystemRBAC() {
-		return nil
-	}
-	sysRoleID, ok := permission.GetSysRoleIDByContext(ctx)
-	if ok {
-		// 判断角色是否存在，且该角色具备次API权限
-		systemRoleDo, ok := validate.SliceFindByValue(userDo.Roles, sysRoleID, func(role *system.SysRole) uint32 {
-			return role.ID
-		})
-		if !ok {
-			return merr.ErrorPermissionDenied("User role is invalid.")
-		}
-		if !systemRoleDo.Status.IsNormal() {
-			return merr.ErrorPermissionDenied("role is invalid [%s]", systemRoleDo.Status)
-		}
-		_, ok = validate.SliceFindByValue(systemRoleDo.Resources, resourceDo.ID, func(role *system.Resource) uint32 {
-			return role.ID
-		})
-		if ok {
-			return nil
-		}
-		return merr.ErrorPermissionDenied("User role resource is invalid.")
-	}
-	resources := make([]*system.Resource, 0, len(userDo.Roles)*10)
-	for _, role := range userDo.Roles {
-		if role.Status.IsNormal() {
-			resources = append(resources, role.Resources...)
-		}
-	}
-	_, ok = validate.SliceFindByValue(resources, resourceDo.ID, func(role *system.Resource) uint32 {
-		return role.ID
-	})
-	if ok {
-		return nil
-	}
-	return merr.ErrorPermissionDenied("User role resource is invalid.")
-}
-
-func (a *AuthBiz) verifyPermissionWithTeamPosition(ctx context.Context, userDo *system.User) (vobj.Role, *system.TeamMember, error) {
-	memberDo, err := a.memberRepo.FindByUserID(ctx, userDo.ID)
-	if err != nil {
-		return 0, nil, err
-	}
-	if !memberDo.Status.IsNormal() {
-		return 0, nil, merr.ErrorPermissionDenied("team member is invalid [%s]", memberDo.Status)
-	}
-	teamPosition, ok := permission.GetTeamPositionByContext(ctx)
-	if !ok {
-		return memberDo.Position, memberDo, nil
-	}
-	if memberDo.Position.GTE(teamPosition) {
-		return teamPosition, memberDo, nil
-	}
-	return 0, nil, merr.ErrorPermissionDenied("Your current team role [%s] is not allowed to access this resource", teamPosition)
-}
-
-func (a *AuthBiz) verifyPermissionWithTeamRBAC(ctx context.Context, memberDo *system.TeamMember, resourceDo *system.Resource) error {
-	if !resourceDo.Allow.IsTeamRBAC() {
-		return nil
-	}
-	teamRoleID, ok := permission.GetTeamRoleIDByContext(ctx)
-	if ok {
-		teamRoleDo, ok := validate.SliceFindByValue(memberDo.Roles, teamRoleID, func(role *system.TeamRole) uint32 {
-			return role.ID
-		})
-		if !ok {
-			return merr.ErrorPermissionDenied("team role is invalid")
-		}
-		if !teamRoleDo.Status.IsNormal() {
-			return merr.ErrorPermissionDenied("team role is invalid [%s]", teamRoleDo.Status)
-		}
-		_, ok = validate.SliceFindByValue(teamRoleDo.Resources, resourceDo.ID, func(role *system.Resource) uint32 {
-			return role.ID
-		})
-		if ok {
-			return nil
-		}
-		return merr.ErrorPermissionDenied("team role resource is invalid.")
-	}
-	resources := make([]*system.Resource, 0, len(memberDo.Roles)*10)
-	for _, role := range memberDo.Roles {
-		if role.Status.IsNormal() {
-			resources = append(resources, role.Resources...)
-		}
-	}
-	_, ok = validate.SliceFindByValue(resources, resourceDo.ID, func(role *system.Resource) uint32 {
-		return role.ID
-	})
-	if ok {
-		return nil
-	}
-	return merr.ErrorPermissionDenied("team role resource is invalid.")
 }
 
 // LoginByPassword login by password
