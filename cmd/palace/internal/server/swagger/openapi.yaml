@@ -1214,6 +1214,24 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/api.common.ServerRegisterReply'
+    /v1/server/send/msg/callback:
+        post:
+            tags:
+                - Server
+            operationId: Server_SendMsgCallback
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/api.common.SendMsgCallbackRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.common.SendMsgCallbackReply'
 components:
     schemas:
         api.common.CheckReply:
@@ -1223,6 +1241,28 @@ components:
                     type: boolean
                 version:
                     type: string
+        api.common.SendMsgCallbackReply:
+            type: object
+            properties:
+                code:
+                    type: integer
+                    description: Code of the reply 0 is success, other is failed
+                    format: int32
+                msg:
+                    type: string
+                    description: Message of the reply, only when code is not 0, it is not empty
+        api.common.SendMsgCallbackRequest:
+            type: object
+            properties:
+                requestId:
+                    type: string
+                code:
+                    type: integer
+                    description: Code of the callback 0 is success, other is failed
+                    format: int32
+                msg:
+                    type: string
+                    description: Message of the callback, only when code is not 0, it is not empty
         api.common.ServerRegisterReply:
             type: object
             properties: {}
