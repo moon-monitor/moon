@@ -12,13 +12,16 @@ option go_package = "github.com/moon-monitor/moon/pkg/api/palace;palace";
 option java_multiple_files = true;
 option java_package = "com.api.palace";
 
+// Auth service provides authentication related operations
 service Auth {
+  // GetCaptcha sends a captcha image to the client
   rpc GetCaptcha(api.palace.common.EmptyRequest) returns (GetCaptchaReply) {
     option (google.api.http) = {
       get: "/api/auth/captcha"
     };
   }
 
+  // LoginByPassword authenticates a user with email and password
   rpc LoginByPassword(LoginByPasswordRequest) returns (LoginReply) {
     option (google.api.http) = {
       post: "/api/auth/login/email"
@@ -26,6 +29,7 @@ service Auth {
     };
   }
 
+  // VerifyEmail verifies the user's email address
   rpc VerifyEmail(VerifyEmailRequest) returns (VerifyEmailReply) {
     option (google.api.http) = {
       post: "/api/auth/verify/email"
@@ -33,6 +37,7 @@ service Auth {
     };
   }
 
+  // LoginByEmail logs in using email verification code
   rpc LoginByEmail(LoginByEmailRequest) returns (LoginReply) {
     option (google.api.http) = {
       post: "/api/auth/login/email"
@@ -40,6 +45,7 @@ service Auth {
     };
   }
 
+  // OAuthLoginByEmail logs in using OAuth2.0 and email
   rpc OAuthLoginByEmail(OAuthLoginByEmailRequest) returns (LoginReply) {
     option (google.api.http) = {
       post: "/api/auth/oauth2/login/email"
@@ -47,6 +53,7 @@ service Auth {
     };
   }
 
+  // Logout logs out the user
   rpc Logout(LogoutRequest) returns (LogoutReply) {
     option (google.api.http) = {
       post: "/api/auth/logout"
@@ -54,6 +61,7 @@ service Auth {
     };
   }
 
+  // RefreshToken refreshes the login token
   rpc RefreshToken(api.palace.common.EmptyRequest) returns (LoginReply) {
     option (google.api.http) = {
       post: "/api/auth/refresh"
@@ -61,6 +69,7 @@ service Auth {
     };
   }
 
+  // OAuth2List returns the list of supported OAuth2.0 providers
   rpc OAuth2List(api.palace.common.EmptyRequest) returns (OAuth2ListReply) {
     option (google.api.http) = {
       post: "/api/auth/oauth2/list"
@@ -69,24 +78,33 @@ service Auth {
   }
 }
 
+// CaptchaValidateRequest is used to validate the captcha
 message CaptchaValidateRequest {
+  // Captcha ID, used to identify the captcha image
   string captchaId = 1 [(buf.validate.field).cel = {
     message: "captchaId is required"
     expression: "this.size() > 0"
   }];
+  // User's captcha answer
   string answer = 2 [(buf.validate.field).cel = {
     message: "answer is required"
     expression: "this.size() > 0"
   }];
 }
 
+// GetCaptchaReply contains the response data for the GetCaptcha method
 message GetCaptchaReply {
+  // Unique identifier for the captcha
   string captchaId = 1;
+  // Base64 encoded captcha image data
   string captchaImg = 2;
+  // Captcha expiration time in seconds
   int64 expired_seconds = 3;
 }
 
+// LoginByPasswordRequest represents the request data for logging in with password
 message LoginByPasswordRequest {
+  // User email
   string email = 1 [(buf.validate.field).cel = {
     message: "email is required"
     expression: "this.size() > 0"
@@ -94,6 +112,7 @@ message LoginByPasswordRequest {
     message: "email is invalid"
     expression: "this.isEmail()"
   }];
+  // User password
   string password = 2 [(buf.validate.field).cel = {
     message: "password is required"
     expression: "this.size() > 0"
@@ -101,9 +120,13 @@ message LoginByPasswordRequest {
     message: "password max length is 32"
     expression: "this.size() <= 32"
   }];
+  // Captcha validation information
   CaptchaValidateRequest captcha = 3 [(buf.validate.field).required = true];
 }
+
+// LoginByEmailRequest represents the request data for logging in with email verification code
 message LoginByEmailRequest {
+  // Username, not email
   string username = 1 [(buf.validate.field).cel = {
     message: "username is required"
     expression: "this.size() > 0"
@@ -111,6 +134,7 @@ message LoginByEmailRequest {
     message: "username max length is 32"
     expression: "this.size() <= 32"
   }];
+  // User email
   string email = 2 [(buf.validate.field).cel = {
     message: "email is required"
     expression: "this.size() > 0"
@@ -118,25 +142,33 @@ message LoginByEmailRequest {
     message: "email is invalid"
     expression: "this.isEmail()"
   }];
+  // Email verification code
   string code = 3 [(buf.validate.field).cel = {
     message: "code is required"
     expression: "this.size() > 0"
   }];
+  // User nickname, optional
   string nickname = 4 [(buf.validate.field).cel = {
     message: "nickname max length is 32"
     expression: "this.size() <= 32"
   }];
+  // Remark, for additional information
   string remark = 5 [(buf.validate.field).cel = {
     message: "remark max length is 200"
     expression: "this.size() <= 200"
   }];
+  // User gender, optional
   api.palace.common.Gender gender = 6;
 }
+
+// OAuthLoginByEmailRequest represents the request data for OAuth2.0 login with email
 message OAuthLoginByEmailRequest {
+  // OAuth2.0 provider ID
   uint32 oauthID = 1 [(buf.validate.field).cel = {
     message: "oauthID is required"
     expression: "this > 0"
   }];
+  // User email
   string email = 2 [(buf.validate.field).cel = {
     message: "email is required"
     expression: "this.size() > 0"
@@ -144,33 +176,48 @@ message OAuthLoginByEmailRequest {
     message: "email is invalid"
     expression: "this.isEmail()"
   }];
+  // OAuth2.0 authorization code
   string code = 3 [(buf.validate.field).cel = {
     message: "code is required"
     expression: "this.size() > 0"
   }];
+  // OAuth2.0 token
   string token = 4 [(buf.validate.field).cel = {
     message: "token is required"
     expression: "this.size() > 0"
   }];
+  // Application ID, to identify the application
   int32 app = 5 [(buf.validate.field).cel = {
     message: "app is required"
     expression: "this > 0"
   }];
 }
+
+// LoginReply contains the response data for successful login
 message LoginReply {
+  // Login token
   string token = 1;
+  // Token expiration time in seconds
   int64 expired_seconds = 2;
+  // User basic information
   api.palace.common.UserBaseItem user = 3;
 }
 
+// LogoutRequest represents the request data for logging out
 message LogoutRequest {
-  string redirect = 1;
-}
-message LogoutReply {
+  // Redirect URL after logout, optional
   string redirect = 1;
 }
 
+// LogoutReply contains the response data for successful logout
+message LogoutReply {
+  // Redirect URL after logout, if any
+  string redirect = 1;
+}
+
+// VerifyEmailRequest represents the request data for email verification
 message VerifyEmailRequest {
+  // Email to verify
   string email = 1 [(buf.validate.field).cel = {
     message: "email is required"
     expression: "this.size() > 0"
@@ -178,21 +225,29 @@ message VerifyEmailRequest {
     message: "email is invalid"
     expression: "this.isEmail()"
   }];
+  // Captcha validation information
   CaptchaValidateRequest captcha = 2 [(buf.validate.field).required = true];
 }
+
+// VerifyEmailReply contains the response data for successful email verification
 message VerifyEmailReply {
+  // Email verification code expiration time in seconds
   int64 expired_seconds = 2;
 }
 
+// OAuth2ListReply contains the list of supported OAuth2.0 providers
 message OAuth2ListReply {
+  // OAuth2.0 provider information item
   message OAuthItem {
-    // 图标
+    // Provider icon URL
     string icon = 1;
-    // 标签
+    // Provider label or name
     string label = 2;
-    // 重定向地址
+    // Provider redirect URL
     string redirect = 3;
   }
 
+  // List of OAuth2.0 providers
   repeated OAuthItem items = 1;
 }
+

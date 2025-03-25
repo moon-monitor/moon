@@ -14,13 +14,16 @@ option go_package = "github.com/moon-monitor/moon/pkg/api/palace;palace";
 option java_multiple_files = true;
 option java_package = "com.api.palace";
 
+// User service provides operations for managing user information, teams, and subscriptions
 service User {
+  // SelfInfo retrieves the current user's information
   rpc SelfInfo (api.palace.common.EmptyRequest) returns (SelfInfoReply) {
     option (google.api.http) = {
       get: "/api/user/self"
     };
   }
 
+  // UpdateSelfInfo updates the current user's information
   rpc UpdateSelfInfo (UpdateSelfInfoRequest) returns (api.palace.common.EmptyReply) {
     option (google.api.http) = {
       put: "/api/user/self"
@@ -28,6 +31,7 @@ service User {
     };
   }
 
+  // UpdateSelfPassword updates the current user's password
   rpc UpdateSelfPassword (UpdateSelfPasswordRequest) returns (api.palace.common.EmptyReply) {
     option (google.api.http) = {
       put: "/api/user/self/password"
@@ -35,6 +39,7 @@ service User {
     };
   }
 
+  // LeaveTeam allows the current user to leave a team
   rpc LeaveTeam (LeaveTeamRequest) returns (api.palace.common.EmptyReply) {
     option (google.api.http) = {
       post: "/api/user/self/leave-team"
@@ -42,6 +47,7 @@ service User {
     };
   }
 
+  // JoinTeam allows the current user to join a team
   rpc JoinTeam (JoinTeamRequest) returns (api.palace.common.EmptyReply) {
     option (google.api.http) = {
       post: "/api/user/self/join-team"
@@ -49,6 +55,7 @@ service User {
     };
   }
 
+  // CreateTeam allows the current user to create a new team
   rpc CreateTeam (CreateTeamRequest) returns (api.palace.common.EmptyReply) {
     option (google.api.http) = {
       post: "/api/user/self/create-team"
@@ -56,12 +63,14 @@ service User {
     };
   }
 
+  // SelfTeamList retrieves the list of teams the current user is a member of
   rpc SelfTeamList (api.palace.common.EmptyRequest) returns (SelfTeamListReply) {
     option (google.api.http) = {
       get: "/api/user/self/team-list"
     };
   }
 
+  // SelfSubscribeTeamStrategies retrieves the list of team strategies the current user is subscribed to
   rpc SelfSubscribeTeamStrategies (SelfSubscribeTeamStrategiesRequest) returns (SelfSubscribeTeamStrategiesReply) {
     option (google.api.http) = {
       post: "/api/user/self/subscribe/team/strategies"
@@ -70,41 +79,58 @@ service User {
   }
 }
 
+// SelfInfoReply contains the response data for retrieving the current user's information
 message SelfInfoReply {
+  // Detailed information about the user
   api.palace.common.UserItem user = 1;
 }
 
+// UpdateSelfInfoRequest represents the request data for updating the current user's information
 message UpdateSelfInfoRequest {
+  // User nickname
   string nickname = 1 [(buf.validate.field).required = true];
+  // User avatar URL
   string avatar = 2 [(buf.validate.field).required = true];
+  // User gender
   api.palace.common.Gender gender = 3 [(buf.validate.field).required = true];
 }
 
+// UpdateSelfPasswordRequest represents the request data for updating the current user's password
 message UpdateSelfPasswordRequest {
+  // Current password
   string oldPassword = 1 [(buf.validate.field).required = true];
+  // New password
   string newPassword = 2 [(buf.validate.field).required = true];
 }
 
+// LeaveTeamRequest represents the request data for leaving a team
 message LeaveTeamRequest {
+  // Team ID to leave
   uint32 teamID = 1 [(buf.validate.field).required = true];
+  // Reason for leaving the team
   string reason = 2 [(buf.validate.field).cel = {
     message: "reason max length is 200"
     expression: "this.size() <= 200"
   }, (buf.validate.field).required = true];
 }
 
+// JoinTeamRequest represents the request data for joining a team
 message JoinTeamRequest {
+  // Team name to join
   string teamName = 1 [(buf.validate.field).required = true, (buf.validate.field).cel = {
     message: "team name max length is 32"
     expression: "this.size() <= 32"
   }];
+  // Reason for joining the team
   string reason = 2 [(buf.validate.field).cel = {
     message: "reason max length is 200"
     expression: "this.size() <= 200"
   }, (buf.validate.field).required = true];
 }
 
+// CreateTeamRequest represents the request data for creating a new team
 message CreateTeamRequest {
+  // Team name
   string name = 1 [(buf.validate.field).cel = {
     message: "name is required"
     expression: "this.size() > 0"
@@ -112,24 +138,34 @@ message CreateTeamRequest {
     message: "name max length is 32"
     expression: "this.size() <= 32"
   }];
+  // Team remark or description
   string remark = 2 [(buf.validate.field).cel = {
     message: "remark max length is 200"
     expression: "this.size() <= 200"
   }];
+  // Team logo URL
   string logo = 3 [(buf.validate.field).cel = {
     message: "logo max length is 255"
     expression: "this.size() <= 255"
   }];
 }
 
+// SelfTeamListReply contains the response data for retrieving the list of teams the current user is a member of
 message SelfTeamListReply {
+  // List of team items
   repeated api.palace.common.TeamItem items = 1;
 }
 
+// SelfSubscribeTeamStrategiesRequest represents the request data for retrieving subscribed team strategies
 message SelfSubscribeTeamStrategiesRequest {
-	api.palace.common.PaginationRequest pagination = 1;
+  // Pagination request details
+  api.palace.common.PaginationRequest pagination = 1;
 }
+
+// SelfSubscribeTeamStrategiesReply contains the response data for retrieving subscribed team strategies
 message SelfSubscribeTeamStrategiesReply {
-	repeated api.palace.common.TeamStrategyItem items = 1;
-	api.palace.common.PaginationReply pagination = 2;
+  // List of team strategy items
+  repeated api.palace.common.TeamStrategyItem items = 1;
+  // Pagination response details
+  api.palace.common.PaginationReply pagination = 2;
 }

@@ -10,6 +10,7 @@ paths:
         get:
             tags:
                 - Auth
+            description: GetCaptcha sends a captcha image to the client
             operationId: Auth_GetCaptcha
             responses:
                 "200":
@@ -22,6 +23,7 @@ paths:
         post:
             tags:
                 - Auth
+            description: LoginByEmail logs in using email verification code
             operationId: Auth_LoginByEmail
             requestBody:
                 content:
@@ -40,6 +42,7 @@ paths:
         post:
             tags:
                 - Auth
+            description: Logout logs out the user
             operationId: Auth_Logout
             requestBody:
                 content:
@@ -58,6 +61,7 @@ paths:
         post:
             tags:
                 - Auth
+            description: OAuth2List returns the list of supported OAuth2.0 providers
             operationId: Auth_OAuth2List
             requestBody:
                 content:
@@ -76,6 +80,7 @@ paths:
         post:
             tags:
                 - Auth
+            description: OAuthLoginByEmail logs in using OAuth2.0 and email
             operationId: Auth_OAuthLoginByEmail
             requestBody:
                 content:
@@ -94,6 +99,7 @@ paths:
         post:
             tags:
                 - Auth
+            description: RefreshToken refreshes the login token
             operationId: Auth_RefreshToken
             requestBody:
                 content:
@@ -112,6 +118,7 @@ paths:
         post:
             tags:
                 - Auth
+            description: VerifyEmail verifies the user's email address
             operationId: Auth_VerifyEmail
             requestBody:
                 content:
@@ -130,6 +137,7 @@ paths:
         put:
             tags:
                 - Resource
+            description: BatchUpdateResourceStatus updates the status of multiple resources
             operationId: Resource_BatchUpdateResourceStatus
             requestBody:
                 content:
@@ -148,6 +156,7 @@ paths:
         post:
             tags:
                 - Resource
+            description: ListResource lists resources based on specified filters
             operationId: Resource_ListResource
             requestBody:
                 content:
@@ -166,6 +175,7 @@ paths:
         put:
             tags:
                 - Resource
+            description: SaveResource saves a new resource or updates an existing one
             operationId: Resource_SaveResource
             requestBody:
                 content:
@@ -184,10 +194,12 @@ paths:
         get:
             tags:
                 - Resource
+            description: GetResource retrieves a resource by ID
             operationId: Resource_GetResource
             parameters:
                 - name: id
                   in: path
+                  description: ID of the resource to retrieve
                   required: true
                   schema:
                     type: integer
@@ -202,10 +214,12 @@ paths:
         delete:
             tags:
                 - Resource
+            description: DeleteResource deletes a resource by ID
             operationId: Resource_DeleteResource
             parameters:
                 - name: id
                   in: path
+                  description: ID of the resource to delete
                   required: true
                   schema:
                     type: integer
@@ -217,14 +231,35 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/api.palace.common.EmptyReply'
+    /api/system/operate/log/list:
+        post:
+            tags:
+                - System
+            description: OperateLogList lists operation logs based on specified filters
+            operationId: System_OperateLogList
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/api.palace.OperateLogListRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.palace.OperateLogListReply'
     /api/system/role:
         get:
             tags:
                 - System
+            description: GetSystemRole retrieves a system role by ID
             operationId: System_GetSystemRole
             parameters:
                 - name: roleID
                   in: query
+                  description: Role ID
                   schema:
                     type: integer
                     format: uint32
@@ -238,6 +273,7 @@ paths:
         post:
             tags:
                 - System
+            description: SaveRole saves a new role or updates an existing one
             operationId: System_SaveRole
             requestBody:
                 content:
@@ -256,6 +292,7 @@ paths:
         put:
             tags:
                 - System
+            description: UpdateRoleStatus updates the status of a role
             operationId: System_UpdateRoleStatus
             requestBody:
                 content:
@@ -274,6 +311,7 @@ paths:
         put:
             tags:
                 - System
+            description: UpdateRoleUsers updates the users assigned to a role
             operationId: System_UpdateRoleUsers
             requestBody:
                 content:
@@ -292,6 +330,7 @@ paths:
         post:
             tags:
                 - System
+            description: GetTeamAuditList lists team audit records based on specified filters
             operationId: System_GetTeamAuditList
             requestBody:
                 content:
@@ -310,6 +349,7 @@ paths:
         put:
             tags:
                 - System
+            description: UpdateTeamAuditStatus updates the status of a team audit record
             operationId: System_UpdateTeamAuditStatus
             requestBody:
                 content:
@@ -328,6 +368,7 @@ paths:
         post:
             tags:
                 - System
+            description: GetTeamList lists teams based on specified filters
             operationId: System_GetTeamList
             requestBody:
                 content:
@@ -346,6 +387,7 @@ paths:
         put:
             tags:
                 - System
+            description: UpdateUser updates user information
             operationId: System_UpdateUser
             requestBody:
                 content:
@@ -364,6 +406,7 @@ paths:
         post:
             tags:
                 - System
+            description: GetUserList lists users based on specified filters
             operationId: System_GetUserList
             requestBody:
                 content:
@@ -382,6 +425,7 @@ paths:
         put:
             tags:
                 - System
+            description: ResetUserPassword resets the password for multiple users
             operationId: System_ResetUserPassword
             requestBody:
                 content:
@@ -400,6 +444,7 @@ paths:
         put:
             tags:
                 - System
+            description: UpdateUserPosition updates the position of a user
             operationId: System_UpdateUserPosition
             requestBody:
                 content:
@@ -418,6 +463,7 @@ paths:
         put:
             tags:
                 - System
+            description: UpdateUserRoles updates the roles assigned to a user
             operationId: System_UpdateUserRoles
             requestBody:
                 content:
@@ -436,6 +482,7 @@ paths:
         put:
             tags:
                 - System
+            description: UpdateUserStatus updates the status of multiple users
             operationId: System_UpdateUserStatus
             requestBody:
                 content:
@@ -454,10 +501,12 @@ paths:
         get:
             tags:
                 - System
+            description: GetUser retrieves a user by ID
             operationId: System_GetUser
             parameters:
                 - name: userID
                   in: path
+                  description: User ID
                   required: true
                   schema:
                     type: integer
@@ -473,6 +522,7 @@ paths:
         get:
             tags:
                 - Team
+            description: GetTeam retrieves the details of the current team
             operationId: Team_GetTeam
             responses:
                 "200":
@@ -485,6 +535,7 @@ paths:
         put:
             tags:
                 - Team
+            description: SaveEmailConfig saves or updates the email configuration for the team
             operationId: Team_SaveEmailConfig
             requestBody:
                 content:
@@ -503,6 +554,7 @@ paths:
         post:
             tags:
                 - Team
+            description: InviteMember invites a new member to the team
             operationId: Team_InviteMember
             requestBody:
                 content:
@@ -521,6 +573,7 @@ paths:
         post:
             tags:
                 - Team
+            description: GetTeamMembers retrieves the list of members in the team
             operationId: Team_GetTeamMembers
             requestBody:
                 content:
@@ -539,6 +592,7 @@ paths:
         post:
             tags:
                 - Team
+            description: RemoveMember removes a member from the team
             operationId: Team_RemoveMember
             requestBody:
                 content:
@@ -557,6 +611,7 @@ paths:
         get:
             tags:
                 - Team
+            description: GetTeamResources retrieves the resources associated with the current team
             operationId: Team_GetTeamResources
             responses:
                 "200":
@@ -569,6 +624,7 @@ paths:
         put:
             tags:
                 - Team
+            description: SaveTeamRole saves a new team role or updates an existing one
             operationId: Team_SaveTeamRole
             requestBody:
                 content:
@@ -586,6 +642,7 @@ paths:
         post:
             tags:
                 - Team
+            description: GetTeamRoles retrieves the roles available in the team
             operationId: Team_GetTeamRoles
             requestBody:
                 content:
@@ -603,10 +660,12 @@ paths:
         delete:
             tags:
                 - Team
+            description: DeleteTeamRole deletes a team role by ID
             operationId: Team_DeleteTeamRole
             parameters:
                 - name: roleID
                   in: query
+                  description: Role ID
                   schema:
                     type: integer
                     format: uint32
@@ -621,6 +680,7 @@ paths:
         put:
             tags:
                 - Team
+            description: SaveTeam saves a new team or updates an existing one
             operationId: Team_SaveTeam
             requestBody:
                 content:
@@ -639,10 +699,12 @@ paths:
         get:
             tags:
                 - TeamStrategy
+            description: GetTeamStrategy retrieves a team strategy by ID
             operationId: TeamStrategy_GetTeamStrategy
             parameters:
                 - name: strategyID
                   in: query
+                  description: Strategy ID
                   schema:
                     type: integer
                     format: uint32
@@ -656,10 +718,12 @@ paths:
         delete:
             tags:
                 - TeamStrategy
+            description: DeleteTeamStrategy deletes a team strategy by ID
             operationId: TeamStrategy_DeleteTeamStrategy
             parameters:
                 - name: strategyID
                   in: query
+                  description: Strategy ID
                   schema:
                     type: integer
                     format: uint32
@@ -674,10 +738,12 @@ paths:
         get:
             tags:
                 - TeamStrategy
+            description: GetTeamStrategyGroup retrieves a team strategy group by ID
             operationId: TeamStrategy_GetTeamStrategyGroup
             parameters:
                 - name: groupID
                   in: query
+                  description: Strategy group ID
                   schema:
                     type: integer
                     format: uint32
@@ -691,6 +757,7 @@ paths:
         post:
             tags:
                 - TeamStrategy
+            description: SaveTeamStrategyGroup saves a new team strategy group or updates an existing one
             operationId: TeamStrategy_SaveTeamStrategyGroup
             requestBody:
                 content:
@@ -708,10 +775,12 @@ paths:
         delete:
             tags:
                 - TeamStrategy
+            description: DeleteTeamStrategyGroup deletes a team strategy group by ID
             operationId: TeamStrategy_DeleteTeamStrategyGroup
             parameters:
                 - name: groupID
                   in: query
+                  description: Strategy group ID
                   schema:
                     type: integer
                     format: uint32
@@ -726,6 +795,7 @@ paths:
         post:
             tags:
                 - TeamStrategy
+            description: ListTeamStrategyGroup lists team strategy groups based on specified filters
             operationId: TeamStrategy_ListTeamStrategyGroup
             requestBody:
                 content:
@@ -744,6 +814,7 @@ paths:
         put:
             tags:
                 - TeamStrategy
+            description: UpdateTeamStrategyGroupStatus updates the status of a team strategy group
             operationId: TeamStrategy_UpdateTeamStrategyGroupStatus
             requestBody:
                 content:
@@ -762,6 +833,7 @@ paths:
         post:
             tags:
                 - TeamStrategy
+            description: ListTeamStrategy lists team strategies based on specified filters
             operationId: TeamStrategy_ListTeamStrategy
             requestBody:
                 content:
@@ -780,6 +852,7 @@ paths:
         put:
             tags:
                 - TeamStrategy
+            description: UpdateTeamStrategiesStatus updates the status of multiple team strategies
             operationId: TeamStrategy_UpdateTeamStrategiesStatus
             requestBody:
                 content:
@@ -798,6 +871,7 @@ paths:
         post:
             tags:
                 - TeamStrategy
+            description: SubscribeTeamStrategy subscribes or unsubscribes from a team strategy
             operationId: TeamStrategy_SubscribeTeamStrategy
             requestBody:
                 content:
@@ -816,6 +890,7 @@ paths:
         post:
             tags:
                 - TeamStrategy
+            description: SubscribeTeamStrategies subscribes or unsubscribes from multiple team strategies
             operationId: TeamStrategy_SubscribeTeamStrategies
             requestBody:
                 content:
@@ -834,6 +909,7 @@ paths:
         post:
             tags:
                 - Team
+            description: TransferTeam transfers the leadership of the team to a new leader
             operationId: Team_TransferTeam
             requestBody:
                 content:
@@ -852,6 +928,7 @@ paths:
         post:
             tags:
                 - Team
+            description: UpdateMemberPosition updates the position of a team member
             operationId: Team_UpdateMemberPosition
             requestBody:
                 content:
@@ -870,6 +947,7 @@ paths:
         post:
             tags:
                 - Team
+            description: UpdateMemberRoles updates the roles assigned to multiple team members
             operationId: Team_UpdateMemberRoles
             requestBody:
                 content:
@@ -888,6 +966,7 @@ paths:
         post:
             tags:
                 - Team
+            description: UpdateMemberStatus updates the status of multiple team members
             operationId: Team_UpdateMemberStatus
             requestBody:
                 content:
@@ -906,6 +985,7 @@ paths:
         get:
             tags:
                 - User
+            description: SelfInfo retrieves the current user's information
             operationId: User_SelfInfo
             responses:
                 "200":
@@ -917,6 +997,7 @@ paths:
         put:
             tags:
                 - User
+            description: UpdateSelfInfo updates the current user's information
             operationId: User_UpdateSelfInfo
             requestBody:
                 content:
@@ -935,6 +1016,7 @@ paths:
         post:
             tags:
                 - User
+            description: CreateTeam allows the current user to create a new team
             operationId: User_CreateTeam
             requestBody:
                 content:
@@ -953,6 +1035,7 @@ paths:
         post:
             tags:
                 - User
+            description: JoinTeam allows the current user to join a team
             operationId: User_JoinTeam
             requestBody:
                 content:
@@ -971,6 +1054,7 @@ paths:
         post:
             tags:
                 - User
+            description: LeaveTeam allows the current user to leave a team
             operationId: User_LeaveTeam
             requestBody:
                 content:
@@ -989,6 +1073,7 @@ paths:
         put:
             tags:
                 - User
+            description: UpdateSelfPassword updates the current user's password
             operationId: User_UpdateSelfPassword
             requestBody:
                 content:
@@ -1007,6 +1092,7 @@ paths:
         post:
             tags:
                 - User
+            description: SelfSubscribeTeamStrategies retrieves the list of team strategies the current user is subscribed to
             operationId: User_SelfSubscribeTeamStrategies
             requestBody:
                 content:
@@ -1025,6 +1111,7 @@ paths:
         get:
             tags:
                 - User
+            description: SelfTeamList retrieves the list of teams the current user is a member of
             operationId: User_SelfTeamList
             responses:
                 "200":
@@ -1099,44 +1186,64 @@ components:
                     items:
                         type: integer
                         format: uint32
+                    description: List of resource IDs to update
                 status:
                     type: integer
+                    description: New status for the resources
                     format: enum
+            description: BatchUpdateResourceStatusRequest represents the request data for updating the status of multiple resources
         api.palace.CaptchaValidateRequest:
             type: object
             properties:
                 captchaId:
                     type: string
+                    description: Captcha ID, used to identify the captcha image
                 answer:
                     type: string
+                    description: User's captcha answer
+            description: CaptchaValidateRequest is used to validate the captcha
         api.palace.CreateTeamRequest:
             type: object
             properties:
                 name:
                     type: string
+                    description: Team name
                 remark:
                     type: string
+                    description: Team remark or description
                 logo:
                     type: string
+                    description: Team logo URL
+            description: CreateTeamRequest represents the request data for creating a new team
         api.palace.GetCaptchaReply:
             type: object
             properties:
                 captchaId:
                     type: string
+                    description: Unique identifier for the captcha
                 captchaImg:
                     type: string
+                    description: Base64 encoded captcha image data
                 expiredSeconds:
                     type: string
+                    description: Captcha expiration time in seconds
+            description: GetCaptchaReply contains the response data for the GetCaptcha method
         api.palace.GetResourceReply:
             type: object
             properties:
                 detail:
-                    $ref: '#/components/schemas/api.palace.common.ResourceItem'
+                    allOf:
+                        - $ref: '#/components/schemas/api.palace.common.ResourceItem'
+                    description: Detailed information about the resource
+            description: GetResourceReply contains the response data for retrieving a resource
         api.palace.GetSystemRoleReply:
             type: object
             properties:
                 role:
-                    $ref: '#/components/schemas/api.palace.common.SystemRoleItem'
+                    allOf:
+                        - $ref: '#/components/schemas/api.palace.common.SystemRoleItem'
+                    description: Detailed information about the system role
+            description: GetSystemRoleReply contains the response data for retrieving a system role
         api.palace.GetTeamAuditListReply:
             type: object
             properties:
@@ -1144,23 +1251,33 @@ components:
                     type: array
                     items:
                         $ref: '#/components/schemas/api.palace.common.TeamAuditItem'
+                    description: List of team audit items
                 pagination:
-                    $ref: '#/components/schemas/api.palace.common.PaginationReply'
+                    allOf:
+                        - $ref: '#/components/schemas/api.palace.common.PaginationReply'
+                    description: Pagination response details
+            description: GetTeamAuditListReply contains the response data for listing team audit records
         api.palace.GetTeamAuditListRequest:
             type: object
             properties:
                 pagination:
-                    $ref: '#/components/schemas/api.palace.common.PaginationRequest'
+                    allOf:
+                        - $ref: '#/components/schemas/api.palace.common.PaginationRequest'
+                    description: Pagination request details
                 status:
                     type: array
                     items:
                         type: integer
                         format: enum
+                    description: List of statuses to filter team audit records by
                 keyword:
                     type: string
+                    description: Keyword to search team audit records by
                 userID:
                     type: integer
+                    description: User ID, optional for filtering audits by user
                     format: uint32
+            description: GetTeamAuditListRequest represents the request data for listing team audit records
         api.palace.GetTeamListReply:
             type: object
             properties:
@@ -1168,19 +1285,28 @@ components:
                     type: array
                     items:
                         $ref: '#/components/schemas/api.palace.common.TeamItem'
+                    description: List of team items
                 pagination:
-                    $ref: '#/components/schemas/api.palace.common.PaginationReply'
+                    allOf:
+                        - $ref: '#/components/schemas/api.palace.common.PaginationReply'
+                    description: Pagination response details
+            description: GetTeamListReply contains the response data for listing teams
         api.palace.GetTeamListRequest:
             type: object
             properties:
                 pagination:
-                    $ref: '#/components/schemas/api.palace.common.PaginationRequest'
+                    allOf:
+                        - $ref: '#/components/schemas/api.palace.common.PaginationRequest'
+                    description: Pagination request details
                 status:
                     type: array
                     items:
                         $ref: '#/components/schemas/api.palace.common.SelectItem'
+                    description: List of statuses to filter teams by
                 keyword:
                     type: string
+                    description: Keyword to search teams by
+            description: GetTeamListRequest represents the request data for listing teams
         api.palace.GetTeamMembersReply:
             type: object
             properties:
@@ -1188,11 +1314,16 @@ components:
                     type: array
                     items:
                         $ref: '#/components/schemas/api.palace.common.TeamMemberItem'
+                    description: List of team member items
+            description: GetTeamMembersReply contains the response data for retrieving team members
         api.palace.GetTeamReply:
             type: object
             properties:
                 detail:
-                    $ref: '#/components/schemas/api.palace.common.TeamItem'
+                    allOf:
+                        - $ref: '#/components/schemas/api.palace.common.TeamItem'
+                    description: Detailed information about the team
+            description: GetTeamReply contains the response data for retrieving a team
         api.palace.GetTeamResourcesReply:
             type: object
             properties:
@@ -1200,6 +1331,8 @@ components:
                     type: array
                     items:
                         $ref: '#/components/schemas/api.palace.common.ResourceItem'
+                    description: List of resource items associated with the team
+            description: GetTeamResourcesReply contains the response data for retrieving team resources
         api.palace.GetTeamRolesReply:
             type: object
             properties:
@@ -1207,16 +1340,24 @@ components:
                     type: array
                     items:
                         $ref: '#/components/schemas/api.palace.common.TeamRoleItem'
+                    description: List of team role items
+            description: GetTeamRolesReply contains the response data for retrieving team roles
         api.palace.GetTeamStrategyGroupReply:
             type: object
             properties:
                 detail:
-                    $ref: '#/components/schemas/api.palace.common.TeamStrategyGroupItem'
+                    allOf:
+                        - $ref: '#/components/schemas/api.palace.common.TeamStrategyGroupItem'
+                    description: Detailed information about the strategy group
+            description: GetTeamStrategyGroupReply contains the response data for retrieving a team strategy group
         api.palace.GetTeamStrategyReply:
             type: object
             properties:
                 detail:
-                    $ref: '#/components/schemas/api.palace.common.TeamStrategyItem'
+                    allOf:
+                        - $ref: '#/components/schemas/api.palace.common.TeamStrategyItem'
+                    description: Detailed information about the strategy
+            description: GetTeamStrategyReply contains the response data for retrieving a team strategy
         api.palace.GetUserListReply:
             type: object
             properties:
@@ -1224,8 +1365,12 @@ components:
                     type: array
                     items:
                         $ref: '#/components/schemas/api.palace.common.UserItem'
+                    description: List of user items
                 pagination:
-                    $ref: '#/components/schemas/api.palace.common.PaginationReply'
+                    allOf:
+                        - $ref: '#/components/schemas/api.palace.common.PaginationReply'
+                    description: Pagination response details
+            description: GetUserListReply contains the response data for listing users
         api.palace.GetUserListRequest:
             type: object
             properties:
@@ -1234,46 +1379,64 @@ components:
                     items:
                         type: integer
                         format: enum
+                    description: List of statuses to filter users by
                 position:
                     type: array
                     items:
                         type: integer
                         format: enum
+                    description: List of positions to filter users by
                 pagination:
-                    $ref: '#/components/schemas/api.palace.common.PaginationRequest'
+                    allOf:
+                        - $ref: '#/components/schemas/api.palace.common.PaginationRequest'
+                    description: Pagination request details
+            description: GetUserListRequest represents the request data for listing users
         api.palace.GetUserReply:
             type: object
             properties:
                 user:
-                    $ref: '#/components/schemas/api.palace.common.UserItem'
+                    allOf:
+                        - $ref: '#/components/schemas/api.palace.common.UserItem'
+                    description: Detailed information about the user
+            description: GetUserReply contains the response data for retrieving a user
         api.palace.InviteMemberRequest:
             type: object
             properties:
                 userEmail:
                     type: string
+                    description: Email of the user to invite
                 position:
                     type: integer
+                    description: Position of the new member
                     format: enum
                 roleIds:
                     type: array
                     items:
                         type: integer
                         format: uint32
+                    description: List of role IDs to assign to the new member
+            description: InviteMemberRequest represents the request data for inviting a new member to the team
         api.palace.JoinTeamRequest:
             type: object
             properties:
                 teamName:
                     type: string
+                    description: Team name to join
                 reason:
                     type: string
+                    description: Reason for joining the team
+            description: JoinTeamRequest represents the request data for joining a team
         api.palace.LeaveTeamRequest:
             type: object
             properties:
                 teamID:
                     type: integer
+                    description: Team ID to leave
                     format: uint32
                 reason:
                     type: string
+                    description: Reason for leaving the team
+            description: LeaveTeamRequest represents the request data for leaving a team
         api.palace.ListResourceReply:
             type: object
             properties:
@@ -1281,6 +1444,8 @@ components:
                     type: array
                     items:
                         $ref: '#/components/schemas/api.palace.common.ResourceItem'
+                    description: List of resource items
+            description: ListResourceReply contains the response data for listing resources
         api.palace.ListResourceRequest:
             type: object
             properties:
@@ -1289,18 +1454,23 @@ components:
                     items:
                         type: integer
                         format: enum
+                    description: List of statuses to filter resources by
                 module:
                     type: array
                     items:
                         type: integer
                         format: enum
+                    description: List of modules to filter resources by
                 domain:
                     type: array
                     items:
                         type: integer
                         format: enum
+                    description: List of domains to filter resources by
                 keyword:
                     type: string
+                    description: Keyword to search resources by
+            description: ListResourceRequest represents the request data for listing resources
         api.palace.ListTeamStrategyGroupReply:
             type: object
             properties:
@@ -1308,20 +1478,29 @@ components:
                     type: array
                     items:
                         $ref: '#/components/schemas/api.palace.common.TeamStrategyGroupItem'
+                    description: List of strategy group items
                 pagination:
-                    $ref: '#/components/schemas/api.palace.common.PaginationReply'
+                    allOf:
+                        - $ref: '#/components/schemas/api.palace.common.PaginationReply'
+                    description: Pagination response details
+            description: ListTeamStrategyGroupReply contains the response data for listing team strategy groups
         api.palace.ListTeamStrategyGroupRequest:
             type: object
             properties:
                 pagination:
-                    $ref: '#/components/schemas/api.palace.common.PaginationRequest'
+                    allOf:
+                        - $ref: '#/components/schemas/api.palace.common.PaginationRequest'
+                    description: Pagination request details
                 keyword:
                     type: string
+                    description: Keyword to search strategy groups by
                 status:
                     type: array
                     items:
                         type: integer
                         format: enum
+                    description: List of statuses to filter strategy groups by
+            description: ListTeamStrategyGroupRequest represents the request data for listing team strategy groups
         api.palace.ListTeamStrategyReply:
             type: object
             properties:
@@ -1329,65 +1508,95 @@ components:
                     type: array
                     items:
                         $ref: '#/components/schemas/api.palace.common.TeamStrategyItem'
+                    description: List of strategy items
                 pagination:
-                    $ref: '#/components/schemas/api.palace.common.PaginationReply'
+                    allOf:
+                        - $ref: '#/components/schemas/api.palace.common.PaginationReply'
+                    description: Pagination response details
+            description: ListTeamStrategyReply contains the response data for listing team strategies
         api.palace.ListTeamStrategyRequest:
             type: object
             properties:
                 pagination:
-                    $ref: '#/components/schemas/api.palace.common.PaginationRequest'
+                    allOf:
+                        - $ref: '#/components/schemas/api.palace.common.PaginationRequest'
+                    description: Pagination request details
                 groupID:
                     type: integer
+                    description: Strategy group ID to filter strategies by
                     format: uint32
                 status:
                     type: array
                     items:
                         type: integer
                         format: enum
+                    description: List of statuses to filter strategies by
+            description: ListTeamStrategyRequest represents the request data for listing team strategies
         api.palace.LoginByEmailRequest:
             type: object
             properties:
                 username:
                     type: string
+                    description: Username, not email
                 email:
                     type: string
+                    description: User email
                 code:
                     type: string
+                    description: Email verification code
                 nickname:
                     type: string
+                    description: User nickname, optional
                 remark:
                     type: string
+                    description: Remark, for additional information
                 gender:
                     type: integer
+                    description: User gender, optional
                     format: enum
+            description: LoginByEmailRequest represents the request data for logging in with email verification code
         api.palace.LoginByPasswordRequest:
             type: object
             properties:
                 email:
                     type: string
+                    description: User email
                 password:
                     type: string
+                    description: User password
                 captcha:
-                    $ref: '#/components/schemas/api.palace.CaptchaValidateRequest'
+                    allOf:
+                        - $ref: '#/components/schemas/api.palace.CaptchaValidateRequest'
+                    description: Captcha validation information
+            description: LoginByPasswordRequest represents the request data for logging in with password
         api.palace.LoginReply:
             type: object
             properties:
                 token:
                     type: string
+                    description: Login token
                 expiredSeconds:
                     type: string
+                    description: Token expiration time in seconds
                 user:
-                    $ref: '#/components/schemas/api.palace.common.UserBaseItem'
+                    allOf:
+                        - $ref: '#/components/schemas/api.palace.common.UserBaseItem'
+                    description: User basic information
+            description: LoginReply contains the response data for successful login
         api.palace.LogoutReply:
             type: object
             properties:
                 redirect:
                     type: string
+                    description: Redirect URL after logout, if any
+            description: LogoutReply contains the response data for successful logout
         api.palace.LogoutRequest:
             type: object
             properties:
                 redirect:
                     type: string
+                    description: Redirect URL after logout, optional
+            description: LogoutRequest represents the request data for logging out
         api.palace.OAuth2ListReply:
             type: object
             properties:
@@ -1395,38 +1604,83 @@ components:
                     type: array
                     items:
                         $ref: '#/components/schemas/api.palace.OAuth2ListReply_OAuthItem'
+                    description: List of OAuth2.0 providers
+            description: OAuth2ListReply contains the list of supported OAuth2.0 providers
         api.palace.OAuth2ListReply_OAuthItem:
             type: object
             properties:
                 icon:
                     type: string
-                    description: 图标
+                    description: Provider icon URL
                 label:
                     type: string
-                    description: 标签
+                    description: Provider label or name
                 redirect:
                     type: string
-                    description: 重定向地址
+                    description: Provider redirect URL
+            description: OAuth2.0 provider information item
         api.palace.OAuthLoginByEmailRequest:
             type: object
             properties:
                 oauthID:
                     type: integer
+                    description: OAuth2.0 provider ID
                     format: uint32
                 email:
                     type: string
+                    description: User email
                 code:
                     type: string
+                    description: OAuth2.0 authorization code
                 token:
                     type: string
+                    description: OAuth2.0 token
                 app:
                     type: integer
+                    description: Application ID, to identify the application
                     format: int32
+            description: OAuthLoginByEmailRequest represents the request data for OAuth2.0 login with email
+        api.palace.OperateLogListReply:
+            type: object
+            properties:
+                items:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/api.palace.common.OperateLogItem'
+                    description: List of operation log items
+                pagination:
+                    allOf:
+                        - $ref: '#/components/schemas/api.palace.common.PaginationReply'
+                    description: Pagination response details
+            description: OperateLogListReply contains the response data for listing operation logs
+        api.palace.OperateLogListRequest:
+            type: object
+            properties:
+                pagination:
+                    allOf:
+                        - $ref: '#/components/schemas/api.palace.common.PaginationRequest'
+                    description: Pagination request details
+                type:
+                    type: array
+                    items:
+                        type: integer
+                        format: enum
+                    description: List of types to filter operation logs by
+                keyword:
+                    type: string
+                    description: Keyword to search operation logs by
+                userID:
+                    type: integer
+                    description: User ID, optional for filtering logs by user
+                    format: uint32
+            description: OperateLogListRequest represents the request data for listing operation logs
         api.palace.RemoveMemberRequest:
             type: object
             properties:
                 userEmail:
                     type: string
+                    description: Email of the user to remove
+            description: RemoveMemberRequest represents the request data for removing a member from the team
         api.palace.ResetUserPasswordRequest:
             type: object
             properties:
@@ -1435,111 +1689,146 @@ components:
                     items:
                         type: integer
                         format: uint32
+                    description: List of user IDs to reset passwords for
+            description: ResetUserPasswordRequest represents the request data for resetting user passwords
         api.palace.SaveEmailConfigRequest:
             type: object
             properties:
                 user:
                     type: string
+                    description: Email user
                 pass:
                     type: string
+                    description: Email password
                 host:
                     type: string
+                    description: Email server host
                 port:
                     type: integer
+                    description: Email server port
                     format: uint32
                 enable:
                     type: boolean
+                    description: Enable email configuration
+            description: SaveEmailConfigRequest represents the request data for saving or updating the email configuration
         api.palace.SaveResourceRequest:
             type: object
             properties:
                 name:
                     type: string
-                    description: api name
+                    description: Resource name
                 path:
                     type: string
-                    description: api path
+                    description: Resource path
                 remark:
                     type: string
-                    description: api remark
+                    description: Resource remark or description
                 module:
                     type: integer
-                    description: api module
+                    description: Resource module
                     format: enum
                 domain:
                     type: integer
-                    description: api domain
+                    description: Resource domain
                     format: enum
                 id:
                     type: integer
-                    description: api id
+                    description: Resource ID, optional for new resources
                     format: uint32
+            description: SaveResourceRequest represents the request data for saving or updating a resource
         api.palace.SaveRoleRequest:
             type: object
             properties:
                 roleID:
                     type: integer
+                    description: Role ID, optional for new roles
                     format: uint32
                 name:
                     type: string
+                    description: Role name
                 remark:
                     type: string
+                    description: Role remark or description
                 resourceIDs:
                     type: array
                     items:
                         type: integer
                         format: uint32
+                    description: List of resource IDs associated with the role
+            description: SaveRoleRequest represents the request data for saving or updating a role
         api.palace.SaveTeamRequest:
             type: object
             properties:
                 name:
                     type: string
+                    description: Team name
                 remark:
                     type: string
+                    description: Team remark or description
                 logo:
                     type: string
+                    description: Team logo URL
+            description: SaveTeamRequest represents the request data for saving or updating a team
         api.palace.SaveTeamRoleRequest:
             type: object
             properties:
                 roleID:
                     type: integer
+                    description: Role ID, optional for new roles
                     format: uint32
                 name:
                     type: string
+                    description: Role name
                 remark:
                     type: string
+                    description: Role remark or description
                 resourceIDs:
                     type: array
                     items:
                         type: integer
                         format: uint32
+                    description: List of resource IDs associated with the role
+            description: SaveTeamRoleRequest represents the request data for saving or updating a team role
         api.palace.SaveTeamStrategyGroupRequest:
             type: object
             properties:
                 groupID:
                     type: integer
+                    description: Strategy group ID, optional for new groups
                     format: uint32
                 name:
                     type: string
+                    description: Strategy group name
                 remark:
                     type: string
+                    description: Strategy group remark or description
+            description: SaveTeamStrategyGroupRequest represents the request data for saving or updating a team strategy group
         api.palace.SaveTeamStrategyRequest:
             type: object
             properties:
                 strategyID:
                     type: integer
+                    description: Strategy ID, optional for new strategies
                     format: uint32
                 groupID:
                     type: integer
+                    description: Strategy group ID
                     format: uint32
                 name:
                     type: string
+                    description: Strategy name
                 remark:
                     type: string
+                    description: Strategy remark or description
+            description: SaveTeamStrategyRequest represents the request data for saving or updating a team strategy
         api.palace.SelfInfoReply:
             type: object
             properties:
                 user:
-                    $ref: '#/components/schemas/api.palace.common.UserItem'
+                    allOf:
+                        - $ref: '#/components/schemas/api.palace.common.UserItem'
+                    description: Detailed information about the user
+            description: SelfInfoReply contains the response data for retrieving the current user's information
         api.palace.SelfSubscribeTeamStrategiesReply:
             type: object
             properties:
@@ -1547,13 +1836,20 @@ components:
                     type: array
                     items:
                         $ref: '#/components/schemas/api.palace.common.TeamStrategyItem'
+                    description: List of team strategy items
                 pagination:
-                    $ref: '#/components/schemas/api.palace.common.PaginationReply'
+                    allOf:
+                        - $ref: '#/components/schemas/api.palace.common.PaginationReply'
+                    description: Pagination response details
+            description: SelfSubscribeTeamStrategiesReply contains the response data for retrieving subscribed team strategies
         api.palace.SelfSubscribeTeamStrategiesRequest:
             type: object
             properties:
                 pagination:
-                    $ref: '#/components/schemas/api.palace.common.PaginationRequest'
+                    allOf:
+                        - $ref: '#/components/schemas/api.palace.common.PaginationRequest'
+                    description: Pagination request details
+            description: SelfSubscribeTeamStrategiesRequest represents the request data for retrieving subscribed team strategies
         api.palace.SelfTeamListReply:
             type: object
             properties:
@@ -1561,37 +1857,51 @@ components:
                     type: array
                     items:
                         $ref: '#/components/schemas/api.palace.common.TeamItem'
+                    description: List of team items
+            description: SelfTeamListReply contains the response data for retrieving the list of teams the current user is a member of
         api.palace.SubscribeTeamStrategiesRequest:
             type: object
             properties:
                 pagination:
-                    $ref: '#/components/schemas/api.palace.common.PaginationRequest'
+                    allOf:
+                        - $ref: '#/components/schemas/api.palace.common.PaginationRequest'
+                    description: Pagination request details
                 strategyID:
                     type: integer
+                    description: Strategy ID to subscribe or unsubscribe
                     format: uint32
+            description: SubscribeTeamStrategiesRequest represents the request data for subscribing or unsubscribing from multiple team strategies
         api.palace.SubscribeTeamStrategyRequest:
             type: object
             properties:
                 strategyID:
                     type: integer
+                    description: Strategy ID
                     format: uint32
                 isSubscribe:
                     type: boolean
+                    description: Subscription status (true to subscribe, false to unsubscribe)
+            description: SubscribeTeamStrategyRequest represents the request data for subscribing or unsubscribing from a team strategy
         api.palace.TransferTeamRequest:
             type: object
             properties:
                 newLeaderID:
                     type: integer
+                    description: New leader's user ID
                     format: uint32
+            description: TransferTeamRequest represents the request data for transferring team leadership
         api.palace.UpdateMemberPositionRequest:
             type: object
             properties:
                 memberID:
                     type: integer
+                    description: Member ID
                     format: uint32
                 position:
                     type: integer
+                    description: New position for the member
                     format: enum
+            description: UpdateMemberPositionRequest represents the request data for updating a member's position
         api.palace.UpdateMemberRolesRequest:
             type: object
             properties:
@@ -1600,11 +1910,14 @@ components:
                     items:
                         type: integer
                         format: uint32
+                    description: List of member IDs to update
                 roleIDs:
                     type: array
                     items:
                         type: integer
                         format: uint32
+                    description: List of role IDs to assign to the members
+            description: UpdateMemberRolesRequest represents the request data for updating the roles of multiple members
         api.palace.UpdateMemberStatusRequest:
             type: object
             properties:
@@ -1613,57 +1926,77 @@ components:
                     items:
                         type: integer
                         format: uint32
+                    description: List of member IDs to update
                 status:
                     type: integer
+                    description: New status for the members
                     format: enum
+            description: UpdateMemberStatusRequest represents the request data for updating the status of multiple members
         api.palace.UpdateRoleStatusRequest:
             type: object
             properties:
                 roleID:
                     type: integer
+                    description: Role ID
                     format: uint32
                 status:
                     type: integer
+                    description: New status for the role
                     format: enum
+            description: UpdateRoleStatusRequest represents the request data for updating role status
         api.palace.UpdateRoleUsersRequest:
             type: object
             properties:
                 roleID:
                     type: integer
+                    description: Role ID
                     format: uint32
                 userIDs:
                     type: array
                     items:
                         type: integer
                         format: uint32
+                    description: List of user IDs to assign to the role
+            description: UpdateRoleUsersRequest represents the request data for updating role users
         api.palace.UpdateSelfInfoRequest:
             type: object
             properties:
                 nickname:
                     type: string
+                    description: User nickname
                 avatar:
                     type: string
+                    description: User avatar URL
                 gender:
                     type: integer
+                    description: User gender
                     format: enum
+            description: UpdateSelfInfoRequest represents the request data for updating the current user's information
         api.palace.UpdateSelfPasswordRequest:
             type: object
             properties:
                 oldPassword:
                     type: string
+                    description: Current password
                 newPassword:
                     type: string
+                    description: New password
+            description: UpdateSelfPasswordRequest represents the request data for updating the current user's password
         api.palace.UpdateTeamAuditStatusRequest:
             type: object
             properties:
                 auditID:
                     type: integer
+                    description: Audit ID
                     format: uint32
                 status:
                     type: integer
+                    description: New status for the team audit record
                     format: enum
                 reason:
                     type: string
+                    description: Reason for the status update
+            description: UpdateTeamAuditStatusRequest represents the request data for updating team audit status
         api.palace.UpdateTeamStrategiesStatusRequest:
             type: object
             properties:
@@ -1672,51 +2005,68 @@ components:
                     items:
                         type: integer
                         format: uint32
+                    description: List of strategy IDs to update
                 status:
                     type: integer
+                    description: New status for the strategies
                     format: enum
+            description: UpdateTeamStrategiesStatusRequest represents the request data for updating the status of multiple team strategies
         api.palace.UpdateTeamStrategyGroupStatusRequest:
             type: object
             properties:
                 groupID:
                     type: integer
+                    description: Strategy group ID
                     format: uint32
                 status:
                     type: integer
+                    description: New status for the strategy group
                     format: enum
+            description: UpdateTeamStrategyGroupStatusRequest represents the request data for updating the status of a team strategy group
         api.palace.UpdateUserPositionRequest:
             type: object
             properties:
                 userID:
                     type: integer
+                    description: User ID
                     format: uint32
                 position:
                     type: integer
+                    description: New position for the user
                     format: enum
+            description: UpdateUserPositionRequest represents the request data for updating user position
         api.palace.UpdateUserRequest:
             type: object
             properties:
                 userID:
                     type: integer
+                    description: User ID
                     format: uint32
                 nickname:
                     type: string
+                    description: User nickname
                 avatar:
                     type: string
+                    description: User avatar URL
                 gender:
                     type: integer
+                    description: User gender
                     format: enum
+            description: UpdateUserRequest represents the request data for updating user information
         api.palace.UpdateUserRolesRequest:
             type: object
             properties:
                 userID:
                     type: integer
+                    description: User ID
                     format: uint32
                 roleIDs:
                     type: array
                     items:
                         type: integer
                         format: uint32
+                    description: List of role IDs to assign to the user
+            description: UpdateUserRolesRequest represents the request data for updating user roles
         api.palace.UpdateUserStatusRequest:
             type: object
             properties:
@@ -1725,29 +2075,84 @@ components:
                     items:
                         type: integer
                         format: uint32
+                    description: List of user IDs to update
                 status:
                     type: integer
+                    description: New status for the users
                     format: enum
+            description: UpdateUserStatusRequest represents the request data for updating user status
         api.palace.VerifyEmailReply:
             type: object
             properties:
                 expiredSeconds:
                     type: string
+                    description: Email verification code expiration time in seconds
+            description: VerifyEmailReply contains the response data for successful email verification
         api.palace.VerifyEmailRequest:
             type: object
             properties:
                 email:
                     type: string
+                    description: Email to verify
                 captcha:
-                    $ref: '#/components/schemas/api.palace.CaptchaValidateRequest'
+                    allOf:
+                        - $ref: '#/components/schemas/api.palace.CaptchaValidateRequest'
+                    description: Captcha validation information
+            description: VerifyEmailRequest represents the request data for email verification
         api.palace.common.EmptyReply:
             type: object
             properties:
                 message:
                     type: string
+            description: |-
+                EmptyReply represents an empty response, typically used for operations that only need to return a status message.
+                 message: A string message, usually used to indicate the execution status.
         api.palace.common.EmptyRequest:
             type: object
             properties: {}
+            description: EmptyRequest represents an empty request, typically used for operations that do not require input parameters.
+        api.palace.common.OperateLogItem:
+            type: object
+            properties:
+                id:
+                    type: integer
+                    description: Unique identifier for the operation log.
+                    format: uint32
+                operator:
+                    allOf:
+                        - $ref: '#/components/schemas/api.palace.common.UserBaseItem'
+                    description: Operator information of the operation requester
+                type:
+                    type: integer
+                    description: Type of the operation
+                    format: enum
+                module:
+                    type: integer
+                    description: ResourceModule of the operation
+                    format: enum
+                dataID:
+                    type: integer
+                    description: DataID of the operation
+                    format: uint32
+                dataName:
+                    type: string
+                    description: DataName of the operation
+                operateTime:
+                    type: string
+                    description: OperateTime of the operation
+                title:
+                    type: string
+                    description: Title of the operation
+                before:
+                    type: string
+                    description: Before of the operation
+                after:
+                    type: string
+                    description: After of the operation
+                ip:
+                    type: string
+                    description: IP of the operation
+            description: OperateLogItem represents the structure of an operation log item.
         api.palace.common.PaginationReply:
             type: object
             properties:
@@ -1760,6 +2165,11 @@ components:
                 limit:
                     type: integer
                     format: uint32
+            description: |-
+                PaginationReply is the response for pagination queries, containing the total number of items, the current page number, and the number of items per page.
+                 total: The total number of items.
+                 page: The current page number.
+                 limit: The number of items per page.
         api.palace.common.PaginationRequest:
             type: object
             properties:
@@ -1769,39 +2179,43 @@ components:
                 limit:
                     type: integer
                     format: uint32
+            description: |-
+                PaginationRequest is used for pagination queries, specifying the page number and the number of items per page.
+                 page: The current page number, must be greater than 0.
+                 limit: The number of items per page, must be greater than 0 and less than or equal to 10000.
         api.palace.common.ResourceItem:
             type: object
             properties:
                 id:
                     type: integer
-                    description: api id
+                    description: Unique identifier for the API resource
                     format: uint32
                 name:
                     type: string
-                    description: api name
+                    description: Name of the API resource
                 path:
                     type: string
-                    description: api path
+                    description: Path of the API resource
                 status:
                     type: integer
-                    description: api status
+                    description: Status of the API resource
                     format: enum
                 remark:
                     type: string
-                    description: api remark
+                    description: Remarks about the API resource
                 createdAt:
                     type: string
-                    description: api created at
+                    description: Creation time of the API resource
                 updatedAt:
                     type: string
-                    description: api updated at
+                    description: Last update time of the API resource
                 module:
                     type: integer
-                    description: api module
+                    description: Module to which the API resource belongs
                     format: enum
                 domain:
                     type: integer
-                    description: api domain
+                    description: Domain of the API resource
                     format: enum
             description: system-api
         api.palace.common.SelectItem:
@@ -1814,205 +2228,295 @@ components:
                     type: string
                 disabled:
                     type: boolean
+            description: |-
+                SelectItem represents an option in a selection, including its value, display label, and whether it is disabled.
+                 value: The actual value of the option.
+                 label: The label displayed for the option.
+                 disabled: Indicates whether the option is disabled, true for disabled, false for enabled.
         api.palace.common.SystemRoleItem:
             type: object
             properties:
                 id:
                     type: integer
+                    description: Unique identifier for the system role
                     format: uint32
                 name:
                     type: string
+                    description: Name of the system role
                 remark:
                     type: string
+                    description: Remarks about the system role
                 status:
                     type: integer
+                    description: Status of the system role
                     format: enum
         api.palace.common.TeamAuditItem:
             type: object
             properties:
                 id:
                     type: integer
+                    description: Unique identifier for the team audit record
                     format: uint32
                 user:
-                    $ref: '#/components/schemas/api.palace.common.UserBaseItem'
+                    allOf:
+                        - $ref: '#/components/schemas/api.palace.common.UserBaseItem'
+                    description: User information of the audit requester
                 status:
                     type: integer
+                    description: Status of the team audit
                     format: enum
                 reason:
                     type: string
+                    description: Reason for the audit result
                 createdAt:
                     type: string
+                    description: Creation time of the audit record
                 team:
-                    $ref: '#/components/schemas/api.palace.common.TeamBaseItem'
+                    allOf:
+                        - $ref: '#/components/schemas/api.palace.common.TeamBaseItem'
+                    description: Team information being audited
         api.palace.common.TeamBaseItem:
             type: object
             properties:
                 id:
                     type: integer
+                    description: Unique identifier for the team
                     format: uint32
                 name:
                     type: string
+                    description: Name of the team
                 remark:
                     type: string
+                    description: Remarks about the team
                 logo:
                     type: string
+                    description: Logo URL of the team
         api.palace.common.TeamItem:
             type: object
             properties:
                 id:
                     type: integer
+                    description: Unique identifier for the team.
                     format: uint32
                 uuid:
                     type: string
+                    description: Universally unique identifier for the team.
                 name:
                     type: string
+                    description: Name of the team.
                 remark:
                     type: string
+                    description: Remarks or additional information about the team.
                 logo:
                     type: string
+                    description: URL or path to the team's logo.
                 status:
                     type: integer
+                    description: Status of the team.
                     format: enum
                 creator:
-                    $ref: '#/components/schemas/api.palace.common.UserItem'
+                    allOf:
+                        - $ref: '#/components/schemas/api.palace.common.UserItem'
+                    description: Information about the creator of the team.
                 leader:
-                    $ref: '#/components/schemas/api.palace.common.UserItem'
+                    allOf:
+                        - $ref: '#/components/schemas/api.palace.common.UserItem'
+                    description: Information about the leader of the team.
                 admins:
                     type: array
                     items:
                         $ref: '#/components/schemas/api.palace.common.UserItem'
+                    description: List of administrators in the team.
                 createdAt:
                     type: string
+                    description: Timestamp indicating when the team was created.
                 updatedAt:
                     type: string
+                    description: Timestamp indicating when the team was last updated.
                 memberCount:
                     type: string
+                    description: Total number of members in the team.
                 strategyCount:
                     type: string
+                    description: Total number of strategies associated with the team.
                 datasourceCount:
                     type: string
+                    description: Total number of data sources associated with the team.
+            description: TeamItem represents the structure of a team.
         api.palace.common.TeamMemberItem:
             type: object
             properties:
                 id:
                     type: integer
+                    description: Unique identifier for the member.
                     format: uint32
                 user:
-                    $ref: '#/components/schemas/api.palace.common.UserItem'
+                    allOf:
+                        - $ref: '#/components/schemas/api.palace.common.UserItem'
+                    description: Information about the user who is a member.
                 position:
                     type: integer
+                    description: Position of the member within the team.
                     format: enum
                 status:
                     type: integer
+                    description: Status of the member.
                     format: enum
                 inviter:
-                    $ref: '#/components/schemas/api.palace.common.UserItem'
+                    allOf:
+                        - $ref: '#/components/schemas/api.palace.common.UserItem'
+                    description: Information about the user who invited the member.
                 roles:
                     type: array
                     items:
                         $ref: '#/components/schemas/api.palace.common.TeamRoleItem'
+                    description: List of roles assigned to the member.
                 createdAt:
                     type: string
+                    description: Timestamp indicating when the member was added to the team.
                 updatedAt:
                     type: string
+                    description: Timestamp indicating when the member's information was last updated.
+            description: TeamMemberItem represents the structure of a team member.
         api.palace.common.TeamRoleItem:
             type: object
             properties:
                 id:
                     type: integer
+                    description: Unique identifier for the role.
                     format: uint32
                 name:
                     type: string
+                    description: Name of the role.
                 remark:
                     type: string
+                    description: Remarks or additional information about the role.
                 status:
                     type: integer
+                    description: Status of the role.
                     format: enum
                 resources:
                     type: array
                     items:
                         $ref: '#/components/schemas/api.palace.common.ResourceItem'
+                    description: List of resources associated with the role.
                 members:
                     type: array
                     items:
                         $ref: '#/components/schemas/api.palace.common.TeamMemberItem'
+                    description: List of members assigned to the role.
                 createdAt:
                     type: string
+                    description: Timestamp indicating when the role was created.
                 updatedAt:
                     type: string
+                    description: Timestamp indicating when the role was last updated.
+            description: TeamRoleItem represents the structure of a team role.
         api.palace.common.TeamStrategyGroupItem:
             type: object
             properties:
                 groupID:
                     type: integer
+                    description: Unique identifier for the strategy group.
                     format: uint32
                 name:
                     type: string
+                    description: Name of the strategy group.
                 remark:
                     type: string
+                    description: Remarks or additional information about the group.
                 status:
                     type: integer
+                    description: Status of the strategy group.
                     format: enum
                 strategyCount:
                     type: string
+                    description: Total number of strategies in the group.
                 enableStrategyCount:
                     type: string
+                    description: Number of enabled strategies in the group.
                 createdAt:
                     type: string
+                    description: Timestamp indicating when the group was created.
                 updatedAt:
                     type: string
+                    description: Timestamp indicating when the group was last updated.
                 creator:
-                    $ref: '#/components/schemas/api.palace.common.UserItem'
+                    allOf:
+                        - $ref: '#/components/schemas/api.palace.common.UserItem'
+                    description: Information about the creator of the group.
+            description: TeamStrategyGroupItem represents the structure of a team strategy group item.
         api.palace.common.TeamStrategyItem:
             type: object
             properties:
                 strategyID:
                     type: integer
+                    description: Unique identifier for the strategy.
                     format: uint32
                 groupID:
                     type: integer
+                    description: ID of the group to which the strategy belongs.
                     format: uint32
                 name:
                     type: string
+                    description: Name of the strategy.
                 remark:
                     type: string
+                    description: Remarks or additional information about the strategy.
                 status:
                     type: integer
+                    description: Status of the strategy.
                     format: enum
                 creator:
-                    $ref: '#/components/schemas/api.palace.common.UserItem'
+                    allOf:
+                        - $ref: '#/components/schemas/api.palace.common.UserItem'
+                    description: Information about the creator of the strategy.
                 createdAt:
                     type: string
+                    description: Timestamp indicating when the strategy was created.
                 updatedAt:
                     type: string
+                    description: Timestamp indicating when the strategy was last updated.
                 team:
-                    $ref: '#/components/schemas/api.palace.common.TeamItem'
+                    allOf:
+                        - $ref: '#/components/schemas/api.palace.common.TeamItem'
+                    description: Information about the team associated with the strategy.
+            description: TeamStrategyItem represents the structure of a team strategy item.
         api.palace.common.UserBaseItem:
             type: object
             properties:
                 username:
                     type: string
+                    description: User's login name
                 nickname:
                     type: string
+                    description: User's nickname
                 avatar:
                     type: string
+                    description: User's avatar URL
                 gender:
                     type: integer
+                    description: User's gender
                     format: enum
                 userId:
                     type: integer
+                    description: User's unique identifier
                     format: uint32
         api.palace.common.UserItem:
             type: object
             properties:
                 username:
                     type: string
+                    description: User's login name
                 nickname:
                     type: string
+                    description: User's nickname
                 avatar:
                     type: string
+                    description: User's avatar URL
                 gender:
                     type: integer
+                    description: User's gender
                     format: enum
         config.Discovery:
             type: object
@@ -2091,11 +2595,17 @@ components:
             description: micro server config
 tags:
     - name: Auth
+      description: Auth service provides authentication related operations
     - name: Health
       description: Health Check API
     - name: Resource
+      description: Resource service provides operations for managing resources
     - name: Server
     - name: System
+      description: System service provides operations for managing system users, roles, teams, and audits
     - name: Team
+      description: Team service provides operations for managing teams, members, roles, and email configurations
     - name: TeamStrategy
+      description: TeamStrategy service provides operations for managing team strategy groups and strategies
     - name: User
+      description: User service provides operations for managing user information, teams, and subscriptions

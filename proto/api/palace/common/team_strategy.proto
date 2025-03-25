@@ -10,26 +10,46 @@ option go_package = "github.com/moon-monitor/moon/pkg/api/palace/common;common";
 option java_multiple_files = true;
 option java_package = "com.api.palace.common";
 
+// TeamStrategyGroupItem represents the structure of a team strategy group item.
 message TeamStrategyGroupItem {
-	uint32 groupID = 1;
-	string name = 2;
-	string remark = 3;
-	api.palace.common.TeamStrategyGroupStatus status = 4;
-	int64 strategyCount = 5;
-	int64 enableStrategyCount = 6;
-	string createdAt = 7;
-	string updatedAt = 8;
-	api.palace.common.UserItem creator = 9;
+  // Unique identifier for the strategy group.
+  uint32 groupID = 1;
+  // Name of the strategy group.
+  string name = 2;
+  // Remarks or additional information about the group.
+  string remark = 3;
+  // Status of the strategy group.
+  api.palace.common.TeamStrategyGroupStatus status = 4;
+  // Total number of strategies in the group.
+  int64 strategyCount = 5;
+  // Number of enabled strategies in the group.
+  int64 enableStrategyCount = 6;
+  // Timestamp indicating when the group was created.
+  string createdAt = 7;
+  // Timestamp indicating when the group was last updated.
+  string updatedAt = 8;
+  // Information about the creator of the group.
+  api.palace.common.UserItem creator = 9;
 }
 
+// TeamStrategyItem represents the structure of a team strategy item.
 message TeamStrategyItem {
-	uint32 strategyID = 1;
-	uint32 groupID = 2;
-	string name = 3;
-	string remark = 4;
-	api.palace.common.TeamStrategyStatus status = 5;
-	api.palace.common.UserItem creator = 6;
-	string createdAt = 7;
-	string updatedAt = 8;
-	api.palace.common.TeamItem team = 9;
+  // Unique identifier for the strategy.
+  uint32 strategyID = 1;
+  // ID of the group to which the strategy belongs.
+  uint32 groupID = 2;
+  // Name of the strategy.
+  string name = 3;
+  // Remarks or additional information about the strategy.
+  string remark = 4;
+  // Status of the strategy.
+  api.palace.common.TeamStrategyStatus status = 5;
+  // Information about the creator of the strategy.
+  api.palace.common.UserItem creator = 6;
+  // Timestamp indicating when the strategy was created.
+  string createdAt = 7;
+  // Timestamp indicating when the strategy was last updated.
+  string updatedAt = 8;
+  // Information about the team associated with the strategy.
+  api.palace.common.TeamItem team = 9;
 }

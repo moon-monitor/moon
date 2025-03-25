@@ -13,7 +13,9 @@ option go_package = "github.com/moon-monitor/moon/pkg/api/palace;palace";
 option java_multiple_files = true;
 option java_package = "com.api.palace";
 
+// Team service provides operations for managing teams, members, roles, and email configurations
 service Team {
+  // SaveTeam saves a new team or updates an existing one
   rpc SaveTeam (SaveTeamRequest) returns (api.palace.common.EmptyReply) {
     option (google.api.http) = {
       put: "/api/team/save"
@@ -21,18 +23,21 @@ service Team {
     };
   }
 
+  // GetTeam retrieves the details of the current team
   rpc GetTeam (api.palace.common.EmptyRequest) returns (GetTeamReply) {
     option (google.api.http) = {
       get: "/api/team/detail"
     };
   }
 
+  // GetTeamResources retrieves the resources associated with the current team
   rpc GetTeamResources (api.palace.common.EmptyRequest) returns (GetTeamResourcesReply) {
     option (google.api.http) = {
       get: "/api/team/resources"
     };
   }
 
+  // TransferTeam transfers the leadership of the team to a new leader
   rpc TransferTeam (TransferTeamRequest) returns (api.palace.common.EmptyReply) {
     option (google.api.http) = {
       post: "/api/team/transfer"
@@ -40,6 +45,7 @@ service Team {
     };
   }
 
+  // InviteMember invites a new member to the team
   rpc InviteMember (InviteMemberRequest) returns (api.palace.common.EmptyReply) {
     option (google.api.http) = {
       post: "/api/team/invite/member"
@@ -47,6 +53,7 @@ service Team {
     };
   }
 
+  // RemoveMember removes a member from the team
   rpc RemoveMember (RemoveMemberRequest) returns (api.palace.common.EmptyReply) {
     option (google.api.http) = {
       post: "/api/team/remove/member"
@@ -54,6 +61,7 @@ service Team {
     };
   }
 
+  // GetTeamMembers retrieves the list of members in the team
   rpc GetTeamMembers (api.palace.common.EmptyRequest) returns (GetTeamMembersReply) {
     option (google.api.http) = {
       post: "/api/team/members"
@@ -61,6 +69,7 @@ service Team {
     };
   }
 
+  // UpdateMemberPosition updates the position of a team member
   rpc UpdateMemberPosition (UpdateMemberPositionRequest) returns (api.palace.common.EmptyReply) {
     option (google.api.http) = {
       post: "/api/team/update/member/position"
@@ -68,6 +77,7 @@ service Team {
     };
   }
 
+  // UpdateMemberStatus updates the status of multiple team members
   rpc UpdateMemberStatus (UpdateMemberStatusRequest) returns (api.palace.common.EmptyReply) {
     option (google.api.http) = {
       post: "/api/team/update/member/status"
@@ -75,6 +85,7 @@ service Team {
     };
   }
 
+  // UpdateMemberRoles updates the roles assigned to multiple team members
   rpc UpdateMemberRoles (UpdateMemberRolesRequest) returns (api.palace.common.EmptyReply) {
     option (google.api.http) = {
       post: "/api/team/update/member/roles"
@@ -82,6 +93,7 @@ service Team {
     };
   }
 
+  // GetTeamRoles retrieves the roles available in the team
   rpc GetTeamRoles (api.palace.common.EmptyRequest) returns (GetTeamRolesReply) {
     option (google.api.http) = {
       post: "/api/team/roles"
@@ -89,6 +101,7 @@ service Team {
     };
   }
 
+  // SaveTeamRole saves a new team role or updates an existing one
   rpc SaveTeamRole (SaveTeamRoleRequest) returns (api.palace.common.EmptyReply) {
     option (google.api.http) = {
       put: "/api/team/roles"
@@ -96,12 +109,14 @@ service Team {
     };
   }
 
+  // DeleteTeamRole deletes a team role by ID
   rpc DeleteTeamRole (DeleteTeamRoleRequest) returns (api.palace.common.EmptyReply) {
     option (google.api.http) = {
       delete: "/api/team/roles"
     };
   }
 
+  // SaveEmailConfig saves or updates the email configuration for the team
   rpc SaveEmailConfig (SaveEmailConfigRequest) returns (api.palace.common.EmptyReply) {
     option (google.api.http) = {
       put: "/api/team/email/config"
@@ -110,7 +125,9 @@ service Team {
   }
 }
 
+// SaveTeamRequest represents the request data for saving or updating a team
 message SaveTeamRequest {
+  // Team name
   string name = 1 [(buf.validate.field).cel = {
     message: "name is required"
     expression: "this.size() > 0"
@@ -118,65 +135,93 @@ message SaveTeamRequest {
     message: "name max length is 32"
     expression: "this.size() <= 32"
   }];
+  // Team remark or description
   string remark = 2 [(buf.validate.field).cel = {
     message: "remark max length is 200"
     expression: "this.size() <= 200"
   }];
+  // Team logo URL
   string logo = 3 [(buf.validate.field).cel = {
     message: "logo max length is 255"
     expression: "this.size() <= 255"
   }];
 }
 
+// GetTeamReply contains the response data for retrieving a team
 message GetTeamReply {
+  // Detailed information about the team
   api.palace.common.TeamItem detail = 1;
 }
 
+// GetTeamResourcesReply contains the response data for retrieving team resources
 message GetTeamResourcesReply {
+  // List of resource items associated with the team
   repeated api.palace.common.ResourceItem items = 1;
 }
 
+// TransferTeamRequest represents the request data for transferring team leadership
 message TransferTeamRequest {
+  // New leader's user ID
   uint32 newLeaderID = 1 [(buf.validate.field).required = true];
 }
 
+// InviteMemberRequest represents the request data for inviting a new member to the team
 message InviteMemberRequest {
+  // Email of the user to invite
   string userEmail = 1 [(buf.validate.field).required = true];
+  // Position of the new member
   api.palace.common.MemberPosition position = 2 [(buf.validate.field).required = true];
+  // List of role IDs to assign to the new member
   repeated uint32 roleIds = 3;
 }
 
+// RemoveMemberRequest represents the request data for removing a member from the team
 message RemoveMemberRequest {
+  // Email of the user to remove
   string userEmail = 1 [(buf.validate.field).required = true];
 }
 
+// GetTeamMembersReply contains the response data for retrieving team members
 message GetTeamMembersReply {
+  // List of team member items
   repeated api.palace.common.TeamMemberItem items = 1;
 }
 
+// GetTeamRolesReply contains the response data for retrieving team roles
 message GetTeamRolesReply {
+  // List of team role items
   repeated api.palace.common.TeamRoleItem items = 1;
 }
 
+// SaveTeamRoleRequest represents the request data for saving or updating a team role
 message SaveTeamRoleRequest {
+  // Role ID, optional for new roles
   uint32 roleID = 1 [(buf.validate.field).required = true];
+  // Role name
   string name = 2 [(buf.validate.field).cel = {
     message: "name max length is 32"
     expression: "this.size() <= 32"
   }, (buf.validate.field).required = true];
+  // Role remark or description
   string remark = 4 [(buf.validate.field).cel = {
     message: "remark max length is 200"
     expression: "this.size() <= 200"
   }];
+  // List of resource IDs associated with the role
   repeated uint32 resourceIDs = 6;
 }
 
+// UpdateMemberPositionRequest represents the request data for updating a member's position
 message UpdateMemberPositionRequest {
+  // Member ID
   uint32 memberID = 1 [(buf.validate.field).required = true];
+  // New position for the member
   api.palace.common.MemberPosition position = 2 [(buf.validate.field).required = true];
 }
 
+// UpdateMemberStatusRequest represents the request data for updating the status of multiple members
 message UpdateMemberStatusRequest {
+  // List of member IDs to update
   repeated uint32 memberIDs = 1 [(buf.validate.field).cel = {
     message: "memberIDs is required"
     expression: "this.size() > 0"
@@ -184,10 +229,13 @@ message UpdateMemberStatusRequest {
     message: "memberIDs max size is 100"
     expression: "this.size() <= 100"
   }];
+  // New status for the members
   api.palace.common.MemberStatus status = 2 [(buf.validate.field).required = true];
 }
 
+// UpdateMemberRolesRequest represents the request data for updating the roles of multiple members
 message UpdateMemberRolesRequest {
+  // List of member IDs to update
   repeated uint32 memberIDs = 1 [(buf.validate.field).cel = {
     message: "memberIDs is required"
     expression: "this.size() > 0"
@@ -195,20 +243,29 @@ message UpdateMemberRolesRequest {
     message: "memberIDs max size is 100"
     expression: "this.size() <= 100"
   }];
+  // List of role IDs to assign to the members
   repeated uint32 roleIDs = 2 [(buf.validate.field).cel = {
     message: "roleIDs is required"
     expression: "this.size() > 0"
   }];
 }
 
+// DeleteTeamRoleRequest represents the request data for deleting a team role
 message DeleteTeamRoleRequest {
+  // Role ID
   uint32 roleID = 1 [(buf.validate.field).required = true];
 }
 
+// SaveEmailConfigRequest represents the request data for saving or updating the email configuration
 message SaveEmailConfigRequest {
+  // Email user
   string user = 1 [(buf.validate.field).required = true];
+  // Email password
   string pass = 2 [(buf.validate.field).required = true];
+  // Email server host
   string host = 3 [(buf.validate.field).required = true];
+  // Email server port
   uint32 port = 4 [(buf.validate.field).required = true];
+  // Enable email configuration
   bool enable = 5;
 }

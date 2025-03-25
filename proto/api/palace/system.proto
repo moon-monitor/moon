@@ -14,7 +14,9 @@ option go_package = "github.com/moon-monitor/moon/pkg/api/palace;palace";
 option java_multiple_files = true;
 option java_package = "com.api.palace";
 
+// System service provides operations for managing system users, roles, teams, and audits
 service System {
+  // UpdateUser updates user information
   rpc UpdateUser (UpdateUserRequest) returns (api.palace.common.EmptyReply) {
     option (google.api.http) = {
       put: "/api/system/user"
@@ -22,6 +24,7 @@ service System {
     };
   }
 
+  // UpdateUserStatus updates the status of multiple users
   rpc UpdateUserStatus (UpdateUserStatusRequest) returns (api.palace.common.EmptyReply) {
     option (google.api.http) = {
       put: "/api/system/user/status"
@@ -29,6 +32,7 @@ service System {
     };
   }
 
+  // ResetUserPassword resets the password for multiple users
   rpc ResetUserPassword (ResetUserPasswordRequest) returns (api.palace.common.EmptyReply) {
     option (google.api.http) = {
       put: "/api/system/user/password"
@@ -36,6 +40,7 @@ service System {
     };
   }
 
+  // UpdateUserPosition updates the position of a user
   rpc UpdateUserPosition (UpdateUserPositionRequest) returns (api.palace.common.EmptyReply) {
     option (google.api.http) = {
       put: "/api/system/user/position"
@@ -43,12 +48,14 @@ service System {
     };
   }
 
+  // GetUser retrieves a user by ID
   rpc GetUser (GetUserRequest) returns (GetUserReply) {
     option (google.api.http) = {
       get: "/api/system/user/{userID}"
     };
   }
 
+  // GetUserList lists users based on specified filters
   rpc GetUserList (GetUserListRequest) returns (GetUserListReply) {
     option (google.api.http) = {
       post: "/api/system/user/list"
@@ -56,6 +63,7 @@ service System {
     };
   }
 
+  // GetTeamList lists teams based on specified filters
   rpc GetTeamList (GetTeamListRequest) returns (GetTeamListReply) {
     option (google.api.http) = {
       post: "/api/system/team/list"
@@ -63,12 +71,14 @@ service System {
     };
   }
 
+  // GetSystemRole retrieves a system role by ID
   rpc GetSystemRole (GetSystemRoleRequest) returns (GetSystemRoleReply) {
     option (google.api.http) = {
       get: "/api/system/role"
     };
   }
 
+  // SaveRole saves a new role or updates an existing one
   rpc SaveRole (SaveRoleRequest) returns (api.palace.common.EmptyReply) {
     option (google.api.http) = {
       post: "/api/system/role"
@@ -76,6 +86,7 @@ service System {
     };
   }
 
+  // UpdateRoleStatus updates the status of a role
   rpc UpdateRoleStatus (UpdateRoleStatusRequest) returns (api.palace.common.EmptyReply) {
     option (google.api.http) = {
       put: "/api/system/role/status"
@@ -83,6 +94,7 @@ service System {
     };
   }
 
+  // UpdateUserRoles updates the roles assigned to a user
   rpc UpdateUserRoles (UpdateUserRolesRequest) returns (api.palace.common.EmptyReply) {
     option (google.api.http) = {
       put: "/api/system/user/roles"
@@ -90,6 +102,7 @@ service System {
     };
   }
 
+  // UpdateRoleUsers updates the users assigned to a role
   rpc UpdateRoleUsers (UpdateRoleUsersRequest) returns (api.palace.common.EmptyReply) {
     option (google.api.http) = {
       put: "/api/system/role/users"
@@ -97,6 +110,7 @@ service System {
     };
   }
 
+  // GetTeamAuditList lists team audit records based on specified filters
   rpc GetTeamAuditList (GetTeamAuditListRequest) returns (GetTeamAuditListReply) {
     option (google.api.http) = {
       post: "/api/system/team/audit/list"
@@ -104,6 +118,7 @@ service System {
     };
   }
 
+  // UpdateTeamAuditStatus updates the status of a team audit record
   rpc UpdateTeamAuditStatus (UpdateTeamAuditStatusRequest) returns (api.palace.common.EmptyReply) {
     option (google.api.http) = {
       put: "/api/system/team/audit/status"
@@ -111,6 +126,7 @@ service System {
     };
   }
 
+  // OperateLogList lists operation logs based on specified filters
   rpc OperateLogList (OperateLogListRequest) returns (OperateLogListReply) {
     option (google.api.http) = {
       post: "/api/system/operate/log/list"
@@ -119,14 +135,21 @@ service System {
   }
 }
 
+// UpdateUserRequest represents the request data for updating user information
 message UpdateUserRequest {
+  // User ID
   uint32 userID = 1 [(buf.validate.field).required = true];
+  // User nickname
   string nickname = 2 [(buf.validate.field).required = true];
+  // User avatar URL
   string avatar = 3 [(buf.validate.field).required = true];
+  // User gender
   api.palace.common.Gender gender = 4 [(buf.validate.field).required = true];
 }
 
+// UpdateUserStatusRequest represents the request data for updating user status
 message UpdateUserStatusRequest {
+  // List of user IDs to update
   repeated uint32 userIDs = 1 [(buf.validate.field).cel = {
     message: "userIDs is required"
     expression: "this.size() > 0"
@@ -134,10 +157,13 @@ message UpdateUserStatusRequest {
     message: "userIDs max size is 100"
     expression: "this.size() <= 100"
   }];
+  // New status for the users
   api.palace.common.UserStatus status = 2 [(buf.validate.field).required = true];
 }
 
+// ResetUserPasswordRequest represents the request data for resetting user passwords
 message ResetUserPasswordRequest {
+  // List of user IDs to reset passwords for
   repeated uint32 userIDs = 1 [(buf.validate.field).cel = {
     message: "userIDs is required"
     expression: "this.size() > 0"
@@ -147,97 +173,165 @@ message ResetUserPasswordRequest {
   }];
 }
 
+// UpdateUserPositionRequest represents the request data for updating user position
 message UpdateUserPositionRequest {
+  // User ID
   uint32 userID = 1 [(buf.validate.field).required = true];
+  // New position for the user
   api.palace.common.UserPosition position = 2 [(buf.validate.field).required = true];
 }
 
+// GetUserRequest represents the request data for retrieving a user
 message GetUserRequest {
+  // User ID
   uint32 userID = 1 [(buf.validate.field).required = true];
 }
+
+// GetUserReply contains the response data for retrieving a user
 message GetUserReply {
+  // Detailed information about the user
   api.palace.common.UserItem user = 1;
 }
 
+// GetUserListRequest represents the request data for listing users
 message GetUserListRequest {
+  // List of statuses to filter users by
   repeated api.palace.common.UserStatus status = 1;
+  // List of positions to filter users by
   repeated api.palace.common.UserPosition position = 2;
+  // Pagination request details
   api.palace.common.PaginationRequest pagination = 3;
 }
+
+// GetUserListReply contains the response data for listing users
 message GetUserListReply {
+  // List of user items
   repeated api.palace.common.UserItem users = 1;
+  // Pagination response details
   api.palace.common.PaginationReply pagination = 2;
 }
 
+// GetTeamListRequest represents the request data for listing teams
 message GetTeamListRequest {
+  // Pagination request details
   api.palace.common.PaginationRequest pagination = 1;
+  // List of statuses to filter teams by
   repeated api.palace.common.SelectItem status = 2;
+  // Keyword to search teams by
   string keyword = 3;
 }
+
+// GetTeamListReply contains the response data for listing teams
 message GetTeamListReply {
+  // List of team items
   repeated api.palace.common.TeamItem items = 1;
+  // Pagination response details
   api.palace.common.PaginationReply pagination = 2;
 }
 
+// SaveRoleRequest represents the request data for saving or updating a role
 message SaveRoleRequest {
+  // Role ID, optional for new roles
   uint32 roleID = 1;
+  // Role name
   string name = 2 [(buf.validate.field).cel = {
     message: "name max length is 32"
     expression: "this.size() <= 32"
   }, (buf.validate.field).required = true];
+  // Role remark or description
   string remark = 3 [(buf.validate.field).cel = {
     message: "remark max length is 200"
     expression: "this.size() <= 200"
   }];
+  // List of resource IDs associated with the role
   repeated uint32 resourceIDs = 4 [(buf.validate.field).required = true];
 }
 
+// UpdateRoleStatusRequest represents the request data for updating role status
 message UpdateRoleStatusRequest {
+  // Role ID
   uint32 roleID = 1 [(buf.validate.field).required = true];
+  // New status for the role
   api.palace.common.RoleStatus status = 2 [(buf.validate.field).required = true];
 }
 
+// UpdateUserRolesRequest represents the request data for updating user roles
 message UpdateUserRolesRequest {
+  // User ID
   uint32 userID = 1 [(buf.validate.field).required = true];
+  // List of role IDs to assign to the user
   repeated uint32 roleIDs = 2 [(buf.validate.field).required = true];
 }
 
+// UpdateRoleUsersRequest represents the request data for updating role users
 message UpdateRoleUsersRequest {
+  // Role ID
   uint32 roleID = 1 [(buf.validate.field).required = true];
+  // List of user IDs to assign to the role
   repeated uint32 userIDs = 2 [(buf.validate.field).required = true];
 }
 
+// GetSystemRoleRequest represents the request data for retrieving a system role
 message GetSystemRoleRequest {
+  // Role ID
   uint32 roleID = 1 [(buf.validate.field).required = true];
 }
+
+// GetSystemRoleReply contains the response data for retrieving a system role
 message GetSystemRoleReply {
+  // Detailed information about the system role
   api.palace.common.SystemRoleItem role = 1;
 }
 
+// GetTeamAuditListRequest represents the request data for listing team audit records
 message GetTeamAuditListRequest {
+  // Pagination request details
   api.palace.common.PaginationRequest pagination = 1;
+  // List of statuses to filter team audit records by
   repeated api.palace.common.TeamAuditStatus status = 2;
+  // Keyword to search team audit records by
   string keyword = 3;
+  // User ID, optional for filtering audits by user
   uint32 userID = 4;
 }
+
+// GetTeamAuditListReply contains the response data for listing team audit records
 message GetTeamAuditListReply {
+  // List of team audit items
   repeated api.palace.common.TeamAuditItem items = 1;
+  // Pagination response details
   api.palace.common.PaginationReply pagination = 2;
 }
 
+// UpdateTeamAuditStatusRequest represents the request data for updating team audit status
 message UpdateTeamAuditStatusRequest {
+  // Audit ID
   uint32 auditID = 1 [(buf.validate.field).required = true];
+  // New status for the team audit record
   api.palace.common.TeamAuditStatus status = 2 [(buf.validate.field).required = true];
+  // Reason for the status update
   string reason = 3 [(buf.validate.field).cel = {
     message: "reason max length is 200"
     expression: "this.size() <= 200"
   }];
 }
 
+// OperateLogListRequest represents the request data for listing operation logs
 message OperateLogListRequest {
+  // Pagination request details
   api.palace.common.PaginationRequest pagination = 1;
+  // List of types to filter operation logs by
   repeated api.palace.common.OperateType type = 2;
+  // Keyword to search operation logs by
   string keyword = 3;
+  // User ID, optional for filtering logs by user
   uint32 userID = 4;
 }
 
+// OperateLogListReply contains the response data for listing operation logs
+message OperateLogListReply {
+  // List of operation log items
+  repeated api.palace.common.OperateLogItem items = 1;
+  // Pagination response details
+  api.palace.common.PaginationReply pagination = 2;
+}
