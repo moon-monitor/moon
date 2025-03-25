@@ -8,6 +8,7 @@ import (
 
 type permissionValidateFunc func(ctx context.Context) error
 
+// MustPermission must permission validate
 func MustPermission(validate permissionValidateFunc) middleware.Middleware {
 	return func(handler middleware.Handler) middleware.Handler {
 		return func(ctx context.Context, req any) (any, error) {

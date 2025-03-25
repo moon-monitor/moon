@@ -13,6 +13,7 @@ import (
 	"github.com/moon-monitor/moon/pkg/util/validate"
 )
 
+// NewPermissionBiz create a new permission biz
 func NewPermissionBiz(
 	resourceRepo repository.Resource,
 	userRepo repository.User,
@@ -21,7 +22,7 @@ func NewPermissionBiz(
 	logger log.Logger,
 ) *PermissionBiz {
 	baseHandler := NewBasePermissionHandler()
-	// 构建权限校验链
+	// build permission chain
 	permissionChain := []PermissionHandler{
 		baseHandler.UserHandler(userRepo.FindByID),
 		baseHandler.OperationHandler(),
@@ -43,7 +44,7 @@ func NewPermissionBiz(
 }
 
 type PermissionBiz struct {
-	permissionChain []PermissionHandler // 新增权限校验链
+	permissionChain []PermissionHandler // add permission chain
 	helper          *log.Helper
 }
 
@@ -61,7 +62,7 @@ func (a *PermissionBiz) VerifyPermission(ctx context.Context) error {
 	return nil
 }
 
-// PermissionContext 权限校验上下文
+// PermissionContext permission check context
 type PermissionContext struct {
 	Operation      string
 	Resource       *system.Resource
@@ -72,26 +73,26 @@ type PermissionContext struct {
 	TeamMember     *system.TeamMember
 }
 
-// PermissionHandler 权限处理器接口
+// PermissionHandler permission handler interface
 type PermissionHandler interface {
 	Handle(ctx context.Context, pctx *PermissionContext) (stop bool, err error)
 }
 
-// PermissionHandlerFunc 处理器函数类型
+// PermissionHandlerFunc permission handler function type
 type PermissionHandlerFunc func(ctx context.Context, pctx *PermissionContext) (stop bool, err error)
 
 func (f PermissionHandlerFunc) Handle(ctx context.Context, pctx *PermissionContext) (bool, error) {
 	return f(ctx, pctx)
 }
 
-// 基础处理器实现
+// base permission handler implementation
 type basePermissionHandler struct{}
 
 func NewBasePermissionHandler() *basePermissionHandler {
 	return &basePermissionHandler{}
 }
 
-// OperationHandler 操作校验
+// OperationHandler operation check
 func (h *basePermissionHandler) OperationHandler() PermissionHandler {
 	return PermissionHandlerFunc(func(ctx context.Context, pctx *PermissionContext) (bool, error) {
 		operation, ok := permission.GetOperationByContext(ctx)
@@ -103,7 +104,7 @@ func (h *basePermissionHandler) OperationHandler() PermissionHandler {
 	})
 }
 
-// ResourceHandler 资源校验
+// ResourceHandler resource check
 func (h *basePermissionHandler) ResourceHandler(getResourceByOperation func(ctx context.Context, operation string) (*system.Resource, error)) PermissionHandler {
 	return PermissionHandlerFunc(func(ctx context.Context, pctx *PermissionContext) (bool, error) {
 		resource, err := getResourceByOperation(ctx, pctx.Operation)
@@ -118,7 +119,7 @@ func (h *basePermissionHandler) ResourceHandler(getResourceByOperation func(ctx 
 	})
 }
 
-// UserHandler 用户校验
+// UserHandler user check
 func (h *basePermissionHandler) UserHandler(findUserByID func(ctx context.Context, userID uint32) (*system.User, error)) PermissionHandler {
 	return PermissionHandlerFunc(func(ctx context.Context, pctx *PermissionContext) (bool, error) {
 		userID, ok := permission.GetUserIDByContext(ctx)
@@ -137,17 +138,17 @@ func (h *basePermissionHandler) UserHandler(findUserByID func(ctx context.Contex
 	})
 }
 
-// AllowCheckHandler 白名单检查
+// AllowCheckHandler allow check
 func (h *basePermissionHandler) AllowCheckHandler() PermissionHandler {
 	return PermissionHandlerFunc(func(ctx context.Context, pctx *PermissionContext) (bool, error) {
 		if pctx.Resource.Allow.IsNone() || pctx.Resource.Allow.IsUser() {
-			return true, nil // 满足条件直接通过
+			return true, nil // satisfy condition directly pass
 		}
 		return false, nil
 	})
 }
 
-// SystemPositionHandler 系统职位校验
+// SystemPositionHandler system position check
 func (h *basePermissionHandler) SystemPositionHandler() PermissionHandler {
 	return PermissionHandlerFunc(func(ctx context.Context, pctx *PermissionContext) (bool, error) {
 		sysPosition, ok := permission.GetSysPositionByContext(ctx)
@@ -159,11 +160,11 @@ func (h *basePermissionHandler) SystemPositionHandler() PermissionHandler {
 			pctx.SystemPosition = sysPosition
 			return false, nil
 		}
-		return true, merr.ErrorPermissionDenied("Your current role [%s] is not allowed to access this resource", sysPosition)
+		return true, merr.ErrorPermissionDenied("your current role [%s] is not allowed to access this resource", sysPosition)
 	})
 }
 
-// SystemAdminCheckHandler 系统管理员检查
+// SystemAdminCheckHandler system admin check
 func (h *basePermissionHandler) SystemAdminCheckHandler() PermissionHandler {
 	return PermissionHandlerFunc(func(ctx context.Context, pctx *PermissionContext) (bool, error) {
 		if pctx.SystemPosition.IsAdminOrSuperAdmin() {
@@ -173,7 +174,7 @@ func (h *basePermissionHandler) SystemAdminCheckHandler() PermissionHandler {
 	})
 }
 
-// SystemRBACHandler 系统RBAC校验
+// SystemRBACHandler system rbac check
 func (h *basePermissionHandler) SystemRBACHandler(checkSystemRBAC func(ctx context.Context, user *system.User, resource *system.Resource) (bool, error)) PermissionHandler {
 	return PermissionHandlerFunc(func(ctx context.Context, pctx *PermissionContext) (bool, error) {
 		ok, err := checkSystemRBAC(ctx, pctx.User, pctx.Resource)
@@ -184,7 +185,7 @@ func (h *basePermissionHandler) SystemRBACHandler(checkSystemRBAC func(ctx conte
 	})
 }
 
-// TeamIDHandler 团队ID校验
+// TeamIDHandler team id check
 func (h *basePermissionHandler) TeamIDHandler(findTeamByID func(ctx context.Context, teamID uint32) (*system.Team, error)) PermissionHandler {
 	return PermissionHandlerFunc(func(ctx context.Context, pctx *PermissionContext) (bool, error) {
 		teamID, ok := permission.GetTeamIDByContext(ctx)
@@ -203,7 +204,7 @@ func (h *basePermissionHandler) TeamIDHandler(findTeamByID func(ctx context.Cont
 	})
 }
 
-// TeamMemberHandler 团队成员校验
+// TeamMemberHandler team member check
 func (h *basePermissionHandler) TeamMemberHandler(findTeamMemberByUserID func(ctx context.Context, userID uint32) (*system.TeamMember, error)) PermissionHandler {
 	return PermissionHandlerFunc(func(ctx context.Context, pctx *PermissionContext) (bool, error) {
 		member, err := findTeamMemberByUserID(ctx, pctx.User.ID)
@@ -221,7 +222,7 @@ func (h *basePermissionHandler) TeamMemberHandler(findTeamMemberByUserID func(ct
 	})
 }
 
-// TeamPositionHandler 团队职位校验
+// TeamPositionHandler team position check
 func (h *basePermissionHandler) TeamPositionHandler() PermissionHandler {
 	return PermissionHandlerFunc(func(ctx context.Context, pctx *PermissionContext) (bool, error) {
 		teamPosition, ok := permission.GetTeamPositionByContext(ctx)
@@ -233,21 +234,21 @@ func (h *basePermissionHandler) TeamPositionHandler() PermissionHandler {
 			pctx.TeamPosition = teamPosition
 			return false, nil
 		}
-		return true, merr.ErrorPermissionDenied("Your current team role [%s] is not allowed to access this resource", teamPosition)
+		return true, merr.ErrorPermissionDenied("your current team role [%s] is not allowed to access this resource", teamPosition)
 	})
 }
 
-// TeamAdminCheckHandler 团队管理员检查
+// TeamAdminCheckHandler team admin check
 func (h *basePermissionHandler) TeamAdminCheckHandler() PermissionHandler {
 	return PermissionHandlerFunc(func(ctx context.Context, pctx *PermissionContext) (bool, error) {
 		if pctx.TeamPosition.IsAdminOrSuperAdmin() {
-			return true, nil // 团队管理员直接通过
+			return true, nil // team admin directly pass
 		}
 		return false, nil
 	})
 }
 
-// TeamRBACHandler 团队RBAC校验
+// TeamRBACHandler team rbac check
 func (h *basePermissionHandler) TeamRBACHandler(checkTeamRBAC func(ctx context.Context, member *system.TeamMember, resource *system.Resource) (bool, error)) PermissionHandler {
 	return PermissionHandlerFunc(func(ctx context.Context, pctx *PermissionContext) (bool, error) {
 		ok, err := checkTeamRBAC(ctx, pctx.TeamMember, pctx.Resource)
@@ -264,12 +265,12 @@ func checkSystemRBAC(ctx context.Context, user *system.User, resource *system.Re
 	}
 	sysRoleID, ok := permission.GetSysRoleIDByContext(ctx)
 	if ok {
-		// 判断角色是否存在，且该角色具备次API权限
+		// check if the role exists and has this API permission
 		systemRoleDo, ok := validate.SliceFindByValue(user.Roles, sysRoleID, func(role *system.SysRole) uint32 {
 			return role.ID
 		})
 		if !ok {
-			return false, merr.ErrorPermissionDenied("User role is invalid.")
+			return false, merr.ErrorPermissionDenied("user role is invalid.")
 		}
 		if !systemRoleDo.Status.IsNormal() {
 			return false, merr.ErrorPermissionDenied("role is invalid [%s]", systemRoleDo.Status)
@@ -280,7 +281,7 @@ func checkSystemRBAC(ctx context.Context, user *system.User, resource *system.Re
 		if ok {
 			return true, nil
 		}
-		return false, merr.ErrorPermissionDenied("User role resource is invalid.")
+		return false, merr.ErrorPermissionDenied("user role resource is invalid.")
 	}
 	resources := make([]*system.Resource, 0, len(user.Roles)*10)
 	for _, role := range user.Roles {
@@ -294,7 +295,7 @@ func checkSystemRBAC(ctx context.Context, user *system.User, resource *system.Re
 	if ok {
 		return true, nil
 	}
-	return false, merr.ErrorPermissionDenied("User role resource is invalid.")
+	return false, merr.ErrorPermissionDenied("user role resource is invalid.")
 }
 
 func checkTeamRBAC(ctx context.Context, member *system.TeamMember, resource *system.Resource) (bool, error) {
