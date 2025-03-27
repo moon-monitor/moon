@@ -6,10 +6,12 @@ package main
 import (
 	"fmt"
 
+	"github.com/spf13/cobra"
+
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do/system"
 	"github.com/moon-monitor/moon/cmd/palace/internal/conf"
 	"github.com/moon-monitor/moon/pkg/plugin/gorm"
-	"github.com/spf13/cobra"
+	"github.com/moon-monitor/moon/pkg/util/load"
 )
 
 // Version is the version of the compiled software.
@@ -36,8 +38,8 @@ func main() {
 }
 
 func run(cfgPath string) {
-	bc, err := conf.Load(cfgPath)
-	if err != nil {
+	var bc conf.Bootstrap
+	if err := load.Load(cfgPath, &bc); err != nil {
 		panic(err)
 	}
 

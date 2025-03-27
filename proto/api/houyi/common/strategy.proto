@@ -60,12 +60,13 @@ message MetricStrategyItem {
   message MetricRuleItem {
     uint32 strategy_id = 1;
     uint32 level_id = 2;
-    SampleMode sample_mode = 3;
-    int64 count = 4;
-    Condition condition = 5;
-    repeated double values = 6;
-    repeated string receiver_routes = 7;
-    repeated LabelNotices label_notices = 8;
+    string level_name = 3;
+    SampleMode sample_mode = 4;
+    int64 count = 5;
+    Condition condition = 6;
+    repeated double values = 7;
+    repeated string receiver_routes = 8;
+    repeated LabelNotices label_notices = 9;
   }
 
   houyi.common.TeamItem team = 1;
