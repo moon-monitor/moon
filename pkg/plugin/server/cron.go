@@ -2,12 +2,13 @@ package server
 
 import (
 	"context"
-	"errors"
 	"time"
 
+	"github.com/go-kratos/kratos/v2/log"
 	"github.com/go-kratos/kratos/v2/transport"
-	"github.com/moon-monitor/moon/pkg/util/safety"
 	"github.com/robfig/cron/v3"
+
+	"github.com/moon-monitor/moon/pkg/util/safety"
 )
 
 var _ transport.Server = (*CronJobServer)(nil)
@@ -30,11 +31,11 @@ const (
 	CronSpecHourly CronSpec = "@hourly"
 )
 
-func Every(duration time.Duration) CronSpec {
+func CronSpecEvery(duration time.Duration) CronSpec {
 	return CronSpec("@every " + duration.String())
 }
 
-func Custom(s, m, h, d, M, y string) CronSpec {
+func CronSpecCustom(s, m, h, d, M, y string) CronSpec {
 	return CronSpec(s + " " + m + " " + h + " " + d + " " + M + " " + y)
 }
 
@@ -50,30 +51,34 @@ type CronJob interface {
 var defaultCronParser = cron.NewParser(cron.Second | cron.Minute | cron.Hour | cron.Dom | cron.Month | cron.Dow)
 
 type CronJobServer struct {
-	cron *cron.Cron
-
+	cron  *cron.Cron
 	tasks *safety.Map[string, CronJob]
+	help  *log.Helper
 }
 
-func NewCronJobServer() *CronJobServer {
+func NewCronJobServer(logger log.Logger, jobs ...CronJob) *CronJobServer {
 	c := &CronJobServer{
 		cron:  cron.New(cron.WithParser(defaultCronParser)),
 		tasks: safety.NewMap[string, CronJob](),
+		help:  log.NewHelper(log.With(logger, "module", "server.cron")),
+	}
+	for _, job := range jobs {
+		c.AddJob(job)
 	}
 	return c
 }
 
-func (c *CronJobServer) AddJob(job CronJob) (cron.EntryID, error) {
+func (c *CronJobServer) AddJob(job CronJob) {
 	if _, ok := c.tasks.Get(job.Index()); ok {
-		return 0, errors.New("job already exists")
+		return
 	}
 	id, err := c.cron.AddJob(string(job.Sepc()), job)
 	if err != nil {
-		return 0, err
+		c.help.Warnw("method", "add job", "err", err)
+		return
 	}
 	job.WithID(id)
 	c.tasks.Set(job.Index(), job)
-	return id, nil
 }
 
 func (c *CronJobServer) Remove(job CronJob) {
@@ -81,12 +86,12 @@ func (c *CronJobServer) Remove(job CronJob) {
 	c.tasks.Delete(job.Index())
 }
 
-func (c *CronJobServer) Start(ctx context.Context) error {
+func (c *CronJobServer) Start(_ context.Context) error {
 	c.cron.Start()
 	return nil
 }
 
-func (c *CronJobServer) Stop(ctx context.Context) error {
+func (c *CronJobServer) Stop(_ context.Context) error {
 	c.cron.Stop()
 	c.tasks.Clear()
 	return nil
