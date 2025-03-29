@@ -21,7 +21,7 @@ var cfgPath string
 var rootCmd = &cobra.Command{
 	Use:   "moon",
 	Short: "CLI for managing Moon monitor palace Server",
-	Long:  `The Iter X Server CLI provides a command-line interface for managing and interacting with the Moon monitor palace Server service.`,
+	Long:  `The Moon Server CLI provides a command-line interface for managing and interacting with the Moon monitor palace Server service.`,
 	Run: func(cmd *cobra.Command, args []string) {
 		fmt.Println("Welcome to the moon palace service from Moon Monitor!")
 		run(cfgPath)
