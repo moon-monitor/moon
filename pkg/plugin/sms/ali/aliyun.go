@@ -1,4 +1,4 @@
-package sms
+package ali
 
 import (
 	"context"
@@ -9,18 +9,19 @@ import (
 	util "github.com/alibabacloud-go/tea-utils/v2/service"
 	"github.com/alibabacloud-go/tea/tea"
 	"github.com/go-kratos/kratos/v2/log"
+	"github.com/moon-monitor/moon/pkg/plugin/sms"
 
 	"github.com/moon-monitor/moon/pkg/merr"
 	"github.com/moon-monitor/moon/pkg/util/pointer"
 )
 
-var _ Sender = (*aliyun)(nil)
+var _ sms.Sender = (*aliyun)(nil)
 
 const (
 	endpoint = "dysmsapi.aliyuncs.com"
 )
 
-func NewAliyun(accessKeyID, accessKeySecret string, opts ...AliyunOption) (Sender, error) {
+func NewAliyun(accessKeyID, accessKeySecret string, opts ...AliyunOption) (sms.Sender, error) {
 	a := &aliyun{
 		accessKeyID:     accessKeyID,
 		accessKeySecret: accessKeySecret,
@@ -52,24 +53,6 @@ type aliyun struct {
 	helper   *log.Helper
 }
 
-func WithAliyunLogger(logger log.Logger) AliyunOption {
-	return func(a *aliyun) {
-		a.helper = log.NewHelper(log.With(logger, "module", "plugin.sms.aliyun"))
-	}
-}
-
-func WithAliyunSignName(signName string) AliyunOption {
-	return func(a *aliyun) {
-		a.signName = signName
-	}
-}
-
-func WithAliyunEndpoint(endpoint string) AliyunOption {
-	return func(a *aliyun) {
-		a.endpoint = endpoint
-	}
-}
-
 // initV3 initializes the SMS clientV3
 func (a *aliyun) initV3() (*dysmsapiV3.Client, error) {
 	if a.accessKeySecret == "" || a.accessKeyID == "" {
@@ -87,7 +70,7 @@ func (a *aliyun) initV3() (*dysmsapiV3.Client, error) {
 	return client, nil
 }
 
-func (a *aliyun) Send(ctx context.Context, message Message) error {
+func (a *aliyun) Send(_ context.Context, message sms.Message) error {
 	sendSmsRequest := &dysmsapiV3.SendSmsRequest{
 		PhoneNumbers:  pointer.Of(message.PhoneNumber),
 		SignName:      pointer.Of(a.signName),
@@ -109,7 +92,7 @@ func (a *aliyun) Send(ctx context.Context, message Message) error {
 	return nil
 }
 
-func (a *aliyun) SendBatch(ctx context.Context, code string, messages []Message) error {
+func (a *aliyun) SendBatch(_ context.Context, code string, messages []sms.Message) error {
 	phoneNumbers := make([]string, 0, len(messages))
 	signNames := make([]string, 0, len(messages))
 	templateParams := make([]string, 0, len(messages))
