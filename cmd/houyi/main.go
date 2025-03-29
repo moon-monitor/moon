@@ -33,7 +33,9 @@ func init() {
 }
 
 func main() {
-	fmt.Println("Welcome to the moon 后裔 service from Moon Monitor!")
+	if err := rootCmd.Execute(); err != nil {
+		panic(err)
+	}
 }
 
 func run(cfgPath string) {

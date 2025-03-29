@@ -148,7 +148,7 @@ gen-houyi:
 .PHONY: build
 build:
 	@if [ -z "$(APP_NAME)" ]; then echo "app name is required"; echo "usage: make build app=<app_name>"; exit 1; fi
-	@echo "Building moon app=$(APPP_NAME)"
+	@echo "Building moon app=$(APP_NAME)"
 	mkdir -p bin/ && go build -ldflags "-X main.Version=$(VERSION)" -o ./bin/ ./cmd/$(APP_NAME)
 
 .PHONY: run
