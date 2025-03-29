@@ -14,6 +14,10 @@ message Bootstrap {
   config.Registry registry = 5;
   Auth auth = 6;
   config.MicroServer palace = 7;
+  Data data = 8;
+}
+
+message Data {
 }
 
 message Auth {
