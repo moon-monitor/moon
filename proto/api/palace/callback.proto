@@ -1,0 +1,33 @@
+syntax = "proto3";
+
+package api.palace;
+
+import "buf/validate/validate.proto";
+import "google/api/annotations.proto";
+
+option go_package = "github.com/moon-monitor/moon/pkg/api/palace;palace";
+option java_multiple_files = true;
+option java_package = "com.api.palace";
+
+service Callback {
+	rpc SendMsgCallback (SendMsgCallbackRequest) returns (SendMsgCallbackReply) {
+		option (google.api.http) = {
+			post: "/v1/server/send/msg/callback"
+			body: "*"
+		};
+	}
+}
+
+message SendMsgCallbackRequest {
+	string request_id = 1 [(buf.validate.field).required = true];
+	// Code of the callback 0 is success, other is failed
+	int32 code = 2 [(buf.validate.field).required = true];
+	// Message of the callback, only when code is not 0, it is not empty
+	string msg = 3;
+}
+message SendMsgCallbackReply {
+	// Code of the reply 0 is success, other is failed
+	int32 code = 1 [(buf.validate.field).required = true];
+	// Message of the reply, only when code is not 0, it is not empty
+	string msg = 2;
+}

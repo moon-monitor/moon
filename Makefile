@@ -100,6 +100,18 @@ conf-rabbit:
            --go_out=paths=source_relative:./cmd/rabbit/internal/conf \
            --experimental_allow_proto3_optional \
            ./cmd/rabbit/internal/conf/*.proto
+
+.PHONY: conf-houyi
+conf-houyi:
+	make conf
+	make api app=houyi
+	protoc --proto_path=./proto/config \
+           --proto_path=./proto/api \
+           --proto_path=./proto/third_party \
+           --proto_path=./cmd/houyi/internal/conf \
+           --go_out=paths=source_relative:./cmd/houyi/internal/conf \
+           --experimental_allow_proto3_optional \
+           ./cmd/houyi/internal/conf/*.proto
 		   
 .PHONY: wire-palace
 wire-palace:
