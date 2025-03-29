@@ -121,17 +121,29 @@ wire-palace:
 wire-rabbit:
 	cd ./cmd/rabbit && wire
 
+.PHONY: wire-houyi
+wire-houyi:
+	cd ./cmd/houyi && wire
+
 .PHONY: stringer-palace
 stringer-palace:
 	cd ./cmd/palace/internal/biz/vobj && go generate
 
 .PHONY: stringer-rabbit
 stringer-rabbit:
-	@echo "Generating rabbit proto"
+	@echo "Generating rabbit stringer"
+
+.PHONY: stringer-houyi
+stringer-houyi:
+	@echo "Generating houyi stringer"
 
 .PHONY: gen-rabbit
 gen-rabbit:
-	@echo "Generating rabbit proto"
+	@echo "Generating rabbit db"
+
+.PHONY: gen-houyi
+gen-houyi:
+	@echo "Generating houyi db"
 
 .PHONY: build
 build:

@@ -3,7 +3,16 @@ package main
 import (
 	"fmt"
 
+	"github.com/go-kratos/kratos/v2"
+	"github.com/go-kratos/kratos/v2/log"
 	"github.com/spf13/cobra"
+
+	"github.com/moon-monitor/moon/cmd/houyi/internal/conf"
+	"github.com/moon-monitor/moon/pkg/hello"
+	mlog "github.com/moon-monitor/moon/pkg/log"
+	"github.com/moon-monitor/moon/pkg/plugin/registry"
+	"github.com/moon-monitor/moon/pkg/plugin/server"
+	"github.com/moon-monitor/moon/pkg/util/load"
 )
 
 // Version is the version of the compiled software.
@@ -27,4 +36,53 @@ func main() {
 	fmt.Println("Welcome to the moon 后裔 service from Moon Monitor!")
 }
 
-func run(cfgPath string) {}
+func run(cfgPath string) {
+	var bc conf.Bootstrap
+	if err := load.Load(cfgPath, &bc); err != nil {
+		panic(err)
+	}
+	logger, err := mlog.New(bc.IsDev(), bc.GetLog())
+	if err != nil {
+		panic(err)
+	}
+
+	app, cleanup, err := wireApp(&bc, logger)
+	if err != nil {
+		panic(err)
+	}
+	defer cleanup()
+	if err := app.Run(); err != nil {
+		panic(err)
+	}
+}
+
+func newApp(c *conf.Bootstrap, srvs server.Servers, logger log.Logger) *kratos.App {
+	serverConf := c.GetServer()
+	envOpts := []hello.Option{
+		hello.WithVersion(Version),
+		hello.WithEnv(c.GetEnvironment()),
+		hello.WithName(serverConf.GetName()),
+		hello.WithMetadata(serverConf.GetMetadata()),
+	}
+	hello.SetEnvWithOption(envOpts...)
+	hello.Hello()
+	env := hello.GetEnv()
+	opts := []kratos.Option{
+		kratos.ID(env.ID()),
+		kratos.Name(env.Name()),
+		kratos.Version(env.Version()),
+		kratos.Metadata(env.Metadata()),
+		kratos.Logger(logger),
+		kratos.Server(srvs...),
+	}
+	registerConf := c.GetRegistry()
+	if registerConf != nil && registerConf.GetEnable() {
+		reg, err := registry.NewRegister(c.GetRegistry())
+		if err != nil {
+			panic(err)
+		}
+		opts = append(opts, kratos.Registrar(reg))
+	}
+
+	return kratos.New(opts...)
+}
