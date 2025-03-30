@@ -17,15 +17,14 @@ import (
 
 var _ sms.Sender = (*aliyun)(nil)
 
-const (
-	endpoint = "dysmsapi.aliyuncs.com"
-)
-
-func NewAliyun(accessKeyID, accessKeySecret string, opts ...AliyunOption) (sms.Sender, error) {
+func NewAliyun(c Config, opts ...AliyunOption) (sms.Sender, error) {
 	a := &aliyun{
-		accessKeyID:     accessKeyID,
-		accessKeySecret: accessKeySecret,
-		endpoint:        endpoint,
+		accessKeyID:     c.GetAccessKeyId(),
+		accessKeySecret: c.GetAccessKeySecret(),
+		signName:        c.GetSignName(),
+		endpoint:        c.GetEndpoint(),
+		clientV3:        nil,
+		helper:          nil,
 	}
 	for _, opt := range opts {
 		opt(a)
@@ -39,6 +38,13 @@ func NewAliyun(accessKeyID, accessKeySecret string, opts ...AliyunOption) (sms.S
 		return nil, err
 	}
 	return a, nil
+}
+
+type Config interface {
+	GetAccessKeySecret() string
+	GetAccessKeyId() string
+	GetSignName() string
+	GetEndpoint() string
 }
 
 type AliyunOption func(*aliyun)

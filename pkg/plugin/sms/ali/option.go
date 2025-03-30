@@ -9,15 +9,3 @@ func WithAliyunLogger(logger log.Logger) AliyunOption {
 		a.helper = log.NewHelper(log.With(logger, "module", "plugin.sms.aliyun"))
 	}
 }
-
-func WithAliyunSignName(signName string) AliyunOption {
-	return func(a *aliyun) {
-		a.signName = signName
-	}
-}
-
-func WithAliyunEndpoint(endpoint string) AliyunOption {
-	return func(a *aliyun) {
-		a.endpoint = endpoint
-	}
-}
