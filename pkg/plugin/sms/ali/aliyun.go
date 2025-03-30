@@ -92,14 +92,16 @@ func (a *aliyun) Send(_ context.Context, message sms.Message) error {
 	return nil
 }
 
-func (a *aliyun) SendBatch(_ context.Context, code string, messages []sms.Message) error {
+func (a *aliyun) SendBatch(_ context.Context, messages []sms.Message) error {
 	phoneNumbers := make([]string, 0, len(messages))
 	signNames := make([]string, 0, len(messages))
 	templateParams := make([]string, 0, len(messages))
+	code := ""
 	for _, message := range messages {
 		phoneNumbers = append(phoneNumbers, message.PhoneNumber)
 		signNames = append(signNames, a.signName)
 		templateParams = append(templateParams, message.Content)
+		code = message.Code
 	}
 	phoneNumberJson, err := json.Marshal(phoneNumbers)
 	if err != nil {

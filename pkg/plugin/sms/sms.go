@@ -10,5 +10,5 @@ type Message struct {
 
 type Sender interface {
 	Send(ctx context.Context, message Message) error
-	SendBatch(ctx context.Context, code string, messages []Message) error
+	SendBatch(ctx context.Context, messages []Message) error
 }
