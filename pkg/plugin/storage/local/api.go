@@ -11,25 +11,41 @@ import (
 	"path/filepath"
 	"strconv"
 	"strings"
+
+	kratoshttp "github.com/go-kratos/kratos/v2/transport/http"
+
+	"github.com/moon-monitor/moon/pkg/merr"
 )
 
-func (l *Local) UploadHandler(w http.ResponseWriter, r *http.Request) {
+func (l *Local) RegisterHandler(srv *kratoshttp.Server) {
+	c := l.c
+	route := srv.Route("/")
+	route.Handle(c.GetUploadMethod(), c.GetUploadURL(), func(c kratoshttp.Context) error {
+		return l.UploadHandler(c.Response(), c.Request())
+	})
+
+	route.GET(c.GetPreviewURL(), func(c kratoshttp.Context) error {
+		return l.PreviewHandler(c.Response(), c.Request())
+	})
+}
+
+func (l *Local) UploadHandler(w http.ResponseWriter, r *http.Request) error {
 	if strings.ToUpper(r.Method) != l.uploadMethod {
 		http.Error(w, "method not allowed", http.StatusMethodNotAllowed)
-		return
+		return merr.ErrorMethodNotAllowed("method not allowed %s", r.Method)
 	}
 
 	uploadID := r.URL.Query().Get("uploadID")
 	partNumberStr := r.URL.Query().Get("partNumber")
 	if uploadID == "" || partNumberStr == "" {
 		http.Error(w, "missing uploadID or partNumber", http.StatusBadRequest)
-		return
+		return merr.ErrorParamsError("missing uploadID or partNumber")
 	}
 
 	partNumber, err := strconv.Atoi(partNumberStr)
 	if err != nil || partNumber <= 0 {
 		http.Error(w, "invalid partNumber", http.StatusBadRequest)
-		return
+		return merr.ErrorParamsError("invalid partNumber").WithCause(err)
 	}
 
 	defer r.Body.Close()
@@ -37,19 +53,19 @@ func (l *Local) UploadHandler(w http.ResponseWriter, r *http.Request) {
 	session, exists := l.uploads.Get(uploadID)
 	if !exists {
 		http.Error(w, "upload session not found", http.StatusNotFound)
-		return
+		return merr.ErrorParamsError("upload session not found")
 	}
 
 	tempDir := filepath.Join(l.root, "tmp", uploadID)
 	if err := os.MkdirAll(tempDir, 0755); err != nil {
 		http.Error(w, fmt.Sprintf("failed to create temp directory: %v", err), http.StatusInternalServerError)
-		return
+		return merr.ErrorInternalServerError("system err").WithCause(err)
 	}
 
 	tempFile, err := os.CreateTemp(tempDir, fmt.Sprintf("part_%d", partNumber))
 	if err != nil {
 		http.Error(w, fmt.Sprintf("failed to create temp file: %v", err), http.StatusInternalServerError)
-		return
+		return merr.ErrorInternalServerError("system err").WithCause(err)
 	}
 	defer tempFile.Close()
 
@@ -58,7 +74,7 @@ func (l *Local) UploadHandler(w http.ResponseWriter, r *http.Request) {
 
 	if _, err := io.Copy(multiWriter, r.Body); err != nil {
 		http.Error(w, fmt.Sprintf("failed to write part data: %v", err), http.StatusInternalServerError)
-		return
+		return merr.ErrorInternalServerError("system err").WithCause(err)
 	}
 
 	eTag := hex.EncodeToString(hasher.Sum(nil))
@@ -69,19 +85,22 @@ func (l *Local) UploadHandler(w http.ResponseWriter, r *http.Request) {
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusOK)
 
-	json.NewEncoder(w).Encode(map[string]interface{}{
+	if err := json.NewEncoder(w).Encode(map[string]interface{}{
 		"uploadID":   uploadID,
 		"partNumber": partNumber,
 		"eTag":       eTag,
 		"size":       hasher.Size(),
-	})
+	}); err != nil {
+		return merr.ErrorInternalServerError("system err").WithCause(err)
+	}
+	return nil
 }
 
-func (l *Local) PreviewHandler(w http.ResponseWriter, r *http.Request) {
+func (l *Local) PreviewHandler(w http.ResponseWriter, r *http.Request) error {
 	objectKey := r.URL.Query().Get("objectKey")
 	if objectKey == "" {
 		http.Error(w, "missing objectKey", http.StatusBadRequest)
-		return
+		return merr.ErrorParamsError("missing objectKey")
 	}
 
 	filePath := objectKey
@@ -91,7 +110,7 @@ func (l *Local) PreviewHandler(w http.ResponseWriter, r *http.Request) {
 	file, err := os.Open(filePath)
 	if err != nil {
 		http.Error(w, fmt.Sprintf("failed to open file: %v", err), http.StatusInternalServerError)
-		return
+		return merr.ErrorInternalServerError("system err").WithCause(err)
 	}
 	defer file.Close()
 	defer r.Body.Close()
@@ -100,8 +119,10 @@ func (l *Local) PreviewHandler(w http.ResponseWriter, r *http.Request) {
 	contentType := getContentType(ext)
 	w.Header().Set("Content-Type", contentType)
 	w.Header().Set("Content-Disposition", fmt.Sprintf("inline; filename=\"%s\"", filepath.Base(file.Name())))
-	io.Copy(w, file)
-	return
+	if _, err := io.Copy(w, file); err != nil {
+		return merr.ErrorInternalServerError("system err").WithCause(err)
+	}
+	return nil
 }
 
 func getContentType(ext string) string {

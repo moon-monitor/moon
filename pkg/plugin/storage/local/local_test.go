@@ -71,13 +71,11 @@ func Test_NewLocalOSS(t *testing.T) {
 
 	route := srv.Route("/")
 	route.Handle(c.GetUploadMethod(), c.GetUploadURL(), func(c kratoshttp.Context) error {
-		localOSS.UploadHandler(c.Response(), c.Request())
-		return nil
+		return localOSS.UploadHandler(c.Response(), c.Request())
 	})
 
 	route.GET(c.GetPreviewURL(), func(c kratoshttp.Context) error {
-		localOSS.PreviewHandler(c.Response(), c.Request())
-		return nil
+		return localOSS.PreviewHandler(c.Response(), c.Request())
 	})
 
 	ch := make(chan os.Signal, 1)
@@ -110,7 +108,6 @@ func Test_NewLocalOSS(t *testing.T) {
 			t.Fatal(err)
 		}
 		fmt.Printf("Upload completed, visit the address: %s\n", completeMultipartUpload.PublicURL)
-
 	}()
 
 	for {
