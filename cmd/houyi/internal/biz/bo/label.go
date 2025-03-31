@@ -5,3 +5,7 @@ type LabelNotices struct {
 	Value          string
 	ReceiverRoutes []string
 }
+
+type Label map[string]string
+
+type Annotation map[string]string

@@ -31,4 +31,5 @@ enum UnauthorizedError {
 enum ServerError {
   option (errors.default_code) = 500;
   INTERNAL_SERVER_ERROR = 0;
+  INVALID_ARGUMENT = 4;
 }

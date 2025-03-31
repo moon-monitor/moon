@@ -22,8 +22,8 @@ type MetricStrategyItem struct {
 	Name           string
 	Expr           string
 	ReceiverRoutes []string
-	Labels         map[string]string
-	Annotations    map[string]string
+	Labels         Label
+	Annotations    Annotation
 	Duration       time.Duration
 	Rules          []*MetricRuleItem
 }

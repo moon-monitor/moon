@@ -6,6 +6,6 @@ package vobj
 type MetricDatasourceDriver int8
 
 const (
-	Prometheus MetricDatasourceDriver = iota + 1
-	VictoriaMetrics
+	MetricDatasourceDriverPrometheus MetricDatasourceDriver = iota + 1
+	MetricDatasourceDriverVictoriaMetrics
 )
