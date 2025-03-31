@@ -2,18 +2,36 @@ package datasource
 
 import (
 	"context"
-	"time"
+	"encoding/json"
+	"fmt"
+	"strconv"
+)
+
+type ResultType string
+
+const (
+	ResultTypeVector  ResultType = "vector"
+	ResultTypeMatrix  ResultType = "matrix"
+	ResultTypeScalar  ResultType = "scalar"
+	ResultTypeString  ResultType = "string"
+	ResultTypeStream  ResultType = "stream"
+	ResultTypeUnknown ResultType = "unknown"
 )
 
 type (
+	MetricQueryValue struct {
+		Timestamp float64 `json:"timestamp"`
+		Value     float64 `json:"value"`
+	}
+
 	MetricQueryResult struct {
 		Metric map[string]string `json:"metric"`
-		Value  [2]any            `json:"value"`
-		Values [][2]any          `json:"values"`
+		Value  []any             `json:"value"`
+		Values [][]any           `json:"values"`
 	}
 
 	MetricQueryData struct {
-		ResultType string               `json:"resultType"`
+		ResultType ResultType           `json:"resultType"`
 		Result     []*MetricQueryResult `json:"result"`
 	}
 
@@ -21,12 +39,12 @@ type (
 		Status    string           `json:"status"`
 		Data      *MetricQueryData `json:"data"`
 		ErrorType string           `json:"errorType"`
-		Error     string           `json:"error"`
+		Err       string           `json:"error"`
 	}
 
 	MetricQueryRequest struct {
 		Expr      string
-		Duration  time.Duration
+		Time      int64
 		StartTime int64
 		EndTime   int64
 		Step      uint32
@@ -55,4 +73,60 @@ type Metric interface {
 	Query(ctx context.Context, req *MetricQueryRequest) (*MetricQueryResponse, error)
 
 	Metadata(ctx context.Context) (<-chan *MetricMetadata, error)
+}
+
+// IsSuccessResponse is response success
+func (p *MetricQueryResponse) IsSuccessResponse() bool {
+	return p.Status == "success"
+}
+
+// Error is response error
+func (p *MetricQueryResponse) Error() string {
+	return fmt.Sprintf("metric query failed: (%s) %s => %s", p.Status, p.ErrorType, p.Err)
+}
+
+// String json string
+func (p *MetricQueryResponse) String() string {
+	bs, _ := json.Marshal(p)
+	return string(bs)
+}
+
+// GetMetricQueryValue get metric query value
+func (m *MetricQueryResult) GetMetricQueryValue() *MetricQueryValue {
+	if len(m.Values) > 0 || len(m.Value) != 2 {
+		return nil
+	}
+	value := m.Value
+	timestamp := value[0].(float64)
+	val, _ := strconv.ParseFloat(value[1].(string), 64)
+	return &MetricQueryValue{
+		Timestamp: timestamp,
+		Value:     val,
+	}
+}
+
+func (m *MetricQueryResult) GetMetricQueryValues() []*MetricQueryValue {
+	if len(m.Values) == 0 {
+		return nil
+	}
+	list := make([]*MetricQueryValue, 0, len(m.Values))
+	for _, v := range m.Values {
+		if len(v) != 2 {
+			continue
+		}
+		value := v
+		timestamp := value[0].(float64)
+		val, _ := strconv.ParseFloat(value[1].(string), 64)
+		list = append(list, &MetricQueryValue{
+			Timestamp: timestamp,
+			Value:     val,
+		})
+	}
+	return list
+}
+
+// String MetricQueryResult json string
+func (m *MetricQueryResult) String() string {
+	bs, _ := json.Marshal(m)
+	return string(bs)
 }
