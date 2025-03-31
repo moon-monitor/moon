@@ -6,10 +6,11 @@ import (
 	"fmt"
 	"net/http"
 	"net/url"
-	"strconv"
+	"strings"
+	"time"
 
 	"github.com/go-kratos/kratos/v2/log"
-	"google.golang.org/grpc/status"
+	"golang.org/x/sync/errgroup"
 
 	"github.com/moon-monitor/moon/pkg/plugin/datasource"
 	"github.com/moon-monitor/moon/pkg/util/httpx"
@@ -18,13 +19,13 @@ import (
 var _ datasource.Metric = (*Prometheus)(nil)
 
 const (
-	// prometheusAPIV1Query 查询接口
+	// prometheusAPIV1Query query api v1
 	prometheusAPIV1Query = "/api/v1/query"
-	// prometheusAPIV1QueryRange 查询接口
+	// prometheusAPIV1QueryRange query range api v1
 	prometheusAPIV1QueryRange = "/api/v1/query_range"
-	// prometheusAPIV1Metadata 元数据查询接口
+	// prometheusAPIV1Metadata metadata api
 	prometheusAPIV1Metadata = "/api/v1/metadata"
-	// prometheusAPIV1Series /api/v1/series
+	// prometheusAPIV1Series series api
 	prometheusAPIV1Series = "/api/v1/series"
 )
 
@@ -45,7 +46,7 @@ type Prometheus struct {
 	helper *log.Helper
 }
 
-func (p *Prometheus) Query(ctx context.Context, req *datasource.PromQueryRequest) ([]*datasource.PromQueryResponse, error) {
+func (p *Prometheus) Query(ctx context.Context, req *datasource.MetricQueryRequest) (*datasource.MetricQueryResponse, error) {
 	if req.StartTime > 0 && req.EndTime > 0 {
 		return p.queryRange(ctx, req.Expr, req.StartTime, req.EndTime, req.Step)
 	}
@@ -53,11 +54,79 @@ func (p *Prometheus) Query(ctx context.Context, req *datasource.PromQueryRequest
 }
 
 func (p *Prometheus) Metadata(ctx context.Context) (<-chan *datasource.MetricMetadata, error) {
-	//TODO implement me
-	panic("implement me")
+	metadataInfo, err := p.metadata(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	send := make(chan *datasource.MetricMetadata, 20)
+
+	go func() {
+		defer func() {
+			if err := recover(); err != nil {
+				p.helper.Errorw("method", "metadata", "panic", err)
+			}
+		}()
+		defer close(send)
+		p.sendMetadata(send, metadataInfo)
+	}()
+
+	return send, nil
 }
 
-func (p *Prometheus) query(ctx context.Context, expr string, duration int64) ([]*datasource.PromQueryResponse, error) {
+func (p *Prometheus) sendMetadata(send chan<- *datasource.MetricMetadata, metrics map[string][]PromMetricInfo) {
+	metricNameMap := make(map[string]PromMetricInfo)
+	metricNames := make([]string, 0, len(metrics))
+	for metricName := range metrics {
+		metricNames = append(metricNames, metricName)
+		if len(metrics[metricName]) == 0 {
+			continue
+		}
+		metricNameMap[metricName] = metrics[metricName][0]
+	}
+
+	now := time.Now()
+	batchNum := 20
+	namesLen := len(metricNames)
+	eg := new(errgroup.Group)
+	for i := 0; i < namesLen; i += batchNum {
+		left := i
+		right := left + batchNum
+		if right > namesLen {
+			right = namesLen
+		}
+		eg.Go(func() error {
+			seriesInfo, seriesErr := p.series(context.Background(), now, metricNames[left:right]...)
+			if seriesErr != nil {
+				log.Warnw("series error", seriesErr)
+				return seriesErr
+			}
+
+			metricsTmp := make([]*datasource.MetricMetadataItem, 0, right-left)
+			for _, metricName := range metricNames[left:right] {
+				metricInfo := metricNameMap[metricName]
+				item := &datasource.MetricMetadataItem{
+					Type:   metricInfo.Type,
+					Name:   metricName,
+					Help:   metricInfo.Help,
+					Unit:   metricInfo.Unit,
+					Labels: seriesInfo[metricName],
+				}
+				metricsTmp = append(metricsTmp, item)
+			}
+			send <- &datasource.MetricMetadata{
+				Metric:    metricsTmp,
+				Timestamp: int64(time.Since(now).Seconds()),
+			}
+			return nil
+		})
+	}
+	if err := eg.Wait(); err != nil {
+		p.helper.Errorw("method", "metadata", "err", err)
+	}
+}
+
+func (p *Prometheus) query(ctx context.Context, expr string, duration int64) (*datasource.MetricQueryResponse, error) {
 	params := httpx.ParseQuery(map[string]any{
 		"query": expr,
 		"time":  duration,
@@ -81,106 +150,132 @@ func (p *Prometheus) query(ctx context.Context, expr string, duration int64) ([]
 		return nil, err
 	}
 	defer getResponse.Body.Close()
-	var allResp datasource.PromQueryResponse
+	var allResp datasource.MetricQueryResponse
 	if err = json.NewDecoder(getResponse.Body).Decode(&allResp); err != nil {
 		return nil, err
 	}
 	return &allResp, nil
-
-	if allResp.Error != "" {
-		return nil, status.Errorf(400, "query error: %s", allResp.Error)
-	}
-	data := allResp.Data
-	if data == nil {
-		return []*datasource.PromQueryResponse(nil), nil
-	}
-	result := make([]*datasource.PromQueryData, 0, len(data.Result))
-	for _, v := range data.Result {
-		value := v.Value
-		ts, tsAssertOk := strconv.ParseFloat(fmt.Sprintf("%v", value[0]), 64)
-		if tsAssertOk != nil {
-			continue
-		}
-		metricValue, parseErr := strconv.ParseFloat(fmt.Sprintf("%v", value[1]), 64)
-		if parseErr != nil {
-			continue
-		}
-		result = append(result, &datasource.PromQueryData{
-			Labels: v.Metric,
-			Value: &QueryValue{
-				Value:     metricValue,
-				Timestamp: int64(ts),
-			},
-			ResultType: data.ResultType,
-		})
-	}
-
-	return result, nil
 }
 
-func (p *Prometheus) queryRange(ctx context.Context, expr string, start, end int64, step uint32) ([]*datasource.PromQueryResponse, error) {
-	st := step
-	if step == 0 {
-		st = p.step
-	}
+func (p *Prometheus) queryRange(ctx context.Context, expr string, start, end int64, step uint32) (*datasource.MetricQueryResponse, error) {
 	params := httpx.ParseQuery(map[string]any{
 		"query": expr,
 		"start": start,
 		"end":   end,
-		"step":  st,
+		"step":  step,
 	})
 
-	hx := httpx.NewHTTPX()
-	hx.SetHeader(map[string]string{
-		"Accept":          "*/*",
-		"Accept-Language": "zh-CN,zh;q=0.9",
+	hx := httpx.NewClient().WithContext(ctx)
+	hx = hx.WithHeader(http.Header{
+		"Accept":          []string{"*/*"},
+		"Accept-Language": []string{"zh-CN,zh;q=0.9"},
 	})
-	if p.basicAuth != nil {
-		hx = hx.SetBasicAuth(p.basicAuth.Username, p.basicAuth.Password)
+	if p.c.GetBasicAuth() != nil {
+		basicAuth := p.c.GetBasicAuth()
+		hx = hx.WithBasicAuth(basicAuth.GetUsername(), basicAuth.GetPassword())
 	}
-	api, err := url.JoinPath(p.endpoint, p.prometheusAPIV1QueryRange)
+	api, err := url.JoinPath(p.c.GetEndpoint(), prometheusAPIV1QueryRange)
 	if err != nil {
 		return nil, err
 	}
-	getResponse, err := hx.GETWithContext(ctx, fmt.Sprintf("%s?%s", api, params))
+	getResponse, err := hx.Get(fmt.Sprintf("%s?%s", api, params))
 	if err != nil {
 		return nil, err
 	}
 	defer getResponse.Body.Close()
-	var allResp PromQueryResponse
-	if err = types.NewDecoder(getResponse.Body).Decode(&allResp); err != nil {
+	var allResp datasource.MetricQueryResponse
+	if err = json.NewDecoder(getResponse.Body).Decode(&allResp); err != nil {
 		return nil, err
 	}
-	if allResp.Error != "" {
-		return nil, status.Errorf(400, "query error: %s", allResp.Error)
-	}
-	data := allResp.Data
-	if types.IsNil(data) {
-		return []*QueryResponse(nil), nil
-	}
-	result := make([]*QueryResponse, 0, len(data.Result))
-	for _, v := range data.Result {
-		values := make([]*QueryValue, 0, len(v.Values))
-		for _, vv := range v.Values {
-			ts, tsAssertOk := strconv.ParseFloat(fmt.Sprintf("%v", vv[0]), 64)
-			if tsAssertOk != nil {
-				continue
-			}
-			metricValue, parseErr := strconv.ParseFloat(fmt.Sprintf("%v", vv[1]), 64)
-			if parseErr != nil {
-				continue
-			}
-			values = append(values, &QueryValue{
-				Value:     metricValue,
-				Timestamp: int64(ts),
-			})
-		}
 
-		result = append(result, &QueryResponse{
-			Labels:     v.Metric,
-			Values:     values,
-			ResultType: data.ResultType,
-		})
+	return &allResp, nil
+}
+
+func (p *Prometheus) series(ctx context.Context, now time.Time, metricNames ...string) (map[string]map[string][]string, error) {
+	start := now.Add(-time.Hour * 24).Format("2006-01-02T15:04:05.000Z")
+	end := now.Format("2006-01-02T15:04:05.000Z")
+
+	params := httpx.ParseQuery(map[string]any{
+		"start": start,
+		"end":   end,
+	})
+	metricNameParams := make([]string, 0, len(metricNames))
+	for _, metricName := range metricNames {
+		metricNameParams = append(metricNameParams, httpx.ParseQuery(map[string]any{
+			"match[]": metricName,
+		}))
 	}
-	return result, nil
+
+	hx := httpx.NewClient().WithContext(ctx)
+	hx = hx.WithHeader(http.Header{
+		"Accept":          []string{"*/*"},
+		"Accept-Language": []string{"zh-CN,zh;q=0.9"},
+	})
+	if p.c.GetBasicAuth() != nil {
+		basicAuth := p.c.GetBasicAuth()
+		hx = hx.WithBasicAuth(basicAuth.GetUsername(), basicAuth.GetPassword())
+	}
+
+	api, err := url.JoinPath(p.c.GetEndpoint(), prometheusAPIV1Series)
+	if err != nil {
+		return nil, err
+	}
+	reqURL := fmt.Sprintf("%s?%s&%s", api, params, strings.Join(metricNameParams, "&"))
+	getResponse, err := hx.Get(reqURL)
+	if err != nil {
+		return nil, err
+	}
+	defer getResponse.Body.Close()
+	var allResp PromMetricSeriesResponse
+	if err = json.NewDecoder(getResponse.Body).Decode(&allResp); err != nil {
+		return nil, err
+	}
+
+	res := make(map[string]map[string][]string)
+	for _, v := range allResp.Data {
+		metricName := v["__name__"]
+		if metricName == "" {
+			continue
+		}
+		if _, ok := res[metricName]; !ok {
+			res[metricName] = make(map[string][]string)
+		}
+		for k, val := range v {
+			if k == "__name__" {
+				continue
+			}
+			if _, ok := res[metricName][k]; !ok {
+				res[metricName][k] = make([]string, 0)
+			}
+			res[metricName][k] = append(res[metricName][k], val)
+		}
+	}
+
+	return res, nil
+}
+
+func (p *Prometheus) metadata(ctx context.Context) (map[string][]PromMetricInfo, error) {
+	hx := httpx.NewClient().WithContext(ctx)
+	hx = hx.WithHeader(http.Header{
+		"Accept":          []string{"*/*"},
+		"Accept-Language": []string{"zh-CN,zh;q=0.9"},
+	})
+	if p.c.GetBasicAuth() != nil {
+		basicAuth := p.c.GetBasicAuth()
+		hx = hx.WithBasicAuth(basicAuth.GetUsername(), basicAuth.GetPassword())
+	}
+	api, err := url.JoinPath(p.c.GetEndpoint(), prometheusAPIV1Metadata)
+	if err != nil {
+		return nil, err
+	}
+	getResponse, err := hx.Get(api)
+	if err != nil {
+		return nil, err
+	}
+	defer getResponse.Body.Close()
+	var allResp PromMetadataResponse
+	if err = json.NewDecoder(getResponse.Body).Decode(&allResp); err != nil {
+		return nil, err
+	}
+	return allResp.Data, nil
 }

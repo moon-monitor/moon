@@ -6,24 +6,25 @@ import (
 )
 
 type (
-	PromQueryResult struct {
+	MetricQueryResult struct {
 		Metric map[string]string `json:"metric"`
 		Value  [2]any            `json:"value"`
 		Values [][2]any          `json:"values"`
 	}
 
-	PromQueryData struct {
-		ResultType string             `json:"resultType"`
-		Result     []*PromQueryResult `json:"result"`
+	MetricQueryData struct {
+		ResultType string               `json:"resultType"`
+		Result     []*MetricQueryResult `json:"result"`
 	}
 
-	PromQueryResponse struct {
-		Status    string         `json:"status"`
-		Data      *PromQueryData `json:"data"`
-		ErrorType string         `json:"errorType"`
-		Error     string         `json:"error"`
+	MetricQueryResponse struct {
+		Status    string           `json:"status"`
+		Data      *MetricQueryData `json:"data"`
+		ErrorType string           `json:"errorType"`
+		Error     string           `json:"error"`
 	}
-	PromQueryRequest struct {
+
+	MetricQueryRequest struct {
 		Expr      string
 		Duration  time.Duration
 		StartTime int64
@@ -51,7 +52,7 @@ type (
 )
 
 type Metric interface {
-	Query(ctx context.Context, req *PromQueryRequest) ([]*PromQueryResponse, error)
+	Query(ctx context.Context, req *MetricQueryRequest) (*MetricQueryResponse, error)
 
 	Metadata(ctx context.Context) (<-chan *MetricMetadata, error)
 }
