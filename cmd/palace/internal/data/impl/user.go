@@ -271,3 +271,18 @@ func (u *userRepoImpl) UpdateSelfInfo(ctx context.Context, user *system.User) er
 
 	return nil
 }
+
+// UpdatePassword updates the user's password in the database
+func (u *userRepoImpl) UpdatePassword(ctx context.Context, updateUserPasswordInfo *bo.UpdateUserPasswordInfo) error {
+	userMutation := systemQuery.Use(u.GetMainDB().GetDB()).User
+
+	// Update password and salt fields
+	_, err := userMutation.WithContext(ctx).
+		Where(userMutation.ID.Eq(updateUserPasswordInfo.UserID)).
+		UpdateSimple(
+			userMutation.Password.Value(updateUserPasswordInfo.Password),
+			userMutation.Salt.Value(updateUserPasswordInfo.Salt),
+		)
+
+	return err
+}

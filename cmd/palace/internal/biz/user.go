@@ -10,6 +10,7 @@ import (
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/repository"
 	"github.com/moon-monitor/moon/cmd/palace/internal/helper/permission"
 	"github.com/moon-monitor/moon/pkg/merr"
+	"github.com/moon-monitor/moon/pkg/util/password"
 )
 
 // UserBiz is a user business logic implementation.
@@ -70,6 +71,47 @@ func (b *UserBiz) UpdateSelfInfo(ctx context.Context, userUpdateInfo *bo.UserUpd
 
 	if err = b.userRepo.UpdateSelfInfo(ctx, user); err != nil {
 		return merr.ErrorInternalServerError("failed to update user info").WithCause(err)
+	}
+
+	return nil
+}
+
+// UpdateSelfPassword updates the current user's password
+func (b *UserBiz) UpdateSelfPassword(ctx context.Context, passwordUpdateInfo *bo.PasswordUpdateInfo) error {
+	userID, ok := permission.GetUserIDByContext(ctx)
+	if !ok {
+		return merr.ErrorUnauthorized("user not found in context")
+	}
+
+	user, err := b.userRepo.FindByID(ctx, userID)
+	if err != nil {
+		return err
+	}
+
+	if user == nil {
+		return merr.ErrorUserNotFound("user not found")
+	}
+
+	// Verify old password
+	if !user.ValidatePassword(passwordUpdateInfo.OldPassword) {
+		return merr.ErrorPasswordError("old password is incorrect")
+	}
+
+	// Generate new password
+	pass := password.New(passwordUpdateInfo.NewPassword)
+	encryptedPassword, err := pass.EnValue()
+	if err != nil {
+		return merr.ErrorInternalServerError("failed to encrypt password").WithCause(err)
+	}
+
+	updateUserPasswordInfo := &bo.UpdateUserPasswordInfo{
+		UserID:   userID,
+		Password: encryptedPassword,
+		Salt:     pass.Salt(),
+	}
+	// Update password through repository
+	if err = b.userRepo.UpdatePassword(ctx, updateUserPasswordInfo); err != nil {
+		return merr.ErrorInternalServerError("failed to update password").WithCause(err)
 	}
 
 	return nil

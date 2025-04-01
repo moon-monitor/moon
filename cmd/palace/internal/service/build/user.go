@@ -22,14 +22,26 @@ func UserToUserItemProto(user *system.User) *common.UserItem {
 	}
 }
 
-func ToUserUpdateInfo(userUpdateInfo *palacev1.UpdateSelfInfoRequest) *bo.UserUpdateInfo {
-	if userUpdateInfo == nil {
+func ToUserUpdateInfo(req *palacev1.UpdateSelfInfoRequest) *bo.UserUpdateInfo {
+	if req == nil {
 		return nil
 	}
 
 	return &bo.UserUpdateInfo{
-		Nickname: userUpdateInfo.Nickname,
-		Avatar:   userUpdateInfo.Avatar,
-		Gender:   vobj.Gender(userUpdateInfo.Gender),
+		Nickname: req.Nickname,
+		Avatar:   req.Avatar,
+		Gender:   vobj.Gender(req.Gender),
+	}
+}
+
+// ToPasswordUpdateInfo converts an API password update request to a business object
+func ToPasswordUpdateInfo(req *palacev1.UpdateSelfPasswordRequest) *bo.PasswordUpdateInfo {
+	if req == nil {
+		return nil
+	}
+
+	return &bo.PasswordUpdateInfo{
+		OldPassword: req.OldPassword,
+		NewPassword: req.NewPassword,
 	}
 }

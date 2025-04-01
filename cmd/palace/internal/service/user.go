@@ -51,8 +51,12 @@ func (s *UserService) UpdateSelfInfo(ctx context.Context, req *palace.UpdateSelf
 
 // UpdateSelfPassword updates the current user's password.
 func (s *UserService) UpdateSelfPassword(ctx context.Context, req *palace.UpdateSelfPasswordRequest) (*common.EmptyReply, error) {
-	// TODO: implement the logic
-	return &common.EmptyReply{}, nil
+	// Call business logic to update password
+	if err := s.userBiz.UpdateSelfPassword(ctx, build.ToPasswordUpdateInfo(req)); err != nil {
+		return nil, err
+	}
+
+	return &common.EmptyReply{Message: "密码修改成功"}, nil
 }
 
 // LeaveTeam allows the current user to leave a team.

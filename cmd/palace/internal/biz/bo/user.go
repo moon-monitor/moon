@@ -7,3 +7,14 @@ type UserUpdateInfo struct {
 	Avatar   string
 	Gender   vobj.Gender
 }
+
+type PasswordUpdateInfo struct {
+	OldPassword string
+	NewPassword string
+}
+
+type UpdateUserPasswordInfo struct {
+	UserID   uint32
+	Password string
+	Salt     string
+}
