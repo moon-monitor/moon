@@ -23,7 +23,7 @@ type UserBiz struct {
 func NewUserBiz(userRepo repository.User, logger log.Logger) *UserBiz {
 	return &UserBiz{
 		userRepo: userRepo,
-		log:      log.NewHelper(log.With(logger, "module", "biz/user")),
+		log:      log.NewHelper(log.With(logger, "module", "biz.user")),
 	}
 }
 
@@ -115,4 +115,19 @@ func (b *UserBiz) UpdateSelfPassword(ctx context.Context, passwordUpdateInfo *bo
 	}
 
 	return nil
+}
+
+// GetUserTeams retrieves all teams that the user is a member of
+func (b *UserBiz) GetUserTeams(ctx context.Context) ([]*system.Team, error) {
+	userID, ok := permission.GetUserIDByContext(ctx)
+	if !ok {
+		return nil, merr.ErrorUnauthorized("user not found in context")
+	}
+
+	teams, err := b.userRepo.GetTeamsByUserID(ctx, userID)
+	if err != nil {
+		return nil, merr.ErrorInternalServerError("failed to get user teams").WithCause(err)
+	}
+
+	return teams, nil
 }

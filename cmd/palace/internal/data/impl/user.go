@@ -193,9 +193,10 @@ func (u *userRepoImpl) GetTeamsByUserID(ctx context.Context, userID uint32) ([]*
 		teamIDs = append(teamIDs, member.TeamID)
 	}
 
-	// 查询所有团队信息
+	// 查询所有团队信息，并预加载Leader和Creator关系
 	teams, err := teamQuery.WithContext(ctx).
 		Where(teamQuery.ID.In(teamIDs...), teamQuery.Status.Eq(int8(vobj.TeamStatusNormal))).
+		Preload(teamQuery.Leader).
 		Find()
 	if err != nil {
 		return nil, err

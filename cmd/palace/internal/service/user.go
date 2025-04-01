@@ -79,8 +79,16 @@ func (s *UserService) CreateTeam(ctx context.Context, req *palace.CreateTeamRequ
 
 // SelfTeamList retrieves the list of teams the current user is a member of.
 func (s *UserService) SelfTeamList(ctx context.Context, req *common.EmptyRequest) (*palace.SelfTeamListReply, error) {
-	// TODO: implement the logic
-	return &palace.SelfTeamListReply{}, nil
+	// Call business logic to get user's teams
+	teams, err := s.userBiz.GetUserTeams(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	// 使用转换方法将领域对象转换为proto对象
+	return &palace.SelfTeamListReply{
+		Items: build.TeamsToTeamItemProtos(teams),
+	}, nil
 }
 
 // SelfSubscribeTeamStrategies retrieves the list of team strategies the current user is subscribed to.
