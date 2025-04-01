@@ -23,7 +23,7 @@ type UserService struct {
 func NewUserService(userBiz *biz.UserBiz, logger log.Logger) *UserService {
 	return &UserService{
 		userBiz: userBiz,
-		log:     log.NewHelper(log.With(logger, "module", "service/user")),
+		log:     log.NewHelper(log.With(logger, "module", "service.user")),
 	}
 }
 
@@ -41,8 +41,12 @@ func (s *UserService) SelfInfo(ctx context.Context, req *common.EmptyRequest) (*
 
 // UpdateSelfInfo updates the current user's information.
 func (s *UserService) UpdateSelfInfo(ctx context.Context, req *palace.UpdateSelfInfoRequest) (*common.EmptyReply, error) {
-	// TODO: implement the logic
-	return &common.EmptyReply{}, nil
+	// Call business logic
+	if err := s.userBiz.UpdateSelfInfo(ctx, build.ToUserUpdateInfo(req)); err != nil {
+		return nil, err
+	}
+
+	return &common.EmptyReply{Message: "修改成功"}, nil
 }
 
 // UpdateSelfPassword updates the current user's password.

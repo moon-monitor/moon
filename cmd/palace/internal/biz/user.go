@@ -5,6 +5,7 @@ import (
 
 	"github.com/go-kratos/kratos/v2/log"
 
+	"github.com/moon-monitor/moon/cmd/palace/internal/biz/bo"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do/system"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/repository"
 	"github.com/moon-monitor/moon/cmd/palace/internal/helper/permission"
@@ -13,15 +14,15 @@ import (
 
 // UserBiz is a user business logic implementation.
 type UserBiz struct {
-	user repository.User
-	log  *log.Helper
+	userRepo repository.User
+	log      *log.Helper
 }
 
 // NewUserBiz creates a new UserBiz instance.
-func NewUserBiz(user repository.User, logger log.Logger) *UserBiz {
+func NewUserBiz(userRepo repository.User, logger log.Logger) *UserBiz {
 	return &UserBiz{
-		user: user,
-		log:  log.NewHelper(log.With(logger, "module", "biz/user")),
+		userRepo: userRepo,
+		log:      log.NewHelper(log.With(logger, "module", "biz/user")),
 	}
 }
 
@@ -32,7 +33,7 @@ func (b *UserBiz) GetSelfInfo(ctx context.Context) (*system.User, error) {
 		return nil, merr.ErrorUnauthorized("user not found in context")
 	}
 
-	user, err := b.user.FindByID(ctx, userID)
+	user, err := b.userRepo.FindByID(ctx, userID)
 	if err != nil {
 		return nil, merr.ErrorInternalServerError("failed to find user").WithCause(err)
 	}
@@ -42,4 +43,34 @@ func (b *UserBiz) GetSelfInfo(ctx context.Context) (*system.User, error) {
 	}
 
 	return user, nil
+}
+
+// UpdateSelfInfo updates the current user's profile information.
+func (b *UserBiz) UpdateSelfInfo(ctx context.Context, userUpdateInfo *bo.UserUpdateInfo) error {
+	userID, ok := permission.GetUserIDByContext(ctx)
+	if !ok {
+		return merr.ErrorUnauthorized("user not found in context")
+	}
+
+	user, err := b.userRepo.FindByID(ctx, userID)
+	if err != nil {
+		return merr.ErrorInternalServerError("failed to find user").WithCause(err)
+	}
+
+	if user == nil {
+		return merr.ErrorUserNotFound("user not found")
+	}
+
+	// Update user fields
+	user.Nickname = userUpdateInfo.Nickname
+	user.Avatar = userUpdateInfo.Avatar
+	user.Gender = userUpdateInfo.Gender
+
+	// Call repository to update user
+
+	if err = b.userRepo.UpdateSelfInfo(ctx, user); err != nil {
+		return merr.ErrorInternalServerError("failed to update user info").WithCause(err)
+	}
+
+	return nil
 }

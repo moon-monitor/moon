@@ -241,19 +241,33 @@ func (u *userRepoImpl) GetAllTeamMembers(ctx context.Context, userID uint32) ([]
 
 // GetTeamsByIDs 根据团队ID列表获取团队
 func (u *userRepoImpl) GetTeamsByIDs(ctx context.Context, teamIDs []uint32) ([]*system.Team, error) {
-	if len(teamIDs) == 0 {
-		return []*system.Team{}, nil
-	}
-
-	teamQuery := systemQuery.Use(u.GetMainDB().GetDB()).Team
-
 	// 查询所有团队信息
+	teamQuery := systemQuery.Use(u.GetMainDB().GetDB()).Team
 	teams, err := teamQuery.WithContext(ctx).
-		Where(teamQuery.ID.In(teamIDs...)).
+		Where(teamQuery.ID.In(teamIDs...), teamQuery.Status.Eq(int8(vobj.TeamStatusNormal))).
 		Find()
 	if err != nil {
 		return nil, err
 	}
-
 	return teams, nil
+}
+
+// UpdateSelfInfo updates the user's profile information
+func (u *userRepoImpl) UpdateSelfInfo(ctx context.Context, user *system.User) error {
+	userMutation := systemQuery.Use(u.GetMainDB().GetDB()).User
+
+	// Only update the relevant fields
+	_, err := userMutation.WithContext(ctx).
+		Where(userMutation.ID.Eq(user.ID)).
+		UpdateSimple(
+			userMutation.Nickname.Value(user.Nickname),
+			userMutation.Avatar.Value(user.Avatar),
+			userMutation.Gender.Value(int8(user.Gender)),
+		)
+
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

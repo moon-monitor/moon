@@ -16,6 +16,7 @@ type User interface {
 	CreateUserWithOAuthUser(ctx context.Context, user bo.IOAuthUser, sendEmailFunc SendEmailFunc) (*system.User, error)
 	SetEmail(ctx context.Context, user *system.User, sendEmailFunc SendEmailFunc) (*system.User, error)
 	Create(ctx context.Context, user *system.User, sendEmailFunc SendEmailFunc) (*system.User, error)
+	UpdateSelfInfo(ctx context.Context, user *system.User) error
 
 	// 获取用户所属的所有团队
 	GetTeamsByUserID(ctx context.Context, userID uint32) ([]*system.Team, error)

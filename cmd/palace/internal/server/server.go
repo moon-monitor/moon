@@ -28,9 +28,6 @@ func RegisterService(
 ) server.Servers {
 	commonv1.RegisterHealthServer(rpcSrv, healthService)
 	commonv1.RegisterServerServer(rpcSrv, serverService)
-	palacev1.RegisterAuthServer(rpcSrv, authService)
-	palacev1.RegisterResourceServer(rpcSrv, resourceService)
-	palacev1.RegisterUserServer(rpcSrv, userService)
 
 	commonv1.RegisterHealthHTTPServer(httpSrv, healthService)
 	commonv1.RegisterServerHTTPServer(httpSrv, serverService)
