@@ -34,3 +34,7 @@ auth:
         auth_url: ${X_MOON_AUTH_OAUTH2_AUTH_URL_1:}
         token_url: ${X_MOON_AUTH_OAUTH2_TOKEN_URL_1:}
         scopes: ${X_MOON_AUTH_OAUTH2_SCOPES_1:[]}
+
+filing:
+  url: ${X_MOON_FILING_URL}
+  information: ${X_MOON_FILING_INFORMATION}

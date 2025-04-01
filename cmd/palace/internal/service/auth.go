@@ -178,6 +178,32 @@ func (s *AuthService) OAuth2List(_ context.Context, _ *common.EmptyRequest) (*pa
 	return &palacev1.OAuth2ListReply{Items: s.oauth2List}, nil
 }
 
+func (s *AuthService) GetFilingInformation(ctx context.Context, req *palacev1.GetFilingInformationRequest) (*palacev1.GetFilingInformationReply, error) {
+	filingInfo, err := s.authBiz.GetFilingInformation(ctx, req.GetOrigin())
+	if err != nil {
+		return nil, err
+	}
+	return &palacev1.GetFilingInformationReply{
+		Url:               filingInfo.URL,
+		FilingInformation: filingInfo.Information,
+	}, nil
+}
+
+func (s *AuthService) VerifyNewPermission(ctx context.Context, req *palacev1.VerifyNewPermissionRequest) (*common.EmptyReply, error) {
+	permissionReq := &bo.VerifyNewPermission{
+		SystemRoleID:   req.GetSystemRoleID(),
+		TeamRoleID:     req.GetTeamRoleID(),
+		TeamID:         req.GetTeamID(),
+		SystemPosition: vobj.Role(req.GetSystemPosition()),
+		TeamPosition:   vobj.Role(req.GetTeamPosition()),
+	}
+
+	if err := s.permissionBiz.VerifyNewPermission(ctx, permissionReq); err != nil {
+		return nil, err
+	}
+	return &common.EmptyReply{Message: "success"}, nil
+}
+
 // OAuthLogin oauth login
 func (s *AuthService) OAuthLogin(app vobj.OAuthAPP) http.HandlerFunc {
 	return func(ctx http.Context) error {
@@ -213,4 +239,62 @@ func (s *AuthService) OAuthLoginCallback(app vobj.OAuthAPP) http.HandlerFunc {
 		ctx.Reset(resp, req)
 		return nil
 	}
+}
+
+// GetUserIdentities 获取用户可以切换的身份列表
+func (s *AuthService) GetUserIdentities(ctx context.Context, _ *common.EmptyRequest) (*palacev1.GetUserIdentitiesReply, error) {
+	// 获取用户的身份信息
+	identities, err := s.authBiz.GetUserIdentities(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	// 转换为proto对象
+	reply := &palacev1.GetUserIdentitiesReply{
+		SystemRoles:     make([]*palacev1.GetUserIdentitiesReply_SystemRole, 0, len(identities.SystemRoles)),
+		SystemPositions: make([]common.UserPosition, 0, len(identities.SystemPositions)),
+		Teams:           make([]*palacev1.GetUserIdentitiesReply_Team, 0, len(identities.Teams)),
+	}
+
+	// 填充系统职位
+	for _, position := range identities.SystemPositions {
+		reply.SystemPositions = append(reply.SystemPositions, common.UserPosition(position))
+	}
+
+	// 填充系统角色
+	for _, role := range identities.SystemRoles {
+		reply.SystemRoles = append(reply.SystemRoles, &palacev1.GetUserIdentitiesReply_SystemRole{
+			Id:     role.ID,
+			Name:   role.Name,
+			Status: uint32(role.Status),
+		})
+	}
+
+	// 填充团队和团队角色
+	for _, team := range identities.Teams {
+		positions := make([]common.MemberPosition, 0, len(team.Positions))
+		for _, position := range team.Positions {
+			positions = append(positions, common.MemberPosition(position))
+		}
+		teamItem := &palacev1.GetUserIdentitiesReply_Team{
+			Id:        team.ID,
+			Name:      team.Name,
+			Status:    uint32(team.Status),
+			Positions: positions,
+			Roles:     make([]*palacev1.GetUserIdentitiesReply_TeamRole, 0, len(team.Roles)),
+		}
+
+		// 添加团队角色
+		for _, role := range team.Roles {
+			teamItem.Roles = append(teamItem.Roles, &palacev1.GetUserIdentitiesReply_TeamRole{
+				Id:     role.ID,
+				Name:   role.Name,
+				Status: uint32(role.Status),
+			})
+		}
+
+		reply.Teams = append(reply.Teams, teamItem)
+	}
+
+	return reply, nil
 }

@@ -18,6 +18,7 @@ message Bootstrap {
   config.Registry registry = 6;
   Auth auth = 7;
   config.Crypto crypto = 8;
+  FilingInformation filing = 9;
 }
 
 message Data {
@@ -65,4 +66,9 @@ message Auth {
   config.JWT jwt = 1;
   Captcha captcha = 2;
   OAuth2 oauth2 = 3;
+}
+
+message FilingInformation {
+  string url = 1;
+  string information = 2;
 }

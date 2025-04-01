@@ -395,3 +395,118 @@ func (a *AuthBiz) sendEmail(ctx context.Context, sendEmailParams *bo.SendEmailPa
 	a.helper.Debugf("send email reply: %v", reply)
 	return nil
 }
+
+// GetFilingInformation 获取备案信息
+func (a *AuthBiz) GetFilingInformation(ctx context.Context, origin uint32) (*bo.FilingInformation, error) {
+	filing := a.bc.GetFiling()
+	filingInfo := &bo.FilingInformation{
+		URL:         filing.GetUrl(),
+		Information: filing.GetInformation(),
+	}
+	return filingInfo, nil
+}
+
+// GetUserIdentities 获取用户可切换的身份列表
+func (a *AuthBiz) GetUserIdentities(ctx context.Context) (*bo.UserIdentities, error) {
+	// 从上下文中获取用户ID
+	userID, ok := permission.GetUserIDByContext(ctx)
+	if !ok {
+		return nil, merr.ErrorUnauthorized("user id not found")
+	}
+
+	// 获取用户信息
+	user, err := a.userRepo.FindByID(ctx, userID)
+	if err != nil {
+		return nil, err
+	}
+
+	if !user.Status.IsNormal() {
+		return nil, merr.ErrorUserForbidden("user is forbidden")
+	}
+
+	// 创建用户身份对象
+	identities := &bo.UserIdentities{
+		SystemPositions: getAllSystemPositions(user.Position),
+		SystemRoles:     make([]*bo.SystemRoleItem, 0, len(user.Roles)),
+		Teams:           make([]*bo.TeamItem, 0),
+	}
+
+	// 添加系统角色
+	for _, role := range user.Roles {
+		identities.SystemRoles = append(identities.SystemRoles, &bo.SystemRoleItem{
+			ID:     role.ID,
+			Name:   role.Name,
+			Status: role.Status,
+		})
+	}
+
+	// 获取用户所有团队的成员信息
+	teamMembers, err := a.userRepo.GetAllTeamMembers(ctx, userID)
+	if err != nil {
+		return nil, err
+	}
+
+	// 获取团队详细信息
+	teamIDs := make([]uint32, 0, len(teamMembers))
+	teamMemberMap := make(map[uint32]*system.TeamMember, len(teamMembers))
+	for _, member := range teamMembers {
+		if member.Status.IsNormal() {
+			teamIDs = append(teamIDs, member.TeamID)
+			teamMemberMap[member.TeamID] = member
+		}
+	}
+
+	if len(teamIDs) == 0 {
+		return identities, nil
+	}
+
+	teams, err := a.userRepo.GetTeamsByIDs(ctx, teamIDs)
+	if err != nil {
+		return nil, err
+	}
+
+	// 添加团队和团队角色
+	for _, team := range teams {
+		if !team.Status.IsNormal() {
+			continue
+		}
+
+		member, ok := teamMemberMap[team.ID]
+		if !ok || !member.Status.IsNormal() {
+			continue
+		}
+
+		teamItem := &bo.TeamItem{
+			ID:        team.ID,
+			Name:      team.Name,
+			Status:    team.Status,
+			Positions: getAllSystemPositions(member.Position),
+			Roles:     make([]*bo.TeamRoleItem, 0, len(member.Roles)),
+		}
+
+		// 添加团队角色
+		for _, role := range member.Roles {
+			teamItem.Roles = append(teamItem.Roles, &bo.TeamRoleItem{
+				ID:     role.ID,
+				Name:   role.Name,
+				Status: role.Status,
+			})
+		}
+
+		identities.Teams = append(identities.Teams, teamItem)
+	}
+
+	return identities, nil
+}
+
+// 获取用户可用的所有系统职位
+func getAllSystemPositions(userPosition vobj.Role) []vobj.Role {
+	positions := make([]vobj.Role, 0)
+
+	// 用户只能使用比自己级别低的或相等的职位
+	for pos := userPosition; pos <= vobj.RoleGuest; pos++ {
+		positions = append(positions, pos)
+	}
+
+	return positions
+}
