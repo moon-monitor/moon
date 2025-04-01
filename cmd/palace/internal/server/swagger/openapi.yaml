@@ -1924,6 +1924,10 @@ components:
                     type: integer
                     description: Resource ID, optional for new resources
                     format: uint32
+                allow:
+                    type: integer
+                    description: Resource allow
+                    format: enum
             description: SaveResourceRequest represents the request data for saving or updating a resource
         api.palace.SaveRoleRequest:
             type: object

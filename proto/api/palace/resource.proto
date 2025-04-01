@@ -7,6 +7,7 @@ import "buf/validate/validate.proto";
 import "palace/common/system.proto";
 import "palace/common/system_enum.proto";
 import "palace/common/common.proto";
+import "palace/common/common_enum.proto";
 
 option go_package = "github.com/moon-monitor/moon/pkg/api/palace;palace";
 option java_multiple_files = true;
@@ -88,6 +89,11 @@ message SaveResourceRequest {
   }];
   // Resource ID, optional for new resources
   uint32 id = 6;
+  // Resource allow
+  api.palace.common.ResourceAllow allow = 7 [(buf.validate.field).required = true, (buf.validate.field).cel = {
+    message: "allow is required"
+    expression: "this > 0"
+  }];
 }
 
 // BatchUpdateResourceStatusRequest represents the request data for updating the status of multiple resources

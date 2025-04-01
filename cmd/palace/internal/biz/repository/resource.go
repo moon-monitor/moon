@@ -3,7 +3,9 @@ package repository
 import (
 	"context"
 
+	"github.com/moon-monitor/moon/cmd/palace/internal/biz/bo"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do/system"
+	"github.com/moon-monitor/moon/cmd/palace/internal/biz/vobj"
 )
 
 type Resource interface {
@@ -22,4 +24,10 @@ type Resource interface {
 
 	// DeleteResource delete resource by id
 	DeleteResource(ctx context.Context, id uint32) error
+
+	// BatchUpdateResourceStatus update multiple resources status
+	BatchUpdateResourceStatus(ctx context.Context, ids []uint32, status vobj.ResourceStatus) error
+
+	// ListResources list resources with filter
+	ListResources(ctx context.Context, req *bo.ListResourceReq) ([]*system.Resource, error)
 }

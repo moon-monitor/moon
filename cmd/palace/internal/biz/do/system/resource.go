@@ -15,6 +15,7 @@ type Resource struct {
 	Domain vobj.ResourceDomain `gorm:"column:domain;type:tinyint(2);not null;comment:领域" json:"domain"`
 	Module vobj.ResourceDomain `gorm:"column:module;type:tinyint(2);not null;comment:模块" json:"module"`
 	Allow  vobj.ResourceAllow  `gorm:"column:allow;type:tinyint(2);not null;comment:放行规则" json:"allow"`
+	Remark string              `gorm:"column:remark;type:varchar(255);not null;comment:备注" json:"remark"`
 }
 
 func (u *Resource) TableName() string {

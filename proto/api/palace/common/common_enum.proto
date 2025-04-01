@@ -35,3 +35,19 @@ enum OperateType {
   // OPERATE_TYPE_IMPORT indicates that the operation is an import operation.
   OPERATE_TYPE_IMPORT = 7;
 }
+
+// ResourceAllow represents the allow of a resource.
+enum ResourceAllow {
+  // RESOURCE_ALLOW_NONE indicates that the resource allow is none.
+  RESOURCE_ALLOW_NONE = 0;
+  // RESOURCE_ALLOW_SYSTEM indicates that the resource allow is system.
+  RESOURCE_ALLOW_SYSTEM = 1;
+  // RESOURCE_ALLOW_SYSTEM_RBAC indicates that the resource allow is system RBAC.
+  RESOURCE_ALLOW_SYSTEM_RBAC = 2;
+  // RESOURCE_ALLOW_TEAM indicates that the resource allow is team.
+  RESOURCE_ALLOW_TEAM = 3;
+  // RESOURCE_ALLOW_TEAM_RBAC indicates that the resource allow is team RBAC.
+  RESOURCE_ALLOW_TEAM_RBAC = 4;
+  // RESOURCE_ALLOW_USER indicates that the resource allow is user.
+  RESOURCE_ALLOW_USER = 5;
+}
