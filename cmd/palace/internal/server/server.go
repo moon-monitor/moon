@@ -24,13 +24,18 @@ func RegisterService(
 	authService *service.AuthService,
 	serverService *service.ServerService,
 	resourceService *service.ResourceService,
+	userService *service.UserService,
 ) server.Servers {
 	commonv1.RegisterHealthServer(rpcSrv, healthService)
 	commonv1.RegisterServerServer(rpcSrv, serverService)
+	palacev1.RegisterAuthServer(rpcSrv, authService)
+	palacev1.RegisterResourceServer(rpcSrv, resourceService)
+	palacev1.RegisterUserServer(rpcSrv, userService)
 
 	commonv1.RegisterHealthHTTPServer(httpSrv, healthService)
 	commonv1.RegisterServerHTTPServer(httpSrv, serverService)
 	palacev1.RegisterAuthHTTPServer(httpSrv, authService)
 	palacev1.RegisterResourceHTTPServer(httpSrv, resourceService)
+	palacev1.RegisterUserHTTPServer(httpSrv, userService)
 	return server.Servers{rpcSrv, httpSrv}
 }

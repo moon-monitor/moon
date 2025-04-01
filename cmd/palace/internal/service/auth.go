@@ -16,6 +16,7 @@ import (
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/vobj"
 	"github.com/moon-monitor/moon/cmd/palace/internal/conf"
 	"github.com/moon-monitor/moon/cmd/palace/internal/helper/permission"
+	"github.com/moon-monitor/moon/cmd/palace/internal/service/build"
 	palacev1 "github.com/moon-monitor/moon/pkg/api/palace"
 	"github.com/moon-monitor/moon/pkg/api/palace/common"
 	"github.com/moon-monitor/moon/pkg/merr"
@@ -50,7 +51,7 @@ func login(loginSign *bo.LoginSign, err error) (*palacev1.LoginReply, error) {
 	if err != nil {
 		return nil, err
 	}
-	return loginSign.LoginReply(), nil
+	return build.LoginReply(loginSign), nil
 }
 
 func NewAuthService(

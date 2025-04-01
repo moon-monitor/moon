@@ -1139,32 +1139,6 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/api.palace.common.EmptyReply'
-    /api/user/self/positions:
-        get:
-            tags:
-                - User
-            description: SelfPositions retrieves the list of positions the current user has
-            operationId: User_SelfPositions
-            responses:
-                "200":
-                    description: OK
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/api.palace.SelfPositionsReply'
-    /api/user/self/roles:
-        get:
-            tags:
-                - User
-            description: SelfRoles retrieves the list of roles the current user has
-            operationId: User_SelfRoles
-            responses:
-                "200":
-                    description: OK
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/api.palace.SelfRolesReply'
     /api/user/self/subscribe/team/strategies:
         post:
             tags:
@@ -2022,36 +1996,6 @@ components:
                         - $ref: '#/components/schemas/api.palace.common.UserItem'
                     description: Detailed information about the user
             description: SelfInfoReply contains the response data for retrieving the current user's information
-        api.palace.SelfPositionsReply:
-            type: object
-            properties:
-                systemPositions:
-                    type: array
-                    items:
-                        type: integer
-                        format: enum
-                    description: List of system position items
-                teamPositions:
-                    type: array
-                    items:
-                        type: integer
-                        format: enum
-                    description: List of team position items
-            description: SelfPositionsReply contains the response data for retrieving the list of positions the current user has
-        api.palace.SelfRolesReply:
-            type: object
-            properties:
-                systemRoles:
-                    type: array
-                    items:
-                        $ref: '#/components/schemas/api.palace.common.SystemRoleItem'
-                    description: List of system role items
-                teamRoles:
-                    type: array
-                    items:
-                        $ref: '#/components/schemas/api.palace.common.TeamRoleItem'
-                    description: List of team role items
-            description: SelfRolesReply contains the response data for retrieving the list of roles the current user has
         api.palace.SelfSubscribeTeamStrategiesReply:
             type: object
             properties:
