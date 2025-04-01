@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/go-kratos/kratos/v2/log"
+	"gorm.io/gen"
 
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/bo"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do/system"
@@ -107,12 +108,12 @@ func (r *resourceImpl) ListResources(ctx context.Context, req *bo.ListResourceRe
 	// 添加关键字搜索
 	if req.Keyword != "" {
 		keywordPattern := "%" + req.Keyword + "%"
-		resourceQuery = resourceQuery.Where(
-			resourceQuery.Or(
-				r.Resource.Name.Like(keywordPattern),
-				r.Resource.Path.Like(keywordPattern),
-			),
-		)
+		opts := []gen.Condition{
+			r.Resource.Name.Like(keywordPattern),
+			r.Resource.Path.Like(keywordPattern),
+			r.Resource.Remark.Like(keywordPattern),
+		}
+		resourceQuery = resourceQuery.Where(resourceQuery.Or(opts...))
 	}
 
 	// 排序和查询
