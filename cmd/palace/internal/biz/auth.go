@@ -15,6 +15,7 @@ import (
 	"github.com/moon-monitor/moon/cmd/palace/internal/conf"
 	"github.com/moon-monitor/moon/cmd/palace/internal/helper/middleware"
 	"github.com/moon-monitor/moon/cmd/palace/internal/helper/permission"
+	rabbitv1 "github.com/moon-monitor/moon/pkg/api/rabbit/v1"
 	"github.com/moon-monitor/moon/pkg/merr"
 	"github.com/moon-monitor/moon/pkg/util/crypto"
 	"github.com/moon-monitor/moon/pkg/util/password"
@@ -46,6 +47,7 @@ func NewAuthBiz(
 	cacheRepo repository.Cache,
 	oauthRepo repository.OAuth,
 	transaction repository.Transaction,
+	rabbitRepo repository.Rabbit,
 	logger log.Logger,
 ) *AuthBiz {
 	return &AuthBiz{
@@ -57,6 +59,7 @@ func NewAuthBiz(
 		cacheRepo:    cacheRepo,
 		oauthRepo:    oauthRepo,
 		transaction:  transaction,
+		rabbitRepo:   rabbitRepo,
 		helper:       log.NewHelper(log.With(logger, "module", "biz.auth")),
 	}
 }
@@ -71,8 +74,8 @@ type AuthBiz struct {
 	cacheRepo   repository.Cache
 	oauthRepo   repository.OAuth
 	transaction repository.Transaction
-
-	helper *log.Helper
+	rabbitRepo  repository.Rabbit
+	helper      *log.Helper
 }
 
 // GetCaptcha get image captchaRepo
@@ -270,7 +273,7 @@ func (a *AuthBiz) oauthUserFirstOrCreate(ctx context.Context, userInfo bo.IOAuth
 		}
 		if oauthUserDo.User == nil {
 			// 创建用户
-			userDo, err = a.userRepo.CreateUserWithOAuthUser(ctx, userInfo)
+			userDo, err = a.userRepo.CreateUserWithOAuthUser(ctx, userInfo, a.sendEmail)
 			if err != nil {
 				return err
 			}
@@ -341,7 +344,7 @@ func (a *AuthBiz) OAuthLoginWithEmail(ctx context.Context, oauthParams *bo.OAuth
 	}
 
 	userDo.Email = crypto.String(oauthParams.Email)
-	userDo, err = a.userRepo.SetEmail(ctx, userDo)
+	userDo, err = a.userRepo.SetEmail(ctx, userDo, a.sendEmail)
 	if err != nil {
 		return nil, err
 	}
@@ -350,7 +353,11 @@ func (a *AuthBiz) OAuthLoginWithEmail(ctx context.Context, oauthParams *bo.OAuth
 
 // VerifyEmail verify email
 func (a *AuthBiz) VerifyEmail(ctx context.Context, email string) error {
-	return a.cacheRepo.SendVerifyEmailCode(ctx, email)
+	sendEmailParams, err := a.cacheRepo.SendVerifyEmailCode(ctx, email)
+	if err != nil {
+		return err
+	}
+	return a.sendEmail(ctx, sendEmailParams)
 }
 
 // LoginWithEmail 邮箱登录
@@ -363,9 +370,28 @@ func (a *AuthBiz) LoginWithEmail(ctx context.Context, code string, user *system.
 		return a.login(userDo)
 	}
 	userDo = user
-	userDo, err = a.userRepo.Create(ctx, userDo)
+	userDo, err = a.userRepo.Create(ctx, userDo, a.sendEmail)
 	if err != nil {
 		return nil, err
 	}
 	return a.login(userDo)
+}
+
+func (a *AuthBiz) sendEmail(ctx context.Context, sendEmailParams *bo.SendEmailParams) error {
+	sendClient, ok := a.rabbitRepo.Send()
+	if !ok {
+		a.helper.Errorf("rabbit not connected")
+		return nil
+	}
+	reply, err := sendClient.Email(ctx, &rabbitv1.SendEmailRequest{
+		Emails:      []string{sendEmailParams.Email},
+		Body:        sendEmailParams.Body,
+		ContentType: sendEmailParams.ContentType,
+		Subject:     sendEmailParams.Subject,
+	})
+	if err != nil {
+		return err
+	}
+	a.helper.Debugf("send email reply: %v", reply)
+	return nil
 }

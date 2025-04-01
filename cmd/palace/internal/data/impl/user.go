@@ -47,7 +47,7 @@ func userNotFound(err error) error {
 	return err
 }
 
-func (u *userRepoImpl) CreateUserWithOAuthUser(ctx context.Context, user bo.IOAuthUser) (userDo *system.User, err error) {
+func (u *userRepoImpl) CreateUserWithOAuthUser(ctx context.Context, user bo.IOAuthUser, sendEmailFunc repository.SendEmailFunc) (userDo *system.User, err error) {
 	userDo, err = u.FindByEmail(ctx, crypto.String(user.GetEmail()))
 	if err == nil {
 		return userDo, nil
@@ -70,10 +70,10 @@ func (u *userRepoImpl) CreateUserWithOAuthUser(ctx context.Context, user bo.IOAu
 		Status:    vobj.UserStatusNormal,
 		Roles:     nil,
 	}
-	return u.Create(ctx, userDo)
+	return u.Create(ctx, userDo, sendEmailFunc)
 }
 
-func (u *userRepoImpl) Create(ctx context.Context, user *system.User) (*system.User, error) {
+func (u *userRepoImpl) Create(ctx context.Context, user *system.User, sendEmailFunc repository.SendEmailFunc) (*system.User, error) {
 	pass := password.New(password.GenerateRandomPassword(8))
 	enValue, err := pass.EnValue()
 	if err != nil {
@@ -85,7 +85,7 @@ func (u *userRepoImpl) Create(ctx context.Context, user *system.User) (*system.U
 	if err = userMutation.WithContext(ctx).Create(user); err != nil {
 		return nil, err
 	}
-	if err = u.sendUserPassword(user, pass.PValue()); err != nil {
+	if err = u.sendUserPassword(ctx, user, pass.PValue(), sendEmailFunc); err != nil {
 		return nil, err
 	}
 	return user, nil
@@ -109,7 +109,7 @@ func (u *userRepoImpl) FindByEmail(ctx context.Context, email crypto.String) (*s
 	return user, nil
 }
 
-func (u *userRepoImpl) SetEmail(ctx context.Context, user *system.User) (*system.User, error) {
+func (u *userRepoImpl) SetEmail(ctx context.Context, user *system.User, sendEmailFunc repository.SendEmailFunc) (*system.User, error) {
 	userMutation := systemQuery.Use(u.GetMainDB().GetDB()).User
 	wrapper := []gen.Condition{
 		userMutation.ID.Eq(user.ID),
@@ -136,7 +136,7 @@ func (u *userRepoImpl) SetEmail(ctx context.Context, user *system.User) (*system
 	if err != nil {
 		return nil, userNotFound(err)
 	}
-	if err = u.sendUserPassword(userDo, pass.PValue()); err != nil {
+	if err = u.sendUserPassword(ctx, userDo, pass.PValue(), sendEmailFunc); err != nil {
 		return nil, err
 	}
 	return userDo, nil
@@ -145,7 +145,7 @@ func (u *userRepoImpl) SetEmail(ctx context.Context, user *system.User) (*system
 //go:embed template/welcome.html
 var welcomeEmailBody string
 
-func (u *userRepoImpl) sendUserPassword(user *system.User, pass string) error {
+func (u *userRepoImpl) sendUserPassword(ctx context.Context, user *system.User, pass string, sendEmailFunc repository.SendEmailFunc) error {
 	if err := validate.CheckEmail(string(user.Email)); err != nil {
 		return nil
 	}
@@ -159,6 +159,12 @@ func (u *userRepoImpl) sendUserPassword(user *system.User, pass string) error {
 	if err != nil {
 		return err
 	}
-	// 发送用户密码到用户邮箱
-	return u.GetEmail().SetSubject("Welcome to the Moon Monitoring System.").SetTo(string(user.Email)).SetBody(emailBody, "text/html").Send()
+	sendEmailParams := &bo.SendEmailParams{
+		Email:       string(user.Email),
+		Body:        emailBody,
+		Subject:     "Welcome to the Moon Monitoring System.",
+		ContentType: "text/html",
+	}
+	// send email to user
+	return sendEmailFunc(ctx, sendEmailParams)
 }

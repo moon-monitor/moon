@@ -9,6 +9,7 @@ import (
 	"github.com/go-kratos/kratos/v2/errors"
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/google/wire"
+	"google.golang.org/grpc"
 	ggorm "gorm.io/gorm"
 
 	"github.com/moon-monitor/moon/cmd/palace/internal/conf"
@@ -16,7 +17,6 @@ import (
 	"github.com/moon-monitor/moon/pkg/config"
 	"github.com/moon-monitor/moon/pkg/merr"
 	"github.com/moon-monitor/moon/pkg/plugin/cache"
-	"github.com/moon-monitor/moon/pkg/plugin/email"
 	"github.com/moon-monitor/moon/pkg/plugin/gorm"
 	"github.com/moon-monitor/moon/pkg/util/safety"
 )
@@ -30,17 +30,29 @@ type Data struct {
 	bizDB, eventDB       *sql.DB
 	bizDBMap, eventDBMap *safety.Map[uint32, gorm.DB]
 	cache                cache.Cache
-	email                email.Email
+	rabbitConn           *safety.Map[string, *grpc.ClientConn]
 
 	helper *log.Helper
 }
 
-func (d *Data) GetCache() cache.Cache {
-	return d.cache
+func (d *Data) GetRabbitConn(id string) (*grpc.ClientConn, bool) {
+	return d.rabbitConn.Get(id)
 }
 
-func (d *Data) GetEmail() email.Email {
-	return d.email
+func (d *Data) SetRabbitConn(id string, conn *grpc.ClientConn) {
+	d.rabbitConn.Set(id, conn)
+}
+
+func (d *Data) FirstRabbitConn() (*grpc.ClientConn, bool) {
+	list := d.rabbitConn.List()
+	for _, conn := range list {
+		return conn, true
+	}
+	return nil, false
+}
+
+func (d *Data) GetCache() cache.Cache {
+	return d.cache
 }
 
 func (d *Data) GetMainDB() gorm.DB {
@@ -122,7 +134,7 @@ func New(c *conf.Bootstrap, logger log.Logger) (*Data, func(), error) {
 		bizDBMap:   safety.NewMap[uint32, gorm.DB](),
 		eventDBMap: safety.NewMap[uint32, gorm.DB](),
 		cache:      nil,
-		email:      email.New(c.GetEmail()),
+		rabbitConn: safety.NewMap[string, *grpc.ClientConn](),
 		helper:     log.NewHelper(log.With(logger, "module", "data")),
 	}
 

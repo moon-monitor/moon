@@ -111,14 +111,14 @@ func (c *cacheReoImpl) VerifyEmailCode(ctx context.Context, email, code string) 
 //go:embed template/verify_email.html
 var verifyEmailTemplate string
 
-func (c *cacheReoImpl) SendVerifyEmailCode(ctx context.Context, email string) error {
+func (c *cacheReoImpl) SendVerifyEmailCode(ctx context.Context, email string) (*bo.SendEmailParams, error) {
 	if err := validate.CheckEmail(email); err != nil {
-		return err
+		return nil, err
 	}
 	code := strings.ToUpper(password.MD5(time.Now().String())[:6])
 	err := c.GetCache().Client().Set(ctx, repository.EmailCodeKey.Key(email), code, 5*time.Minute).Err()
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	bodyParams := map[string]string{
@@ -128,8 +128,13 @@ func (c *cacheReoImpl) SendVerifyEmailCode(ctx context.Context, email string) er
 	}
 	emailBody, err := template.HtmlFormatter(verifyEmailTemplate, bodyParams)
 	if err != nil {
-		return err
+		return nil, err
 	}
-	// 发送用户密码到用户邮箱
-	return c.GetEmail().SetSubject("Email verification code.").SetTo(email).SetBody(emailBody, "text/html").Send()
+	params := &bo.SendEmailParams{
+		Email:       email,
+		Body:        emailBody,
+		Subject:     "Email verification code.",
+		ContentType: "text/html",
+	}
+	return params, nil
 }

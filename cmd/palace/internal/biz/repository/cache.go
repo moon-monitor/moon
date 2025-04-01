@@ -16,7 +16,7 @@ type Cache interface {
 
 	VerifyOAuthToken(ctx context.Context, oauthParams *bo.OAuthLoginParams) error
 	CacheVerifyOAuthToken(ctx context.Context, oauthParams *bo.OAuthLoginParams) error
-	SendVerifyEmailCode(ctx context.Context, email string) error
+	SendVerifyEmailCode(ctx context.Context, email string) (*bo.SendEmailParams, error)
 	VerifyEmailCode(ctx context.Context, email, code string) error
 }
 

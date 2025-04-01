@@ -1217,13 +1217,13 @@ paths:
     /v1/server/send/msg/callback:
         post:
             tags:
-                - Server
-            operationId: Server_SendMsgCallback
+                - Callback
+            operationId: Callback_SendMsgCallback
             requestBody:
                 content:
                     application/json:
                         schema:
-                            $ref: '#/components/schemas/api.common.SendMsgCallbackRequest'
+                            $ref: '#/components/schemas/api.palace.SendMsgCallbackRequest'
                 required: true
             responses:
                 "200":
@@ -1231,7 +1231,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/api.common.SendMsgCallbackReply'
+                                $ref: '#/components/schemas/api.palace.SendMsgCallbackReply'
 components:
     schemas:
         api.common.CheckReply:
@@ -1241,28 +1241,6 @@ components:
                     type: boolean
                 version:
                     type: string
-        api.common.SendMsgCallbackReply:
-            type: object
-            properties:
-                code:
-                    type: integer
-                    description: Code of the reply 0 is success, other is failed
-                    format: int32
-                msg:
-                    type: string
-                    description: Message of the reply, only when code is not 0, it is not empty
-        api.common.SendMsgCallbackRequest:
-            type: object
-            properties:
-                requestId:
-                    type: string
-                code:
-                    type: integer
-                    description: Code of the callback 0 is success, other is failed
-                    format: int32
-                msg:
-                    type: string
-                    description: Message of the callback, only when code is not 0, it is not empty
         api.common.ServerRegisterReply:
             type: object
             properties: {}
@@ -2011,6 +1989,28 @@ components:
                         $ref: '#/components/schemas/api.palace.common.TeamItem'
                     description: List of team items
             description: SelfTeamListReply contains the response data for retrieving the list of teams the current user is a member of
+        api.palace.SendMsgCallbackReply:
+            type: object
+            properties:
+                code:
+                    type: integer
+                    description: Code of the reply 0 is success, other is failed
+                    format: int32
+                msg:
+                    type: string
+                    description: Message of the reply, only when code is not 0, it is not empty
+        api.palace.SendMsgCallbackRequest:
+            type: object
+            properties:
+                requestId:
+                    type: string
+                code:
+                    type: integer
+                    description: Code of the callback 0 is success, other is failed
+                    format: int32
+                msg:
+                    type: string
+                    description: Message of the callback, only when code is not 0, it is not empty
         api.palace.SubscribeTeamStrategiesRequest:
             type: object
             properties:
@@ -2772,6 +2772,7 @@ components:
 tags:
     - name: Auth
       description: Auth service provides authentication related operations
+    - name: Callback
     - name: Health
       description: Health Check API
     - name: Resource
