@@ -19,13 +19,13 @@ type SaveResourceReq struct {
 
 // BatchUpdateResourceStatusReq 批量更新资源状态请求
 type BatchUpdateResourceStatusReq struct {
-	IDs    []uint32            `json:"ids"`
-	Status vobj.ResourceStatus `json:"status"`
+	IDs    []uint32          `json:"ids"`
+	Status vobj.GlobalStatus `json:"status"`
 }
 
 // ListResourceReq 资源列表查询请求
 type ListResourceReq struct {
-	Statuses []vobj.ResourceStatus `json:"statuses"`
+	Statuses []vobj.GlobalStatus   `json:"statuses"`
 	Modules  []vobj.ResourceModule `json:"modules"`
 	Domains  []vobj.ResourceDomain `json:"domains"`
 	Keyword  string                `json:"keyword"`
@@ -37,7 +37,7 @@ type ResourceItem struct {
 	Name      string              `json:"name"`
 	Path      string              `json:"path"`
 	Remark    string              `json:"remark"`
-	Status    vobj.ResourceStatus `json:"status"`
+	Status    vobj.GlobalStatus   `json:"status"`
 	Module    vobj.ResourceModule `json:"module"` // 注意：系统中实际储存为ResourceDomain类型
 	Domain    vobj.ResourceDomain `json:"domain"`
 	Allow     vobj.ResourceAllow  `json:"allow"`

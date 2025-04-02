@@ -54,7 +54,7 @@ func (s *ResourceService) BatchUpdateResourceStatus(ctx context.Context, req *pa
 	// 转换为业务对象
 	updateReq := &bo.BatchUpdateResourceStatusReq{
 		IDs:    req.GetIds(),
-		Status: vobj.ResourceStatus(req.GetStatus()),
+		Status: vobj.GlobalStatus(req.GetStatus()),
 	}
 
 	// 批量更新状态
@@ -100,9 +100,9 @@ func (s *ResourceService) ListResource(ctx context.Context, req *palacev1.ListRe
 
 	// 转换状态过滤条件
 	if len(req.GetStatus()) > 0 {
-		listReq.Statuses = make([]vobj.ResourceStatus, 0, len(req.GetStatus()))
+		listReq.Statuses = make([]vobj.GlobalStatus, 0, len(req.GetStatus()))
 		for _, status := range req.GetStatus() {
-			listReq.Statuses = append(listReq.Statuses, vobj.ResourceStatus(status))
+			listReq.Statuses = append(listReq.Statuses, vobj.GlobalStatus(status))
 		}
 	}
 

@@ -6,6 +6,16 @@ option go_package = "github.com/moon-monitor/moon/pkg/api/palace/common;common";
 option java_multiple_files = true;
 option java_package = "com.api.palace.common";
 
+// GlobalStatus represents the status of a global resource.
+enum GlobalStatus {
+  // GLOBAL_STATUS_UNKNOWN is the default status for a global resource.
+  GLOBAL_STATUS_UNKNOWN = 0;
+  // GLOBAL_STATUS_DISABLE indicates the resource is disabled.
+  GLOBAL_STATUS_DISABLE = 1;
+  // GLOBAL_STATUS_ENABLE indicates the resource is enabled.
+  GLOBAL_STATUS_ENABLE = 2;
+}
+
 // RoleStatus represents the status of a role.
 enum RoleStatus {
   // ROLE_STATUS_UNKNOWN is the default status when the role status is unknown.
@@ -19,21 +29,23 @@ enum RoleStatus {
 // OperateType represents the type of an operation.
 enum OperateType {
   // OPERATE_TYPE_UNKNOWN is the default type when the operation type is unknown.
-  OPERATE_TYPE_QUERY = 0;
+  OPERATE_TYPE_UNKNOWN = 0;
+  // OPERATE_TYPE_QUERY indicates that the operation is a query operation.
+  OPERATE_TYPE_QUERY = 1;
   // OPERATE_TYPE_ADD indicates that the operation is an add operation.
-  OPERATE_TYPE_ADD = 1;
+  OPERATE_TYPE_ADD = 2;
   // OPERATE_TYPE_UPDATE indicates that the operation is an update operation.
-  OPERATE_TYPE_UPDATE = 2;
+  OPERATE_TYPE_UPDATE = 3;
   // OPERATE_TYPE_DELETE indicates that the operation is a delete operation.
-  OPERATE_TYPE_DELETE = 3;
+  OPERATE_TYPE_DELETE = 4;
   // OPERATE_TYPE_LOGIN indicates that the operation is a login operation.
-  OPERATE_TYPE_LOGIN = 4;
+  OPERATE_TYPE_LOGIN = 5;
   // OPERATE_TYPE_LOGOUT indicates that the operation is a logout operation.
-  OPERATE_TYPE_LOGOUT = 5;
+  OPERATE_TYPE_LOGOUT = 6;
   // OPERATE_TYPE_EXPORT indicates that the operation is an export operation.
-  OPERATE_TYPE_EXPORT = 6;
+  OPERATE_TYPE_EXPORT = 7;
   // OPERATE_TYPE_IMPORT indicates that the operation is an import operation.
-  OPERATE_TYPE_IMPORT = 7;
+  OPERATE_TYPE_IMPORT = 8;
 }
 
 // ResourceAllow represents the allow of a resource.

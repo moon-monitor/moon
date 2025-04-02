@@ -101,7 +101,7 @@ message BatchUpdateResourceStatusRequest {
   // List of resource IDs to update
   repeated uint32 ids = 1 [(buf.validate.field).required = true];
   // New status for the resources
-  api.palace.common.ResourceStatus status = 2 [(buf.validate.field).required = true];
+  api.palace.common.GlobalStatus status = 2 [(buf.validate.field).required = true];
 }
 
 // DeleteResourceRequest represents the request data for deleting a resource
@@ -125,7 +125,7 @@ message GetResourceReply {
 // ListResourceRequest represents the request data for listing resources
 message ListResourceRequest {
   // List of statuses to filter resources by
-  repeated api.palace.common.ResourceStatus status = 1;
+  repeated api.palace.common.GlobalStatus status = 1;
   // List of modules to filter resources by
   repeated api.palace.common.ResourceModule module = 2;
   // List of domains to filter resources by

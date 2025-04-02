@@ -232,6 +232,8 @@ components:
                         type: string
                 emailConfig:
                     $ref: '#/components/schemas/api.rabbit.common.EmailConfig'
+                configName:
+                    type: string
         api.rabbit.v1.SendHookRequest:
             type: object
             properties:
@@ -254,6 +256,8 @@ components:
                     type: string
                 smsConfig:
                     $ref: '#/components/schemas/api.rabbit.common.AliyunSMSConfig'
+                configName:
+                    type: string
         api.rabbit.v1.SyncEmailRequest:
             type: object
             properties:

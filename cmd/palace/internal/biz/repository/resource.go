@@ -26,7 +26,7 @@ type Resource interface {
 	DeleteResource(ctx context.Context, id uint32) error
 
 	// BatchUpdateResourceStatus update multiple resources status
-	BatchUpdateResourceStatus(ctx context.Context, ids []uint32, status vobj.ResourceStatus) error
+	BatchUpdateResourceStatus(ctx context.Context, ids []uint32, status vobj.GlobalStatus) error
 
 	// ListResources list resources with filter
 	ListResources(ctx context.Context, req *bo.ListResourceReq) ([]*system.Resource, error)

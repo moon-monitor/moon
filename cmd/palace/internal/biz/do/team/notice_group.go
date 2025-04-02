@@ -15,7 +15,7 @@ type NoticeGroup struct {
 
 	Name   string            `gorm:"column:name;type:varchar(64);not null;comment:名称" json:"name"`
 	Remark string            `gorm:"column:remark;type:varchar(255);not null;comment:备注" json:"remark"`
-	Status vobj.NoticeStatus `gorm:"column:status;type:tinyint(2);not null;comment:状态" json:"status"`
+	Status vobj.GlobalStatus `gorm:"column:status;type:tinyint(2);not null;comment:状态" json:"status"`
 
 	Members NoticeMembers `gorm:"column:members;type:text;not null;comment:通知成员列表" json:"members"`
 	Hooks   []*NoticeHook `gorm:"many2many:team_notice_group_hooks" json:"hooks"`

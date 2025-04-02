@@ -6,30 +6,26 @@ option go_package = "github.com/moon-monitor/moon/pkg/api/palace/common;common";
 option java_multiple_files = true;
 option java_package = "com.api.palace.common";
 
-// Defines the status of a resource, including disabled and enabled states.
-enum ResourceStatus {
-  // The resource is in a disabled state.
-  RESOURCE_STATUS_DISABLED = 0;
-  // The resource is in an enabled state.
-  RESOURCE_STATUS_ENABLED = 1;
-}
-
 // Defines the module to which a resource belongs, such as system, user, or team modules.
 enum ResourceModule {
+  // RESOURCE_MODULE_UNKNOWN is the default module for a resource.
+  RESOURCE_MODULE_UNKNOWN = 0;
   // The module to which the resource belongs is unspecified.
-  RESOURCE_MODULE_UNSPECIFIED = 0;
+  RESOURCE_MODULE_UNSPECIFIED = 1;
   // The resource belongs to the system module.
-  RESOURCE_MODULE_SYSTEM = 1;
+  RESOURCE_MODULE_SYSTEM = 2;
   // The resource belongs to the user module.
-  RESOURCE_MODULE_USER = 2;
+  RESOURCE_MODULE_USER = 3;
   // The resource belongs to the team module.
-  RESOURCE_MODULE_TEAM = 3;
+  RESOURCE_MODULE_TEAM = 4;
 }
 
 // Defines the domain of the resource, used to distinguish different application scenarios or regions of the resource.
 enum ResourceDomain {
+  // RESOURCE_DOMAIN_UNKNOWN is the default domain for a resource.
+  RESOURCE_DOMAIN_UNKNOWN = 0;
   // The domain of the resource is unspecified.
-  RESOURCE_DOMAIN_UNSPECIFIED = 0;
+  RESOURCE_DOMAIN_UNSPECIFIED = 1;
 }
 
 // Defines gender types, including unspecified, male, and female.
@@ -70,10 +66,12 @@ enum UserPosition {
 
 // Defines the audit status of a team, including pending, approved, and rejected.
 enum TeamAuditStatus {
+  // The team audit status is unknown.
+  TEAM_AUDIT_STATUS_UNKNOWN = 0;
   // The team audit status is pending.
-  TEAM_AUDIT_STATUS_PENDING = 0;
+  TEAM_AUDIT_STATUS_PENDING = 1;
   // The team audit status is approved.
-  TEAM_AUDIT_STATUS_APPROVED = 1;
+  TEAM_AUDIT_STATUS_APPROVED = 2;
   // The team audit status is rejected.
-  TEAM_AUDIT_STATUS_REJECTED = 2;
+  TEAM_AUDIT_STATUS_REJECTED = 3;
 }

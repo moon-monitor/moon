@@ -6,7 +6,8 @@ package vobj
 type StatusAudit int8
 
 const (
-	AuditStatusPending  StatusAudit = iota // Pending
-	AuditStatusApproved StatusAudit = iota // Approved
-	AuditStatusRejected StatusAudit = iota // Rejected
+	AuditStatusUnknown  StatusAudit = iota // Unknown
+	AuditStatusPending                     // Pending
+	AuditStatusApproved                    // Approved
+	AuditStatusRejected                    // Rejected
 )

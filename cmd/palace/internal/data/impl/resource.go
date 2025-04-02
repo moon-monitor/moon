@@ -64,7 +64,7 @@ func (r *resourceImpl) DeleteResource(ctx context.Context, id uint32) error {
 }
 
 // BatchUpdateResourceStatus 批量更新资源状态
-func (r *resourceImpl) BatchUpdateResourceStatus(ctx context.Context, ids []uint32, status vobj.ResourceStatus) error {
+func (r *resourceImpl) BatchUpdateResourceStatus(ctx context.Context, ids []uint32, status vobj.GlobalStatus) error {
 	if len(ids) == 0 {
 		return nil
 	}

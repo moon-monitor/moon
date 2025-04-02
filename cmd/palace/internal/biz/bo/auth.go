@@ -61,9 +61,9 @@ type UserIdentities struct {
 
 // SystemRoleItem 系统角色项
 type SystemRoleItem struct {
-	ID     uint32          `json:"id"`
-	Name   string          `json:"name"`
-	Status vobj.RoleStatus `json:"status"`
+	ID     uint32            `json:"id"`
+	Name   string            `json:"name"`
+	Status vobj.GlobalStatus `json:"status"`
 }
 
 // TeamItem 团队项
@@ -77,7 +77,7 @@ type TeamItem struct {
 
 // TeamRoleItem 团队角色项
 type TeamRoleItem struct {
-	ID     uint32          `json:"id"`
-	Name   string          `json:"name"`
-	Status vobj.RoleStatus `json:"status"`
+	ID     uint32            `json:"id"`
+	Name   string            `json:"name"`
+	Status vobj.GlobalStatus `json:"status"`
 }

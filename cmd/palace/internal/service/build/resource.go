@@ -44,7 +44,7 @@ func ToResourceItemProto(resource *bo.ResourceItem) *common.ResourceItem {
 		Name:      resource.Name,
 		Path:      resource.Path,
 		Remark:    resource.Remark,
-		Status:    common.ResourceStatus(resource.Status),
+		Status:    common.GlobalStatus(resource.Status),
 		Module:    common.ResourceModule(resource.Module),
 		Domain:    common.ResourceDomain(resource.Domain),
 		CreatedAt: resource.CreatedAt.Format(time.DateTime),
@@ -67,7 +67,7 @@ func ToResourceDO(resource *bo.SaveResourceReq) *system.Resource {
 		Path:      resource.Path,
 		Module:    vobj.ResourceDomain(resource.Module), // 需要类型转换
 		Domain:    resource.Domain,
-		Status:    vobj.ResourceStatusEnabled,   // 默认启用
+		Status:    vobj.GlobalStatusEnable,      // 默认启用
 		Allow:     vobj.ResourceAllowSystemRBAC, // 默认系统RBAC
 		Remark:    resource.Remark,
 	}

@@ -4,6 +4,7 @@ package vobj
 type AuditAction int8
 
 const (
-	AuditActionJoin  AuditAction = iota // Join
-	AuditActionLeave                    // Leave
+	AuditActionUnknown AuditAction = iota // Unknown
+	AuditActionJoin                       // Join
+	AuditActionLeave                      // Leave
 )

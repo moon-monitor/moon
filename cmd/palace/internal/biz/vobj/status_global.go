@@ -6,6 +6,7 @@ package vobj
 type GlobalStatus int8
 
 const (
-	GlobalStatusDisable GlobalStatus = iota
-	GlobalStatusEnable
+	GlobalStatusUnknown GlobalStatus = iota // Unknown
+	GlobalStatusEnable                      // Enable
+	GlobalStatusDisable                     // Disable
 )

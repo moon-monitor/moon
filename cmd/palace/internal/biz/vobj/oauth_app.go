@@ -6,6 +6,7 @@ package vobj
 type OAuthAPP int8
 
 const (
-	OAuthAPPGithub OAuthAPP = iota // github
-	OAuthAPPGitee                  // gitee
+	OAuthAPPUnknown OAuthAPP = iota // unknown
+	OAuthAPPGithub                  // github
+	OAuthAPPGitee                   // gitee
 )

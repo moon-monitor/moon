@@ -112,7 +112,7 @@ func (h *basePermissionHandler) ResourceHandler(getResourceByOperation func(ctx 
 		if err != nil {
 			return true, err
 		}
-		if !resource.Status.IsEnabled() {
+		if !resource.Status.IsEnable() {
 			return true, merr.ErrorPermissionDenied("permission denied")
 		}
 		pctx.Resource = resource
@@ -273,7 +273,7 @@ func checkSystemRBAC(ctx context.Context, user *system.User, resource *system.Re
 		if !ok {
 			return false, merr.ErrorPermissionDenied("user role is invalid.")
 		}
-		if !systemRoleDo.Status.IsNormal() {
+		if !systemRoleDo.Status.IsEnable() {
 			return false, merr.ErrorPermissionDenied("role is invalid [%s]", systemRoleDo.Status)
 		}
 		_, ok = validate.SliceFindByValue(systemRoleDo.Resources, resource.ID, func(role *system.Resource) uint32 {
@@ -286,7 +286,7 @@ func checkSystemRBAC(ctx context.Context, user *system.User, resource *system.Re
 	}
 	resources := make([]*system.Resource, 0, len(user.Roles)*10)
 	for _, role := range user.Roles {
-		if role.Status.IsNormal() {
+		if role.Status.IsEnable() {
 			resources = append(resources, role.Resources...)
 		}
 	}
@@ -311,7 +311,7 @@ func checkTeamRBAC(ctx context.Context, member *system.TeamMember, resource *sys
 		if !ok {
 			return false, merr.ErrorPermissionDenied("team role is invalid")
 		}
-		if !teamRoleDo.Status.IsNormal() {
+		if !teamRoleDo.Status.IsEnable() {
 			return false, merr.ErrorPermissionDenied("team role is invalid [%s]", teamRoleDo.Status)
 		}
 		_, ok = validate.SliceFindByValue(teamRoleDo.Resources, resource.ID, func(role *system.Resource) uint32 {
@@ -324,7 +324,7 @@ func checkTeamRBAC(ctx context.Context, member *system.TeamMember, resource *sys
 	}
 	resources := make([]*system.Resource, 0, len(member.Roles)*10)
 	for _, role := range member.Roles {
-		if role.Status.IsNormal() {
+		if role.Status.IsEnable() {
 			resources = append(resources, role.Resources...)
 		}
 	}
@@ -373,7 +373,7 @@ func (a *PermissionBiz) VerifyNewPermission(ctx context.Context, permissionReq *
 		if !ok {
 			return merr.ErrorPermissionDenied("system role is invalid")
 		}
-		if !systemRoleDo.Status.IsNormal() {
+		if !systemRoleDo.Status.IsEnable() {
 			return merr.ErrorPermissionDenied("system role is invalid status: [%s]", systemRoleDo.Status)
 		}
 	}
@@ -422,7 +422,7 @@ func (a *PermissionBiz) VerifyNewPermission(ctx context.Context, permissionReq *
 			if !ok {
 				return merr.ErrorPermissionDenied("team role is invalid")
 			}
-			if !teamRoleDo.Status.IsNormal() {
+			if !teamRoleDo.Status.IsEnable() {
 				return merr.ErrorPermissionDenied("team role is invalid status: [%s]", teamRoleDo.Status)
 			}
 		}

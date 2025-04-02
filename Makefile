@@ -41,6 +41,9 @@ all:
 .PHONY: api
 # generate api proto
 api:
+	@if [ -z "$(APP_NAME)" ]; then echo "app name is required"; echo "usage: make api app=<app_name>"; exit 1; fi
+	@echo "Generating api proto"
+	@echo "APP_NAME: $(APP_NAME)"
 	mkdir -p ./pkg/api
 	protoc --proto_path=./proto/api \
 	       --proto_path=./proto/api \

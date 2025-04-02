@@ -18,7 +18,7 @@ message ResourceItem {
   // Path of the API resource
   string path = 3;
   // Status of the API resource
-  api.palace.common.ResourceStatus status = 4;
+  api.palace.common.GlobalStatus status = 4;
   // Remarks about the API resource
   string remark = 5;
   // Creation time of the API resource
