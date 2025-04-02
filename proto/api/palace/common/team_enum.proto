@@ -6,6 +6,14 @@ option go_package = "github.com/moon-monitor/moon/pkg/api/palace/common;common";
 option java_multiple_files = true;
 option java_package = "com.api.palace.common";
 
+// GlobalStatus represents the status of a global resource.
+enum GlobalStatus {
+  // GLOBAL_STATUS_DISABLE indicates the resource is disabled.
+  GLOBAL_STATUS_DISABLE = 0;
+  // GLOBAL_STATUS_ENABLE indicates the resource is enabled.
+  GLOBAL_STATUS_ENABLE = 1;
+}
+
 // TeamStatus represents the status of a team.
 enum TeamStatus {
   // TEAM_STATUS_UNKNOWN is the default status for a team.
@@ -54,12 +62,4 @@ enum TeamStrategyGroupStatus {
   TEAM_STRATEGY_GROUP_STATUS_ENABLED = 0;
   // TEAM_STRATEGY_GROUP_STATUS_DISABLED indicates the team strategy group is disabled.
   TEAM_STRATEGY_GROUP_STATUS_DISABLED = 1;
-}
-
-// TeamStrategyStatus represents the status of a team strategy.
-enum TeamStrategyStatus {
-  // TEAM_STRATEGY_STATUS_ENABLED indicates the team strategy is enabled.
-  TEAM_STRATEGY_STATUS_ENABLED = 0;
-  // TEAM_STRATEGY_STATUS_DISABLED indicates the team strategy is disabled.
-  TEAM_STRATEGY_STATUS_DISABLED = 1;
 }

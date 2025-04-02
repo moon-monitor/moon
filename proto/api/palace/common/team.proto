@@ -81,3 +81,26 @@ message TeamMemberItem {
   // Timestamp indicating when the member's information was last updated.
   string updatedAt = 8;
 }
+
+message TeamDashboardItem {
+  uint32 id = 1;
+  string name = 2;
+  string remark = 3;
+  api.palace.common.GlobalStatus status = 4;
+  string colorHex = 5;
+  string createdAt = 6;
+  string updatedAt = 7;
+}
+
+message TeamDashboardChartItem {
+  uint32 id = 1;
+  uint32 dashboardID = 2;
+  string title = 3;
+  string remark = 4;
+  api.palace.common.GlobalStatus status = 5;
+  string url = 6;
+  string width = 7;
+  string height = 8;
+  string createdAt = 9;
+  string updatedAt = 10;
+}

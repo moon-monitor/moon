@@ -9,5 +9,7 @@ func Models() []any {
 		&NoticeHook{},
 		&TimeEngine{},
 		&TimeEngineRule{},
+		&Dashboard{},
+		&DashboardChart{},
 	}
 }

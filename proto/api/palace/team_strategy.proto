@@ -122,7 +122,7 @@ message UpdateTeamStrategyGroupStatusRequest {
   // Strategy group ID
   uint32 groupID = 1;
   // New status for the strategy group
-  api.palace.common.TeamStrategyGroupStatus status = 2;
+  api.palace.common.GlobalStatus status = 2;
 }
 
 // DeleteTeamStrategyGroupRequest represents the request data for deleting a team strategy group
@@ -150,7 +150,7 @@ message ListTeamStrategyGroupRequest {
   // Keyword to search strategy groups by
   string keyword = 2 [(buf.validate.field).string.max_len = 20];
   // List of statuses to filter strategy groups by
-  repeated api.palace.common.TeamStrategyGroupStatus status = 3;
+  repeated api.palace.common.GlobalStatus status = 3;
 }
 
 // ListTeamStrategyGroupReply contains the response data for listing team strategy groups
@@ -178,7 +178,7 @@ message UpdateTeamStrategiesStatusRequest {
   // List of strategy IDs to update
   repeated uint32 strategyIDs = 1 [(buf.validate.field).required = true];
   // New status for the strategies
-  api.palace.common.TeamStrategyStatus status = 2;
+  api.palace.common.GlobalStatus status = 2;
 }
 
 // DeleteTeamStrategyRequest represents the request data for deleting a team strategy
@@ -206,7 +206,7 @@ message ListTeamStrategyRequest {
   // Strategy group ID to filter strategies by
   uint32 groupID = 2;
   // List of statuses to filter strategies by
-  repeated api.palace.common.TeamStrategyStatus status = 3;
+  repeated api.palace.common.GlobalStatus status = 3;
 }
 
 // ListTeamStrategyReply contains the response data for listing team strategies

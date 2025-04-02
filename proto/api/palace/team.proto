@@ -123,6 +123,13 @@ service Team {
       body: "*"
     };
   }
+
+  // GetEmailConfig retrieves the email configuration for the team
+  rpc GetEmailConfig (api.palace.common.EmptyRequest) returns (GetEmailConfigReply) {
+    option (google.api.http) = {
+      get: "/api/team/email/configs"
+    };
+  }
 }
 
 // SaveTeamRequest represents the request data for saving or updating a team
@@ -268,4 +275,42 @@ message SaveEmailConfigRequest {
   uint32 port = 4 [(buf.validate.field).required = true];
   // Enable email configuration
   bool enable = 5;
+  // Name of the email configuration
+  string name = 6 [(buf.validate.field).cel = {
+    message: "name max length is 32"
+    expression: "this.size() <= 32"
+  }, (buf.validate.field).required = true];
+  // Remark of the email configuration
+  string remark = 7 [(buf.validate.field).cel = {
+    message: "remark max length is 200"
+    expression: "this.size() <= 200"
+  }];
+  // id of the email configuration
+  uint32 id = 8;
+}
+
+// EmailConfigItem represents the structure of an email configuration
+message EmailConfigItem {
+  // Email user
+  string user = 1;
+  // Email password
+  string pass = 2;
+  // Email server host
+  string host = 3;
+  // Email server port
+  uint32 port = 4;
+  // Enable email configuration
+  bool enable = 5;
+  // Name of the email configuration
+  string name = 6;
+  // Remark of the email configuration
+  string remark = 7;
+  // id of the email configuration
+  uint32 id = 8;
+}
+
+// GetEmailConfigReply contains the response data for retrieving the email configuration
+message GetEmailConfigReply {
+  // List of email configuration items
+  repeated EmailConfigItem items = 1;
 }
