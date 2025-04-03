@@ -79,7 +79,7 @@ service Auth {
   }
 
   // GetFilingInformation gets the filing information
-  rpc GetFilingInformation(GetFilingInformationRequest) returns (GetFilingInformationReply) {
+  rpc GetFilingInformation(api.palace.common.EmptyRequest) returns (GetFilingInformationReply) {
     option (google.api.http) = {
       post: "/api/auth/filing/information"
       body: "*"
@@ -287,12 +287,6 @@ message VerifyNewPermissionRequest {
   api.palace.common.UserPosition systemPosition = 4;
   // team position
   api.palace.common.MemberPosition teamPosition = 5;
-}
-
-// GetFilingInformationRequest represents the request data for getting the filing information
-message GetFilingInformationRequest {
-  // Origin of the filing information
-  uint32 origin = 1;
 }
 
 // GetFilingInformationReply contains the response data for getting the filing information

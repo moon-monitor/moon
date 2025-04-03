@@ -9,9 +9,9 @@ import (
 	"github.com/go-kratos/kratos/v2/errors"
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/google/wire"
-	"google.golang.org/grpc"
 	ggorm "gorm.io/gorm"
 
+	"github.com/moon-monitor/moon/cmd/palace/internal/biz/bo"
 	"github.com/moon-monitor/moon/cmd/palace/internal/conf"
 	systemQuery "github.com/moon-monitor/moon/cmd/palace/internal/data/query/system"
 	"github.com/moon-monitor/moon/pkg/config"
@@ -30,20 +30,29 @@ type Data struct {
 	bizDB, eventDB       *sql.DB
 	bizDBMap, eventDBMap *safety.Map[uint32, gorm.DB]
 	cache                cache.Cache
-	rabbitConn           *safety.Map[string, *grpc.ClientConn]
+	rabbitConn           *safety.Map[string, *bo.Server]
+	houyiConn            *safety.Map[string, *bo.Server]
 
 	helper *log.Helper
 }
 
-func (d *Data) GetRabbitConn(id string) (*grpc.ClientConn, bool) {
+func (d *Data) GetRabbitConn(id string) (*bo.Server, bool) {
 	return d.rabbitConn.Get(id)
 }
 
-func (d *Data) SetRabbitConn(id string, conn *grpc.ClientConn) {
+func (d *Data) SetRabbitConn(id string, conn *bo.Server) {
 	d.rabbitConn.Set(id, conn)
 }
 
-func (d *Data) FirstRabbitConn() (*grpc.ClientConn, bool) {
+func (d *Data) GetHouyiConn(id string) (*bo.Server, bool) {
+	return d.houyiConn.Get(id)
+}
+
+func (d *Data) SetHouyiConn(id string, conn *bo.Server) {
+	d.houyiConn.Set(id, conn)
+}
+
+func (d *Data) FirstRabbitConn() (*bo.Server, bool) {
 	list := d.rabbitConn.List()
 	for _, conn := range list {
 		return conn, true
@@ -134,7 +143,8 @@ func New(c *conf.Bootstrap, logger log.Logger) (*Data, func(), error) {
 		bizDBMap:   safety.NewMap[uint32, gorm.DB](),
 		eventDBMap: safety.NewMap[uint32, gorm.DB](),
 		cache:      nil,
-		rabbitConn: safety.NewMap[string, *grpc.ClientConn](),
+		rabbitConn: safety.NewMap[string, *bo.Server](),
+		houyiConn:  safety.NewMap[string, *bo.Server](),
 		helper:     log.NewHelper(log.With(logger, "module", "data")),
 	}
 
@@ -182,6 +192,16 @@ func New(c *conf.Bootstrap, logger log.Logger) (*Data, func(), error) {
 		}
 		if err = data.eventDB.Close(); err != nil {
 			data.helper.Errorw("method", "close eventDB", "err", err)
+		}
+		for _, server := range data.rabbitConn.List() {
+			if err = server.Conn.Close(); err != nil {
+				data.helper.Errorw("method", "close rabbit conn", "err", err)
+			}
+		}
+		for _, server := range data.houyiConn.List() {
+			if err = server.Conn.Close(); err != nil {
+				data.helper.Errorw("method", "close houyi conn", "err", err)
+			}
 		}
 	}, nil
 }

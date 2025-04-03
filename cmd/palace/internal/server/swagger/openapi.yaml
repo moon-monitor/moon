@@ -29,7 +29,7 @@ paths:
                 content:
                     application/json:
                         schema:
-                            $ref: '#/components/schemas/api.palace.GetFilingInformationRequest'
+                            $ref: '#/components/schemas/api.palace.common.EmptyRequest'
                 required: true
             responses:
                 "200":
@@ -1433,6 +1433,9 @@ components:
         api.common.ServerRegisterRequest:
             type: object
             properties:
+                serverType:
+                    type: integer
+                    format: enum
                 server:
                     $ref: '#/components/schemas/config.MicroServer'
                 discovery:
@@ -1545,14 +1548,6 @@ components:
                     type: string
                     description: Filing information
             description: GetFilingInformationReply contains the response data for getting the filing information
-        api.palace.GetFilingInformationRequest:
-            type: object
-            properties:
-                origin:
-                    type: integer
-                    description: Origin of the filing information
-                    format: uint32
-            description: GetFilingInformationRequest represents the request data for getting the filing information
         api.palace.GetResourceReply:
             type: object
             properties:

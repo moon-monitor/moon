@@ -21,11 +21,18 @@ service Server {
 
 
 message ServerRegisterRequest {
-	config.MicroServer server = 1 [(buf.validate.field).required = true];
-	config.Discovery discovery = 2 [(buf.validate.field).required = true];
-	repeated uint32 team_ids = 3 [(buf.validate.field).required = true];
-	bool is_online = 4 [(buf.validate.field).required = true];
-	string uuid = 5 [(buf.validate.field).required = true];
+	enum ServerType {
+		SERVER_TYPE_UNKNOWN = 0;
+		SERVER_TYPE_PALACE = 1;
+		SERVER_TYPE_HOUYI = 2;
+		SERVER_TYPE_RABBIT = 3;
+	}
+	ServerType server_type = 1 [(buf.validate.field).required = true];
+	config.MicroServer server = 2 [(buf.validate.field).required = true];
+	config.Discovery discovery = 3 [(buf.validate.field).required = true];
+	repeated uint32 team_ids = 4 [(buf.validate.field).required = true];
+	bool is_online = 5 [(buf.validate.field).required = true];
+	string uuid = 6 [(buf.validate.field).required = true];
 }
 message ServerRegisterReply {}
 

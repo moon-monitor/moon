@@ -397,7 +397,7 @@ func (a *AuthBiz) sendEmail(ctx context.Context, sendEmailParams *bo.SendEmailPa
 }
 
 // GetFilingInformation 获取备案信息
-func (a *AuthBiz) GetFilingInformation(ctx context.Context, origin uint32) (*bo.FilingInformation, error) {
+func (a *AuthBiz) GetFilingInformation(_ context.Context) (*bo.FilingInformation, error) {
 	filing := a.bc.GetFiling()
 	filingInfo := &bo.FilingInformation{
 		URL:         filing.GetUrl(),

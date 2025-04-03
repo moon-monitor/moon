@@ -179,8 +179,8 @@ func (s *AuthService) OAuth2List(_ context.Context, _ *common.EmptyRequest) (*pa
 	return &palacev1.OAuth2ListReply{Items: s.oauth2List}, nil
 }
 
-func (s *AuthService) GetFilingInformation(ctx context.Context, req *palacev1.GetFilingInformationRequest) (*palacev1.GetFilingInformationReply, error) {
-	filingInfo, err := s.authBiz.GetFilingInformation(ctx, req.GetOrigin())
+func (s *AuthService) GetFilingInformation(ctx context.Context, _ *common.EmptyRequest) (*palacev1.GetFilingInformationReply, error) {
+	filingInfo, err := s.authBiz.GetFilingInformation(ctx)
 	if err != nil {
 		return nil, err
 	}
