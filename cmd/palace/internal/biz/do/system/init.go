@@ -10,5 +10,6 @@ func Models() []any {
 		&Resource{},
 		&OAuthUser{},
 		&TeamAudit{},
+		&Menu{},
 	}
 }

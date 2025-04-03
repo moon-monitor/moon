@@ -7,7 +7,6 @@ import "buf/validate/validate.proto";
 import "palace/common/system.proto";
 import "palace/common/system_enum.proto";
 import "palace/common/common.proto";
-import "palace/common/team_enum.proto";
 
 option go_package = "github.com/moon-monitor/moon/pkg/api/palace;palace";
 
@@ -80,6 +79,14 @@ service Auth {
   rpc GetFilingInformation(api.palace.common.EmptyRequest) returns (GetFilingInformationReply) {
     option (google.api.http) = {
       post: "/api/auth/filing/information"
+      body: "*"
+    };
+  }
+
+  // GetSelfMenuTree returns the menu tree
+  rpc GetSelfMenuTree(api.palace.common.EmptyRequest) returns (GetSelfMenuTreeReply) {
+    option (google.api.http) = {
+      post: "/api/auth/self/menu/tree"
       body: "*"
     };
   }
@@ -264,4 +271,10 @@ message GetFilingInformationReply {
   string url = 1;
   // Filing information
   string filingInformation = 2;
+}
+
+// GetSelfMenuTreeReply contains the response data for getting the menu tree
+message GetSelfMenuTreeReply {
+  // Menu tree data
+  repeated api.palace.common.MenuTreeItem items = 1;
 }

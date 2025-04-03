@@ -4,7 +4,6 @@ import (
 	"context"
 
 	"github.com/go-kratos/kratos/v2/log"
-	"gorm.io/gen"
 
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/bo"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do/system"
@@ -12,6 +11,8 @@ import (
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/vobj"
 	"github.com/moon-monitor/moon/cmd/palace/internal/data"
 	"github.com/moon-monitor/moon/cmd/palace/internal/data/query/systemgen"
+	"github.com/moon-monitor/moon/cmd/palace/internal/helper/permission"
+	"github.com/moon-monitor/moon/pkg/util/slices"
 )
 
 func NewResourceRepo(d *data.Data, logger log.Logger) repository.Resource {
@@ -48,27 +49,6 @@ func (r *resourceImpl) GetResourceByOperation(ctx context.Context, operation str
 	return resourceDo, nil
 }
 
-func (r *resourceImpl) SaveResource(ctx context.Context, resource *system.Resource) error {
-	if resource.ID == 0 {
-		return r.createResource(ctx, resource)
-	}
-	return r.updateByID(ctx, resource)
-}
-
-func (r *resourceImpl) createResource(ctx context.Context, resource *system.Resource) error {
-	return r.Resource.WithContext(ctx).Create(resource)
-}
-
-func (r *resourceImpl) updateByID(ctx context.Context, resource *system.Resource) error {
-	_, err := r.Resource.WithContext(ctx).Where(r.Resource.ID.Eq(resource.ID)).Updates(resource)
-	return err
-}
-
-func (r *resourceImpl) DeleteResource(ctx context.Context, id uint32) error {
-	_, err := r.Resource.WithContext(ctx).Where(r.Resource.ID.Eq(id)).Delete()
-	return err
-}
-
 func (r *resourceImpl) BatchUpdateResourceStatus(ctx context.Context, ids []uint32, status vobj.GlobalStatus) error {
 	if len(ids) == 0 {
 		return nil
@@ -79,42 +59,61 @@ func (r *resourceImpl) BatchUpdateResourceStatus(ctx context.Context, ids []uint
 	return err
 }
 
-func (r *resourceImpl) ListResources(ctx context.Context, req *bo.ListResourceReq) ([]*system.Resource, error) {
-	resourceQuery := r.Resource.WithContext(ctx)
-
+func (r *resourceImpl) ListResources(ctx context.Context, req *bo.ListResourceReq) (*bo.ListResourceReply, error) {
+	resource := r.Resource
+	resourceQuery := resource.WithContext(ctx)
 	if len(req.Statuses) > 0 {
-		statusValues := make([]int8, 0, len(req.Statuses))
-		for _, s := range req.Statuses {
-			statusValues = append(statusValues, int8(s))
-		}
-		resourceQuery = resourceQuery.Where(r.Resource.Status.In(statusValues...))
+		resourceQuery = resourceQuery.Where(resource.Status.In(slices.Map(req.Statuses, func(status vobj.GlobalStatus) int8 { return status.GetValue() })...))
 	}
-
-	if len(req.Modules) > 0 {
-		moduleValues := make([]int8, 0, len(req.Modules))
-		for _, m := range req.Modules {
-			moduleValues = append(moduleValues, int8(m))
-		}
-		resourceQuery = resourceQuery.Where(r.Resource.Module.In(moduleValues...))
-	}
-
-	if len(req.Domains) > 0 {
-		domainValues := make([]int8, 0, len(req.Domains))
-		for _, d := range req.Domains {
-			domainValues = append(domainValues, int8(d))
-		}
-		resourceQuery = resourceQuery.Where(r.Resource.Domain.In(domainValues...))
-	}
-
 	if req.Keyword != "" {
-		keywordPattern := "%" + req.Keyword + "%"
-		opts := []gen.Condition{
-			r.Resource.Name.Like(keywordPattern),
-			r.Resource.Path.Like(keywordPattern),
-			r.Resource.Remark.Like(keywordPattern),
-		}
-		resourceQuery = resourceQuery.Where(resourceQuery.Or(opts...))
+		keyword := "%" + req.Keyword + "%"
+		resourceQuery = resourceQuery.Where(resource.Name.Like(keyword))
 	}
+	if req.PaginationRequest != nil {
+		total, err := resourceQuery.Count()
+		if err != nil {
+			return nil, err
+		}
+		req.WithTotal(total)
+		resourceQuery = resourceQuery.Offset(req.Offset()).Limit(int(req.Limit))
+	}
+	resources, err := resourceQuery.Find()
+	if err != nil {
+		return nil, err
+	}
+	return &bo.ListResourceReply{
+		PaginationReply: req.ToReply(),
+		Resources:       resources,
+	}, nil
+}
 
-	return resourceQuery.Order(r.Resource.ID.Desc()).Find()
+func (r *resourceImpl) GetMenusByUserID(ctx context.Context, userID uint32) ([]*system.Menu, error) {
+	user := r.User
+	userQuery := user.WithContext(ctx).Where(user.ID.Eq(userID)).Preload(user.Roles.Menus)
+	userDo, err := userQuery.First()
+	if err != nil {
+		return nil, userNotFound(err)
+	}
+	menus := make([]*system.Menu, 0, len(userDo.Roles))
+	for _, role := range userDo.Roles {
+		menus = append(menus, role.Menus...)
+	}
+	teamID, ok := permission.GetTeamIDByContext(ctx)
+	if !ok || teamID <= 0 {
+		return menus, nil
+	}
+	teamMember := r.TeamMember
+	teamQuery := teamMember.WithContext(ctx).Where(teamMember.TeamID.Eq(teamID)).Preload(teamMember.Roles.Menus)
+	teamMemberDo, err := teamQuery.First()
+	if err != nil {
+		return nil, teamMemberNotFound(err)
+	}
+	for _, role := range teamMemberDo.Roles {
+		menus = append(menus, role.Menus...)
+	}
+	return menus, nil
+}
+
+func (r *resourceImpl) GetMenus(ctx context.Context, t vobj.MenuType) ([]*system.Menu, error) {
+	return r.Menu.WithContext(ctx).Where(r.Menu.Type.Eq(t.GetValue())).Find()
 }

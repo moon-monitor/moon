@@ -87,7 +87,7 @@ func (u *userRepoImpl) Create(ctx context.Context, user *system.User, sendEmailF
 
 func (u *userRepoImpl) FindByID(ctx context.Context, userID uint32) (*system.User, error) {
 	userQuery := u.User
-	user, err := userQuery.WithContext(ctx).Where(userQuery.ID.Eq(userID)).Preload(userQuery.Roles.Resources).First()
+	user, err := userQuery.WithContext(ctx).Where(userQuery.ID.Eq(userID)).Preload(userQuery.Roles.Menus.RelationField).First()
 	if err != nil {
 		return nil, userNotFound(err)
 	}
@@ -206,7 +206,7 @@ func (u *userRepoImpl) GetMemberByUserIDAndTeamID(ctx context.Context, userID, t
 	// 查找用户在指定团队中的成员记录，包括角色信息
 	member, err := teamMemberQuery.WithContext(ctx).
 		Where(teamMemberQuery.UserID.Eq(userID), teamMemberQuery.TeamID.Eq(teamID)).
-		Preload(teamMemberQuery.Roles.Resources).
+		Preload(teamMemberQuery.Roles.Menus.RelationField).
 		First()
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -225,7 +225,7 @@ func (u *userRepoImpl) GetAllTeamMembers(ctx context.Context, userID uint32) ([]
 	// 查找用户的所有团队成员记录，包括角色信息
 	members, err := teamMemberQuery.WithContext(ctx).
 		Where(teamMemberQuery.UserID.Eq(userID)).
-		Preload(teamMemberQuery.Roles.Resources).
+		Preload(teamMemberQuery.Roles.Menus.RelationField).
 		Find()
 	if err != nil {
 		return nil, err

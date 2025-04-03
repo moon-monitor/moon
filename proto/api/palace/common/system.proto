@@ -23,10 +23,6 @@ message ResourceItem {
   string createdAt = 6;
   // Last update time of the API resource
   string updatedAt = 7;
-  // Module to which the API resource belongs
-  api.palace.common.ResourceModule module = 8;
-  // Domain of the API resource
-  api.palace.common.ResourceDomain domain = 9;
 }
 
 message UserBaseItem {
@@ -114,4 +110,19 @@ message OperateLogItem {
   string after = 10;
   // IP of the operation
   string ip = 11;
+}
+
+message MenuTreeItem {
+  // Unique identifier for the menu tree item
+  uint32 id = 1;
+  // Name of the menu tree item
+  string name = 2;
+  // Path of the menu tree item
+  string path = 3;
+  // Status of the menu tree item
+  api.palace.common.GlobalStatus status = 4;
+  // Icon of the menu tree item
+  string icon = 5;
+  // children of the menu tree item
+  repeated MenuTreeItem children = 6;
 }

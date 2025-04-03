@@ -3,39 +3,11 @@ package build
 import (
 	"time"
 
-	"github.com/moon-monitor/moon/cmd/palace/internal/biz/bo"
-	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do/system"
-	"github.com/moon-monitor/moon/cmd/palace/internal/biz/vobj"
 	"github.com/moon-monitor/moon/pkg/api/palace/common"
 )
 
-// ToResourceItem 将DO转换为BO
-func ToResourceItem(resource *system.Resource) *bo.ResourceItem {
-	if resource == nil {
-		return nil
-	}
-	return &bo.ResourceItem{
-		ID:     resource.ID,
-		Name:   resource.Name,
-		Path:   resource.Path,
-		Remark: resource.Remark,
-		Status: resource.Status,
-		Module: vobj.ResourceModule(resource.Module), // 需要类型转换
-		Domain: resource.Domain,
-		Allow:  resource.Allow,
-	}
-}
-
-func ToResourceItemList(resources []*system.Resource) []*bo.ResourceItem {
-	result := make([]*bo.ResourceItem, 0, len(resources))
-	for _, resource := range resources {
-		result = append(result, ToResourceItem(resource))
-	}
-	return result
-}
-
-func ToResourceItemProto(resource *bo.ResourceItem) *common.ResourceItem {
+func ToResourceItemProto(resource *system.Resource) *common.ResourceItem {
 	if resource == nil {
 		return nil
 	}
@@ -43,16 +15,14 @@ func ToResourceItemProto(resource *bo.ResourceItem) *common.ResourceItem {
 		Id:        resource.ID,
 		Name:      resource.Name,
 		Path:      resource.Path,
-		Remark:    resource.Remark,
 		Status:    common.GlobalStatus(resource.Status),
-		Module:    common.ResourceModule(resource.Module),
-		Domain:    common.ResourceDomain(resource.Domain),
+		Remark:    resource.Remark,
 		CreatedAt: resource.CreatedAt.Format(time.DateTime),
 		UpdatedAt: resource.UpdatedAt.Format(time.DateTime),
 	}
 }
 
-func ToResourceItemProtoList(resources []*bo.ResourceItem) []*common.ResourceItem {
+func ToResourceItemProtoList(resources []*system.Resource) []*common.ResourceItem {
 	result := make([]*common.ResourceItem, 0, len(resources))
 	for _, resource := range resources {
 		result = append(result, ToResourceItemProto(resource))
@@ -60,15 +30,42 @@ func ToResourceItemProtoList(resources []*bo.ResourceItem) []*common.ResourceIte
 	return result
 }
 
-func ToResourceDO(resource *bo.SaveResourceReq) *system.Resource {
-	return &system.Resource{
-		BaseModel: do.BaseModel{ID: resource.ID},
-		Name:      resource.Name,
-		Path:      resource.Path,
-		Module:    vobj.ResourceDomain(resource.Module), // 需要类型转换
-		Domain:    resource.Domain,
-		Status:    vobj.GlobalStatusEnable,      // 默认启用
-		Allow:     vobj.ResourceAllowSystemRBAC, // 默认系统RBAC
-		Remark:    resource.Remark,
+func ToMenuTreeProto(menus []*system.Menu) []*common.MenuTreeItem {
+	menuMap := make(map[uint32]*system.Menu)
+	for _, menu := range menus {
+		menuMap[menu.ID] = menu
 	}
+
+	// 构建树形结构
+	var roots []*common.MenuTreeItem
+	for _, menu := range menus {
+		if menu.ParentID == 0 {
+			roots = append(roots, convertMenuToTreeItemWithMap(menu, menuMap))
+		}
+	}
+
+	return roots
+}
+
+func convertMenuToTreeItemWithMap(menu *system.Menu, menuMap map[uint32]*system.Menu) *common.MenuTreeItem {
+	treeItem := &common.MenuTreeItem{
+		Id:       menu.ID,
+		Name:     menu.Name,
+		Path:     menu.Path,
+		Status:   common.GlobalStatus(menu.Status),
+		Icon:     menu.Icon,
+		Children: nil,
+	}
+
+	// 查找所有子菜单
+	for _, m := range menuMap {
+		if m.ParentID == menu.ID {
+			if treeItem.Children == nil {
+				treeItem.Children = make([]*common.MenuTreeItem, 0)
+			}
+			treeItem.Children = append(treeItem.Children, convertMenuToTreeItemWithMap(m, menuMap))
+		}
+	}
+
+	return treeItem
 }

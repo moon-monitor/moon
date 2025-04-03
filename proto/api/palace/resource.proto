@@ -5,7 +5,6 @@ package api.palace;
 import "google/api/annotations.proto";
 import "buf/validate/validate.proto";
 import "palace/common/system.proto";
-import "palace/common/system_enum.proto";
 import "palace/common/common.proto";
 import "palace/common/common_enum.proto";
 
@@ -13,26 +12,11 @@ option go_package = "github.com/moon-monitor/moon/pkg/api/palace;palace";
 
 // Resource service provides operations for managing resources
 service Resource {
-  // SaveResource saves a new resource or updates an existing one
-  rpc SaveResource (SaveResourceRequest) returns (api.palace.common.EmptyReply) {
-    option (google.api.http) = {
-      put: "/api/resource/save"
-      body: "*"
-    };
-  }
-
   // BatchUpdateResourceStatus updates the status of multiple resources
   rpc BatchUpdateResourceStatus (BatchUpdateResourceStatusRequest) returns (api.palace.common.EmptyReply) {
     option (google.api.http) = {
       put: "/api/resource/batch/status"
       body: "*"
-    };
-  }
-
-  // DeleteResource deletes a resource by ID
-  rpc DeleteResource (DeleteResourceRequest) returns (api.palace.common.EmptyReply) {
-    option (google.api.http) = {
-      delete: "/api/resource/{id}"
     };
   }
 
@@ -50,48 +34,20 @@ service Resource {
       body: "*"
     };
   }
-}
 
-// SaveResourceRequest represents the request data for saving or updating a resource
-message SaveResourceRequest {
-  // Resource name
-  string name = 1 [(buf.validate.field).cel = {
-    message: "name is required"
-    expression: "this.size() > 0"
-  }, (buf.validate.field).cel = {
-    message: "name max length is 32"
-    expression: "this.size() <= 32"
-  }];
-  // Resource path
-  string path = 2 [(buf.validate.field).cel = {
-    message: "path is required"
-    expression: "this.size() > 0"
-  }, (buf.validate.field).cel = {
-    message: "path max length is 128"
-    expression: "this.size() <= 128"
-  }];
-  // Resource remark or description
-  string remark = 3 [(buf.validate.field).cel = {
-    message: "remark max length is 200"
-    expression: "this.size() <= 200"
-  }];
-  // Resource module
-  api.palace.common.ResourceModule module = 4 [(buf.validate.field).required = true, (buf.validate.field).cel = {
-    message: "module is required"
-    expression: "this > 0"
-  }];
-  // Resource domain
-  api.palace.common.ResourceDomain domain = 5 [(buf.validate.field).required = true, (buf.validate.field).cel = {
-    message: "domain is required"
-    expression: "this > 0"
-  }];
-  // Resource ID, optional for new resources
-  uint32 id = 6;
-  // Resource allow
-  api.palace.common.ResourceAllow allow = 7 [(buf.validate.field).required = true, (buf.validate.field).cel = {
-    message: "allow is required"
-    expression: "this > 0"
-  }];
+  // GetResourceMenuTree returns the menu tree
+  rpc GetResourceMenuTree (api.palace.common.EmptyRequest) returns (GetResourceMenuTreeReply) {
+    option (google.api.http) = {
+      get: "/api/resource/menu/tree"
+    };
+  }
+
+  // GetTeamResourceMenuTree returns the menu tree
+  rpc GetTeamResourceMenuTree (api.palace.common.EmptyRequest) returns (GetResourceMenuTreeReply) {
+    option (google.api.http) = {
+      get: "/api/resource/team/menu/tree"
+    };
+  }
 }
 
 // BatchUpdateResourceStatusRequest represents the request data for updating the status of multiple resources
@@ -100,12 +56,6 @@ message BatchUpdateResourceStatusRequest {
   repeated uint32 ids = 1 [(buf.validate.field).required = true];
   // New status for the resources
   api.palace.common.GlobalStatus status = 2 [(buf.validate.field).required = true];
-}
-
-// DeleteResourceRequest represents the request data for deleting a resource
-message DeleteResourceRequest {
-  // ID of the resource to delete
-  uint32 id = 1 [(buf.validate.field).required = true];
 }
 
 // GetResourceRequest represents the request data for retrieving a resource
@@ -124,16 +74,20 @@ message GetResourceReply {
 message ListResourceRequest {
   // List of statuses to filter resources by
   repeated api.palace.common.GlobalStatus status = 1;
-  // List of modules to filter resources by
-  repeated api.palace.common.ResourceModule module = 2;
-  // List of domains to filter resources by
-  repeated api.palace.common.ResourceDomain domain = 3;
   // Keyword to search resources by
   string keyword = 4;
+  api.palace.common.PaginationRequest pagination = 2;
 }
 
 // ListResourceReply contains the response data for listing resources
 message ListResourceReply {
   // List of resource items
   repeated api.palace.common.ResourceItem items = 1;
+  api.palace.common.PaginationReply pagination = 2;
+}
+
+// GetMenuTreeReply contains the response data for retrieving the menu tree
+message GetResourceMenuTreeReply {
+  // List of menu items
+  repeated api.palace.common.MenuTreeItem items = 1;
 }

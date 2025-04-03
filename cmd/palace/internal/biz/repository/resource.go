@@ -18,16 +18,15 @@ type Resource interface {
 	// GetResourceByOperation get resource by operation
 	GetResourceByOperation(ctx context.Context, operation string) (*system.Resource, error)
 
-	// SaveResource save resource
-	//  exist id update, else insert
-	SaveResource(ctx context.Context, resource *system.Resource) error
-
-	// DeleteResource delete resource by id
-	DeleteResource(ctx context.Context, id uint32) error
+	// ListResources list resources
+	ListResources(ctx context.Context, req *bo.ListResourceReq) (*bo.ListResourceReply, error)
 
 	// BatchUpdateResourceStatus update multiple resources status
 	BatchUpdateResourceStatus(ctx context.Context, ids []uint32, status vobj.GlobalStatus) error
 
-	// ListResources list resources with filter
-	ListResources(ctx context.Context, req *bo.ListResourceReq) ([]*system.Resource, error)
+	// GetMenusByUserID get all menus
+	GetMenusByUserID(ctx context.Context, userID uint32) ([]*system.Menu, error)
+
+	// GetMenus get all menus
+	GetMenus(ctx context.Context, t vobj.MenuType) ([]*system.Menu, error)
 }

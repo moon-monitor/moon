@@ -13,8 +13,8 @@ type TeamRole struct {
 	Remark string            `gorm:"column:remark;type:varchar(255);not null;comment:备注" json:"remark"`
 	Status vobj.GlobalStatus `gorm:"column:status;type:tinyint(2);not null;comment:状态" json:"status"`
 
-	Members   []*TeamMember `gorm:"many2many:sys_team_member_roles;foreignKey:ID;joinForeignKey:TeamRoleID;references:ID;joinReferences:TeamMemberID" json:"members"`
-	Resources []*Resource   `gorm:"many2many:sys_team_role_resources;foreignKey:ID;joinForeignKey:TeamRoleID;references:ID;joinReferences:ResourceID" json:"resources"`
+	Members []*TeamMember `gorm:"many2many:sys_team_member_roles;foreignKey:ID;joinForeignKey:TeamRoleID;references:ID;joinReferences:TeamMemberID" json:"members"`
+	Menus   []*Menu       `gorm:"many2many:sys_team_role_menus;foreignKey:ID;joinForeignKey:TeamRoleID;references:ID;joinReferences:MenuID" json:"menus"`
 }
 
 func (u *TeamRole) TableName() string {

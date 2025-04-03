@@ -18,14 +18,6 @@ enum ResourceModule {
   RESOURCE_MODULE_TEAM = 4;
 }
 
-// Defines the domain of the resource, used to distinguish different application scenarios or regions of the resource.
-enum ResourceDomain {
-  // RESOURCE_DOMAIN_UNKNOWN is the default domain for a resource.
-  RESOURCE_DOMAIN_UNKNOWN = 0;
-  // The domain of the resource is unspecified.
-  RESOURCE_DOMAIN_UNSPECIFIED = 1;
-}
-
 // Defines gender types, including unspecified, male, and female.
 enum Gender {
   // Gender is unspecified.
