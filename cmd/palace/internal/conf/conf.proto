@@ -6,8 +6,6 @@ import "google/protobuf/duration.proto";
 import "config.proto";
 
 option go_package = "github.com/moon-monitor/moon/cmd/palace/internal/conf;conf";
-option java_multiple_files = true;
-option java_package = "cmd.palace.internal.conf";
 
 message Bootstrap {
   config.Environment environment = 1;

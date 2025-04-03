@@ -5,8 +5,6 @@ package cmd.rabbit.internal.conf;
 import "config.proto";
 
 option go_package = "github.com/moon-monitor/moon/cmd/rabbit/internal/conf;conf";
-option java_multiple_files = true;
-option java_package = "cmd.rabbit.internal.conf";
 
 message Bootstrap {
   config.Environment environment = 1;

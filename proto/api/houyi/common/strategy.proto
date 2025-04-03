@@ -7,8 +7,6 @@ import "houyi/common/team.proto";
 import "houyi/common/datasource.proto";
 
 option go_package = "github.com/moon-monitor/moon/pkg/api/houyi/common;common";
-option java_multiple_files = true;
-option java_package = "com.api.houyi.common";
 
 enum StrategyType {
   METRIC = 0;

@@ -6,8 +6,6 @@ import "palace/common/system_enum.proto";
 import "palace/common/common_enum.proto";
 
 option go_package = "github.com/moon-monitor/moon/pkg/api/palace/common;common";
-option java_multiple_files = true;
-option java_package = "com.api.palace.common";
 
 // system-api
 message ResourceItem {

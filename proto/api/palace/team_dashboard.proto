@@ -9,8 +9,6 @@ import "palace/common/common_enum.proto";
 import "palace/common/team.proto";
 
 option go_package = "github.com/moon-monitor/moon/pkg/api/palace;palace";
-option java_multiple_files = true;
-option java_package = "com.api.palace";
 
 service TeamDashboard {
 	rpc SaveTeamDashboard (SaveTeamDashboardRequest) returns (api.palace.common.EmptyReply) {

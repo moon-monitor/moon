@@ -6,8 +6,6 @@ import "google/protobuf/duration.proto";
 import "houyi/common/team.proto";
 
 option go_package = "github.com/moon-monitor/moon/pkg/api/houyi/common;common";
-option java_multiple_files = true;
-option java_package = "com.api.houyi.common";
 
 message BasicAuth {
   string username = 1;

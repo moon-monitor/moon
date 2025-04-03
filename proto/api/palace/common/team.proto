@@ -7,8 +7,6 @@ import "palace/common/common_enum.proto";
 import "palace/common/system.proto";
 
 option go_package = "github.com/moon-monitor/moon/pkg/api/palace/common;common";
-option java_multiple_files = true;
-option java_package = "com.api.palace.common";
 
 // TeamItem represents the structure of a team.
 message TeamItem {

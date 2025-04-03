@@ -10,8 +10,6 @@ import "palace/common/common.proto";
 import "palace/common/common_enum.proto";
 
 option go_package = "github.com/moon-monitor/moon/pkg/api/palace;palace";
-option java_multiple_files = true;
-option java_package = "com.api.palace";
 
 // Resource service provides operations for managing resources
 service Resource {

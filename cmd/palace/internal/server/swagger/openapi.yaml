@@ -38,19 +38,6 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/api.palace.GetFilingInformationReply'
-    /api/auth/identities:
-        get:
-            tags:
-                - Auth
-            description: GetUserIdentities gets the user's available identities for switching
-            operationId: Auth_GetUserIdentities
-            responses:
-                "200":
-                    description: OK
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/api.palace.GetUserIdentitiesReply'
     /api/auth/login/email:
         post:
             tags:
@@ -165,25 +152,6 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/api.palace.VerifyEmailReply'
-    /api/auth/verify/new-permission:
-        post:
-            tags:
-                - Auth
-            description: VerifyNewPermission verifies the user's permission
-            operationId: Auth_VerifyNewPermission
-            requestBody:
-                content:
-                    application/json:
-                        schema:
-                            $ref: '#/components/schemas/api.palace.VerifyNewPermissionRequest'
-                required: true
-            responses:
-                "200":
-                    description: OK
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/api.palace.common.EmptyReply'
     /api/resource/batch/status:
         put:
             tags:
@@ -1688,82 +1656,6 @@ components:
                         - $ref: '#/components/schemas/api.palace.common.TeamStrategyItem'
                     description: Detailed information about the strategy
             description: GetTeamStrategyReply contains the response data for retrieving a team strategy
-        api.palace.GetUserIdentitiesReply:
-            type: object
-            properties:
-                systemPositions:
-                    type: array
-                    items:
-                        type: integer
-                        format: enum
-                    description: System positions available
-                systemRoles:
-                    type: array
-                    items:
-                        $ref: '#/components/schemas/api.palace.GetUserIdentitiesReply_SystemRole'
-                    description: System roles available to the user
-                teams:
-                    type: array
-                    items:
-                        $ref: '#/components/schemas/api.palace.GetUserIdentitiesReply_Team'
-                    description: Teams the user belongs to
-            description: GetUserIdentitiesReply contains the response data for getting user identities
-        api.palace.GetUserIdentitiesReply_SystemRole:
-            type: object
-            properties:
-                id:
-                    type: integer
-                    description: Role ID
-                    format: uint32
-                name:
-                    type: string
-                    description: Role name
-                status:
-                    type: integer
-                    description: Role status
-                    format: uint32
-            description: SystemRole defines a system role
-        api.palace.GetUserIdentitiesReply_Team:
-            type: object
-            properties:
-                id:
-                    type: integer
-                    description: Team ID
-                    format: uint32
-                name:
-                    type: string
-                    description: Team name
-                status:
-                    type: integer
-                    description: Team status
-                    format: uint32
-                positions:
-                    type: array
-                    items:
-                        type: integer
-                        format: enum
-                    description: Team position
-                roles:
-                    type: array
-                    items:
-                        $ref: '#/components/schemas/api.palace.GetUserIdentitiesReply_TeamRole'
-                    description: Team roles available to the user
-            description: Team defines a team
-        api.palace.GetUserIdentitiesReply_TeamRole:
-            type: object
-            properties:
-                id:
-                    type: integer
-                    description: Team role ID
-                    format: uint32
-                name:
-                    type: string
-                    description: Team role name
-                status:
-                    type: integer
-                    description: Team role status
-                    format: uint32
-            description: TeamRole defines a team role
         api.palace.GetUserListReply:
             type: object
             properties:
@@ -2634,30 +2526,6 @@ components:
                         - $ref: '#/components/schemas/api.palace.CaptchaValidateRequest'
                     description: Captcha validation information
             description: VerifyEmailRequest represents the request data for email verification
-        api.palace.VerifyNewPermissionRequest:
-            type: object
-            properties:
-                systemRoleID:
-                    type: integer
-                    description: System role ID
-                    format: uint32
-                teamRoleID:
-                    type: integer
-                    description: Team role ID
-                    format: uint32
-                teamID:
-                    type: integer
-                    description: Team ID
-                    format: uint32
-                systemPosition:
-                    type: integer
-                    description: system position
-                    format: enum
-                teamPosition:
-                    type: integer
-                    description: team position
-                    format: enum
-            description: VerifyNewPermissionRequest represents the request data for verifying the user's permission
         api.palace.common.EmptyReply:
             type: object
             properties:

@@ -141,6 +141,9 @@ components:
         api.common.ServerRegisterRequest:
             type: object
             properties:
+                serverType:
+                    type: integer
+                    format: enum
                 server:
                     $ref: '#/components/schemas/config.MicroServer'
                 discovery:

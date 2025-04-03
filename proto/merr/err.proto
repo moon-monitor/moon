@@ -5,8 +5,6 @@ package merr;
 import "errors/errors.proto";
 
 option go_package = "github.com/moon-monitor/moon/pkg/merr;merr";
-option java_multiple_files = true;
-option java_package = "proto.merr";
 
 enum ClientError {
   option (errors.default_code) = 400;

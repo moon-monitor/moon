@@ -5,7 +5,6 @@ import (
 
 	"github.com/go-kratos/kratos/v2/log"
 
-	"github.com/moon-monitor/moon/cmd/palace/internal/biz/bo"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do/system"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/repository"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/vobj"
@@ -22,7 +21,7 @@ func NewPermissionBiz(
 	memberRepo repository.Member,
 	logger log.Logger,
 ) *PermissionBiz {
-	baseHandler := NewBasePermissionHandler()
+	baseHandler := &basePermissionHandler{}
 	// build permission chain
 	permissionChain := []PermissionHandler{
 		baseHandler.UserHandler(userRepo.FindByID),
@@ -88,10 +87,6 @@ func (f PermissionHandlerFunc) Handle(ctx context.Context, pctx *PermissionConte
 
 // base permission handler implementation
 type basePermissionHandler struct{}
-
-func NewBasePermissionHandler() *basePermissionHandler {
-	return &basePermissionHandler{}
-}
 
 // OperationHandler operation check
 func (h *basePermissionHandler) OperationHandler() PermissionHandler {
@@ -335,151 +330,4 @@ func checkTeamRBAC(ctx context.Context, member *system.TeamMember, resource *sys
 		return true, nil
 	}
 	return false, merr.ErrorPermissionDenied("team role resource is invalid.")
-}
-
-// VerifyNewPermission 验证新权限
-func (a *PermissionBiz) VerifyNewPermission(ctx context.Context, permissionReq *bo.VerifyNewPermission) error {
-	userID, ok := permission.GetUserIDByContext(ctx)
-	if !ok {
-		return merr.ErrorBadRequest("user id is invalid")
-	}
-
-	// 1. 获取用户信息并验证
-	user, err := a.findUser(ctx, userID)
-	if err != nil {
-		return err
-	}
-
-	if !user.Status.IsNormal() {
-		return merr.ErrorUserForbidden("user forbidden")
-	}
-
-	// 1.1 验证系统角色权限
-	if permissionReq.SystemPosition.IsAdminOrSuperAdmin() && !user.Position.IsAdminOrSuperAdmin() {
-		return merr.ErrorPermissionDenied("cannot switch to admin role without admin permission")
-	}
-
-	// 1.2 验证当前用户是否有权限切换到目标系统角色
-	if !user.Position.GTE(permissionReq.SystemPosition) {
-		return merr.ErrorPermissionDenied("your role [%s] is not allowed to switch to [%s]",
-			user.Position, permissionReq.SystemPosition)
-	}
-
-	// 1.3 验证系统角色ID是否有效
-	if permissionReq.SystemRoleID > 0 {
-		systemRoleDo, ok := validate.SliceFindByValue(user.Roles, permissionReq.SystemRoleID, func(role *system.SysRole) uint32 {
-			return role.ID
-		})
-		if !ok {
-			return merr.ErrorPermissionDenied("system role is invalid")
-		}
-		if !systemRoleDo.Status.IsEnable() {
-			return merr.ErrorPermissionDenied("system role is invalid status: [%s]", systemRoleDo.Status)
-		}
-	}
-
-	// 2. 如果有团队ID，验证团队权限
-	if permissionReq.TeamID > 0 {
-		// 2.1 验证团队是否存在且正常
-		team, err := a.findTeam(ctx, permissionReq.TeamID)
-		if err != nil {
-			return err
-		}
-		if !team.Status.IsNormal() {
-			return merr.ErrorPermissionDenied("team is invalid")
-		}
-
-		// 2.2 验证用户是否是团队成员
-		member, err := a.findMember(ctx, userID, permissionReq.TeamID)
-		if err != nil {
-			return err
-		}
-		if !member.Status.IsNormal() {
-			return merr.ErrorPermissionDenied("team member is invalid [%s]", member.Status)
-		}
-
-		// 2.3 验证成员是否属于当前团队
-		if team.ID != member.TeamID {
-			return merr.ErrorPermissionDenied("team id is invalid")
-		}
-
-		// 2.4 验证团队角色权限
-		if permissionReq.TeamPosition.IsAdminOrSuperAdmin() && !member.Position.IsAdminOrSuperAdmin() {
-			return merr.ErrorPermissionDenied("cannot switch to team admin role without team admin permission")
-		}
-
-		// 2.5 验证当前用户是否有权限切换到目标团队角色
-		if !member.Position.GTE(permissionReq.TeamPosition) {
-			return merr.ErrorPermissionDenied("your team role [%s] is not allowed to switch to [%s]",
-				member.Position, permissionReq.TeamPosition)
-		}
-
-		// 2.6 验证团队角色ID是否有效
-		if permissionReq.TeamRoleID > 0 {
-			teamRoleDo, ok := validate.SliceFindByValue(member.Roles, permissionReq.TeamRoleID, func(role *system.TeamRole) uint32 {
-				return role.ID
-			})
-			if !ok {
-				return merr.ErrorPermissionDenied("team role is invalid")
-			}
-			if !teamRoleDo.Status.IsEnable() {
-				return merr.ErrorPermissionDenied("team role is invalid status: [%s]", teamRoleDo.Status)
-			}
-		}
-	}
-
-	return nil
-}
-
-// 查询用户
-func (a *PermissionBiz) findUser(ctx context.Context, userID uint32) (*system.User, error) {
-	for _, handler := range a.permissionChain {
-		if userHandler, ok := handler.(PermissionHandlerFunc); ok {
-			pctx := &PermissionContext{
-				User: &system.User{},
-			}
-			pctx.User.ID = userID
-			_, err := userHandler.Handle(ctx, pctx)
-			if err == nil && pctx.User != nil && pctx.User.ID > 0 {
-				return pctx.User, nil
-			}
-		}
-	}
-	return nil, merr.ErrorUserNotFound("user not found")
-}
-
-// 查询团队
-func (a *PermissionBiz) findTeam(ctx context.Context, teamID uint32) (*system.Team, error) {
-	for _, handler := range a.permissionChain {
-		if teamHandler, ok := handler.(PermissionHandlerFunc); ok {
-			pctx := &PermissionContext{
-				Team: &system.Team{},
-			}
-			pctx.Team.ID = teamID
-			_, err := teamHandler.Handle(ctx, pctx)
-			if err == nil && pctx.Team != nil && pctx.Team.ID > 0 {
-				return pctx.Team, nil
-			}
-		}
-	}
-	return nil, merr.ErrorPermissionDenied("team not found")
-}
-
-// 查询团队成员
-func (a *PermissionBiz) findMember(ctx context.Context, userID uint32, teamID uint32) (*system.TeamMember, error) {
-	for _, handler := range a.permissionChain {
-		if memberHandler, ok := handler.(PermissionHandlerFunc); ok {
-			pctx := &PermissionContext{
-				User: &system.User{},
-				Team: &system.Team{},
-			}
-			pctx.User.ID = userID
-			pctx.Team.ID = teamID
-			_, err := memberHandler.Handle(ctx, pctx)
-			if err == nil && pctx.TeamMember != nil {
-				return pctx.TeamMember, nil
-			}
-		}
-	}
-	return nil, merr.ErrorPermissionDenied("team member not found")
 }

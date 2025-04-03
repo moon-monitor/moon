@@ -7,8 +7,6 @@ import "rabbit/common/email.proto";
 import "rabbit/common/common.proto";
 
 option go_package = "github.com/moon-monitor/moon/pkg/api/rabbit/v1;v1";
-option java_multiple_files = true;
-option java_package = "com.api.rabbit.v1";
 
 service Sync {
   rpc Sms (SyncSmsRequest) returns (rabbit.common.EmptyReply) {

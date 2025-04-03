@@ -9,8 +9,6 @@ import "palace/common/common_enum.proto";
 import "palace/common/team_strategy.proto";
 
 option go_package = "github.com/moon-monitor/moon/pkg/api/palace;palace";
-option java_multiple_files = true;
-option java_package = "com.api.palace";
 
 // TeamStrategy service provides operations for managing team strategy groups and strategies
 service TeamStrategy {
