@@ -1,19 +1,14 @@
 package data
 
 import (
-	"context"
 	"database/sql"
 	"fmt"
-	"time"
 
-	"github.com/go-kratos/kratos/v2/errors"
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/google/wire"
-	ggorm "gorm.io/gorm"
-
+	
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/bo"
 	"github.com/moon-monitor/moon/cmd/palace/internal/conf"
-	systemQuery "github.com/moon-monitor/moon/cmd/palace/internal/data/query/system"
 	"github.com/moon-monitor/moon/pkg/config"
 	"github.com/moon-monitor/moon/pkg/merr"
 	"github.com/moon-monitor/moon/pkg/plugin/cache"
@@ -73,14 +68,7 @@ func (d *Data) GetBizDB(teamID uint32) (gorm.DB, error) {
 	if ok {
 		return db, nil
 	}
-
-	bizConf := d.dataConf.GetBiz()
-	gormDB, err := d.createDatabase(bizConf, d.bizDB, teamID)
-	if err != nil {
-		return nil, err
-	}
-	d.bizDBMap.Set(teamID, gormDB)
-	return d.GetBizDB(teamID)
+	return nil, merr.ErrorInternalServerError("team db not found").WithMetadata(map[string]string{"method": "GetBizDB"})
 }
 
 func (d *Data) GetEventDB(teamID uint32) (gorm.DB, error) {
@@ -88,48 +76,7 @@ func (d *Data) GetEventDB(teamID uint32) (gorm.DB, error) {
 	if ok {
 		return db, nil
 	}
-	eventConf := d.dataConf.GetAlarm()
-	gormDB, err := d.createDatabase(eventConf, d.eventDB, teamID)
-	if err != nil {
-		return nil, err
-	}
-	d.eventDBMap.Set(teamID, gormDB)
-	return d.GetEventDB(teamID)
-}
-
-func (d *Data) createDatabase(c *conf.Data_Database, sqlDB *sql.DB, teamID uint32) (gorm.DB, error) {
-	teamQuery := systemQuery.Use(d.GetMainDB().GetDB()).Team
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	defer cancel()
-	teamDo, err := teamQuery.WithContext(ctx).Where(teamQuery.ID.Eq(teamID)).First()
-	if err != nil {
-		if errors.Is(err, ggorm.ErrRecordNotFound) {
-			return nil, merr.ErrorTeamNotFound("team %d not found", teamID)
-		}
-		return nil, err
-	}
-
-	dbName := c.GetDbName()
-	if teamDo.Capacity.AllowGroup() && c.IsGroup() {
-		dbName = fmt.Sprintf("%s_%d", dbName, teamID)
-	}
-
-	switch c.GetDriver() {
-	case config.Database_MYSQL:
-		expr := fmt.Sprintf("CREATE DATABASE IF NOT EXISTS `%s` DEFAULT CHARACTER SET utf8mb4 DEFAULT COLLATE utf8mb4_general_ci;", dbName)
-		if _, err := sqlDB.Exec(expr); err != nil {
-			return nil, err
-		}
-	}
-	dsn := c.GenDsn(dbName)
-
-	databaseConf := &config.Database{
-		Driver:       c.GetDriver(),
-		Dsn:          dsn,
-		Debug:        c.GetDebug(),
-		UseSystemLog: c.GetUseSystemLog(),
-	}
-	return gorm.NewDB(databaseConf)
+	return nil, merr.ErrorInternalServerError("team db not found").WithMetadata(map[string]string{"method": "GetEventDB"})
 }
 
 // New a data and returns.

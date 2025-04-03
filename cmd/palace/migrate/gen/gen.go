@@ -80,21 +80,21 @@ func main() {
 }
 
 func genSystem() {
-	c.OutPath = "cmd/palace/internal/data/query/system"
+	c.OutPath = "cmd/palace/internal/data/query/systemgen"
 	g := gen.NewGenerator(c)
 	g.ApplyBasic(system.Models()...)
 	g.Execute()
 }
 
 func genBiz() {
-	c.OutPath = "cmd/palace/internal/data/query/team"
+	c.OutPath = "cmd/palace/internal/data/query/teamgen"
 	g := gen.NewGenerator(c)
 	g.ApplyBasic(team.Models()...)
 	g.Execute()
 }
 
 func genAlarm() {
-	c.OutPath = "cmd/palace/internal/data/query/event"
+	c.OutPath = "cmd/palace/internal/data/query/eventgen"
 	g := gen.NewGenerator(c)
 	g.ApplyBasic(event.Models()...)
 	g.Execute()

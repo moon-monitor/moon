@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/go-kratos/kratos/v2/log"
+	
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/bo"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/repository"
 	"github.com/moon-monitor/moon/cmd/palace/internal/data"
@@ -29,26 +30,21 @@ func (s *serverRepository) RegisterRabbit(_ context.Context, req *bo.ServerRegis
 		MicroConfig: req.Server,
 		Registry:    (*config.Registry)(req.Discovery),
 	}
+	serverBo := &bo.Server{Config: req}
 	switch req.Server.GetNetwork() {
 	case config.Network_GRPC:
 		conn, err := server.InitGRPCClient(initConfig)
 		if err != nil {
 			return err
 		}
-		serverBo := &bo.Server{
-			Config: req,
-			Conn:   conn,
-		}
+		serverBo.Conn = conn
 		s.data.SetRabbitConn(req.Uuid, serverBo)
 	case config.Network_HTTP:
 		client, err := server.InitHTTPClient(initConfig)
 		if err != nil {
 			return err
 		}
-		serverBo := &bo.Server{
-			Config: req,
-			Client: client,
-		}
+		serverBo.Client = client
 		s.data.SetRabbitConn(req.Uuid, serverBo)
 	}
 	return nil
@@ -60,26 +56,21 @@ func (s *serverRepository) RegisterHouyi(_ context.Context, req *bo.ServerRegist
 		MicroConfig: req.Server,
 		Registry:    (*config.Registry)(req.Discovery),
 	}
+	serverBo := &bo.Server{Config: req}
 	switch req.Server.GetNetwork() {
 	case config.Network_GRPC:
 		conn, err := server.InitGRPCClient(initConfig)
 		if err != nil {
 			return err
 		}
-		serverBo := &bo.Server{
-			Config: req,
-			Conn:   conn,
-		}
+		serverBo.Conn = conn
 		s.data.SetHouyiConn(req.Uuid, serverBo)
 	case config.Network_HTTP:
 		client, err := server.InitHTTPClient(initConfig)
 		if err != nil {
 			return err
 		}
-		serverBo := &bo.Server{
-			Config: req,
-			Client: client,
-		}
+		serverBo.Client = client
 		s.data.SetHouyiConn(req.Uuid, serverBo)
 	}
 	return nil

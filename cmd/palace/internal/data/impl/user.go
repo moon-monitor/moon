@@ -17,7 +17,7 @@ import (
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/vobj"
 	"github.com/moon-monitor/moon/cmd/palace/internal/conf"
 	"github.com/moon-monitor/moon/cmd/palace/internal/data"
-	systemQuery "github.com/moon-monitor/moon/cmd/palace/internal/data/query/system"
+	"github.com/moon-monitor/moon/cmd/palace/internal/data/query/systemgen"
 	"github.com/moon-monitor/moon/pkg/merr"
 	"github.com/moon-monitor/moon/pkg/util/crypto"
 	"github.com/moon-monitor/moon/pkg/util/password"
@@ -29,6 +29,7 @@ func NewUserRepo(bc *conf.Bootstrap, data *data.Data, logger log.Logger) reposit
 	return &userRepoImpl{
 		bc:     bc,
 		Data:   data,
+		Query:  systemgen.Use(data.GetMainDB().GetDB()),
 		helper: log.NewHelper(log.With(logger, "module", "data.repo.user")),
 	}
 }
@@ -36,15 +37,8 @@ func NewUserRepo(bc *conf.Bootstrap, data *data.Data, logger log.Logger) reposit
 type userRepoImpl struct {
 	bc *conf.Bootstrap
 	*data.Data
-
+	*systemgen.Query
 	helper *log.Helper
-}
-
-func userNotFound(err error) error {
-	if errors.Is(err, gorm.ErrRecordNotFound) {
-		return merr.ErrorUserNotFound("user not found").WithCause(err)
-	}
-	return err
 }
 
 func (u *userRepoImpl) CreateUserWithOAuthUser(ctx context.Context, user bo.IOAuthUser, sendEmailFunc repository.SendEmailFunc) (userDo *system.User, err error) {
@@ -81,7 +75,7 @@ func (u *userRepoImpl) Create(ctx context.Context, user *system.User, sendEmailF
 	}
 	user.Password = enValue
 	user.Salt = pass.Salt()
-	userMutation := systemQuery.Use(u.GetMainDB().GetDB()).User
+	userMutation := u.User
 	if err = userMutation.WithContext(ctx).Create(user); err != nil {
 		return nil, err
 	}
@@ -92,7 +86,7 @@ func (u *userRepoImpl) Create(ctx context.Context, user *system.User, sendEmailF
 }
 
 func (u *userRepoImpl) FindByID(ctx context.Context, userID uint32) (*system.User, error) {
-	userQuery := systemQuery.Use(u.GetMainDB().GetDB()).User
+	userQuery := u.User
 	user, err := userQuery.WithContext(ctx).Where(userQuery.ID.Eq(userID)).Preload(userQuery.Roles.Resources).First()
 	if err != nil {
 		return nil, userNotFound(err)
@@ -101,7 +95,7 @@ func (u *userRepoImpl) FindByID(ctx context.Context, userID uint32) (*system.Use
 }
 
 func (u *userRepoImpl) FindByEmail(ctx context.Context, email crypto.String) (*system.User, error) {
-	userQuery := systemQuery.Use(u.GetMainDB().GetDB()).User
+	userQuery := u.User
 	user, err := userQuery.WithContext(ctx).Where(userQuery.Email.Eq(email)).First()
 	if err != nil {
 		return nil, userNotFound(err)
@@ -110,7 +104,7 @@ func (u *userRepoImpl) FindByEmail(ctx context.Context, email crypto.String) (*s
 }
 
 func (u *userRepoImpl) SetEmail(ctx context.Context, user *system.User, sendEmailFunc repository.SendEmailFunc) (*system.User, error) {
-	userMutation := systemQuery.Use(u.GetMainDB().GetDB()).User
+	userMutation := u.User
 	wrapper := []gen.Condition{
 		userMutation.ID.Eq(user.ID),
 		userMutation.Email.Eq(crypto.String("")),
@@ -172,8 +166,8 @@ func (u *userRepoImpl) sendUserPassword(ctx context.Context, user *system.User, 
 // GetTeamsByUserID 获取用户所属的所有团队
 func (u *userRepoImpl) GetTeamsByUserID(ctx context.Context, userID uint32) ([]*system.Team, error) {
 	// 获取用户加入的所有团队
-	teamMemberQuery := systemQuery.Use(u.GetMainDB().GetDB()).TeamMember
-	teamQuery := systemQuery.Use(u.GetMainDB().GetDB()).Team
+	teamMemberQuery := u.TeamMember
+	teamQuery := u.Team
 
 	// 查找用户的所有团队成员记录
 	members, err := teamMemberQuery.WithContext(ctx).
@@ -207,7 +201,7 @@ func (u *userRepoImpl) GetTeamsByUserID(ctx context.Context, userID uint32) ([]*
 
 // GetMemberByUserIDAndTeamID 获取用户在特定团队中的成员信息
 func (u *userRepoImpl) GetMemberByUserIDAndTeamID(ctx context.Context, userID, teamID uint32) (*system.TeamMember, error) {
-	teamMemberQuery := systemQuery.Use(u.GetMainDB().GetDB()).TeamMember
+	teamMemberQuery := u.TeamMember
 
 	// 查找用户在指定团队中的成员记录，包括角色信息
 	member, err := teamMemberQuery.WithContext(ctx).
@@ -226,7 +220,7 @@ func (u *userRepoImpl) GetMemberByUserIDAndTeamID(ctx context.Context, userID, t
 
 // GetAllTeamMembers 获取用户所有团队的成员信息
 func (u *userRepoImpl) GetAllTeamMembers(ctx context.Context, userID uint32) ([]*system.TeamMember, error) {
-	teamMemberQuery := systemQuery.Use(u.GetMainDB().GetDB()).TeamMember
+	teamMemberQuery := u.TeamMember
 
 	// 查找用户的所有团队成员记录，包括角色信息
 	members, err := teamMemberQuery.WithContext(ctx).
@@ -243,7 +237,7 @@ func (u *userRepoImpl) GetAllTeamMembers(ctx context.Context, userID uint32) ([]
 // GetTeamsByIDs 根据团队ID列表获取团队
 func (u *userRepoImpl) GetTeamsByIDs(ctx context.Context, teamIDs []uint32) ([]*system.Team, error) {
 	// 查询所有团队信息
-	teamQuery := systemQuery.Use(u.GetMainDB().GetDB()).Team
+	teamQuery := u.Team
 	teams, err := teamQuery.WithContext(ctx).
 		Where(teamQuery.ID.In(teamIDs...), teamQuery.Status.Eq(int8(vobj.TeamStatusNormal))).
 		Find()
@@ -255,7 +249,7 @@ func (u *userRepoImpl) GetTeamsByIDs(ctx context.Context, teamIDs []uint32) ([]*
 
 // UpdateSelfInfo updates the user's profile information
 func (u *userRepoImpl) UpdateSelfInfo(ctx context.Context, user *system.User) error {
-	userMutation := systemQuery.Use(u.GetMainDB().GetDB()).User
+	userMutation := u.User
 
 	// Only update the relevant fields
 	_, err := userMutation.WithContext(ctx).
@@ -275,7 +269,7 @@ func (u *userRepoImpl) UpdateSelfInfo(ctx context.Context, user *system.User) er
 
 // UpdatePassword updates the user's password in the database
 func (u *userRepoImpl) UpdatePassword(ctx context.Context, updateUserPasswordInfo *bo.UpdateUserPasswordInfo) error {
-	userMutation := systemQuery.Use(u.GetMainDB().GetDB()).User
+	userMutation := u.User
 
 	// Update password and salt fields
 	_, err := userMutation.WithContext(ctx).

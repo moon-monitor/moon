@@ -11,7 +11,7 @@ import (
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/repository"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/vobj"
 	"github.com/moon-monitor/moon/cmd/palace/internal/data"
-	teamQuery "github.com/moon-monitor/moon/cmd/palace/internal/data/query/team"
+	"github.com/moon-monitor/moon/cmd/palace/internal/data/query/teamgen"
 	"github.com/moon-monitor/moon/cmd/palace/internal/helper/permission"
 	"github.com/moon-monitor/moon/pkg/merr"
 )
@@ -30,7 +30,7 @@ type dashboardImpl struct {
 	helper *log.Helper
 }
 
-func (r *dashboardImpl) getDashboardTX(ctx context.Context) (*teamQuery.Query, error) {
+func (r *dashboardImpl) getDashboardTX(ctx context.Context) (*teamgen.Query, error) {
 	teamID, ok := permission.GetTeamIDByContext(ctx)
 	if !ok {
 		return nil, merr.ErrorInternalServerError("team id not found")
@@ -39,7 +39,7 @@ func (r *dashboardImpl) getDashboardTX(ctx context.Context) (*teamQuery.Query, e
 	if err != nil {
 		return nil, err
 	}
-	return teamQuery.Use(db.GetDB()), nil
+	return teamgen.Use(db.GetDB()), nil
 }
 
 // SaveDashboard save dashboard
@@ -79,7 +79,11 @@ func (r *dashboardImpl) GetDashboard(ctx context.Context, id uint32) (*team.Dash
 		return nil, err
 	}
 	mutation := tx.Dashboard
-	return mutation.WithContext(ctx).Where(mutation.ID.Eq(id)).First()
+	dashboardDo, err := mutation.WithContext(ctx).Where(mutation.ID.Eq(id)).First()
+	if err != nil {
+		return nil, teamDashboardNotFound(err)
+	}
+	return dashboardDo, nil
 }
 
 // ListDashboards list dashboards with filter

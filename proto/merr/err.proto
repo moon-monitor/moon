@@ -11,13 +11,12 @@ option java_package = "proto.merr";
 enum ClientError {
   option (errors.default_code) = 400;
   BAD_REQUEST = 0;
-  USER_NOT_FOUND = 1;
+  NOT_FOUND = 1;
   CAPTCHA_ERROR = 2;
   PARAMS_ERROR = 3;
   PASSWORD_ERROR = 4;
-  TEAM_NOT_FOUND = 5;
-  PERMISSION_DENIED = 6;
-  METHOD_NOT_ALLOWED = 7;
+  PERMISSION_DENIED = 5;
+  METHOD_NOT_ALLOWED = 6;
 }
 
 enum UnauthorizedError {
@@ -26,6 +25,7 @@ enum UnauthorizedError {
   INVALID_TOKEN = 1;
   TOKEN_EXPIRED = 2;
   USER_FORBIDDEN = 3;
+  USER_NOT_FOUND = 4;
 }
 
 enum ServerError {
