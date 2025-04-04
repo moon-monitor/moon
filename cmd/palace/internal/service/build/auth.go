@@ -22,7 +22,7 @@ func LoginSignToUserBaseProto(b *bo.LoginSign) *common.UserBaseItem {
 func LoginReply(b *bo.LoginSign) *palace.LoginReply {
 	return &palace.LoginReply{
 		Token:          b.Token,
-		ExpiredSeconds: b.ExpiredSeconds,
+		ExpiredSeconds: int32(b.ExpiredSeconds),
 		User:           LoginSignToUserBaseProto(b),
 	}
 }

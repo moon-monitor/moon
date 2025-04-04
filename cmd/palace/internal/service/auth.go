@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	nhttp "net/http"
+	"strings"
 	"time"
 
 	"github.com/go-kratos/kratos/v2/log"
@@ -41,8 +42,8 @@ func builderOAuth2List(oauth2 *conf.Auth_OAuth2) []*palacev1.OAuth2ListReply_OAu
 	for _, oauth := range list {
 		oauthList = append(oauthList, &palacev1.OAuth2ListReply_OAuthItem{
 			Icon:     oauth.GetApp().String(),
-			Label:    oauth.GetApp().String() + " login",
-			Redirect: oauth.GetAuthUrl(),
+			Label:    strings.Title(strings.ToLower(oauth.GetApp().String()) + " login"),
+			Redirect: oauth.GetLoginUrl(),
 		})
 	}
 	return oauthList
@@ -79,7 +80,7 @@ func (s *AuthService) GetCaptcha(ctx context.Context, _ *common.EmptyRequest) (*
 	return &palacev1.GetCaptchaReply{
 		CaptchaId:      captchaBo.Id,
 		CaptchaImg:     captchaBo.B64s,
-		ExpiredSeconds: captchaBo.ExpiredSeconds,
+		ExpiredSeconds: int32(captchaBo.ExpiredSeconds),
 	}, nil
 }
 
@@ -126,7 +127,7 @@ func (s *AuthService) VerifyEmail(ctx context.Context, req *palacev1.VerifyEmail
 	if err := s.authBiz.VerifyEmail(ctx, req.GetEmail()); err != nil {
 		return nil, err
 	}
-	return &palacev1.VerifyEmailReply{ExpiredSeconds: int64(5 * time.Minute.Seconds())}, nil
+	return &palacev1.VerifyEmailReply{ExpiredSeconds: int32(5 * time.Minute.Seconds())}, nil
 }
 
 func (s *AuthService) LoginByEmail(ctx context.Context, req *palacev1.LoginByEmailRequest) (*palacev1.LoginReply, error) {
@@ -201,6 +202,28 @@ func (s *AuthService) GetSelfMenuTree(ctx context.Context, _ *common.EmptyReques
 	return &palacev1.GetSelfMenuTreeReply{
 		Items: build.ToMenuTreeProto(menus),
 	}, nil
+}
+
+func (s *AuthService) ReplaceUserRole(ctx context.Context, req *palacev1.ReplaceUserRoleRequest) (*common.EmptyReply, error) {
+	updateReq := &bo.ReplaceUserRoleReq{
+		UserID: req.GetUserID(),
+		Roles:  req.GetRoleIds(),
+	}
+	if err := s.authBiz.ReplaceUserRole(ctx, updateReq); err != nil {
+		return nil, err
+	}
+	return &common.EmptyReply{Message: "success"}, nil
+}
+
+func (s *AuthService) ReplaceMemberRole(ctx context.Context, req *palacev1.ReplaceMemberRoleRequest) (*common.EmptyReply, error) {
+	updateReq := &bo.ReplaceMemberRoleReq{
+		MemberID: req.GetMemberID(),
+		Roles:    req.GetRoleIds(),
+	}
+	if err := s.authBiz.ReplaceMemberRole(ctx, updateReq); err != nil {
+		return nil, err
+	}
+	return &common.EmptyReply{Message: "success"}, nil
 }
 
 // OAuthLogin oauth login

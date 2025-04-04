@@ -11,29 +11,32 @@ auth:
       - /api.palace.Auth/LoginByEmail
       - /api.palace.Auth/OAuthLoginByEmail
       - /api.palace.Auth/OAuth2List
+      - /api.palace.Auth/GetFilingInformation
   captcha:
     prefix: ${X_MOON_AUTH_CAPTCHA_PREFIX:}
     timeout: ${X_MOON_AUTH_CAPTCHA_TIMEOUT:10s}
     expire: ${X_MOON_AUTH_CAPTCHA_EXPIRE:60s}
   oauth2:
     enable: ${X_MOON_AUTH_OAUTH2_ENABLE:false}
-    redirect_uri: ${X_MOON_AUTH_OAUTH2_REDIRECT_URI:}
+    redirect_uri: ${X_MOON_AUTH_OAUTH2_REDIRECT_URI}
     configs:
-      - app: ${X_MOON_AUTH_OAUTH2_APP_0:GITHUB}
-        client_id: ${X_MOON_AUTH_OAUTH2_CLIENT_ID_0:}
-        client_secret: ${X_MOON_AUTH_OAUTH2_CLIENT_SECRET_0:}
-        callback_uri: ${X_MOON_AUTH_OAUTH2_CALLBACK_URI_0:}
-        auth_url: ${X_MOON_AUTH_OAUTH2_AUTH_URL_0:}
-        token_url: ${X_MOON_AUTH_OAUTH2_TOKEN_URL_0:}
-        scopes: ${X_MOON_AUTH_OAUTH2_SCOPES_0:[]}
+      - app: ${X_MOON_AUTH_OAUTH2_APP_0}
+        client_id: ${X_MOON_AUTH_OAUTH2_CLIENT_ID_0}
+        client_secret: ${X_MOON_AUTH_OAUTH2_CLIENT_SECRET_0}
+        callback_uri: ${X_MOON_AUTH_OAUTH2_CALLBACK_URI_0}
+        auth_url: ${X_MOON_AUTH_OAUTH2_AUTH_URL_0}
+        token_url: ${X_MOON_AUTH_OAUTH2_TOKEN_URL_0}
+        scopes: ${X_MOON_AUTH_OAUTH2_SCOPES_0}
+        login_url: ${X_MOON_AUTH_OAUTH2_LOGIN_URL_0}
 
-      - app: ${X_MOON_AUTH_OAUTH2_APP_1:GITEE}
-        client_id: ${X_MOON_AUTH_OAUTH2_CLIENT_ID_1:}
-        client_secret: ${X_MOON_AUTH_OAUTH2_CLIENT_SECRET_1:}
-        callback_uri: ${X_MOON_AUTH_OAUTH2_CALLBACK_URI_1:}
-        auth_url: ${X_MOON_AUTH_OAUTH2_AUTH_URL_1:}
-        token_url: ${X_MOON_AUTH_OAUTH2_TOKEN_URL_1:}
-        scopes: ${X_MOON_AUTH_OAUTH2_SCOPES_1:[]}
+      - app: ${X_MOON_AUTH_OAUTH2_APP_1}
+        client_id: ${X_MOON_AUTH_OAUTH2_CLIENT_ID_1}
+        client_secret: ${X_MOON_AUTH_OAUTH2_CLIENT_SECRET_1}
+        callback_uri: ${X_MOON_AUTH_OAUTH2_CALLBACK_URI_1}
+        auth_url: ${X_MOON_AUTH_OAUTH2_AUTH_URL_1}
+        token_url: ${X_MOON_AUTH_OAUTH2_TOKEN_URL_1}
+        scopes: ${X_MOON_AUTH_OAUTH2_SCOPES_1}
+        login_url: ${X_MOON_AUTH_OAUTH2_LOGIN_URL_1}
 
 filing:
   url: ${X_MOON_FILING_URL}

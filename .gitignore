@@ -42,3 +42,6 @@ bin/
 *.*.go
 wire_gen.go
 *.db*
+
+.env
+.env.palace

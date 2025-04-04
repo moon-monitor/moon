@@ -38,6 +38,25 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/api.palace.GetFilingInformationReply'
+    /api/auth/login:
+        post:
+            tags:
+                - Auth
+            description: LoginByPassword authenticates a user with email and password
+            operationId: Auth_LoginByPassword
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/api.palace.LoginByPasswordRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.palace.LoginReply'
     /api/auth/login/email:
         post:
             tags:
@@ -76,6 +95,25 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/api.palace.LogoutReply'
+    /api/auth/member/role:
+        post:
+            tags:
+                - Auth
+            description: ReplaceMemberRole updates the member's role
+            operationId: Auth_ReplaceMemberRole
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/api.palace.ReplaceMemberRoleRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.palace.common.EmptyReply'
     /api/auth/oauth2/list:
         post:
             tags:
@@ -152,6 +190,25 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/api.palace.GetSelfMenuTreeReply'
+    /api/auth/user/role:
+        post:
+            tags:
+                - Auth
+            description: ReplaceUserRole updates the user's role
+            operationId: Auth_ReplaceUserRole
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/api.palace.ReplaceUserRoleRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.palace.common.EmptyReply'
     /api/auth/verify/email:
         post:
             tags:
@@ -1500,8 +1557,9 @@ components:
                     type: string
                     description: Base64 encoded captcha image data
                 expiredSeconds:
-                    type: string
+                    type: integer
                     description: Captcha expiration time in seconds
+                    format: int32
             description: GetCaptchaReply contains the response data for the GetCaptcha method
         api.palace.GetEmailConfigReply:
             type: object
@@ -1921,8 +1979,9 @@ components:
                     type: string
                     description: Login token
                 expiredSeconds:
-                    type: string
+                    type: integer
                     description: Token expiration time in seconds
+                    format: int32
                 user:
                     allOf:
                         - $ref: '#/components/schemas/api.palace.common.UserBaseItem'
@@ -2026,6 +2085,30 @@ components:
                     type: string
                     description: Email of the user to remove
             description: RemoveMemberRequest represents the request data for removing a member from the team
+        api.palace.ReplaceMemberRoleRequest:
+            type: object
+            properties:
+                memberID:
+                    type: integer
+                    format: uint32
+                roleIds:
+                    type: array
+                    items:
+                        type: integer
+                        format: uint32
+            description: ReplaceMemberRoleRequest represents the request data for replacing a member's role
+        api.palace.ReplaceUserRoleRequest:
+            type: object
+            properties:
+                userID:
+                    type: integer
+                    format: uint32
+                roleIds:
+                    type: array
+                    items:
+                        type: integer
+                        format: uint32
+            description: ReplaceUserRoleRequest represents the request data for replacing a user's role
         api.palace.ResetUserPasswordRequest:
             type: object
             properties:
@@ -2499,8 +2582,9 @@ components:
             type: object
             properties:
                 expiredSeconds:
-                    type: string
+                    type: integer
                     description: Email verification code expiration time in seconds
+                    format: int32
             description: VerifyEmailReply contains the response data for successful email verification
         api.palace.VerifyEmailRequest:
             type: object

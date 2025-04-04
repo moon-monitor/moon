@@ -45,8 +45,9 @@ message Auth {
   }
   message OAuth2 {
     enum APP {
-      GITHUB = 0;
-      GITEE = 1;
+      UNKNOWN = 0;
+      GITHUB = 1;
+      GITEE = 2;
     }
     message Config {
       APP app = 1;
@@ -56,6 +57,7 @@ message Auth {
       string auth_url = 5;
       string token_url = 6;
       repeated string scopes = 7;
+      string login_url = 8;
     }
     bool enable = 1;
     string redirect_uri = 2;

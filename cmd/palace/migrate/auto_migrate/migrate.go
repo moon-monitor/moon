@@ -1,6 +1,3 @@
-//go:build ignore
-// +build ignore
-
 package main
 
 import (
@@ -14,8 +11,6 @@ import (
 	"github.com/moon-monitor/moon/pkg/util/load"
 )
 
-// Version is the version of the compiled software.
-var Version string
 var cfgPath string
 var rootCmd = &cobra.Command{
 	Use:   "moon",

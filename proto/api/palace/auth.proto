@@ -22,7 +22,7 @@ service Auth {
   // LoginByPassword authenticates a user with email and password
   rpc LoginByPassword(LoginByPasswordRequest) returns (LoginReply) {
     option (google.api.http) = {
-      post: "/api/auth/login/email"
+      post: "/api/auth/login"
       body: "*"
     };
   }
@@ -90,6 +90,22 @@ service Auth {
       body: "*"
     };
   }
+
+  // ReplaceUserRole updates the user's role
+  rpc ReplaceUserRole(ReplaceUserRoleRequest) returns (api.palace.common.EmptyReply) {
+    option (google.api.http) = {
+      post: "/api/auth/user/role"
+      body: "*"
+    };
+  }
+
+  // ReplaceMemberRole updates the member's role
+  rpc ReplaceMemberRole(ReplaceMemberRoleRequest) returns (api.palace.common.EmptyReply) {
+    option (google.api.http) = {
+      post: "/api/auth/member/role"
+      body: "*"
+    };
+  }
 }
 
 // CaptchaValidateRequest is used to validate the captcha
@@ -113,7 +129,7 @@ message GetCaptchaReply {
   // Base64 encoded captcha image data
   string captchaImg = 2;
   // Captcha expiration time in seconds
-  int64 expired_seconds = 3;
+  int32 expired_seconds = 3;
 }
 
 // LoginByPasswordRequest represents the request data for logging in with password
@@ -212,7 +228,7 @@ message LoginReply {
   // Login token
   string token = 1;
   // Token expiration time in seconds
-  int64 expired_seconds = 2;
+  int32 expired_seconds = 2;
   // User basic information
   api.palace.common.UserBaseItem user = 3;
 }
@@ -246,7 +262,7 @@ message VerifyEmailRequest {
 // VerifyEmailReply contains the response data for successful email verification
 message VerifyEmailReply {
   // Email verification code expiration time in seconds
-  int64 expired_seconds = 2;
+  int32 expired_seconds = 2;
 }
 
 // OAuth2ListReply contains the list of supported OAuth2.0 providers
@@ -277,4 +293,22 @@ message GetFilingInformationReply {
 message GetSelfMenuTreeReply {
   // Menu tree data
   repeated api.palace.common.MenuTreeItem items = 1;
+}
+
+// ReplaceUserRoleRequest represents the request data for replacing a user's role
+message ReplaceUserRoleRequest {
+  uint32 userID = 1 [(buf.validate.field).cel = {
+    message: "userID is required"
+    expression: "this > 0"
+  }];
+  repeated uint32 roleIds = 2;
+}
+
+// ReplaceMemberRoleRequest represents the request data for replacing a member's role
+message ReplaceMemberRoleRequest {
+  uint32 memberID = 1 [(buf.validate.field).cel = {
+    message: "memberID is required"
+    expression: "this > 0"
+  }];
+  repeated uint32 roleIds = 2;
 }

@@ -11,10 +11,10 @@ import (
 	"github.com/go-kratos/kratos/v2/middleware/selector"
 	"github.com/go-kratos/kratos/v2/middleware/tracing"
 	"github.com/go-kratos/kratos/v2/transport/http"
+	"github.com/moon-monitor/moon/cmd/palace/internal/helper/middleware"
 
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/vobj"
 	"github.com/moon-monitor/moon/cmd/palace/internal/conf"
-	"github.com/moon-monitor/moon/cmd/palace/internal/helper/middleware"
 	"github.com/moon-monitor/moon/cmd/palace/internal/service"
 	"github.com/moon-monitor/moon/pkg/middler"
 	"github.com/moon-monitor/moon/pkg/util/docs"
