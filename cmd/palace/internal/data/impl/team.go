@@ -2,7 +2,6 @@ package impl
 
 import (
 	"context"
-	"database/sql"
 	"fmt"
 	"time"
 
@@ -12,7 +11,6 @@ import (
 
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do/system"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/repository"
-	"github.com/moon-monitor/moon/cmd/palace/internal/conf"
 	"github.com/moon-monitor/moon/cmd/palace/internal/data"
 	"github.com/moon-monitor/moon/cmd/palace/internal/data/query/systemgen"
 	"github.com/moon-monitor/moon/pkg/config"
@@ -43,7 +41,7 @@ func (r *teamRepoImpl) FindByID(ctx context.Context, id uint32) (*system.Team, e
 	return teamDo, nil
 }
 
-func (r *teamRepoImpl) createDatabase(c *conf.Data_Database, sqlDB *sql.DB, teamID uint32) (gorm.DB, error) {
+func (r *teamRepoImpl) createDatabase(c *config.Database, teamID uint32) (gorm.DB, error) {
 	teamQuery := r.Team
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
@@ -56,24 +54,9 @@ func (r *teamRepoImpl) createDatabase(c *conf.Data_Database, sqlDB *sql.DB, team
 	}
 
 	dbName := c.GetDbName()
-	if teamDo.Capacity.AllowGroup() && c.IsGroup() {
+	if teamDo.Capacity.AllowGroup() {
 		dbName = fmt.Sprintf("%s_%d", dbName, teamID)
 	}
-
-	switch c.GetDriver() {
-	case config.Database_MYSQL:
-		expr := fmt.Sprintf("CREATE DATABASE IF NOT EXISTS `%s` DEFAULT CHARACTER SET utf8mb4 DEFAULT COLLATE utf8mb4_general_ci;", dbName)
-		if _, err := sqlDB.Exec(expr); err != nil {
-			return nil, err
-		}
-	}
-	dsn := c.GenDsn(dbName)
-
-	databaseConf := &config.Database{
-		Driver:       c.GetDriver(),
-		Dsn:          dsn,
-		Debug:        c.GetDebug(),
-		UseSystemLog: c.GetUseSystemLog(),
-	}
-	return gorm.NewDB(databaseConf)
+	c.DbName = dbName
+	return gorm.NewDB(c)
 }

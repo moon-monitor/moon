@@ -90,7 +90,6 @@ func (c *cacheReoImpl) CacheVerifyOAuthToken(ctx context.Context, oauthParams *b
 
 func (c *cacheReoImpl) VerifyEmailCode(ctx context.Context, email, code string) error {
 	key := repository.EmailCodeKey.Key(email)
-	defer c.GetCache().Client().Del(ctx, key).Val()
 	cacheCode, err := c.GetCache().Client().Get(ctx, key).Result()
 	if err != nil {
 		if errors.Is(err, redis.Nil) {
@@ -100,6 +99,7 @@ func (c *cacheReoImpl) VerifyEmailCode(ctx context.Context, email, code string) 
 		}
 		return merr.ErrorInternalServerError("cache err").WithCause(err)
 	}
+	defer c.GetCache().Client().Del(ctx, key).Val()
 	if strings.EqualFold(cacheCode, code) {
 		return nil
 	}

@@ -1,8 +1,10 @@
 package gorm
 
 import (
+	"database/sql"
+	"fmt"
+
 	"gorm.io/driver/mysql"
-	"gorm.io/driver/sqlite"
 	"gorm.io/gorm"
 
 	"github.com/moon-monitor/moon/pkg/config"
@@ -16,28 +18,38 @@ type DB interface {
 
 // NewDB creates a new DB instance
 func NewDB(c *config.Database) (DB, error) {
+	// check db name exist, if not, create it
+	if c.GetDbName() == "" {
+		return nil, merr.ErrorBadRequest("db name is empty")
+	}
+	if c.GetDbName() != "" {
+		sqlDB, err := newSqlDB(c)
+		if err != nil {
+			panic(err)
+		}
+		defer sqlDB.Close()
+		if _, err := sqlDB.Exec(fmt.Sprintf("CREATE DATABASE IF NOT EXISTS %s DEFAULT CHARACTER SET utf8mb4 DEFAULT COLLATE utf8mb4_general_ci;", c.GetDbName())); err != nil {
+			panic(err)
+		}
+	}
+
 	var opts []gorm.Option
 	gormConfig := &gorm.Config{
 		DisableForeignKeyConstraintWhenMigrating: true,
 	}
 	opts = append(opts, gormConfig)
 	var dialector gorm.Dialector
-	dsn := c.GetDsn()
+	dsn := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?%s", c.GetUser(), c.GetPassword(), c.GetHost(), c.GetPort(), c.GetDbName(), c.GetParams())
 	drive := c.GetDriver()
 	switch drive {
 	case config.Database_MYSQL:
 		dialector = mysql.Open(dsn)
-	case config.Database_SQLITE:
-		dialector = sqlite.Open(dsn)
 	default:
 		return nil, merr.ErrorInternalServerError("invalid driver: %s", drive)
 	}
 	conn, err := gorm.Open(dialector, opts...)
 	if err != nil {
 		return nil, merr.ErrorInternalServerError("connect db error: %s", err)
-	}
-	if drive == config.Database_SQLITE {
-		_ = conn.Exec("PRAGMA journal_mode=WAL;")
 	}
 	if c.GetDebug() {
 		conn = conn.Debug()
@@ -62,4 +74,14 @@ func (t *db) Close() error {
 		return err
 	}
 	return s.Close()
+}
+
+func newSqlDB(c *config.Database) (*sql.DB, error) {
+	dsn := fmt.Sprintf("%s:%s@tcp(%s:%d)/", c.GetUser(), c.GetPassword(), c.GetHost(), c.GetPort())
+	switch c.GetDriver() {
+	case config.Database_MYSQL:
+		return sql.Open("mysql", dsn)
+	default:
+		return nil, merr.ErrorInternalServerError("invalid driver: %s", c.GetDriver())
+	}
 }

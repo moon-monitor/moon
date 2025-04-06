@@ -68,28 +68,20 @@ message JWT {
   repeated string allow_operations = 4;
 }
 
-// 数据库配置
 message Database {
   enum Driver {
     // mysql
     MYSQL = 0;
-    // postgres
-    POSTGRES = 1;
-    // sqlite
-    SQLITE = 2;
-    // sqlserver
-    SQLSERVER = 3;
-    // TiDB
-    TIDB = 4;
-    // Clickhouse
-    CLICKHOUSE = 5;
   }
-  // driver, support gorm
   Driver driver = 1;
-  // database connection string
-  string dsn = 2;
-  bool debug = 3;
-  bool use_system_log = 4;
+  string user = 3;
+  string password = 4;
+  string host = 5;
+  int32 port = 6;
+  string params = 7;
+  bool debug = 8;
+  bool use_system_log = 9;
+  string db_name = 10;
 }
 
 // 缓存配置

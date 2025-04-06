@@ -6,7 +6,7 @@ import (
 
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/google/wire"
-	
+
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/bo"
 	"github.com/moon-monitor/moon/cmd/palace/internal/conf"
 	"github.com/moon-monitor/moon/pkg/config"
@@ -153,13 +153,11 @@ func New(c *conf.Bootstrap, logger log.Logger) (*Data, func(), error) {
 	}, nil
 }
 
-func newSqlDB(c *conf.Data_Database) (*sql.DB, error) {
-	dsn := c.GenDsn("")
+func newSqlDB(c *config.Database) (*sql.DB, error) {
+	dsn := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?%s", c.GetUser(), c.GetPassword(), c.GetHost(), c.GetPort(), c.GetDbName(), c.GetParams())
 	switch c.GetDriver() {
 	case config.Database_MYSQL:
 		return sql.Open("mysql", dsn)
-	case config.Database_SQLITE:
-		return sql.Open("sqlite3", dsn)
 	default:
 		return nil, fmt.Errorf("unknown driver: %s", c.GetDriver())
 	}

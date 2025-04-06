@@ -3,7 +3,7 @@ environment: ${X_MOON_ENVIRONMENT:DEV}
 server:
   name: ${X_MOON_SERVER_NAME:palace}
   metadata:
-    summary: ${X_MOON_SUMMARY:}
+    summary: ${X_MOON_SUMMARY}
   http:
     network: ${X_MOON_HTTP_NETWORK:tcp}
     addr: ${X_MOON_HTTP_ADDR:0.0.0.0:8080}
@@ -40,5 +40,5 @@ registry:
   etcd:
     endpoints: ${X_MOON_REGISTRY_ETCD_ENDPOINTS:['127.0.0.1:2379']}
     timeout: ${X_MOON_REGISTRY_ETCD_TIMEOUT:5s}
-    username: ${X_MOON_REGISTRY_ETCD_USERNAME:}
-    password: ${X_MOON_REGISTRY_ETCD_PASSWORD:}
+    username: ${X_MOON_REGISTRY_ETCD_USERNAME}
+    password: ${X_MOON_REGISTRY_ETCD_PASSWORD}
