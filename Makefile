@@ -162,6 +162,12 @@ run:
 	make all
 	go run ./cmd/$(APP_NAME) -c ./cmd/$(APP_NAME)/config
 
+.PHONY: migrate-table
+migrate-table:
+	@if [ -z "$(APP_NAME)" ]; then echo "app name is required"; echo "usage: make migrate-table app=<app_name>"; exit 1; fi
+	@echo "Migrating moon app=$(APP_NAME)"
+	go run ./cmd/$(APP_NAME)/migrate/auto_migrate/migrate.go
+
 .PHONY: docker-build
 docker-build:
 	@if [ -z "$(APP_NAME)" ]; then echo "app name is required"; echo "usage: make docker-build app=<app_name>"; exit 1; fi

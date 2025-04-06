@@ -301,7 +301,7 @@ func (a *AuthBiz) oauthLogin(ctx context.Context, userInfo bo.IOAuthUser) (strin
 
 	if oauthUserDo.User == nil || validate.CheckEmail(userInfo.GetEmail()) != nil {
 		oauthParams := &bo.OAuthLoginParams{
-			OAuthID: oauthUserDo.ID,
+			OAuthID: oauthUserDo.OAuthID,
 			Token:   password.MD5(password.GenerateRandomPassword(64)),
 		}
 		if err := a.cacheRepo.CacheVerifyOAuthToken(ctx, oauthParams); err != nil {
@@ -380,7 +380,7 @@ func (a *AuthBiz) LoginWithEmail(ctx context.Context, code string, user *system.
 func (a *AuthBiz) sendEmail(ctx context.Context, sendEmailParams *bo.SendEmailParams) error {
 	sendClient, ok := a.rabbitRepo.Send()
 	if !ok {
-		a.helper.Errorw("method", "rabbit not connected", "params", sendEmailParams)
+		a.helper.Warnw("method", "rabbit not connected", "params", sendEmailParams)
 		return nil
 	}
 	reply, err := sendClient.Email(ctx, &rabbitv1.SendEmailRequest{

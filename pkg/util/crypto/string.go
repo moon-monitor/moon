@@ -48,13 +48,16 @@ func (s *String) Scan(value interface{}) error {
 }
 
 func (s String) Value() (driver.Value, error) {
+	if len(s) == 0 {
+		return "", nil
+	}
 	aes, err := WithAes()
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 	encrypt, err := aes.Encrypt([]byte(s))
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 	encodeToString := base64.StdEncoding.EncodeToString(encrypt)
 	return encodeToString, nil

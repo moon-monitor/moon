@@ -71,7 +71,6 @@ func (c *cacheReoImpl) VerifyToken(ctx context.Context, token string) error {
 
 func (c *cacheReoImpl) VerifyOAuthToken(ctx context.Context, oauthParams *bo.OAuthLoginParams) error {
 	key := repository.OAuthTokenKey.Key(oauthParams.OAuthID, oauthParams.Token)
-	defer c.GetCache().Client().Del(ctx, key).Val()
 	exist, err := c.GetCache().Client().Exists(ctx, key).Result()
 	if err != nil {
 		return merr.ErrorInternalServerError("cache err").WithCause(err)
@@ -81,7 +80,7 @@ func (c *cacheReoImpl) VerifyOAuthToken(ctx context.Context, oauthParams *bo.OAu
 			"exist": "false",
 		})
 	}
-	return nil
+	return c.GetCache().Client().Del(ctx, key).Err()
 }
 
 func (c *cacheReoImpl) CacheVerifyOAuthToken(ctx context.Context, oauthParams *bo.OAuthLoginParams) error {

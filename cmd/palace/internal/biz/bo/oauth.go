@@ -6,6 +6,7 @@ import (
 
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/vobj"
 	"github.com/moon-monitor/moon/pkg/merr"
+	"github.com/moon-monitor/moon/pkg/util/validate"
 )
 
 type IOAuthUser interface {
@@ -107,6 +108,9 @@ func (g *GithubUser) GetOAuthID() uint32 {
 
 // GetEmail 获取邮箱
 func (g *GithubUser) GetEmail() string {
+	if err := validate.CheckEmail(g.Email); err != nil {
+		return ""
+	}
 	return g.Email
 }
 
@@ -186,6 +190,9 @@ func (g *GiteeUser) GetOAuthID() uint32 {
 
 // GetEmail 获取邮箱
 func (g *GiteeUser) GetEmail() string {
+	if err := validate.CheckEmail(g.Email); err != nil {
+		return ""
+	}
 	return g.Email
 }
 

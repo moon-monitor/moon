@@ -126,10 +126,12 @@ func (u *userRepoImpl) SetEmail(ctx context.Context, user *system.User, sendEmai
 	if result.RowsAffected == 0 {
 		return nil, merr.ErrorUserNotFound("user not found")
 	}
+
 	userDo, err := userMutation.WithContext(ctx).Where(userMutation.ID.Eq(user.ID), userMutation.Email.Eq(user.Email)).First()
 	if err != nil {
 		return nil, userNotFound(err)
 	}
+
 	if err = u.sendUserPassword(ctx, userDo, pass.PValue(), sendEmailFunc); err != nil {
 		return nil, err
 	}
