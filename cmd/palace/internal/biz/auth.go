@@ -255,15 +255,18 @@ func (a *AuthBiz) oauthUserFirstOrCreate(ctx context.Context, userInfo bo.IOAuth
 		}
 		oauthUserDoExist = false
 	}
-	userDo, err := a.userRepo.FindByEmail(ctx, crypto.String(userInfo.GetEmail()))
-	if err != nil {
-		if !merr.IsUserNotFound(err) {
-			return nil, err
+	if oauthUserDo.SysUserID == 0 {
+		userDo, err := a.userRepo.FindByEmail(ctx, crypto.String(userInfo.GetEmail()))
+		if err != nil {
+			if !merr.IsUserNotFound(err) {
+				return nil, err
+			}
+		}
+		if userDo != nil {
+			userInfo.WithUserID(userDo.ID)
 		}
 	}
-	if userDo != nil {
-		userInfo.WithUserID(userDo.ID)
-	}
+
 	err = a.transaction.MainExec(ctx, func(ctx context.Context) error {
 		if !oauthUserDoExist {
 			oauthUserDo, err = a.oauthRepo.Create(ctx, userInfo)
@@ -273,7 +276,7 @@ func (a *AuthBiz) oauthUserFirstOrCreate(ctx context.Context, userInfo bo.IOAuth
 		}
 		if oauthUserDo.User == nil {
 			// 创建用户
-			userDo, err = a.userRepo.CreateUserWithOAuthUser(ctx, userInfo, a.sendEmail)
+			userDo, err := a.userRepo.CreateUserWithOAuthUser(ctx, userInfo, a.sendEmail)
 			if err != nil {
 				return err
 			}
@@ -299,7 +302,7 @@ func (a *AuthBiz) oauthLogin(ctx context.Context, userInfo bo.IOAuthUser) (strin
 		return "", err
 	}
 
-	if oauthUserDo.User == nil || validate.CheckEmail(userInfo.GetEmail()) != nil {
+	if oauthUserDo.User == nil || validate.CheckEmail(string(oauthUserDo.User.Email)) != nil {
 		oauthParams := &bo.OAuthLoginParams{
 			OAuthID: oauthUserDo.OAuthID,
 			Token:   password.MD5(password.GenerateRandomPassword(64)),
