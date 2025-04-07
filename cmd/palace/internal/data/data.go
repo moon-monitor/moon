@@ -39,12 +39,20 @@ func (d *Data) SetRabbitConn(id string, conn *bo.Server) {
 	d.rabbitConn.Set(id, conn)
 }
 
+func (d *Data) RemoveRabbitConn(id string) {
+	d.rabbitConn.Delete(id)
+}
+
 func (d *Data) GetHouyiConn(id string) (*bo.Server, bool) {
 	return d.houyiConn.Get(id)
 }
 
 func (d *Data) SetHouyiConn(id string, conn *bo.Server) {
 	d.houyiConn.Set(id, conn)
+}
+
+func (d *Data) RemoveHouyiConn(id string) {
+	d.houyiConn.Delete(id)
 }
 
 func (d *Data) FirstRabbitConn() (*bo.Server, bool) {

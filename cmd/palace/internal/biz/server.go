@@ -28,6 +28,9 @@ func (b *ServerBiz) Register(ctx context.Context, req *bo.ServerRegisterReq) err
 		return merr.ErrorInvalidArgument("invalid request")
 	}
 
+	if !req.IsOnline {
+		return b.Deregister(ctx, req)
+	}
 	var err error
 	// Store connection based on server type
 	switch req.ServerType {
@@ -44,5 +47,28 @@ func (b *ServerBiz) Register(ctx context.Context, req *bo.ServerRegisterReq) err
 	}
 
 	b.helper.Debugf("registered server type: %v, uuid: %s", req.ServerType, req.Uuid)
+	return nil
+}
+
+func (b *ServerBiz) Deregister(ctx context.Context, req *bo.ServerRegisterReq) error {
+	if req == nil {
+		return merr.ErrorInvalidArgument("invalid request")
+	}
+	if req.IsOnline {
+		return b.Register(ctx, req)
+	}
+	var err error
+	switch req.ServerType {
+	case vobj.ServerTypeRabbit:
+		err = b.serverRepo.DeregisterRabbit(ctx, req)
+	case vobj.ServerTypeHouyi:
+		err = b.serverRepo.DeregisterHouyi(ctx, req)
+	default:
+		return merr.ErrorInvalidArgument("unsupported server type: %v", req.ServerType)
+	}
+	if err != nil {
+		return merr.ErrorInternalServerError("failed to deregister server: %v", err)
+	}
+	b.helper.Debugf("deregistered server type: %v, uuid: %s", req.ServerType, req.Uuid)
 	return nil
 }

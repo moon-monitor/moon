@@ -4,7 +4,6 @@ import (
 	"context"
 
 	"github.com/go-kratos/kratos/v2/log"
-	
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/bo"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/repository"
 	"github.com/moon-monitor/moon/cmd/palace/internal/data"
@@ -22,6 +21,30 @@ func NewServerRepo(data *data.Data, logger log.Logger) repository.Server {
 type serverRepository struct {
 	data   *data.Data
 	helper *log.Helper
+}
+
+func (s *serverRepository) DeregisterRabbit(_ context.Context, req *bo.ServerRegisterReq) error {
+	rabbitConn, ok := s.data.GetRabbitConn(req.Uuid)
+	if !ok {
+		return nil
+	}
+	defer s.data.RemoveRabbitConn(req.Uuid)
+	if err := rabbitConn.Close(); err != nil {
+		return err
+	}
+	return nil
+}
+
+func (s *serverRepository) DeregisterHouyi(_ context.Context, req *bo.ServerRegisterReq) error {
+	houyiConn, ok := s.data.GetHouyiConn(req.Uuid)
+	if !ok {
+		return nil
+	}
+	defer s.data.RemoveHouyiConn(req.Uuid)
+	if err := houyiConn.Close(); err != nil {
+		return err
+	}
+	return nil
 }
 
 func (s *serverRepository) RegisterRabbit(_ context.Context, req *bo.ServerRegisterReq) error {

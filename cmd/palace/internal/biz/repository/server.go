@@ -8,5 +8,7 @@ import (
 
 type Server interface {
 	RegisterRabbit(ctx context.Context, req *bo.ServerRegisterReq) error
+	DeregisterRabbit(ctx context.Context, req *bo.ServerRegisterReq) error
 	RegisterHouyi(ctx context.Context, req *bo.ServerRegisterReq) error
+	DeregisterHouyi(ctx context.Context, req *bo.ServerRegisterReq) error
 }
