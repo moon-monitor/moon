@@ -19,74 +19,6 @@ import (
 // ProviderSetData is a set of data providers.
 var ProviderSetData = wire.NewSet(New)
 
-type Data struct {
-	dataConf             *conf.Data
-	mainDB               gorm.DB
-	bizDB, eventDB       *sql.DB
-	bizDBMap, eventDBMap *safety.Map[uint32, gorm.DB]
-	cache                cache.Cache
-	rabbitConn           *safety.Map[string, *bo.Server]
-	houyiConn            *safety.Map[string, *bo.Server]
-
-	helper *log.Helper
-}
-
-func (d *Data) GetRabbitConn(id string) (*bo.Server, bool) {
-	return d.rabbitConn.Get(id)
-}
-
-func (d *Data) SetRabbitConn(id string, conn *bo.Server) {
-	d.rabbitConn.Set(id, conn)
-}
-
-func (d *Data) RemoveRabbitConn(id string) {
-	d.rabbitConn.Delete(id)
-}
-
-func (d *Data) GetHouyiConn(id string) (*bo.Server, bool) {
-	return d.houyiConn.Get(id)
-}
-
-func (d *Data) SetHouyiConn(id string, conn *bo.Server) {
-	d.houyiConn.Set(id, conn)
-}
-
-func (d *Data) RemoveHouyiConn(id string) {
-	d.houyiConn.Delete(id)
-}
-
-func (d *Data) FirstRabbitConn() (*bo.Server, bool) {
-	list := d.rabbitConn.List()
-	for _, conn := range list {
-		return conn, true
-	}
-	return nil, false
-}
-
-func (d *Data) GetCache() cache.Cache {
-	return d.cache
-}
-
-func (d *Data) GetMainDB() gorm.DB {
-	return d.mainDB
-}
-
-func (d *Data) GetBizDB(teamID uint32) (gorm.DB, error) {
-	db, ok := d.bizDBMap.Get(teamID)
-	if ok {
-		return db, nil
-	}
-	return nil, merr.ErrorInternalServerError("team db not found").WithMetadata(map[string]string{"method": "GetBizDB"})
-}
-
-func (d *Data) GetEventDB(teamID uint32) (gorm.DB, error) {
-	db, ok := d.eventDBMap.Get(teamID)
-	if ok {
-		return db, nil
-	}
-	return nil, merr.ErrorInternalServerError("team db not found").WithMetadata(map[string]string{"method": "GetEventDB"})
-}
-
 // New a data and returns.
 func New(c *conf.Bootstrap, logger log.Logger) (*Data, func(), error) {
 	var err error
@@ -169,4 +101,71 @@ func newSqlDB(c *config.Database) (*sql.DB, error) {
 	default:
 		return nil, fmt.Errorf("unknown driver: %s", c.GetDriver())
 	}
+}
+
+type Data struct {
+	dataConf             *conf.Data
+	mainDB               gorm.DB
+	bizDB, eventDB       *sql.DB
+	bizDBMap, eventDBMap *safety.Map[uint32, gorm.DB]
+	cache                cache.Cache
+	rabbitConn           *safety.Map[string, *bo.Server]
+	houyiConn            *safety.Map[string, *bo.Server]
+	helper               *log.Helper
+}
+
+func (d *Data) GetRabbitConn(id string) (*bo.Server, bool) {
+	return d.rabbitConn.Get(id)
+}
+
+func (d *Data) SetRabbitConn(id string, conn *bo.Server) {
+	d.rabbitConn.Set(id, conn)
+}
+
+func (d *Data) RemoveRabbitConn(id string) {
+	d.rabbitConn.Delete(id)
+}
+
+func (d *Data) GetHouyiConn(id string) (*bo.Server, bool) {
+	return d.houyiConn.Get(id)
+}
+
+func (d *Data) SetHouyiConn(id string, conn *bo.Server) {
+	d.houyiConn.Set(id, conn)
+}
+
+func (d *Data) RemoveHouyiConn(id string) {
+	d.houyiConn.Delete(id)
+}
+
+func (d *Data) FirstRabbitConn() (*bo.Server, bool) {
+	list := d.rabbitConn.List()
+	for _, conn := range list {
+		return conn, true
+	}
+	return nil, false
+}
+
+func (d *Data) GetCache() cache.Cache {
+	return d.cache
+}
+
+func (d *Data) GetMainDB() gorm.DB {
+	return d.mainDB
+}
+
+func (d *Data) GetBizDB(teamID uint32) (gorm.DB, error) {
+	db, ok := d.bizDBMap.Get(teamID)
+	if ok {
+		return db, nil
+	}
+	return nil, merr.ErrorInternalServerError("team db not found").WithMetadata(map[string]string{"method": "GetBizDB"})
+}
+
+func (d *Data) GetEventDB(teamID uint32) (gorm.DB, error) {
+	db, ok := d.eventDBMap.Get(teamID)
+	if ok {
+		return db, nil
+	}
+	return nil, merr.ErrorInternalServerError("team db not found").WithMetadata(map[string]string{"method": "GetEventDB"})
 }
