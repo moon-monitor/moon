@@ -38,7 +38,7 @@ func (b *RegisterBiz) register(online bool) *common.ServerRegisterRequest {
 			Endpoint: serverConfig.GetOutEndpoint(),
 			Secret:   pointer.Of(jwtConf.GetSignKey()),
 			Timeout:  nil,
-			Network:  config.Network(serverConfig.GetNetwork()),
+			Network:  serverConfig.GetNetwork(),
 			Version:  hello.GetEnv().Version(),
 			Name:     serverConfig.GetName(),
 		},
