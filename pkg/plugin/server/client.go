@@ -2,10 +2,14 @@ package server
 
 import (
 	"context"
+	"strings"
 
 	"github.com/go-kratos/kratos/v2/middleware"
 	"github.com/go-kratos/kratos/v2/middleware/auth/jwt"
 	"github.com/go-kratos/kratos/v2/middleware/recovery"
+	"github.com/go-kratos/kratos/v2/selector"
+	"github.com/go-kratos/kratos/v2/selector/filter"
+	"github.com/go-kratos/kratos/v2/selector/wrr"
 	"github.com/go-kratos/kratos/v2/transport/grpc"
 	"github.com/go-kratos/kratos/v2/transport/http"
 	jwtv5 "github.com/golang-jwt/jwt/v5"
@@ -41,6 +45,13 @@ func InitHTTPClient(initConfig *InitConfig) (*http.Client, error) {
 		http.WithMiddleware(middlewares...),
 	}
 
+	nodeVersion := strings.TrimSpace(initConfig.MicroConfig.GetVersion())
+	if nodeVersion != "" {
+		nodeFilter := filter.Version(nodeVersion)
+		selector.SetGlobalSelector(wrr.NewBuilder())
+		opts = append(opts, http.WithNodeFilter(nodeFilter))
+	}
+
 	if initConfig.Registry != nil && initConfig.Registry.GetEnable() {
 		var err error
 		discovery, err := registry.NewDiscovery(initConfig.Registry)
@@ -74,6 +85,13 @@ func InitGRPCClient(initConfig *InitConfig) (*ggrpc.ClientConn, error) {
 	opts := []grpc.ClientOption{
 		grpc.WithEndpoint(initConfig.MicroConfig.GetEndpoint()),
 		grpc.WithMiddleware(middlewares...),
+	}
+
+	nodeVersion := strings.TrimSpace(initConfig.MicroConfig.GetVersion())
+	if nodeVersion != "" {
+		nodeFilter := filter.Version(nodeVersion)
+		selector.SetGlobalSelector(wrr.NewBuilder())
+		opts = append(opts, grpc.WithNodeFilter(nodeFilter))
 	}
 
 	if initConfig.Registry != nil && initConfig.Registry.GetEnable() {
