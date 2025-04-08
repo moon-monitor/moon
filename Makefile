@@ -81,7 +81,7 @@ conf:
 .PHONY: i18n
 # i18n
 i18n:
-	i18n-gen -O ./i18n/ -P ./proto/merr/err.proto
+	i18n-gen -O ./i18n/ -P ./proto/merr/err.proto -L en,ja,zh
 
 .PHONY: gen-palace
 # generate gorm gen
