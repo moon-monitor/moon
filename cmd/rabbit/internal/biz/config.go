@@ -55,3 +55,21 @@ func (c *Config) SetSMSConfig(ctx context.Context, configs ...bo.SMSConfig) erro
 	}
 	return c.configRepo.SetSMSConfig(ctx, configs...)
 }
+
+func (c *Config) GetHookConfig(ctx context.Context, name *string, defaultConfig bo.HookConfig) bo.HookConfig {
+	if name == nil || *name == "" {
+		return defaultConfig
+	}
+	hookConfig, ok := c.configRepo.GetHookConfig(ctx, *name)
+	if !ok || !hookConfig.GetEnable() {
+		return defaultConfig
+	}
+	return hookConfig
+}
+
+func (c *Config) SetHookConfig(ctx context.Context, configs ...bo.HookConfig) error {
+	if len(configs) == 0 {
+		return nil
+	}
+	return c.configRepo.SetHookConfig(ctx, configs...)
+}

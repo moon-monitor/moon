@@ -15,7 +15,8 @@ var _ Sender = (*otherHook)(nil)
 
 func NewOtherHook(api string, opts ...OtherHookOption) Sender {
 	h := &otherHook{
-		api: api,
+		api:    api,
+		header: make(http.Header),
 	}
 	for _, opt := range opts {
 		opt(h)
@@ -35,9 +36,11 @@ func WithOtherBasicAuth(username, password string) OtherHookOption {
 	}
 }
 
-func WithOtherHeader(header http.Header) OtherHookOption {
+func WithOtherHeader(header map[string]string) OtherHookOption {
 	return func(h *otherHook) {
-		h.header = header
+		for k, v := range header {
+			h.header.Set(k, v)
+		}
 	}
 }
 

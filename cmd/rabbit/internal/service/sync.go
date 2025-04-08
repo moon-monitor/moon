@@ -41,3 +41,13 @@ func (s *SyncService) Email(ctx context.Context, req *apiv1.SyncEmailRequest) (*
 	}
 	return &common.EmptyReply{}, nil
 }
+
+func (s *SyncService) Hook(ctx context.Context, req *apiv1.SyncHookRequest) (*common.EmptyReply, error) {
+	hooks := slices.Map(req.GetHooks(), func(hookItem *common.HookConfig) bo.HookConfig {
+		return hookItem
+	})
+	if err := s.configBiz.SetHookConfig(ctx, hooks...); err != nil {
+		return nil, err
+	}
+	return &common.EmptyReply{}, nil
+}

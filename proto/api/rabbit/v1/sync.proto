@@ -5,6 +5,7 @@ package api.rabbit.v1;
 import "google/api/annotations.proto";
 import "rabbit/common/email.proto";
 import "rabbit/common/sms.proto";
+import "rabbit/common/notification.proto";
 import "rabbit/common/common.proto";
 
 option go_package = "github.com/moon-monitor/moon/pkg/api/rabbit/v1;v1";
@@ -23,6 +24,13 @@ service Sync {
       body: "*"
     };
   }
+
+  rpc Hook (SyncHookRequest) returns (rabbit.common.EmptyReply) {
+    option (google.api.http) = {
+      post: "/v1/sync/hook"
+      body: "*"
+    };
+  }
 }
 
 message SyncSmsRequest {
@@ -31,5 +39,9 @@ message SyncSmsRequest {
 
 message SyncEmailRequest {
   repeated rabbit.common.EmailConfig emails = 1;
+}
+
+message SyncHookRequest {
+  repeated rabbit.common.HookConfig hooks = 1;
 }
 

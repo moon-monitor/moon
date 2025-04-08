@@ -28,7 +28,7 @@ func (c *configImpl) GetEmailConfig(ctx context.Context, name string) (bo.EmailC
 	key := vobj.EmailCacheKey.Key()
 	exist, err := c.Data.GetCache().Client().HExists(ctx, key, name).Result()
 	if err != nil {
-		c.helper.Errorw("GetEmailConfig", "err", err)
+		c.helper.Errorw("method", "GetEmailConfig", "err", err)
 		return nil, false
 	}
 	if !exist {
@@ -36,7 +36,7 @@ func (c *configImpl) GetEmailConfig(ctx context.Context, name string) (bo.EmailC
 	}
 	var emailConfig do.EmailConfig
 	if err := c.Data.GetCache().Client().HGet(ctx, key, name).Scan(&emailConfig); err != nil {
-		c.helper.Errorw("GetEmailConfig", "err", err)
+		c.helper.Errorw("method", "GetEmailConfig", "err", err)
 		return nil, false
 	}
 
@@ -64,7 +64,7 @@ func (c *configImpl) GetSMSConfig(ctx context.Context, name string) (bo.SMSConfi
 	key := vobj.SmsCacheKey.Key()
 	exist, err := c.Data.GetCache().Client().HExists(ctx, key, name).Result()
 	if err != nil {
-		c.helper.Errorw("GetSMSConfig", "err", err)
+		c.helper.Errorw("method", "GetSMSConfig", "err", err)
 		return nil, false
 	}
 	if !exist {
@@ -72,7 +72,7 @@ func (c *configImpl) GetSMSConfig(ctx context.Context, name string) (bo.SMSConfi
 	}
 	var smsConfig do.SMSConfig
 	if err := c.Data.GetCache().Client().HGet(ctx, key, name).Scan(&smsConfig); err != nil {
-		c.helper.Errorw("GetSMSConfig", "err", err)
+		c.helper.Errorw("method", "GetSMSConfig", "err", err)
 		return nil, false
 	}
 	return &smsConfig, true
@@ -92,4 +92,41 @@ func (c *configImpl) SetSMSConfig(ctx context.Context, configs ...bo.SMSConfig) 
 		configDos[item.UniqueKey()] = item
 	}
 	return c.Data.GetCache().Client().HSet(ctx, vobj.SmsCacheKey.Key(), configDos).Err()
+}
+
+func (c *configImpl) GetHookConfig(ctx context.Context, name string) (bo.HookConfig, bool) {
+	key := vobj.HookCacheKey.Key()
+	exist, err := c.Data.GetCache().Client().HExists(ctx, key, name).Result()
+	if err != nil {
+		c.helper.Errorw("method", "GetHookConfig", "err", err)
+		return nil, false
+	}
+	if !exist {
+		return nil, false
+	}
+	var hookConfig do.HookConfig
+	if err := c.Data.GetCache().Client().HGet(ctx, key, name).Scan(&hookConfig); err != nil {
+		c.helper.Errorw("method", "GetHookConfig", "err", err)
+		return nil, false
+	}
+	return &hookConfig, true
+}
+
+func (c *configImpl) SetHookConfig(ctx context.Context, configs ...bo.HookConfig) error {
+	configDos := make(map[string]any, len(configs))
+	for _, v := range configs {
+		item := &do.HookConfig{
+			Name:     v.GetName(),
+			App:      v.GetApp(),
+			Url:      v.GetUrl(),
+			Secret:   v.GetSecret(),
+			Token:    v.GetToken(),
+			Username: v.GetUsername(),
+			Password: v.GetPassword(),
+			Headers:  v.GetHeaders(),
+			Enable:   v.GetEnable(),
+		}
+		configDos[item.UniqueKey()] = item
+	}
+	return c.Data.GetCache().Client().HSet(ctx, vobj.HookCacheKey.Key(), configDos).Err()
 }

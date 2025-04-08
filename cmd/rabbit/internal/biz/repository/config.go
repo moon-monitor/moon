@@ -11,4 +11,6 @@ type Config interface {
 	SetEmailConfig(ctx context.Context, configs ...bo.EmailConfig) error
 	GetSMSConfig(ctx context.Context, name string) (bo.SMSConfig, bool)
 	SetSMSConfig(ctx context.Context, configs ...bo.SMSConfig) error
+	GetHookConfig(ctx context.Context, name string) (bo.HookConfig, bool)
+	SetHookConfig(ctx context.Context, configs ...bo.HookConfig) error
 }

@@ -108,6 +108,24 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/api.rabbit.common.EmptyReply'
+    /v1/sync/hook:
+        post:
+            tags:
+                - Sync
+            operationId: Sync_Hook
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/api.rabbit.v1.SyncHookRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.rabbit.common.EmptyReply'
     /v1/sync/sms:
         post:
             tags:
@@ -192,7 +210,7 @@ components:
             properties:
                 message:
                     type: string
-        api.rabbit.common.HookItem:
+        api.rabbit.common.HookConfig:
             type: object
             properties:
                 name:
@@ -214,6 +232,8 @@ components:
                     type: object
                     additionalProperties:
                         type: string
+                enable:
+                    type: boolean
         api.rabbit.common.SMSConfig:
             type: object
             properties:
@@ -253,7 +273,7 @@ components:
                 hooks:
                     type: array
                     items:
-                        $ref: '#/components/schemas/api.rabbit.common.HookItem'
+                        $ref: '#/components/schemas/api.rabbit.common.HookConfig'
                 body:
                     type: string
         api.rabbit.v1.SendSmsRequest:
@@ -278,6 +298,13 @@ components:
                     type: array
                     items:
                         $ref: '#/components/schemas/api.rabbit.common.EmailConfig'
+        api.rabbit.v1.SyncHookRequest:
+            type: object
+            properties:
+                hooks:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/api.rabbit.common.HookConfig'
         api.rabbit.v1.SyncSmsRequest:
             type: object
             properties:

@@ -3,12 +3,13 @@ package data
 import (
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/google/wire"
-	"github.com/moon-monitor/moon/pkg/plugin/email"
-	"github.com/moon-monitor/moon/pkg/plugin/sms"
-	"github.com/moon-monitor/moon/pkg/util/safety"
+	"github.com/moon-monitor/moon/pkg/plugin/hook"
 
 	"github.com/moon-monitor/moon/cmd/rabbit/internal/conf"
 	"github.com/moon-monitor/moon/pkg/plugin/cache"
+	"github.com/moon-monitor/moon/pkg/plugin/email"
+	"github.com/moon-monitor/moon/pkg/plugin/sms"
+	"github.com/moon-monitor/moon/pkg/util/safety"
 )
 
 // ProviderSetData is a set of data providers.
@@ -21,6 +22,7 @@ func New(c *conf.Bootstrap, logger log.Logger) (*Data, func(), error) {
 		dataConf: dataConf,
 		emails:   safety.NewMap[string, email.Email](),
 		smss:     safety.NewMap[string, sms.Sender](),
+		hooks:    safety.NewMap[string, hook.Sender](),
 		helper:   log.NewHelper(log.With(logger, "module", "data")),
 	}
 	data.cache, err = cache.NewCache(c.GetCache())
@@ -42,6 +44,7 @@ type Data struct {
 	cache    cache.Cache
 	emails   *safety.Map[string, email.Email]
 	smss     *safety.Map[string, sms.Sender]
+	hooks    *safety.Map[string, hook.Sender]
 
 	helper *log.Helper
 }
@@ -68,4 +71,12 @@ func (d *Data) GetSms(name string) (sms.Sender, bool) {
 
 func (d *Data) SetSms(name string, sms sms.Sender) {
 	d.smss.Set(name, sms)
+}
+
+func (d *Data) GetHook(name string) (hook.Sender, bool) {
+	return d.hooks.Get(name)
+}
+
+func (d *Data) SetHook(name string, hook hook.Sender) {
+	d.hooks.Set(name, hook)
 }

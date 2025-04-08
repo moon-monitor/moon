@@ -60,7 +60,7 @@ message SendSmsRequest {
 }
 
 message SendHookRequest {
-  repeated rabbit.common.HookItem hooks = 1 [(buf.validate.field).cel = {
+  repeated rabbit.common.HookConfig hooks = 1 [(buf.validate.field).cel = {
     message: "hooks must be between 1 and 10"
     expression: "this.size() >= 1 && this.size() <= 100"
   }];

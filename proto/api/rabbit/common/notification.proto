@@ -11,7 +11,7 @@ enum HookAPP {
   FEISHU = 3;
 }
 
-message HookItem {
+message HookConfig {
   string name = 1;
   HookAPP app = 2;
   string url = 3;
@@ -20,4 +20,5 @@ message HookItem {
   string username = 6;
   string password = 7;
   map<string, string> headers = 8;
+  bool enable = 9;
 }

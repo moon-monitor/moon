@@ -6,6 +6,10 @@ import (
 
 type mockEmail struct{}
 
+func (m *mockEmail) Copy() Email {
+	return m
+}
+
 // Send 发送邮件
 func (m *mockEmail) Send() error {
 	return nil
