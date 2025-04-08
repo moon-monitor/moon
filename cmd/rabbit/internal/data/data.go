@@ -4,6 +4,7 @@ import (
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/google/wire"
 	"github.com/moon-monitor/moon/pkg/plugin/email"
+	"github.com/moon-monitor/moon/pkg/plugin/sms"
 	"github.com/moon-monitor/moon/pkg/util/safety"
 
 	"github.com/moon-monitor/moon/cmd/rabbit/internal/conf"
@@ -39,6 +40,7 @@ type Data struct {
 	dataConf *conf.Data
 	cache    cache.Cache
 	emails   *safety.Map[string, email.Email]
+	smss     *safety.Map[string, sms.Sender]
 
 	helper *log.Helper
 }

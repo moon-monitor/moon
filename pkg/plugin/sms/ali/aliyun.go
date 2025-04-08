@@ -76,9 +76,9 @@ func (a *aliyun) initV3() (*dysmsapiV3.Client, error) {
 	return client, nil
 }
 
-func (a *aliyun) Send(_ context.Context, message sms.Message) error {
+func (a *aliyun) Send(_ context.Context, phoneNumber string, message sms.Message) error {
 	sendSmsRequest := &dysmsapiV3.SendSmsRequest{
-		PhoneNumbers:  pointer.Of(message.PhoneNumber),
+		PhoneNumbers:  pointer.Of(phoneNumber),
 		SignName:      pointer.Of(a.signName),
 		TemplateCode:  pointer.Of(message.Code),
 		TemplateParam: pointer.Of(message.Content),
@@ -98,17 +98,14 @@ func (a *aliyun) Send(_ context.Context, message sms.Message) error {
 	return nil
 }
 
-func (a *aliyun) SendBatch(_ context.Context, messages []sms.Message) error {
-	phoneNumbers := make([]string, 0, len(messages))
-	signNames := make([]string, 0, len(messages))
-	templateParams := make([]string, 0, len(messages))
-	code := ""
-	for _, message := range messages {
-		phoneNumbers = append(phoneNumbers, message.PhoneNumber)
+func (a *aliyun) SendBatch(_ context.Context, phoneNumbers []string, message sms.Message) error {
+	signNames := make([]string, 0, len(phoneNumbers))
+	templateParams := make([]string, 0, len(phoneNumbers))
+	for range phoneNumbers {
 		signNames = append(signNames, a.signName)
 		templateParams = append(templateParams, message.Content)
-		code = message.Code
 	}
+
 	phoneNumberJson, err := json.Marshal(phoneNumbers)
 	if err != nil {
 		return merr.ErrorBadRequest("Failed to marshal phone numbers").WithCause(err)
@@ -125,7 +122,7 @@ func (a *aliyun) SendBatch(_ context.Context, messages []sms.Message) error {
 		PhoneNumberJson:   pointer.Of(string(phoneNumberJson)),
 		SignNameJson:      pointer.Of(string(signNameJson)),
 		TemplateParamJson: pointer.Of(string(templateParamJson)),
-		TemplateCode:      pointer.Of(code),
+		TemplateCode:      pointer.Of(message.Code),
 	}
 	runtimeOptions := &util.RuntimeOptions{}
 	response, err := a.clientV3.SendBatchSmsWithOptions(sendBatchSmsRequest, runtimeOptions)
