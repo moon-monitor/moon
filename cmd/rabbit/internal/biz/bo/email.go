@@ -5,6 +5,23 @@ import (
 	"github.com/moon-monitor/moon/pkg/util/validate"
 )
 
+func NewSendEmailParams(config EmailConfig, opts ...SendEmailParamsOption) (SendEmailParams, error) {
+	if config == nil {
+		return nil, merr.ErrorParamsError("No email configuration is available")
+	}
+	params := &sendEmailParams{
+		config: config,
+	}
+
+	for _, opt := range opts {
+		if err := opt(params); err != nil {
+			return nil, err
+		}
+	}
+
+	return params, nil
+}
+
 type EmailConfig interface {
 	GetUser() string
 	GetPass() string
@@ -85,23 +102,6 @@ func (s *sendEmailParams) GetConfig() EmailConfig {
 }
 
 type SendEmailParamsOption func(params *sendEmailParams) error
-
-func NewSendEmailParams(config EmailConfig, opts ...SendEmailParamsOption) (SendEmailParams, error) {
-	if config == nil {
-		return nil, merr.ErrorParamsError("No email configuration is available")
-	}
-	params := &sendEmailParams{
-		config: config,
-	}
-
-	for _, opt := range opts {
-		if err := opt(params); err != nil {
-			return nil, err
-		}
-	}
-
-	return params, nil
-}
 
 func WithSendEmailParamsOptionEmail(emails ...string) SendEmailParamsOption {
 	return func(params *sendEmailParams) error {

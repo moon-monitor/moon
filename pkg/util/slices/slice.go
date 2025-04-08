@@ -18,3 +18,14 @@ func Map[T any, R any](s []T, f func(v T) R) []R {
 	}
 	return r
 }
+
+// MapFilter map slice and filter
+func MapFilter[T any, R any](s []T, f func(v T) (R, bool)) []R {
+	r := make([]R, 0, len(s))
+	for _, v := range s {
+		if v, ok := f(v); ok {
+			r = append(r, v)
+		}
+	}
+	return r
+}

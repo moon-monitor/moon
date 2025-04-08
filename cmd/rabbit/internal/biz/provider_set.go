@@ -10,4 +10,5 @@ var ProviderSetBiz = wire.NewSet(
 	NewRegisterBiz,
 	NewConfig,
 	NewEmail,
+	NewSMS,
 )

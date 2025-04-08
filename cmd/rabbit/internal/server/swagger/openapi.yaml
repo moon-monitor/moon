@@ -222,6 +222,8 @@ components:
                     format: enum
                 aliyun:
                     $ref: '#/components/schemas/api.rabbit.common.AliyunSMSConfig'
+                enable:
+                    type: boolean
         api.rabbit.v1.SendEmailRequest:
             type: object
             properties:
@@ -266,7 +268,7 @@ components:
                 templateCode:
                     type: string
                 smsConfig:
-                    $ref: '#/components/schemas/api.rabbit.common.AliyunSMSConfig'
+                    $ref: '#/components/schemas/api.rabbit.common.SMSConfig'
                 configName:
                     type: string
         api.rabbit.v1.SyncEmailRequest:

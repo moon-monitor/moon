@@ -55,7 +55,7 @@ message SendSmsRequest {
   }];
   string template_parameters = 2 [(buf.validate.field).required = true];
   string template_code = 3 [(buf.validate.field).required = true];
-  optional rabbit.common.AliyunSMSConfig sms_config = 4;
+  optional rabbit.common.SMSConfig sms_config = 4;
   optional string config_name = 5;
 }
 

@@ -80,8 +80,8 @@ func (a *aliyun) Send(_ context.Context, phoneNumber string, message sms.Message
 	sendSmsRequest := &dysmsapiV3.SendSmsRequest{
 		PhoneNumbers:  pointer.Of(phoneNumber),
 		SignName:      pointer.Of(a.signName),
-		TemplateCode:  pointer.Of(message.Code),
-		TemplateParam: pointer.Of(message.Content),
+		TemplateCode:  pointer.Of(message.TemplateCode),
+		TemplateParam: pointer.Of(message.TemplateParam),
 	}
 	runtimeOptions := &util.RuntimeOptions{}
 	response, err := a.clientV3.SendSmsWithOptions(sendSmsRequest, runtimeOptions)
@@ -103,7 +103,7 @@ func (a *aliyun) SendBatch(_ context.Context, phoneNumbers []string, message sms
 	templateParams := make([]string, 0, len(phoneNumbers))
 	for range phoneNumbers {
 		signNames = append(signNames, a.signName)
-		templateParams = append(templateParams, message.Content)
+		templateParams = append(templateParams, message.TemplateParam)
 	}
 
 	phoneNumberJson, err := json.Marshal(phoneNumbers)
@@ -122,7 +122,7 @@ func (a *aliyun) SendBatch(_ context.Context, phoneNumbers []string, message sms
 		PhoneNumberJson:   pointer.Of(string(phoneNumberJson)),
 		SignNameJson:      pointer.Of(string(signNameJson)),
 		TemplateParamJson: pointer.Of(string(templateParamJson)),
-		TemplateCode:      pointer.Of(message.Code),
+		TemplateCode:      pointer.Of(message.TemplateCode),
 	}
 	runtimeOptions := &util.RuntimeOptions{}
 	response, err := a.clientV3.SendBatchSmsWithOptions(sendBatchSmsRequest, runtimeOptions)

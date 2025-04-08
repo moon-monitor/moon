@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/go-kratos/kratos/v2/log"
+
 	"github.com/moon-monitor/moon/cmd/rabbit/internal/biz/bo"
 	"github.com/moon-monitor/moon/cmd/rabbit/internal/biz/do"
 	"github.com/moon-monitor/moon/cmd/rabbit/internal/biz/repository"
@@ -57,4 +58,38 @@ func (c *configImpl) SetEmailConfig(ctx context.Context, configs ...bo.EmailConf
 	}
 
 	return c.Data.GetCache().Client().HSet(ctx, vobj.EmailCacheKey.Key(), configDos).Err()
+}
+
+func (c *configImpl) GetSMSConfig(ctx context.Context, name string) (bo.SMSConfig, bool) {
+	key := vobj.SmsCacheKey.Key()
+	exist, err := c.Data.GetCache().Client().HExists(ctx, key, name).Result()
+	if err != nil {
+		c.helper.Errorw("GetSMSConfig", "err", err)
+		return nil, false
+	}
+	if !exist {
+		return nil, false
+	}
+	var smsConfig do.SMSConfig
+	if err := c.Data.GetCache().Client().HGet(ctx, key, name).Scan(&smsConfig); err != nil {
+		c.helper.Errorw("GetSMSConfig", "err", err)
+		return nil, false
+	}
+	return &smsConfig, true
+}
+
+func (c *configImpl) SetSMSConfig(ctx context.Context, configs ...bo.SMSConfig) error {
+	configDos := make(map[string]any, len(configs))
+	for _, v := range configs {
+		item := &do.SMSConfig{
+			AccessKeyId:     v.GetAccessKeyId(),
+			AccessKeySecret: v.GetAccessKeySecret(),
+			Endpoint:        v.GetEndpoint(),
+			Name:            v.GetName(),
+			SignName:        v.GetSignName(),
+			Type:            v.GetType(),
+		}
+		configDos[item.UniqueKey()] = item
+	}
+	return c.Data.GetCache().Client().HSet(ctx, vobj.SmsCacheKey.Key(), configDos).Err()
 }

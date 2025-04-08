@@ -20,6 +20,7 @@ func New(c *conf.Bootstrap, logger log.Logger) (*Data, func(), error) {
 	data := &Data{
 		dataConf: dataConf,
 		emails:   safety.NewMap[string, email.Email](),
+		smss:     safety.NewMap[string, sms.Sender](),
 		helper:   log.NewHelper(log.With(logger, "module", "data")),
 	}
 	data.cache, err = cache.NewCache(c.GetCache())
@@ -50,9 +51,21 @@ func (d *Data) GetCache() cache.Cache {
 }
 
 func (d *Data) GetEmail(name string) (email.Email, bool) {
-	return d.emails.Get(name)
+	emailInstance, ok := d.emails.Get(name)
+	if !ok {
+		return nil, false
+	}
+	return emailInstance.Copy(), true
 }
 
 func (d *Data) SetEmail(name string, email email.Email) {
 	d.emails.Set(name, email)
+}
+
+func (d *Data) GetSms(name string) (sms.Sender, bool) {
+	return d.smss.Get(name)
+}
+
+func (d *Data) SetSms(name string, sms sms.Sender) {
+	d.smss.Set(name, sms)
 }

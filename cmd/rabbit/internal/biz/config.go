@@ -37,3 +37,21 @@ func (c *Config) SetEmailConfig(ctx context.Context, configs ...bo.EmailConfig) 
 	}
 	return c.configRepo.SetEmailConfig(ctx, configs...)
 }
+
+func (c *Config) GetSMSConfig(ctx context.Context, name *string, defaultConfig bo.SMSConfig) bo.SMSConfig {
+	if name == nil || *name == "" {
+		return defaultConfig
+	}
+	smsConfig, ok := c.configRepo.GetSMSConfig(ctx, *name)
+	if !ok || !smsConfig.GetEnable() {
+		return defaultConfig
+	}
+	return smsConfig
+}
+
+func (c *Config) SetSMSConfig(ctx context.Context, configs ...bo.SMSConfig) error {
+	if len(configs) == 0 {
+		return nil
+	}
+	return c.configRepo.SetSMSConfig(ctx, configs...)
+}

@@ -23,6 +23,7 @@ type (
 		SetBody(body string, contentType ...string) Email
 		SetAttach(attach ...string) Email
 		SetCc(cc ...string) Email
+		Copy() Email
 	}
 
 	// Config 邮件配置
@@ -41,9 +42,9 @@ const (
 	DOMAIN = "Moon监控系统"
 )
 
-func copyMail(email *e) e {
-	return e{
-		config: copyConfig(email.config),
+func (l *e) Copy() Email {
+	return &e{
+		config: copyConfig(l.config),
 		mail:   gomail.NewMessage(gomail.SetEncoding(gomail.Base64)),
 	}
 }
@@ -106,9 +107,6 @@ func (l *e) setFrom(from string) Email {
 
 // Send 发送邮件
 func (l *e) Send() error {
-	defer func() {
-		*l = copyMail(l)
-	}()
 	l.setFrom(l.config.GetUser())
 	d := gomail.NewDialer(l.config.GetHost(), int(l.config.GetPort()), l.config.GetUser(), l.config.GetPass()) // 设置邮件正文
 	d.TLSConfig = &tls.Config{InsecureSkipVerify: false, ServerName: l.config.GetHost(), MinVersion: tls.VersionTLS12}

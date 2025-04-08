@@ -6,6 +6,7 @@ import (
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/moon-monitor/moon/cmd/rabbit/internal/biz"
 	"github.com/moon-monitor/moon/cmd/rabbit/internal/biz/bo"
+	"github.com/moon-monitor/moon/cmd/rabbit/internal/service/build"
 	"github.com/moon-monitor/moon/pkg/api/rabbit/common"
 	apiv1 "github.com/moon-monitor/moon/pkg/api/rabbit/v1"
 	"github.com/moon-monitor/moon/pkg/util/slices"
@@ -24,6 +25,10 @@ func NewSyncService(configBiz *biz.Config, logger log.Logger) *SyncService {
 	}
 }
 func (s *SyncService) Sms(ctx context.Context, req *apiv1.SyncSmsRequest) (*common.EmptyReply, error) {
+	smss := build.ToSMSConfigs(req.GetSmss())
+	if err := s.configBiz.SetSMSConfig(ctx, smss...); err != nil {
+		return nil, err
+	}
 	return &common.EmptyReply{}, nil
 }
 

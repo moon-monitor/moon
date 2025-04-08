@@ -4,8 +4,10 @@ import (
 	"context"
 
 	"github.com/go-kratos/kratos/v2/log"
+
 	"github.com/moon-monitor/moon/cmd/rabbit/internal/biz"
 	"github.com/moon-monitor/moon/cmd/rabbit/internal/biz/bo"
+	"github.com/moon-monitor/moon/cmd/rabbit/internal/service/build"
 	"github.com/moon-monitor/moon/pkg/api/rabbit/common"
 	apiv1 "github.com/moon-monitor/moon/pkg/api/rabbit/v1"
 )
@@ -14,14 +16,21 @@ type SendService struct {
 	apiv1.UnimplementedSendServer
 	configBiz *biz.Config
 	emailBiz  *biz.Email
+	smsBiz    *biz.SMS
 
 	helper *log.Helper
 }
 
-func NewSendService(configBiz *biz.Config, emailBiz *biz.Email, logger log.Logger) *SendService {
+func NewSendService(
+	configBiz *biz.Config,
+	emailBiz *biz.Email,
+	smsBiz *biz.SMS,
+	logger log.Logger,
+) *SendService {
 	return &SendService{
 		configBiz: configBiz,
 		emailBiz:  emailBiz,
+		smsBiz:    smsBiz,
 		helper:    log.NewHelper(log.With(logger, "module", "service.send")),
 	}
 }
@@ -47,6 +56,20 @@ func (s *SendService) Email(ctx context.Context, req *apiv1.SendEmailRequest) (*
 }
 
 func (s *SendService) Sms(ctx context.Context, req *apiv1.SendSmsRequest) (*common.EmptyReply, error) {
+	smsConfig, _ := build.ToSMSConfig(req.GetSmsConfig())
+	smsConfig = s.configBiz.GetSMSConfig(ctx, req.ConfigName, smsConfig)
+	opts := []bo.SendSMSParamsOption{
+		bo.WithSendSMSParamsOptionPhoneNumbers(req.GetPhones()...),
+		bo.WithSendSMSParamsOptionTemplateParam(req.GetTemplateParameters()),
+		bo.WithSendSMSParamsOptionTemplateCode(req.GetTemplateCode()),
+	}
+	sendSMSParams, err := bo.NewSendSMSParams(smsConfig, opts...)
+	if err != nil {
+		return nil, err
+	}
+	if err := s.smsBiz.Send(ctx, sendSMSParams); err != nil {
+		return nil, err
+	}
 	return &common.EmptyReply{}, nil
 }
 

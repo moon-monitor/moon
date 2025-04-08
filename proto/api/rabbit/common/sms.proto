@@ -21,4 +21,5 @@ message SMSConfig {
   }
   Type type = 1;
   AliyunSMSConfig aliyun = 2;
+  bool enable = 3;
 }

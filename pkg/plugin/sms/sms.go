@@ -3,8 +3,8 @@ package sms
 import "context"
 
 type Message struct {
-	Content string `json:"content"`
-	Code    string `json:"code"`
+	TemplateParam string `json:"templateParam"`
+	TemplateCode  string `json:"templateCode"`
 }
 
 type Sender interface {
