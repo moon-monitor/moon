@@ -25,6 +25,7 @@ init:
 	go install github.com/google/gnostic/cmd/protoc-gen-openapi@latest
 	go install github.com/google/wire/cmd/wire@latest
 	go install github.com/moon-monitor/stringer@latest
+	go install github.com/protoc-gen/i18n-gen@latest
 
 .PHONY: all
 all:
@@ -65,6 +66,7 @@ errors:
            --go_out=paths=source_relative:./pkg/merr \
            --go-errors_out=paths=source_relative:./pkg/merr \
            ./proto/merr/*.proto
+	make i18n
 
 .PHONY: conf
 # generate config
@@ -75,6 +77,11 @@ conf:
            --go_out=paths=source_relative:./pkg/config \
            --experimental_allow_proto3_optional \
            ./proto/config/*.proto
+
+.PHONY: i18n
+# i18n
+i18n:
+	i18n-gen -O ./i18n/ -P ./proto/merr/err.proto
 
 .PHONY: gen-palace
 # generate gorm gen

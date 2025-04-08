@@ -33,13 +33,11 @@ func TextFormatter(format string, data any) (s string, err error) {
 		return "", merr.ErrorInternalServerError("data is nil")
 	}
 
-	// 创建一个模板对象，定义模板字符串
 	t, err := text.New("text/template").Funcs(templateFuncMap).Parse(format)
 	if err != nil {
 		return "", nil
 	}
 	tmpl := text.Must(t, err)
-	// 执行模板并填充数据
 	resultIoWriter := new(strings.Builder)
 
 	if err = tmpl.Execute(resultIoWriter, data); err != nil {
