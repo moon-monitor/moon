@@ -17,6 +17,13 @@ type EmailConfig struct {
 	Name   string `json:"name"`
 }
 
+func (e *EmailConfig) UniqueKey() string {
+	if e == nil {
+		return ""
+	}
+	return e.Name
+}
+
 func (e *EmailConfig) GetUser() string {
 	if e == nil {
 		return ""

@@ -25,8 +25,15 @@ func (c *Config) GetEmailConfig(ctx context.Context, name *string, defaultConfig
 		return defaultConfig
 	}
 	emailConfig, ok := c.configRepo.GetEmailConfig(ctx, *name)
-	if !ok {
+	if !ok || !emailConfig.GetEnable() {
 		return defaultConfig
 	}
 	return emailConfig
+}
+
+func (c *Config) SetEmailConfig(ctx context.Context, configs ...bo.EmailConfig) error {
+	if len(configs) == 0 {
+		return nil
+	}
+	return c.configRepo.SetEmailConfig(ctx, configs...)
 }

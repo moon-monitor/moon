@@ -8,4 +8,5 @@ import (
 
 type Config interface {
 	GetEmailConfig(ctx context.Context, name string) (bo.EmailConfig, bool)
+	SetEmailConfig(ctx context.Context, configs ...bo.EmailConfig) error
 }

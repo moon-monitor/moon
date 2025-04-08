@@ -13,3 +13,12 @@ message AliyunSMSConfig {
   string endpoint = 4 [(buf.validate.field).required = true];
   string name = 5;
 }
+
+message SMSConfig {
+  enum Type {
+    UNKNOWN = 0;
+    ALIYUN = 1;
+  }
+  Type type = 1;
+  AliyunSMSConfig aliyun = 2;
+}

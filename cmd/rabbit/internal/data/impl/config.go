@@ -4,7 +4,6 @@ import (
 	"context"
 
 	"github.com/go-kratos/kratos/v2/log"
-
 	"github.com/moon-monitor/moon/cmd/rabbit/internal/biz/bo"
 	"github.com/moon-monitor/moon/cmd/rabbit/internal/biz/do"
 	"github.com/moon-monitor/moon/cmd/rabbit/internal/biz/repository"
@@ -25,19 +24,37 @@ type configImpl struct {
 }
 
 func (c *configImpl) GetEmailConfig(ctx context.Context, name string) (bo.EmailConfig, bool) {
-	var emailConfig do.EmailConfig
-	key := vobj.EmailCacheKey.Key(name)
-	result, err := c.Data.GetCache().Client().Exists(ctx, key).Result()
+	key := vobj.EmailCacheKey.Key()
+	exist, err := c.Data.GetCache().Client().HExists(ctx, key, name).Result()
 	if err != nil {
 		c.helper.Errorw("GetEmailConfig", "err", err)
 		return nil, false
 	}
-	if result == 0 {
+	if !exist {
 		return nil, false
 	}
-	if err := c.Data.GetCache().Client().Get(ctx, key).Scan(&emailConfig); err != nil {
+	var emailConfig do.EmailConfig
+	if err := c.Data.GetCache().Client().HGet(ctx, key, name).Scan(&emailConfig); err != nil {
 		c.helper.Errorw("GetEmailConfig", "err", err)
 		return nil, false
 	}
+
 	return &emailConfig, true
+}
+
+func (c *configImpl) SetEmailConfig(ctx context.Context, configs ...bo.EmailConfig) error {
+	configDos := make(map[string]any, len(configs))
+	for _, v := range configs {
+		item := &do.EmailConfig{
+			User:   v.GetUser(),
+			Pass:   v.GetPass(),
+			Host:   v.GetHost(),
+			Port:   v.GetPort(),
+			Enable: v.GetEnable(),
+			Name:   v.GetName(),
+		}
+		configDos[item.UniqueKey()] = item
+	}
+
+	return c.Data.GetCache().Client().HSet(ctx, vobj.EmailCacheKey.Key(), configDos).Err()
 }

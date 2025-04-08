@@ -14,6 +14,7 @@ import (
 type Object interface {
 	encoding.BinaryMarshaler
 	encoding.BinaryUnmarshaler
+	UniqueKey() string
 }
 
 // Cache is the interface of cache.

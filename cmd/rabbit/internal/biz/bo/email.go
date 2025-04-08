@@ -87,6 +87,9 @@ func (s *sendEmailParams) GetConfig() EmailConfig {
 type SendEmailParamsOption func(params *sendEmailParams) error
 
 func NewSendEmailParams(config EmailConfig, opts ...SendEmailParamsOption) (SendEmailParams, error) {
+	if config == nil {
+		return nil, merr.ErrorParamsError("No email configuration is available")
+	}
 	params := &sendEmailParams{
 		config: config,
 	}

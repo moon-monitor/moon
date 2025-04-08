@@ -214,6 +214,14 @@ components:
                     type: object
                     additionalProperties:
                         type: string
+        api.rabbit.common.SMSConfig:
+            type: object
+            properties:
+                type:
+                    type: integer
+                    format: enum
+                aliyun:
+                    $ref: '#/components/schemas/api.rabbit.common.AliyunSMSConfig'
         api.rabbit.v1.SendEmailRequest:
             type: object
             properties:
@@ -264,17 +272,17 @@ components:
         api.rabbit.v1.SyncEmailRequest:
             type: object
             properties:
-                email:
+                emails:
                     type: array
                     items:
                         $ref: '#/components/schemas/api.rabbit.common.EmailConfig'
         api.rabbit.v1.SyncSmsRequest:
             type: object
             properties:
-                sms:
+                smss:
                     type: array
                     items:
-                        $ref: '#/components/schemas/api.rabbit.common.EmailConfig'
+                        $ref: '#/components/schemas/api.rabbit.common.SMSConfig'
         config.Discovery:
             type: object
             properties:

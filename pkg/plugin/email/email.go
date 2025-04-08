@@ -32,6 +32,7 @@ type (
 		GetHost() string
 		GetPort() uint32
 		GetEnable() bool
+		GetName() string
 	}
 )
 
@@ -39,6 +40,13 @@ const (
 	// DOMAIN 域名
 	DOMAIN = "Moon监控系统"
 )
+
+func copyMail(email *e) e {
+	return e{
+		config: copyConfig(email.config),
+		mail:   gomail.NewMessage(gomail.SetEncoding(gomail.Base64)),
+	}
+}
 
 // init 初始化
 func (l *e) init() Email {
@@ -50,21 +58,18 @@ func (l *e) init() Email {
 
 // SetTo 设置收件人
 func (l *e) SetTo(to ...string) Email {
-	l.init()
 	l.mail.SetHeader("To", to...) // 发送给用户(可以多个)
 	return l
 }
 
 // SetCc 设置抄送人
 func (l *e) SetCc(cc ...string) Email {
-	l.init()
 	l.mail.SetHeader("Cc", cc...)
 	return l
 }
 
 // SetSubject 设置邮件主题
 func (l *e) SetSubject(subject string) Email {
-	l.init()
 	l.mail.SetHeader("Subject", subject) // 设置邮件主题
 	return l
 }
@@ -75,14 +80,13 @@ func (l *e) SetBody(body string, contentType ...string) Email {
 	if len(contentType) > 0 && contentType[0] != "" {
 		cType = contentType[0]
 	}
-	l.init()
+
 	l.mail.SetBody(cType, body) // 设置邮件正文
 	return l
 }
 
 // SetAttach 设置附件
 func (l *e) SetAttach(attach ...string) Email {
-	l.init()
 	for _, v := range attach {
 		l.mail.Attach(v)
 	}
@@ -96,19 +100,16 @@ func (l *e) setFrom(from string) Email {
 		domain = from
 	}
 
-	l.init()
 	l.mail.SetHeader("From", l.mail.FormatAddress(l.config.GetUser(), domain)) // 添加别名
 	return l
 }
 
 // Send 发送邮件
 func (l *e) Send() error {
-	l.init()
+	defer func() {
+		*l = copyMail(l)
+	}()
 	l.setFrom(l.config.GetUser())
-	/*
-	   创建SMTP客户端，连接到远程的邮件服务器，需要指定服务器地址、端口号、用户名、密码，如果端口号为465的话，
-	   自动开启SSL，这个时候需要指定TLSConfig
-	*/
 	d := gomail.NewDialer(l.config.GetHost(), int(l.config.GetPort()), l.config.GetUser(), l.config.GetPass()) // 设置邮件正文
 	d.TLSConfig = &tls.Config{InsecureSkipVerify: false, ServerName: l.config.GetHost(), MinVersion: tls.VersionTLS12}
 	err := d.DialAndSend(l.mail)
@@ -120,5 +121,6 @@ func New(cfg Config) Email {
 	if !cfg.GetEnable() {
 		return NewMockEmail()
 	}
-	return &e{config: cfg}
+	instance := &e{config: cfg}
+	return instance.init()
 }

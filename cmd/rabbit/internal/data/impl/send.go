@@ -23,7 +23,12 @@ type sendImpl struct {
 }
 
 func (s *sendImpl) Email(_ context.Context, params bo.SendEmailParams) error {
-	emailInstance := email.New(params.GetConfig())
+	emailInstance, ok := s.GetEmail(params.GetConfig().GetName())
+	if !ok {
+		emailInstance = email.New(params.GetConfig())
+		s.SetEmail(params.GetConfig().GetName(), emailInstance)
+	}
+
 	emailInstance.SetTo(params.GetEmails()...).
 		SetSubject(params.GetSubject()).
 		SetBody(params.GetBody())
