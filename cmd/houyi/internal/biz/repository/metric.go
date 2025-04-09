@@ -8,7 +8,7 @@ import (
 )
 
 type MetricInit interface {
-	Init(config *bo.MetricDatasourceItem) (Metric, error)
+	Init(config bo.MetricDatasourceConfig) (Metric, error)
 }
 
 type Metric interface {

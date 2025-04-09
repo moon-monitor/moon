@@ -3,22 +3,13 @@ package bo
 import (
 	"time"
 
-	"github.com/moon-monitor/moon/cmd/houyi/internal/biz/vobj"
-	"github.com/moon-monitor/moon/pkg/plugin/datasource/prometheus"
-	"github.com/moon-monitor/moon/pkg/plugin/datasource/victoria"
+	"github.com/moon-monitor/moon/pkg/api/houyi/common"
 )
-
-type MetricDatasourceItem struct {
-	Team            TeamItem
-	Driver          vobj.MetricDatasourceDriver
-	Prometheus      prometheus.Config
-	VictoriaMetrics victoria.Config
-}
 
 type MetricStrategyItem struct {
 	StrategyId     uint32
 	Team           TeamItem
-	Datasource     []*MetricDatasourceItem
+	Datasource     []MetricDatasourceConfig
 	Name           string
 	Expr           string
 	ReceiverRoutes []string
@@ -34,8 +25,8 @@ type MetricRuleItem struct {
 	LevelName      string
 	Count          int64
 	Values         []float64
-	SampleMode     vobj.MetricStrategySampleMode
-	Condition      vobj.MetricStrategyCondition
+	SampleMode     common.MetricStrategyItem_SampleMode
+	Condition      common.MetricStrategyItem_Condition
 	ReceiverRoutes []string
 	LabelNotices   []*LabelNotices
 }

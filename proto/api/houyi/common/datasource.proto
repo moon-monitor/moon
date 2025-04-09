@@ -12,38 +12,66 @@ message BasicAuth {
   string password = 2;
 }
 
+message TLS {
+  string serverName = 1;
+  string clientCertificate = 2;
+  string clientKey = 3;
+}
+
+enum DatasourceQueryMethod {
+  QueryMethod_HTTP_POST = 0;
+  QueryMethod_HTTP_PUT = 1;
+  QueryMethod_HTTP_GET = 2;
+  QueryMethod_HTTP_DELETE = 3;
+}
+
 message MetricDatasourceItem {
   enum Driver {
+    // unknown
+    Driver_UNKNOWN = 0;
     // prometheus
-    PROMETHEUS = 0;
+    Driver_PROMETHEUS = 1;
     // victoria metrics
-    VICTORIA_METRICS = 1;
+    Driver_VICTORIA_METRICS = 2;
   }
 
   message Prometheus {
     string endpoint = 1;
-    BasicAuth basic_auth = 2;
+    BasicAuth basicAuth = 2;
+    map<string, string> headers = 3;
+    string ca = 4;
+    TLS tls = 5;
+    bool enable = 6;
+    DatasourceQueryMethod method = 7;
   }
 
   message VictoriaMetrics {
     string endpoint = 1;
-    BasicAuth basic_auth = 2;
+    BasicAuth basicAuth = 2;
+    map<string, string> headers = 3;
+    string ca = 4;
+    TLS tls = 5;
+    bool enable = 6;
+    DatasourceQueryMethod method = 7;
   }
 
   houyi.common.TeamItem team = 1;
   Driver driver = 2;
   Prometheus prometheus = 3;
   VictoriaMetrics victoria_metrics = 4;
+  bool enable = 5;
 }
 
 message LogDatasourceItem {
   enum Driver {
+    // unknown
+    Driver_UNKNOWN = 0;
     // aliyun
-    ALIYUN = 0;
+    Driver_ALIYUN = 1;
     // elasticsearch
-    ELASTICSEARCH = 1;
+    Driver_ELASTICSEARCH = 2;
     // loki
-    LOKI = 2;
+    Driver_LOKI = 3;
   }
 
   message AliCloud {
@@ -67,7 +95,7 @@ message LogDatasourceItem {
   }
 
   message Loki {
-    BasicAuth basic_auth = 1;
+    BasicAuth basicAuth = 1;
     string endpoint = 2;
   }
 
@@ -76,16 +104,19 @@ message LogDatasourceItem {
   AliCloud ali_cloud = 3;
   ElasticSearch elastic_search = 4;
   Loki loki = 5;
+  bool enable = 6;
 }
 
 message EventDatasourceItem {
   enum Driver {
+    // unknown
+    Driver_UNKNOWN = 0;
     // rocketmq
-    ROCKETMQ = 0;
+    Driver_ROCKETMQ = 1;
     // mqtt
-    MQTT = 1;
+    Driver_MQTT = 2;
     // kafka
-    KAFKA = 2;
+    Driver_KAFKA = 3;
   }
 
   message RocketMQ {
@@ -121,6 +152,7 @@ message EventDatasourceItem {
   RocketMQ rocket_mq = 3;
   Mqtt mqtt = 4;
   Kafka kafka = 5;
+  bool enable = 6;
 }
 
 message CertificateDatasourceItem {
@@ -134,10 +166,10 @@ message ServerPortDatasourceItem {
 
 message HttpDatasourceItem {
   enum HttpMethod {
-    GET = 0;
-    POST = 1;
-    PUT = 2;
-    DELETE = 3;
+    HttpMethod_GET = 0;
+    HttpMethod_POST = 1;
+    HttpMethod_PUT = 2;
+    HttpMethod_DELETE = 3;
   }
 
   string url = 1;

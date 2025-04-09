@@ -5,58 +5,58 @@ import (
 	"time"
 
 	"github.com/go-kratos/kratos/v2/log"
-	"github.com/moon-monitor/moon/pkg/plugin/datasource"
-	"github.com/moon-monitor/moon/pkg/plugin/datasource/prometheus"
 
 	"github.com/moon-monitor/moon/cmd/houyi/internal/biz/bo"
 	"github.com/moon-monitor/moon/cmd/houyi/internal/biz/repository"
-	"github.com/moon-monitor/moon/cmd/houyi/internal/biz/vobj"
+	"github.com/moon-monitor/moon/cmd/houyi/internal/data"
+	"github.com/moon-monitor/moon/pkg/api/houyi/common"
 	"github.com/moon-monitor/moon/pkg/merr"
-	"github.com/moon-monitor/moon/pkg/util/safety"
+	"github.com/moon-monitor/moon/pkg/plugin/datasource"
+	"github.com/moon-monitor/moon/pkg/plugin/datasource/prometheus"
 )
 
-func NewMetricRepo(logger log.Logger) repository.MetricInit {
+func NewMetricRepo(d *data.Data, logger log.Logger) repository.MetricInit {
 	return &metricImpl{
-		instances: safety.NewMap[string, *metricInstance](),
-		logger:    logger,
-		help:      log.NewHelper(log.With(logger, "module", "data.repo.metric")),
+		Data:   d,
+		logger: logger,
+		help:   log.NewHelper(log.With(logger, "module", "data.repo.metric")),
 	}
 }
 
 type metricImpl struct {
-	help      *log.Helper
-	logger    log.Logger
-	instances *safety.Map[string, *metricInstance]
+	*data.Data
+	help   *log.Helper
+	logger log.Logger
 }
 
 type metricInstance struct {
-	datasource *bo.MetricDatasourceItem
-	metric     datasource.Metric
+	metric datasource.Metric
 }
 
-func (m *metricImpl) Init(config *bo.MetricDatasourceItem) (instance repository.Metric, err error) {
+func (m *metricImpl) Init(config bo.MetricDatasourceConfig) (repository.Metric, error) {
 	if config == nil {
 		return nil, merr.ErrorInvalidArgument("metric datasource config is nil")
 	}
-	var ok bool
 
-	switch config.Driver {
-	case vobj.MetricDatasourceDriverPrometheus:
-		instance, ok = m.instances.Get(config.Prometheus.GetEndpoint())
-		if ok {
-			return instance, nil
+	var (
+		metricDatasource datasource.Metric
+		ok               bool
+	)
+
+	metricDatasource, ok = m.GetMetricDatasource(config.UniqueKey())
+	switch config.GetDriver() {
+	case common.MetricDatasourceItem_Driver_PROMETHEUS:
+		if !ok {
+			metricDatasource = prometheus.New(config, m.logger)
 		}
-		instance = &metricInstance{
-			datasource: config,
-			metric:     prometheus.New(config.Prometheus, m.logger),
+	case common.MetricDatasourceItem_Driver_VICTORIA_METRICS:
+		if !ok {
+			metricDatasource = prometheus.New(config, m.logger)
 		}
-		m.instances.Set(config.Prometheus.GetEndpoint(), instance.(*metricInstance))
-		return instance, nil
-	case vobj.MetricDatasourceDriverVictoriaMetrics:
-		return instance, nil
 	default:
-		return nil, merr.ErrorParamsError("invalid metric datasource driver: %s", config.Driver)
+		return nil, merr.ErrorParamsError("invalid metric datasource driver: %s", config.GetDriver())
 	}
+	return &metricInstance{metric: metricDatasource}, nil
 }
 
 func (m *metricInstance) Query(ctx context.Context, expr string, duration time.Duration) ([]*bo.MetricQueryReply, error) {

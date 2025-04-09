@@ -71,7 +71,61 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/api.houyi.v1.SyncStrategyReply'
+                                $ref: '#/components/schemas/api.houyi.v1.SyncReply'
+    /v1/sync/datasource-event:
+        post:
+            tags:
+                - Sync
+            operationId: Sync_EventDatasource
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/api.houyi.v1.EventDatasourceRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.houyi.v1.SyncReply'
+    /v1/sync/datasource-logs:
+        post:
+            tags:
+                - Sync
+            operationId: Sync_LogsDatasource
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/api.houyi.v1.LogsDatasourceRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.houyi.v1.SyncReply'
+    /v1/sync/datasource-metric:
+        post:
+            tags:
+                - Sync
+            operationId: Sync_MetricDatasource
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/api.houyi.v1.MetricDatasourceRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.houyi.v1.SyncReply'
     /v1/sync/event:
         post:
             tags:
@@ -89,7 +143,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/api.houyi.v1.SyncStrategyReply'
+                                $ref: '#/components/schemas/api.houyi.v1.SyncReply'
     /v1/sync/http:
         post:
             tags:
@@ -107,7 +161,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/api.houyi.v1.SyncStrategyReply'
+                                $ref: '#/components/schemas/api.houyi.v1.SyncReply'
     /v1/sync/logs:
         post:
             tags:
@@ -125,7 +179,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/api.houyi.v1.SyncStrategyReply'
+                                $ref: '#/components/schemas/api.houyi.v1.SyncReply'
     /v1/sync/metric:
         post:
             tags:
@@ -143,7 +197,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/api.houyi.v1.SyncStrategyReply'
+                                $ref: '#/components/schemas/api.houyi.v1.SyncReply'
     /v1/sync/ping:
         post:
             tags:
@@ -161,7 +215,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/api.houyi.v1.SyncStrategyReply'
+                                $ref: '#/components/schemas/api.houyi.v1.SyncReply'
     /v1/sync/remove:
         post:
             tags:
@@ -179,7 +233,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/api.houyi.v1.SyncStrategyReply'
+                                $ref: '#/components/schemas/api.houyi.v1.SyncReply'
     /v1/sync/server-port:
         post:
             tags:
@@ -197,7 +251,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/api.houyi.v1.SyncStrategyReply'
+                                $ref: '#/components/schemas/api.houyi.v1.SyncReply'
 components:
     schemas:
         api.common.CheckReply:
@@ -327,6 +381,8 @@ components:
                     $ref: '#/components/schemas/api.houyi.common.EventDatasourceItem_Mqtt'
                 kafka:
                     $ref: '#/components/schemas/api.houyi.common.EventDatasourceItem_Kafka'
+                enable:
+                    type: boolean
         api.houyi.common.EventDatasourceItem_Kafka:
             type: object
             properties:
@@ -541,6 +597,8 @@ components:
                     $ref: '#/components/schemas/api.houyi.common.LogDatasourceItem_ElasticSearch'
                 loki:
                     $ref: '#/components/schemas/api.houyi.common.LogDatasourceItem_Loki'
+                enable:
+                    type: boolean
         api.houyi.common.LogDatasourceItem_AliCloud:
             type: object
             properties:
@@ -653,6 +711,8 @@ components:
                     $ref: '#/components/schemas/api.houyi.common.MetricDatasourceItem_Prometheus'
                 victoriaMetrics:
                     $ref: '#/components/schemas/api.houyi.common.MetricDatasourceItem_VictoriaMetrics'
+                enable:
+                    type: boolean
         api.houyi.common.MetricDatasourceItem_Prometheus:
             type: object
             properties:
@@ -660,6 +720,19 @@ components:
                     type: string
                 basicAuth:
                     $ref: '#/components/schemas/api.houyi.common.BasicAuth'
+                headers:
+                    type: object
+                    additionalProperties:
+                        type: string
+                ca:
+                    type: string
+                tls:
+                    $ref: '#/components/schemas/api.houyi.common.TLS'
+                enable:
+                    type: boolean
+                method:
+                    type: integer
+                    format: enum
         api.houyi.common.MetricDatasourceItem_VictoriaMetrics:
             type: object
             properties:
@@ -667,6 +740,19 @@ components:
                     type: string
                 basicAuth:
                     $ref: '#/components/schemas/api.houyi.common.BasicAuth'
+                headers:
+                    type: object
+                    additionalProperties:
+                        type: string
+                ca:
+                    type: string
+                tls:
+                    $ref: '#/components/schemas/api.houyi.common.TLS'
+                enable:
+                    type: boolean
+                method:
+                    type: integer
+                    format: enum
         api.houyi.common.MetricStrategyItem:
             type: object
             properties:
@@ -850,6 +936,15 @@ components:
                 condition:
                     type: integer
                     format: enum
+        api.houyi.common.TLS:
+            type: object
+            properties:
+                serverName:
+                    type: string
+                clientCertificate:
+                    type: string
+                clientKey:
+                    type: string
         api.houyi.common.TeamItem:
             type: object
             properties:
@@ -866,6 +961,13 @@ components:
                     format: date-time
                 strategies:
                     $ref: '#/components/schemas/api.houyi.common.CertificateStrategyItem'
+        api.houyi.v1.EventDatasourceRequest:
+            type: object
+            properties:
+                items:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/api.houyi.common.EventDatasourceItem'
         api.houyi.v1.EventStrategyRequest:
             type: object
             properties:
@@ -882,6 +984,13 @@ components:
                     format: date-time
                 strategies:
                     $ref: '#/components/schemas/api.houyi.common.HttpStrategyItem'
+        api.houyi.v1.LogsDatasourceRequest:
+            type: object
+            properties:
+                items:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/api.houyi.common.LogDatasourceItem'
         api.houyi.v1.LogsStrategyRequest:
             type: object
             properties:
@@ -890,6 +999,13 @@ components:
                     format: date-time
                 strategies:
                     $ref: '#/components/schemas/api.houyi.common.LogsStrategyItem'
+        api.houyi.v1.MetricDatasourceRequest:
+            type: object
+            properties:
+                items:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/api.houyi.common.MetricDatasourceItem'
         api.houyi.v1.MetricStrategyRequest:
             type: object
             properties:
@@ -964,7 +1080,7 @@ components:
                     format: date-time
                 strategies:
                     $ref: '#/components/schemas/api.houyi.common.ServerPortStrategyItem'
-        api.houyi.v1.SyncStrategyReply:
+        api.houyi.v1.SyncReply:
             type: object
             properties:
                 code:

@@ -9,6 +9,7 @@ import (
 	"time"
 
 	"github.com/go-kratos/kratos/v2/log"
+	"github.com/moon-monitor/moon/pkg/api/houyi/common"
 	"github.com/moon-monitor/moon/pkg/merr"
 	"golang.org/x/sync/errgroup"
 
@@ -31,7 +32,11 @@ const (
 
 type Config interface {
 	GetEndpoint() string
+	GetHeaders() map[string]string
+	GetMethod() common.DatasourceQueryMethod
 	GetBasicAuth() datasource.BasicAuth
+	GetTLS() datasource.TLS
+	GetCA() string
 }
 
 func New(c Config, logger log.Logger) *Prometheus {
