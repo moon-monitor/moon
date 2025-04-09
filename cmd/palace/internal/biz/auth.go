@@ -6,7 +6,6 @@ import (
 	"fmt"
 
 	"github.com/go-kratos/kratos/v2/log"
-	"github.com/moon-monitor/moon/pkg/plugin/email"
 	"golang.org/x/oauth2"
 
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/bo"
@@ -19,6 +18,7 @@ import (
 	"github.com/moon-monitor/moon/pkg/api/rabbit/common"
 	rabbitv1 "github.com/moon-monitor/moon/pkg/api/rabbit/v1"
 	"github.com/moon-monitor/moon/pkg/merr"
+	"github.com/moon-monitor/moon/pkg/plugin/email"
 	"github.com/moon-monitor/moon/pkg/util/crypto"
 	"github.com/moon-monitor/moon/pkg/util/password"
 	"github.com/moon-monitor/moon/pkg/util/safety"

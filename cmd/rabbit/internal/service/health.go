@@ -2,6 +2,7 @@ package service
 
 import (
 	"context"
+	"time"
 
 	"github.com/go-kratos/kratos/v2/log"
 
@@ -33,6 +34,7 @@ func (s *HealthService) Check(ctx context.Context, req *common.CheckRequest) (*c
 	return &common.CheckReply{
 		Healthy: true,
 		Version: hello.GetEnv().Version(),
+		Time:    time.Now().Format(time.DateTime),
 	}, nil
 }
 

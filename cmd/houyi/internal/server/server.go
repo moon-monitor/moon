@@ -22,11 +22,12 @@ func RegisterService(
 	httpSrv *http.Server,
 	healthService *service.HealthService,
 	syncService *service.SyncService,
+	alertService *service.AlertService,
 ) server.Servers {
 	commonv1.RegisterHealthServer(rpcSrv, healthService)
 	commonv1.RegisterHealthHTTPServer(httpSrv, healthService)
-
 	houyiv1.RegisterSyncServer(rpcSrv, syncService)
 	houyiv1.RegisterSyncHTTPServer(httpSrv, syncService)
+	houyiv1.RegisterAlertHTTPServer(httpSrv, alertService)
 	return server.Servers{rpcSrv, httpSrv}
 }

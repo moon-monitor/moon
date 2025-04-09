@@ -18,6 +18,24 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/api.common.CheckReply'
+    /v1/alert/push:
+        post:
+            tags:
+                - Alert
+            operationId: Alert_Push
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/api.houyi.v1.PushAlertRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.houyi.v1.PushAlertReply'
     /v1/server/register:
         post:
             tags:
@@ -189,6 +207,8 @@ components:
                     type: boolean
                 version:
                     type: string
+                time:
+                    type: string
         api.common.ServerRegisterReply:
             type: object
             properties: {}
@@ -210,6 +230,28 @@ components:
                 isOnline:
                     type: boolean
                 uuid:
+                    type: string
+        api.houyi.common.AlertItem:
+            type: object
+            properties:
+                status:
+                    type: integer
+                    format: enum
+                labels:
+                    type: object
+                    additionalProperties:
+                        type: string
+                annotations:
+                    type: object
+                    additionalProperties:
+                        type: string
+                startsAt:
+                    type: string
+                endsAt:
+                    type: string
+                generatorURL:
+                    type: string
+                fingerprint:
                     type: string
         api.houyi.common.BasicAuth:
             type: object
@@ -864,6 +906,46 @@ components:
                     format: date-time
                 strategies:
                     $ref: '#/components/schemas/api.houyi.common.PingStrategyItem'
+        api.houyi.v1.PushAlertReply:
+            type: object
+            properties:
+                code:
+                    type: integer
+                    format: int32
+                message:
+                    type: string
+        api.houyi.v1.PushAlertRequest:
+            type: object
+            properties:
+                receiver:
+                    type: string
+                status:
+                    type: integer
+                    format: enum
+                alerts:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/api.houyi.common.AlertItem'
+                groupLabels:
+                    type: object
+                    additionalProperties:
+                        type: string
+                commonLabels:
+                    type: object
+                    additionalProperties:
+                        type: string
+                commonAnnotations:
+                    type: object
+                    additionalProperties:
+                        type: string
+                externalURL:
+                    type: string
+                version:
+                    type: string
+                groupKey:
+                    type: string
+                truncatedAlerts:
+                    type: string
         api.houyi.v1.RemoveStrategyRequest:
             type: object
             properties:
@@ -966,6 +1048,7 @@ components:
                     description: name service name
             description: micro server config
 tags:
+    - name: Alert
     - name: Health
       description: Health Check API
     - name: Server

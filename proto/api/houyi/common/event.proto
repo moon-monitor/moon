@@ -1,0 +1,21 @@
+syntax = "proto3";
+
+package api.houyi.common;
+
+option go_package = "github.com/moon-monitor/moon/pkg/api/houyi/common;common";
+
+enum EventStatus {
+  pending = 0;
+  resolved = 1;
+  firing = 2;
+}
+
+message AlertItem {
+  EventStatus status = 1;
+  map<string, string> labels = 2;
+  map<string, string> annotations = 3;
+  string startsAt = 4;
+  string endsAt = 5;
+  string generatorURL = 6;
+  string fingerprint = 7;
+}
