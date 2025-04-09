@@ -66,7 +66,13 @@ func (o *otherHook) Send(ctx context.Context, message Message) (err error) {
 			o.helper.Warnw("msg", "send other hook failed", "error", err, "req", string(message))
 		}
 	}()
-	response, err := httpx.PostJson(ctx, o.api, []byte(message))
+	opts := []httpx.Option{
+		httpx.WithHeader(o.header),
+	}
+	if o.basicAuth != nil {
+		opts = append(opts, httpx.WithBasicAuth(o.basicAuth.Username, o.basicAuth.Password))
+	}
+	response, err := httpx.PostJsonWithOptions(ctx, o.api, message, opts...)
 	if err != nil {
 		o.helper.Warnf("send other hook failed: %v", err)
 		return err

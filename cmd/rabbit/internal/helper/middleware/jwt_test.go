@@ -13,7 +13,7 @@ func Test_GenJWTToken(t *testing.T) {
 	c := &config.JWT{
 		SignKey:         "rabbit-sign-key",
 		Issuer:          "moon.rabbit",
-		Expire:          durationpb.New(time.Hour * 24),
+		Expire:          durationpb.New(time.Hour * 24 * 365),
 		AllowOperations: nil,
 	}
 	claims := middleware.NewJwtClaims(c, "test-token")

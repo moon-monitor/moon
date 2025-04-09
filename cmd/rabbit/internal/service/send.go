@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/go-kratos/kratos/v2/log"
+	"github.com/moon-monitor/moon/cmd/rabbit/internal/biz/do"
 	"github.com/moon-monitor/moon/pkg/util/pointer"
 	"github.com/moon-monitor/moon/pkg/util/slices"
 
@@ -79,8 +80,23 @@ func (s *SendService) Sms(ctx context.Context, req *apiv1.SendSmsRequest) (*comm
 }
 
 func (s *SendService) Hook(ctx context.Context, req *apiv1.SendHookRequest) (*common.EmptyReply, error) {
-	hookConfigs := slices.Map(req.GetHooks(), func(hookItem *common.HookConfig) bo.HookConfig {
-		return s.configBiz.GetHookConfig(ctx, pointer.Of(hookItem.Name), hookItem)
+	hookConfigs := slices.MapFilter(req.GetHooks(), func(hookItem *common.HookConfig) (bo.HookConfig, bool) {
+		opts := []do.HookConfigOption{
+			do.WithHookConfigOptionApp(hookItem.App),
+			do.WithHookConfigOptionEnable(hookItem.Enable),
+			do.WithHookConfigOptionHeaders(hookItem.Headers),
+			do.WithHookConfigOptionName(hookItem.Name),
+			do.WithHookConfigOptionPassword(hookItem.Password),
+			do.WithHookConfigOptionSecret(hookItem.Secret),
+			do.WithHookConfigOptionToken(hookItem.Token),
+			do.WithHookConfigOptionUsername(hookItem.Username),
+		}
+		var hookConfig bo.HookConfig
+		hookConfigDo, err := do.NewHookConfig(hookItem.Url, opts...)
+		if err == nil {
+			hookConfig = hookConfigDo
+		}
+		return s.configBiz.GetHookConfig(ctx, pointer.Of(hookItem.Name), hookConfig), true
 	})
 	opts := []bo.SendHookParamsOption{
 		bo.WithSendHookParamsOptionBody([]byte(req.GetBody())),

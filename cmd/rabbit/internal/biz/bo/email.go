@@ -1,6 +1,7 @@
 package bo
 
 import (
+	"github.com/go-kratos/kratos/v2/errors"
 	"github.com/moon-monitor/moon/pkg/merr"
 	"github.com/moon-monitor/moon/pkg/util/validate"
 )
@@ -112,7 +113,9 @@ func WithSendEmailParamsOptionEmail(emails ...string) SendEmailParamsOption {
 		}
 		for _, email := range emails {
 			if err := validate.CheckEmail(email); err != nil {
-				return err
+				return errors.FromError(err).WithMetadata(map[string]string{
+					"email": "email is invalid",
+				})
 			}
 		}
 
@@ -169,7 +172,9 @@ func WithSendEmailParamsOptionCc(cc ...string) SendEmailParamsOption {
 	return func(params *sendEmailParams) error {
 		for _, email := range cc {
 			if err := validate.CheckEmail(email); err != nil {
-				return err
+				return errors.FromError(err).WithMetadata(map[string]string{
+					"cc": "cc email is invalid",
+				})
 			}
 		}
 

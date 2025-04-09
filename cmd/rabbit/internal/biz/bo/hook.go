@@ -3,9 +3,13 @@ package bo
 import (
 	"github.com/moon-monitor/moon/pkg/api/rabbit/common"
 	"github.com/moon-monitor/moon/pkg/merr"
+	"github.com/moon-monitor/moon/pkg/util/slices"
 )
 
 func NewSendHookParams(configs []HookConfig, opts ...SendHookParamsOption) (SendHookParams, error) {
+	configs = slices.MapFilter(configs, func(configItem HookConfig) (HookConfig, bool) {
+		return configItem, configItem != nil && configItem.GetEnable()
+	})
 	if len(configs) == 0 {
 		return nil, merr.ErrorParamsError("No hook configuration is available")
 	}

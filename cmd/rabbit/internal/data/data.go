@@ -3,11 +3,11 @@ package data
 import (
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/google/wire"
-	"github.com/moon-monitor/moon/pkg/plugin/hook"
 
 	"github.com/moon-monitor/moon/cmd/rabbit/internal/conf"
 	"github.com/moon-monitor/moon/pkg/plugin/cache"
 	"github.com/moon-monitor/moon/pkg/plugin/email"
+	"github.com/moon-monitor/moon/pkg/plugin/hook"
 	"github.com/moon-monitor/moon/pkg/plugin/sms"
 	"github.com/moon-monitor/moon/pkg/util/safety"
 )

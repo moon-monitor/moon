@@ -21,3 +21,7 @@ func PostForm(ctx context.Context, api string, data url.Values) (*http.Response,
 func PostJsonWithHeader(ctx context.Context, api string, body []byte, header http.Header) (*http.Response, error) {
 	return NewClient(WithContext(ctx), WithHeader(header)).PostJson(api, body)
 }
+
+func PostJsonWithOptions(ctx context.Context, api string, body []byte, opts ...Option) (*http.Response, error) {
+	return NewClient(append([]Option{WithContext(ctx)}, opts...)...).PostJson(api, body)
+}
