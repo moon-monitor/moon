@@ -1,0 +1,11 @@
+package repository
+
+import (
+	"context"
+
+	"github.com/moon-monitor/moon/cmd/houyi/internal/biz/bo"
+)
+
+type Alert interface {
+	Save(ctx context.Context, alerts ...bo.Alert) error
+}

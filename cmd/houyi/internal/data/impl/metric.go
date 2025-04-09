@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/go-kratos/kratos/v2/log"
+	"github.com/moon-monitor/moon/cmd/houyi/internal/biz/do"
 
 	"github.com/moon-monitor/moon/cmd/houyi/internal/biz/bo"
 	"github.com/moon-monitor/moon/cmd/houyi/internal/biz/repository"
@@ -59,17 +60,18 @@ func (m *metricImpl) Init(config bo.MetricDatasourceConfig) (repository.Metric, 
 	return &metricInstance{metric: metricDatasource}, nil
 }
 
-func (m *metricInstance) Query(ctx context.Context, expr string, duration time.Duration) ([]*bo.MetricQueryReply, error) {
+func (m *metricInstance) Query(ctx context.Context, expr string, duration time.Duration) ([]*do.MetricQueryReply, error) {
 	//TODO implement me
 	panic("implement me")
 }
 
-func (m *metricInstance) QueryRange(ctx context.Context, expr string, start, end int64, step uint32) ([]*bo.MetricQueryRangeReply, error) {
+func (m *metricInstance) QueryRange(ctx context.Context, expr string, start, end int64) ([]*do.MetricQueryRangeReply, error) {
+	// 分辨率计算
 	//TODO implement me
 	panic("implement me")
 }
 
-func (m *metricInstance) Metadata(ctx context.Context) (<-chan []*bo.MetricItem, error) {
+func (m *metricInstance) Metadata(ctx context.Context) (<-chan []*do.MetricItem, error) {
 	//TODO implement me
 	panic("implement me")
 }

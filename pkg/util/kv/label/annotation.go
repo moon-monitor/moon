@@ -5,6 +5,7 @@ import (
 
 	"github.com/moon-monitor/moon/pkg/util/cnst"
 	"github.com/moon-monitor/moon/pkg/util/kv"
+	"github.com/moon-monitor/moon/pkg/util/template"
 )
 
 func NewAnnotation(summary, description string) *Annotation {
@@ -55,4 +56,11 @@ func (a *Annotation) GetDescription() string {
 
 func (a *Annotation) SetDescription(description string) {
 	a.kvMap.Set(cnst.AnnotationKeyDescription, description)
+}
+
+func (a *Annotation) Format(data interface{}) *Annotation {
+	for k, v := range a.kvMap {
+		a.kvMap.Set(k, template.TextFormatterX(v, data))
+	}
+	return a
 }

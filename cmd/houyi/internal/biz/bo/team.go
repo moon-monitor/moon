@@ -5,8 +5,8 @@ type TeamItem struct {
 	Uuid   string
 }
 
-type LabelNotices struct {
-	Key            string
-	Value          string
-	ReceiverRoutes []string
+type LabelNotices interface {
+	GetKey() string
+	GetValue() string
+	GetReceiverRoutes() []string
 }

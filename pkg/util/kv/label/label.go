@@ -6,6 +6,7 @@ import (
 
 	"github.com/moon-monitor/moon/pkg/util/cnst"
 	"github.com/moon-monitor/moon/pkg/util/kv"
+	"github.com/moon-monitor/moon/pkg/util/template"
 )
 
 func NewLabel(labels map[string]string) *Label {
@@ -93,4 +94,11 @@ func (a *Label) GetLevelId() uint32 {
 
 func (a *Label) SetLevelId(levelId uint32) {
 	a.kvMap.Set(cnst.LabelKeyLevelID, strconv.FormatUint(uint64(levelId), 10))
+}
+
+func (a *Label) Format(data interface{}) *Label {
+	for k, v := range a.kvMap {
+		a.kvMap.Set(k, template.TextFormatterX(v, data))
+	}
+	return a
 }

@@ -4,46 +4,39 @@ import (
 	"time"
 
 	"github.com/moon-monitor/moon/pkg/api/houyi/common"
+	"github.com/moon-monitor/moon/pkg/plugin/cache"
 	"github.com/moon-monitor/moon/pkg/util/kv/label"
 )
 
-type MetricStrategyItem struct {
-	StrategyId     uint32
-	Team           TeamItem
-	Datasource     []MetricDatasourceConfig
-	Name           string
-	Expr           string
-	ReceiverRoutes []string
-	Labels         *label.Label
-	Annotations    *label.Annotation
-	Duration       time.Duration
-	Rules          []*MetricRuleItem
-}
-
-type MetricRuleItem struct {
-	StrategyId     uint32
-	LevelId        uint32
-	LevelName      string
-	Count          int64
-	Values         []float64
-	SampleMode     common.MetricStrategyItem_SampleMode
-	Condition      common.MetricStrategyItem_Condition
-	ReceiverRoutes []string
-	LabelNotices   []*LabelNotices
-}
-
-type MetricRule interface {
-	GetTeamId() uint32
-	GetExpr() string
-	GetDatasource() MetricDatasourceConfig
-	GetStrategyId() uint32
-	GetLevelId() uint32
+type MetricJudgeRule interface {
 	GetLabels() *label.Label
 	GetAnnotations() *label.Annotation
+	GetDuration() time.Duration
 	GetCount() int64
 	GetValues() []float64
 	GetSampleMode() common.MetricStrategyItem_SampleMode
 	GetCondition() common.MetricStrategyItem_Condition
+}
+
+type MetricJudgeDataValue interface {
+	GetValue() float64
+	GetTimestamp() int64
+}
+
+type MetricJudgeData interface {
+	GetLabels() map[string]string
+	GetValues() []MetricJudgeDataValue
+}
+
+type MetricRule interface {
+	cache.Object
+	GetTeamId() uint32
+	GetDatasource() string
+	GetStrategyId() uint32
+	GetLevelId() uint32
 	GetReceiverRoutes() []string
-	GetLabelNotices() []*LabelNotices
+	GetLabelReceiverRoutes() []LabelNotices
+	GetExpr() string
+
+	MetricJudgeRule
 }

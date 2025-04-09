@@ -713,6 +713,11 @@ components:
                     $ref: '#/components/schemas/api.houyi.common.MetricDatasourceItem_VictoriaMetrics'
                 enable:
                     type: boolean
+                id:
+                    type: integer
+                    format: uint32
+                name:
+                    type: string
         api.houyi.common.MetricDatasourceItem_Prometheus:
             type: object
             properties:
@@ -728,8 +733,6 @@ components:
                     type: string
                 tls:
                     $ref: '#/components/schemas/api.houyi.common.TLS'
-                enable:
-                    type: boolean
                 method:
                     type: integer
                     format: enum
@@ -748,8 +751,6 @@ components:
                     type: string
                 tls:
                     $ref: '#/components/schemas/api.houyi.common.TLS'
-                enable:
-                    type: boolean
                 method:
                     type: integer
                     format: enum

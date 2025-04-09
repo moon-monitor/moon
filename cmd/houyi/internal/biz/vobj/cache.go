@@ -6,4 +6,5 @@ import (
 
 const (
 	DatasourceCacheKey cache.K = "houyi:config:datasource"
+	MetricRuleCacheKey cache.K = "houyi:rule:metric"
 )

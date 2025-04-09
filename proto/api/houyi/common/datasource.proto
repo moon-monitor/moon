@@ -41,8 +41,7 @@ message MetricDatasourceItem {
     map<string, string> headers = 3;
     string ca = 4;
     TLS tls = 5;
-    bool enable = 6;
-    DatasourceQueryMethod method = 7;
+    DatasourceQueryMethod method = 6;
   }
 
   message VictoriaMetrics {
@@ -51,8 +50,7 @@ message MetricDatasourceItem {
     map<string, string> headers = 3;
     string ca = 4;
     TLS tls = 5;
-    bool enable = 6;
-    DatasourceQueryMethod method = 7;
+    DatasourceQueryMethod method = 6;
   }
 
   houyi.common.TeamItem team = 1;
@@ -60,6 +58,8 @@ message MetricDatasourceItem {
   Prometheus prometheus = 3;
   VictoriaMetrics victoria_metrics = 4;
   bool enable = 5;
+  uint32 id = 6;
+  string name = 7;
 }
 
 message LogDatasourceItem {

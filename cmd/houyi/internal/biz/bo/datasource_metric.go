@@ -8,6 +8,8 @@ import (
 
 type MetricDatasourceConfig interface {
 	cache.Object
+	GetId() uint32
+	GetName() string
 	GetDriver() common.MetricDatasourceItem_Driver
 	GetEndpoint() string
 	GetHeaders() map[string]string

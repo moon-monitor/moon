@@ -7,12 +7,13 @@ import (
 	"github.com/moon-monitor/moon/pkg/api/houyi/common"
 	"github.com/moon-monitor/moon/pkg/plugin/cache"
 	"github.com/moon-monitor/moon/pkg/plugin/datasource"
-	"github.com/moon-monitor/moon/pkg/util/password"
 )
 
 var _ cache.Object = (*DatasourceMetricConfig)(nil)
 
 type DatasourceMetricConfig struct {
+	ID        uint32                             `json:"id"`
+	Name      string                             `json:"name"`
 	Driver    common.MetricDatasourceItem_Driver `json:"driver"`
 	Endpoint  string                             `json:"endpoint"`
 	Headers   map[string]string                  `json:"headers"`
@@ -21,6 +22,20 @@ type DatasourceMetricConfig struct {
 	BasicAuth *BasicAuth                         `json:"basicAuth"`
 	TLS       *TLS                               `json:"tls"`
 	Enable    bool                               `json:"enable"`
+}
+
+func (d *DatasourceMetricConfig) GetId() uint32 {
+	if d == nil {
+		return 0
+	}
+	return d.ID
+}
+
+func (d *DatasourceMetricConfig) GetName() string {
+	if d == nil {
+		return ""
+	}
+	return d.Name
 }
 
 func (d *DatasourceMetricConfig) GetEnable() bool {
@@ -88,5 +103,5 @@ func (d *DatasourceMetricConfig) UnmarshalBinary(data []byte) error {
 }
 
 func (d *DatasourceMetricConfig) UniqueKey() string {
-	return fmt.Sprintf("%d:%s", d.Driver, password.MD5(d.Endpoint))
+	return fmt.Sprintf("%d:%d", d.Driver, d.ID)
 }

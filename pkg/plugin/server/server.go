@@ -14,10 +14,8 @@ func init() {
 	}
 }
 
-// Server 服务
 type Servers []transport.Server
 
-// GetServers 注册服务
 func (s Servers) Append(servers ...transport.Server) Servers {
 	return append(s, servers...)
 }

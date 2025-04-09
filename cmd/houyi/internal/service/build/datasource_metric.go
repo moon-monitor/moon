@@ -9,21 +9,22 @@ import (
 func ToMetricDatasourceConfig(metricItem *common.MetricDatasourceItem) (*do.DatasourceMetricConfig, error) {
 	switch metricItem.GetDriver() {
 	case common.MetricDatasourceItem_Driver_PROMETHEUS:
-		prometheusConfig := metricItem.GetPrometheus()
-		return ToMetricDatasourceConfigWithPrometheus(prometheusConfig)
+		return ToMetricDatasourceConfigWithPrometheus(metricItem)
 	case common.MetricDatasourceItem_Driver_VICTORIA_METRICS:
-		victoriaMetricsConfig := metricItem.GetVictoriaMetrics()
-		return ToMetricDatasourceConfigWithVictoriaMetrics(victoriaMetricsConfig)
+		return ToMetricDatasourceConfigWithVictoriaMetrics(metricItem)
 	default:
 		return nil, merr.ErrorParamsError("invalid metric datasource driver: %s", metricItem.GetDriver())
 	}
 }
 
-func ToMetricDatasourceConfigWithPrometheus(prometheusConfig *common.MetricDatasourceItem_Prometheus) (*do.DatasourceMetricConfig, error) {
+func ToMetricDatasourceConfigWithPrometheus(metricItem *common.MetricDatasourceItem) (*do.DatasourceMetricConfig, error) {
+	prometheusConfig := metricItem.GetPrometheus()
 	if prometheusConfig == nil {
 		return nil, merr.ErrorParamsError("prometheus config is nil")
 	}
 	return &do.DatasourceMetricConfig{
+		ID:        metricItem.GetId(),
+		Name:      metricItem.GetName(),
 		Driver:    common.MetricDatasourceItem_Driver_PROMETHEUS,
 		Endpoint:  prometheusConfig.GetEndpoint(),
 		Headers:   prometheusConfig.GetHeaders(),
@@ -31,15 +32,18 @@ func ToMetricDatasourceConfigWithPrometheus(prometheusConfig *common.MetricDatas
 		CA:        prometheusConfig.GetCa(),
 		BasicAuth: ToBasicAuth(prometheusConfig.GetBasicAuth()),
 		TLS:       ToTLS(prometheusConfig.GetTls()),
-		Enable:    prometheusConfig.GetEnable(),
+		Enable:    metricItem.GetEnable(),
 	}, nil
 }
 
-func ToMetricDatasourceConfigWithVictoriaMetrics(victoriaMetricsConfig *common.MetricDatasourceItem_VictoriaMetrics) (*do.DatasourceMetricConfig, error) {
+func ToMetricDatasourceConfigWithVictoriaMetrics(metricItem *common.MetricDatasourceItem) (*do.DatasourceMetricConfig, error) {
+	victoriaMetricsConfig := metricItem.GetVictoriaMetrics()
 	if victoriaMetricsConfig == nil {
 		return nil, merr.ErrorParamsError("victoria metrics config is nil")
 	}
 	return &do.DatasourceMetricConfig{
+		ID:        metricItem.GetId(),
+		Name:      metricItem.GetName(),
 		Driver:    common.MetricDatasourceItem_Driver_VICTORIA_METRICS,
 		Endpoint:  victoriaMetricsConfig.GetEndpoint(),
 		Headers:   victoriaMetricsConfig.GetHeaders(),
@@ -47,6 +51,6 @@ func ToMetricDatasourceConfigWithVictoriaMetrics(victoriaMetricsConfig *common.M
 		CA:        victoriaMetricsConfig.GetCa(),
 		BasicAuth: ToBasicAuth(victoriaMetricsConfig.GetBasicAuth()),
 		TLS:       ToTLS(victoriaMetricsConfig.GetTls()),
-		Enable:    victoriaMetricsConfig.GetEnable(),
+		Enable:    metricItem.GetEnable(),
 	}, nil
 }

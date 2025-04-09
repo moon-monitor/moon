@@ -10,4 +10,6 @@ var ProviderSetImpl = wire.NewSet(
 	NewPingRepo,
 	NewMetricRepo,
 	NewConfigRepo,
+	NewJudgeRepo,
+	NewAlertRepo,
 )

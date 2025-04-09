@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/moon-monitor/moon/cmd/houyi/internal/biz/bo"
+	"github.com/moon-monitor/moon/cmd/houyi/internal/biz/do"
 )
 
 type MetricInit interface {
@@ -12,9 +13,9 @@ type MetricInit interface {
 }
 
 type Metric interface {
-	Query(ctx context.Context, expr string, duration time.Duration) ([]*bo.MetricQueryReply, error)
+	Query(ctx context.Context, expr string, duration time.Duration) ([]*do.MetricQueryReply, error)
 
-	QueryRange(ctx context.Context, expr string, start, end int64, step uint32) ([]*bo.MetricQueryRangeReply, error)
+	QueryRange(ctx context.Context, expr string, start, end int64) ([]*do.MetricQueryRangeReply, error)
 
-	Metadata(ctx context.Context) (<-chan []*bo.MetricItem, error)
+	Metadata(ctx context.Context) (<-chan []*do.MetricItem, error)
 }

@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/go-kratos/kratos/v2/log"
-	
+
 	"github.com/moon-monitor/moon/cmd/houyi/internal/biz/bo"
 	"github.com/moon-monitor/moon/cmd/houyi/internal/biz/do"
 	"github.com/moon-monitor/moon/cmd/houyi/internal/biz/repository"
@@ -46,6 +46,7 @@ func (c *configImpl) SetMetricDatasourceConfig(ctx context.Context, configs ...b
 	configDos := make(map[string]any, len(configs))
 	for _, v := range configs {
 		item := &do.DatasourceMetricConfig{
+			ID:       v.GetId(),
 			Driver:   v.GetDriver(),
 			Endpoint: v.GetEndpoint(),
 			Headers:  v.GetHeaders(),
@@ -70,4 +71,41 @@ func (c *configImpl) SetMetricDatasourceConfig(ctx context.Context, configs ...b
 		configDos[item.UniqueKey()] = item
 	}
 	return c.Data.GetCache().Client().HSet(ctx, vobj.DatasourceCacheKey.Key(), configDos).Err()
+}
+
+func (c *configImpl) SetMetricRules(ctx context.Context, rules ...bo.MetricRule) error {
+	configDos := make(map[string]any, len(rules))
+	for _, v := range rules {
+		item := &do.MetricRule{}
+		configDos[v.UniqueKey()] = item
+	}
+	return c.Data.GetCache().Client().HSet(ctx, vobj.MetricRuleCacheKey.Key(), configDos).Err()
+}
+
+func (c *configImpl) GetMetricRules(ctx context.Context) ([]bo.MetricRule, error) {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (c *configImpl) GetMetricRule(ctx context.Context, id string) (bo.MetricRule, bool) {
+	key := vobj.MetricRuleCacheKey.Key()
+	exist, err := c.Data.GetCache().Client().HExists(ctx, key, id).Result()
+	if err != nil {
+		c.helper.Errorw("method", "GetMetricRule", "err", err)
+		return nil, false
+	}
+	if !exist {
+		return nil, false
+	}
+	var metricRule do.MetricRule
+	if err := c.Data.GetCache().Client().HGet(ctx, key, id).Scan(&metricRule); err != nil {
+		c.helper.Errorw("method", "GetMetricRule", "err", err)
+		return nil, false
+	}
+	return &metricRule, true
+}
+
+func (c *configImpl) DeleteMetricRules(ctx context.Context, ids ...string) error {
+	//TODO implement me
+	panic("implement me")
 }
