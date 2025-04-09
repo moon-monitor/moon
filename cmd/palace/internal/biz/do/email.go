@@ -12,6 +12,11 @@ type EmailConfig struct {
 	Host   string `json:"host"`
 	Port   uint32 `json:"port"`
 	Enable bool   `json:"enable"`
+	Name   string `json:"name"`
+}
+
+func (e *EmailConfig) GetName() string {
+	return e.Name
 }
 
 func (e *EmailConfig) GetUser() string {
