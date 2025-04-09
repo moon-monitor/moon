@@ -13,7 +13,7 @@ func Test_GenJWTToken(t *testing.T) {
 	c := &config.JWT{
 		SignKey:         "houyi-sign-key",
 		Issuer:          "moon.houyi",
-		Expire:          durationpb.New(time.Hour * 24),
+		Expire:          durationpb.New(time.Hour * 24 * 365),
 		AllowOperations: nil,
 	}
 	claims := middleware.NewJwtClaims(c, "test-token")

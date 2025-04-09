@@ -1,6 +1,6 @@
 auth:
   jwt:
-    sign_key: ${X_MOON_AUTH_JWT_SIGN_KEY:secret}
+    sign_key: ${X_MOON_AUTH_JWT_SIGN_KEY:moon-jwt-sign-key}
     issuer: ${X_MOON_AUTH_JWT_ISSUER:moon-palace}
     expire: ${X_MOON_AUTH_JWT_EXPIRE:3600s}
     allow_operations:

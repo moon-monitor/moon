@@ -1458,6 +1458,8 @@ components:
                     type: boolean
                 version:
                     type: string
+                time:
+                    type: string
         api.common.ServerRegisterReply:
             type: object
             properties: {}
