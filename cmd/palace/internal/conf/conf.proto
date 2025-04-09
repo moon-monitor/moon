@@ -17,6 +17,7 @@ message Bootstrap {
   Auth auth = 7;
   config.Crypto crypto = 8;
   FilingInformation filing = 9;
+  config.EmailConfig email = 10;
 }
 
 message Data {
