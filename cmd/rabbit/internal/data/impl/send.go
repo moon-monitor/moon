@@ -33,6 +33,9 @@ type sendImpl struct {
 }
 
 func (s *sendImpl) Email(_ context.Context, params bo.SendEmailParams) error {
+	if len(params.GetEmails()) == 0 {
+		return merr.ErrorParamsError("No email is available")
+	}
 	emailInstance, ok := s.GetEmail(params.GetConfig().GetName())
 	if !ok {
 		emailInstance = email.New(params.GetConfig())
@@ -52,6 +55,9 @@ func (s *sendImpl) Email(_ context.Context, params bo.SendEmailParams) error {
 }
 
 func (s *sendImpl) SMS(ctx context.Context, params bo.SendSMSParams) error {
+	if len(params.GetPhoneNumbers()) == 0 {
+		return merr.ErrorParamsError("No phone number is available")
+	}
 	var err error
 	smsInstance, ok := s.GetSms(params.GetConfig().GetName())
 	if !ok {
@@ -65,7 +71,7 @@ func (s *sendImpl) SMS(ctx context.Context, params bo.SendSMSParams) error {
 		TemplateCode:  params.GetTemplateCode(),
 		TemplateParam: params.GetGetTemplateParam(),
 	}
-	if len(params.GetPhoneNumbers()) == 0 {
+	if len(params.GetPhoneNumbers()) == 1 {
 		return smsInstance.Send(ctx, params.GetPhoneNumbers()[0], message)
 	}
 	return smsInstance.SendBatch(ctx, params.GetPhoneNumbers(), message)
@@ -86,6 +92,9 @@ func (s *sendImpl) Hook(ctx context.Context, params bo.SendHookParams) error {
 		return hookInstance, true
 	})
 
+	if len(hooks) == 0 {
+		return merr.ErrorParamsError("No hook is available")
+	}
 	eg := new(errgroup.Group)
 	for _, hookInstance := range hooks {
 		sender := hookInstance

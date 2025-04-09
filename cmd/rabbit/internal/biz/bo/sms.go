@@ -3,6 +3,7 @@ package bo
 import (
 	"github.com/moon-monitor/moon/pkg/api/rabbit/common"
 	"github.com/moon-monitor/moon/pkg/merr"
+	"github.com/moon-monitor/moon/pkg/util/slices"
 )
 
 func NewSendSMSParams(config SMSConfig, opts ...SendSMSParamsOption) (SendSMSParams, error) {
@@ -56,7 +57,7 @@ func (s *sendSMSParams) GetPhoneNumbers() []string {
 	if s == nil {
 		return nil
 	}
-	return s.PhoneNumbers
+	return slices.Unique(s.PhoneNumbers)
 }
 
 func (s *sendSMSParams) GetGetTemplateParam() string {

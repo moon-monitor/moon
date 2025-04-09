@@ -57,7 +57,7 @@ func (s *sendHookParams) GetConfigs() []HookConfig {
 	if s == nil {
 		return nil
 	}
-	return s.Configs
+	return slices.UniqueWithFunc(s.Configs, func(configItem HookConfig) string { return configItem.GetUrl() })
 }
 
 type SendHookParamsOption func(params *sendHookParams) error

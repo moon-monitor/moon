@@ -51,7 +51,7 @@ message SendEmailRequest {
 message SendSmsRequest {
   repeated string phones = 1 [(buf.validate.field).cel = {
     message: "phones must be between 1 and 10"
-    expression: "size(phones) >= 1 && size(phones) <= 100"
+    expression: "this.size() >= 1 && this.size() <= 100"
   }];
   string template_parameters = 2 [(buf.validate.field).required = true];
   string template_code = 3 [(buf.validate.field).required = true];

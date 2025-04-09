@@ -3,6 +3,7 @@ package bo
 import (
 	"github.com/go-kratos/kratos/v2/errors"
 	"github.com/moon-monitor/moon/pkg/merr"
+	"github.com/moon-monitor/moon/pkg/util/slices"
 	"github.com/moon-monitor/moon/pkg/util/validate"
 )
 
@@ -57,7 +58,7 @@ func (s *sendEmailParams) GetEmails() []string {
 	if s == nil {
 		return nil
 	}
-	return s.Emails
+	return slices.Unique(s.Emails)
 }
 
 func (s *sendEmailParams) GetBody() string {
@@ -92,7 +93,7 @@ func (s *sendEmailParams) GetCc() []string {
 	if s == nil {
 		return nil
 	}
-	return s.Cc
+	return slices.Unique(s.Cc)
 }
 
 func (s *sendEmailParams) GetConfig() EmailConfig {

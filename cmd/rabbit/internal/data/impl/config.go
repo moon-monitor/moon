@@ -88,6 +88,7 @@ func (c *configImpl) SetSMSConfig(ctx context.Context, configs ...bo.SMSConfig) 
 			Name:            v.GetName(),
 			SignName:        v.GetSignName(),
 			Type:            v.GetType(),
+			Enable:          v.GetEnable(),
 		}
 		configDos[item.UniqueKey()] = item
 	}

@@ -6,7 +6,6 @@ import (
 
 	openapi "github.com/alibabacloud-go/darabonba-openapi/v2/client"
 	dysmsapiV3 "github.com/alibabacloud-go/dysmsapi-20170525/v3/client"
-	util "github.com/alibabacloud-go/tea-utils/v2/service"
 	"github.com/alibabacloud-go/tea/tea"
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/moon-monitor/moon/pkg/plugin/sms"
@@ -67,7 +66,9 @@ func (a *aliyun) initV3() (*dysmsapiV3.Client, error) {
 	config := &openapi.Config{
 		AccessKeyId:     &a.accessKeyID,
 		AccessKeySecret: &a.accessKeySecret,
-		Endpoint:        tea.String(a.endpoint),
+	}
+	if a.endpoint != "" {
+		config.Endpoint = tea.String(a.endpoint)
 	}
 	client, err := dysmsapiV3.NewClient(config)
 	if err != nil {
@@ -83,7 +84,7 @@ func (a *aliyun) Send(_ context.Context, phoneNumber string, message sms.Message
 		TemplateCode:  pointer.Of(message.TemplateCode),
 		TemplateParam: pointer.Of(message.TemplateParam),
 	}
-	runtimeOptions := &util.RuntimeOptions{}
+
 	response, err := a.clientV3.SendSmsWithOptions(sendSmsRequest, runtimeOptions)
 	if err != nil {
 		a.helper.Debugf("send sms failed: %v", err)
@@ -124,7 +125,7 @@ func (a *aliyun) SendBatch(_ context.Context, phoneNumbers []string, message sms
 		TemplateParamJson: pointer.Of(string(templateParamJson)),
 		TemplateCode:      pointer.Of(message.TemplateCode),
 	}
-	runtimeOptions := &util.RuntimeOptions{}
+	
 	response, err := a.clientV3.SendBatchSmsWithOptions(sendBatchSmsRequest, runtimeOptions)
 	if err != nil {
 		a.helper.Debugf("send batch sms failed: %v", err)
