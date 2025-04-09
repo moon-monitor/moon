@@ -6,13 +6,13 @@ type MetricQueryValue struct {
 }
 
 type MetricQueryRangeReply struct {
-	Labels     Label
+	Labels     map[string]string
 	Values     []*MetricQueryValue
 	ResultType string `json:"resultType"`
 }
 
 type MetricQueryReply struct {
-	Labels     Label
+	Labels     map[string]string
 	Value      *MetricQueryValue
 	ResultType string `json:"resultType"`
 }
