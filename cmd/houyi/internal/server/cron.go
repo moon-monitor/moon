@@ -2,7 +2,6 @@ package server
 
 import (
 	"context"
-	"time"
 
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/go-kratos/kratos/v2/transport"
@@ -36,8 +35,12 @@ func (c *CronServer) Start(ctx context.Context) error {
 				c.helper.Errorw("method", "watchEventBus", "panic", err)
 			}
 		}()
-		for metricID := range c.evaluateService.EventBus() {
-			c.call(metricID)
+		for strategyJob := range c.evaluateService.EventBus() {
+			if strategyJob.GetEnable() {
+				c.AddJob(strategyJob)
+			} else {
+				c.RemoveJob(strategyJob)
+			}
 		}
 	}()
 	return c.CronJobServer.Start(ctx)
@@ -45,13 +48,4 @@ func (c *CronServer) Start(ctx context.Context) error {
 
 func (c *CronServer) Stop(ctx context.Context) error {
 	return c.CronJobServer.Stop(ctx)
-}
-
-func (c *CronServer) call(metricID string) {
-	c.helper.Info("cron job start", "metricID", metricID)
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	defer cancel()
-	if err := c.evaluateService.EvaluateMetric(ctx, metricID); err != nil {
-		c.helper.Warnw("msg", "cron job error", "metricID", metricID, "err", err)
-	}
 }

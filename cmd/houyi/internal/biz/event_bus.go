@@ -2,7 +2,8 @@ package biz
 
 import (
 	"github.com/go-kratos/kratos/v2/log"
-
+	
+	"github.com/moon-monitor/moon/cmd/houyi/internal/biz/event"
 	"github.com/moon-monitor/moon/cmd/houyi/internal/biz/repository"
 )
 
@@ -19,10 +20,10 @@ type EventBus struct {
 	eventBus repository.EventBus
 }
 
-func (e *EventBus) InMetricIDEventBus() chan<- string {
-	return e.eventBus.InMetricIDEventBus()
+func (e *EventBus) InStrategyJobEventBus() chan<- event.StrategyJob {
+	return e.eventBus.InStrategyJobEventBus()
 }
 
-func (e *EventBus) OutMetricIDEventBus() <-chan string {
-	return e.eventBus.OutMetricIDEventBus()
+func (e *EventBus) OutStrategyJobEventBus() <-chan event.StrategyJob {
+	return e.eventBus.OutStrategyJobEventBus()
 }

@@ -1,6 +1,10 @@
 package repository
 
+import (
+	"github.com/moon-monitor/moon/cmd/houyi/internal/biz/event"
+)
+
 type EventBus interface {
-	InMetricIDEventBus() chan<- string
-	OutMetricIDEventBus() <-chan string
+	InStrategyJobEventBus() chan<- event.StrategyJob
+	OutStrategyJobEventBus() <-chan event.StrategyJob
 }

@@ -79,9 +79,12 @@ func (c *CronJobServer) AddJob(job CronJob) {
 	c.tasks.Set(job.Index(), job)
 }
 
-func (c *CronJobServer) Remove(job CronJob) {
-	c.cron.Remove(job.ID())
-	c.tasks.Delete(job.Index())
+func (c *CronJobServer) RemoveJob(job CronJob) {
+	task, ok := c.tasks.Get(job.Index())
+	if ok {
+		c.cron.Remove(task.ID())
+		c.tasks.Delete(job.Index())
+	}
 }
 
 func (c *CronJobServer) Start(_ context.Context) error {

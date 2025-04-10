@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/go-kratos/kratos/v2/log"
+	"github.com/moon-monitor/moon/cmd/houyi/internal/biz/event"
 
 	"github.com/moon-monitor/moon/cmd/houyi/internal/biz"
 )
@@ -37,6 +38,6 @@ func (s *EvaluateService) EvaluateMetric(ctx context.Context, metricID string) e
 	return s.metricBiz.Evaluate(ctx, metricRule)
 }
 
-func (s *EvaluateService) EventBus() <-chan string {
-	return s.eventBus.OutMetricIDEventBus()
+func (s *EvaluateService) EventBus() <-chan event.StrategyJob {
+	return s.eventBus.OutStrategyJobEventBus()
 }
