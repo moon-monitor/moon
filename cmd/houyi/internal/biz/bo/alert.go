@@ -15,4 +15,6 @@ type Alert interface {
 	GetEndsAt() *time.Time
 	GetGeneratorURL() string
 	GetFingerprint() string
+	StatusNext() Alert
+	IsFiring() bool
 }
