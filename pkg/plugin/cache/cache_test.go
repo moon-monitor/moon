@@ -79,4 +79,25 @@ func Test_Cache(t *testing.T) {
 		t.Errorf("get cache error: %v", err)
 		return
 	}
+
+	var userAll []*User
+	res, err := c.Client().HGetAll(ctx, key).Result()
+	if err != nil {
+		t.Errorf("get cache error: %v", err)
+		return
+	}
+	for _, v := range res {
+		user := new(User)
+		if err := user.UnmarshalBinary([]byte(v)); err != nil {
+			t.Errorf("get cache error: %v", err)
+			return
+		}
+		userAll = append(userAll, user)
+	}
+	if len(userAll) != 2 {
+		t.Errorf("get cache error: %v", err)
+		return
+	}
+	bs, _ := json.Marshal(userAll)
+	t.Logf("userAll: %s", string(bs))
 }

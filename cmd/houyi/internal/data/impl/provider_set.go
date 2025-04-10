@@ -12,4 +12,5 @@ var ProviderSetImpl = wire.NewSet(
 	NewConfigRepo,
 	NewJudgeRepo,
 	NewAlertRepo,
+	NewEventBusRepo,
 )

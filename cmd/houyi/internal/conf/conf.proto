@@ -15,6 +15,7 @@ message Bootstrap {
   Auth auth = 6;
   config.MicroServer palace = 7;
   Data data = 8;
+  EventBus eventBus = 9;
 }
 
 message Data {
@@ -27,4 +28,8 @@ message Auth {
   }
   config.JWT jwt = 1;
   repeated Token tokens = 2;
+}
+
+message EventBus {
+  int64 metricIDEventBusMaxCap = 1;
 }

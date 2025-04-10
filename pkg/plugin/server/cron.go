@@ -48,19 +48,17 @@ type CronJob interface {
 	WithID(id cron.EntryID) CronJob
 }
 
-var defaultCronParser = cron.NewParser(cron.Second | cron.Minute | cron.Hour | cron.Dom | cron.Month | cron.Dow)
-
 type CronJobServer struct {
-	cron  *cron.Cron
-	tasks *safety.Map[string, CronJob]
-	help  *log.Helper
+	cron   *cron.Cron
+	tasks  *safety.Map[string, CronJob]
+	helper *log.Helper
 }
 
 func NewCronJobServer(logger log.Logger, jobs ...CronJob) *CronJobServer {
 	c := &CronJobServer{
-		cron:  cron.New(cron.WithParser(defaultCronParser)),
-		tasks: safety.NewMap[string, CronJob](),
-		help:  log.NewHelper(log.With(logger, "module", "server.cron")),
+		cron:   cron.New(),
+		tasks:  safety.NewMap[string, CronJob](),
+		helper: log.NewHelper(logger),
 	}
 	for _, job := range jobs {
 		c.AddJob(job)
@@ -74,7 +72,7 @@ func (c *CronJobServer) AddJob(job CronJob) {
 	}
 	id, err := c.cron.AddJob(string(job.Sepc()), job)
 	if err != nil {
-		c.help.Warnw("method", "add job", "err", err)
+		c.helper.Warnw("method", "add job", "err", err)
 		return
 	}
 	job.WithID(id)
@@ -87,11 +85,13 @@ func (c *CronJobServer) Remove(job CronJob) {
 }
 
 func (c *CronJobServer) Start(_ context.Context) error {
+	defer c.helper.Info("[CronJob] server started")
 	c.cron.Start()
 	return nil
 }
 
 func (c *CronJobServer) Stop(_ context.Context) error {
+	defer c.helper.Info("[CronJob] server stopped")
 	c.cron.Stop()
 	c.tasks.Clear()
 	return nil

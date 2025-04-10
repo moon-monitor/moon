@@ -83,8 +83,30 @@ func (c *configImpl) SetMetricRules(ctx context.Context, rules ...bo.MetricRule)
 }
 
 func (c *configImpl) GetMetricRules(ctx context.Context) ([]bo.MetricRule, error) {
-	//TODO implement me
-	panic("implement me")
+	key := vobj.MetricRuleCacheKey.Key()
+	exist, err := c.Data.GetCache().Client().Exists(ctx, key).Result()
+	if err != nil {
+		c.helper.Errorw("method", "GetMetricRules", "err", err)
+		return nil, err
+	}
+	if exist == 0 {
+		return nil, nil
+	}
+
+	metricRulesMap, err := c.Data.GetCache().Client().HGetAll(ctx, key).Result()
+	if err != nil {
+		c.helper.Errorw("method", "GetMetricRules", "err", err)
+		return nil, err
+	}
+	metricRules := make([]bo.MetricRule, 0, len(metricRulesMap))
+	for _, v := range metricRulesMap {
+		rule := new(do.MetricRule)
+		if err := rule.UnmarshalBinary([]byte(v)); err != nil {
+			continue
+		}
+		metricRules = append(metricRules, rule)
+	}
+	return metricRules, nil
 }
 
 func (c *configImpl) GetMetricRule(ctx context.Context, id string) (bo.MetricRule, bool) {
@@ -106,6 +128,5 @@ func (c *configImpl) GetMetricRule(ctx context.Context, id string) (bo.MetricRul
 }
 
 func (c *configImpl) DeleteMetricRules(ctx context.Context, ids ...string) error {
-	//TODO implement me
-	panic("implement me")
+	return c.Data.GetCache().Client().HDel(ctx, vobj.MetricRuleCacheKey.Key(), ids...).Err()
 }
