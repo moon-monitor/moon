@@ -32,4 +32,5 @@ message Auth {
 
 message EventBus {
   int64 strategyJobEventBusMaxCap = 1;
+  int64 alertEventBusMaxCap = 2;
 }

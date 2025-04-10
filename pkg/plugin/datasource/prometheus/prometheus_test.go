@@ -7,6 +7,7 @@ import (
 
 	"github.com/go-kratos/kratos/v2/log"
 
+	"github.com/moon-monitor/moon/pkg/api/houyi/common"
 	"github.com/moon-monitor/moon/pkg/plugin/datasource"
 	"github.com/moon-monitor/moon/pkg/plugin/datasource/prometheus"
 )
@@ -16,6 +17,26 @@ var _ prometheus.Config = (*config)(nil)
 type config struct {
 	Endpoint  string
 	BasicAuth datasource.BasicAuth
+}
+
+// GetCA implements prometheus.Config.
+func (c *config) GetCA() string {
+	return ""
+}
+
+// GetHeaders implements prometheus.Config.
+func (c *config) GetHeaders() map[string]string {
+	return nil
+}
+
+// GetMethod implements prometheus.Config.
+func (c *config) GetMethod() common.DatasourceQueryMethod {
+	return common.DatasourceQueryMethod_QueryMethod_HTTP_GET
+}
+
+// GetTLS implements prometheus.Config.
+func (c *config) GetTLS() datasource.TLS {
+	return nil
 }
 
 func (c *config) GetEndpoint() string {

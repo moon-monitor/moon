@@ -70,9 +70,11 @@ func (m *Metric) Evaluate(ctx context.Context, metric bo.MetricRule) error {
 	return nil
 }
 
-func (m *Metric) NewStrategyJob(ctx context.Context, metric bo.MetricRule) (event.StrategyJob, error) {
+func (m *Metric) NewStrategyJob(_ context.Context, metric bo.MetricRule) (bo.StrategyJob, error) {
 	opts := []event.StrategyMetricJobOption{
 		event.WithStrategyMetricJobHelper(m.logger),
+		event.WithStrategyMetricJobMetric(metric),
+		event.WithStrategyConfigRepo(m.configRepo),
 	}
 	return event.NewStrategyMetricJob(metric.UniqueKey(), opts...)
 }

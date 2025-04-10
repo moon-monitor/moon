@@ -1,4 +1,4 @@
-package event
+package bo
 
 import (
 	"github.com/moon-monitor/moon/pkg/plugin/server"

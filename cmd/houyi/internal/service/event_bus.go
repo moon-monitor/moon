@@ -4,24 +4,24 @@ import (
 	"github.com/go-kratos/kratos/v2/log"
 
 	"github.com/moon-monitor/moon/cmd/houyi/internal/biz"
-	"github.com/moon-monitor/moon/cmd/houyi/internal/biz/event"
+	"github.com/moon-monitor/moon/cmd/houyi/internal/biz/bo"
 )
 
-func NewEvaluateService(
+func NewEventBusService(
 	eventBus *biz.EventBus,
 	logger log.Logger,
-) *EvaluateService {
-	return &EvaluateService{
-		helper:   log.NewHelper(log.With(logger, "module", "service.evaluate")),
+) *EventBusService {
+	return &EventBusService{
+		helper:   log.NewHelper(log.With(logger, "module", "service.event-bus")),
 		eventBus: eventBus,
 	}
 }
 
-type EvaluateService struct {
+type EventBusService struct {
 	helper   *log.Helper
 	eventBus *biz.EventBus
 }
 
-func (s *EvaluateService) EventBus() <-chan event.StrategyJob {
+func (s *EventBusService) OutStrategyJobEventBus() <-chan bo.StrategyJob {
 	return s.eventBus.OutStrategyJobEventBus()
 }

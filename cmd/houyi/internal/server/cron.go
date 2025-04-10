@@ -12,7 +12,7 @@ import (
 
 var _ transport.Server = (*CronServer)(nil)
 
-func NewCronServer(evaluateService *service.EvaluateService, logger log.Logger) *CronServer {
+func NewCronServer(evaluateService *service.EventBusService, logger log.Logger) *CronServer {
 	return &CronServer{
 		evaluateService: evaluateService,
 		logger:          logger,
@@ -22,7 +22,7 @@ func NewCronServer(evaluateService *service.EvaluateService, logger log.Logger) 
 }
 
 type CronServer struct {
-	evaluateService *service.EvaluateService
+	evaluateService *service.EventBusService
 	logger          log.Logger
 	helper          *log.Helper
 	*server.CronJobServer
@@ -35,7 +35,7 @@ func (c *CronServer) Start(ctx context.Context) error {
 				c.helper.Errorw("method", "watchEventBus", "panic", err)
 			}
 		}()
-		for strategyJob := range c.evaluateService.EventBus() {
+		for strategyJob := range c.evaluateService.OutStrategyJobEventBus() {
 			if strategyJob.GetEnable() {
 				c.AddJob(strategyJob)
 			} else {
