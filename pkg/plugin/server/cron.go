@@ -79,6 +79,19 @@ func (c *CronJobServer) AddJob(job CronJob) {
 	c.tasks.Set(job.Index(), job)
 }
 
+func (c *CronJobServer) AddJobForce(job CronJob) {
+	if oldJob, ok := c.tasks.Get(job.Index()); ok {
+		defer c.cron.Remove(oldJob.ID())
+	}
+	id, err := c.cron.AddJob(string(job.Spec()), job)
+	if err != nil {
+		c.helper.Warnw("method", "add job", "err", err)
+		return
+	}
+	job.WithID(id)
+	c.tasks.Set(job.Index(), job)
+}
+
 func (c *CronJobServer) RemoveJob(job CronJob) {
 	task, ok := c.tasks.Get(job.Index())
 	if ok {

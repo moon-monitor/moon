@@ -15,7 +15,7 @@ type MetricInit interface {
 type Metric interface {
 	Query(ctx context.Context, expr string, duration time.Duration) ([]*do.MetricQueryReply, error)
 
-	QueryRange(ctx context.Context, expr string, start, end int64) ([]*do.MetricQueryRangeReply, error)
+	QueryRange(ctx context.Context, expr string, start, end time.Time) ([]*do.MetricQueryRangeReply, error)
 
 	Metadata(ctx context.Context) (<-chan []*do.MetricItem, error)
 }

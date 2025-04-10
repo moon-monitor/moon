@@ -19,6 +19,10 @@ type config struct {
 	BasicAuth datasource.BasicAuth
 }
 
+func (c *config) GetScrapeInterval() time.Duration {
+	return 0
+}
+
 // GetCA implements prometheus.Config.
 func (c *config) GetCA() string {
 	return ""

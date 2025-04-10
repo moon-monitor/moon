@@ -37,6 +37,7 @@ type Config interface {
 	GetBasicAuth() datasource.BasicAuth
 	GetTLS() datasource.TLS
 	GetCA() string
+	GetScrapeInterval() time.Duration
 }
 
 func New(c Config, logger log.Logger) *Prometheus {
@@ -49,6 +50,13 @@ func New(c Config, logger log.Logger) *Prometheus {
 type Prometheus struct {
 	c      Config
 	helper *log.Helper
+}
+
+func (p *Prometheus) GetScrapeInterval() time.Duration {
+	if p.c.GetScrapeInterval() > 0 {
+		return p.c.GetScrapeInterval()
+	}
+	return 15 * time.Second
 }
 
 func (p *Prometheus) Query(ctx context.Context, req *datasource.MetricQueryRequest) (*datasource.MetricQueryResponse, error) {

@@ -3,6 +3,7 @@ package do
 import (
 	"encoding/json"
 	"fmt"
+	"time"
 
 	"github.com/moon-monitor/moon/pkg/api/houyi/common"
 	"github.com/moon-monitor/moon/pkg/plugin/cache"
@@ -12,16 +13,24 @@ import (
 var _ cache.Object = (*DatasourceMetricConfig)(nil)
 
 type DatasourceMetricConfig struct {
-	ID        uint32                             `json:"id"`
-	Name      string                             `json:"name"`
-	Driver    common.MetricDatasourceItem_Driver `json:"driver"`
-	Endpoint  string                             `json:"endpoint"`
-	Headers   map[string]string                  `json:"headers"`
-	Method    common.DatasourceQueryMethod       `json:"method"`
-	CA        string                             `json:"ca"`
-	BasicAuth *BasicAuth                         `json:"basicAuth"`
-	TLS       *TLS                               `json:"tls"`
-	Enable    bool                               `json:"enable"`
+	ID             uint32                             `json:"id"`
+	Name           string                             `json:"name"`
+	Driver         common.MetricDatasourceItem_Driver `json:"driver"`
+	Endpoint       string                             `json:"endpoint"`
+	Headers        map[string]string                  `json:"headers"`
+	Method         common.DatasourceQueryMethod       `json:"method"`
+	CA             string                             `json:"ca"`
+	BasicAuth      *BasicAuth                         `json:"basicAuth"`
+	TLS            *TLS                               `json:"tls"`
+	Enable         bool                               `json:"enable"`
+	ScrapeInterval time.Duration                      `json:"scrapeInterval"`
+}
+
+func (d *DatasourceMetricConfig) GetScrapeInterval() time.Duration {
+	if d == nil {
+		return 0
+	}
+	return d.ScrapeInterval
 }
 
 func (d *DatasourceMetricConfig) GetId() uint32 {

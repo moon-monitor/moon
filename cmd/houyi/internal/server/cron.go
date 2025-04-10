@@ -37,7 +37,7 @@ func (c *CronServer) Start(ctx context.Context) error {
 		}()
 		for strategyJob := range c.evaluateService.OutStrategyJobEventBus() {
 			if strategyJob.GetEnable() {
-				c.AddJob(strategyJob)
+				c.AddJobForce(strategyJob)
 			} else {
 				c.RemoveJob(strategyJob)
 			}

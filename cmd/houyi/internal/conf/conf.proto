@@ -2,6 +2,7 @@ syntax = "proto3";
 
 package cmd.houyi.internal.conf;
 
+import "google/protobuf/duration.proto";
 import "config.proto";
 
 option go_package = "github.com/moon-monitor/moon/cmd/houyi/internal/conf;conf";
@@ -16,6 +17,7 @@ message Bootstrap {
   config.MicroServer palace = 7;
   Data data = 8;
   EventBus eventBus = 9;
+  Evaluate evaluate = 10;
 }
 
 message Data {
@@ -33,4 +35,9 @@ message Auth {
 message EventBus {
   int64 strategyJobEventBusMaxCap = 1;
   int64 alertEventBusMaxCap = 2;
+}
+
+message Evaluate {
+  google.protobuf.Duration interval = 10;
+  google.protobuf.Duration timeout = 11;
 }

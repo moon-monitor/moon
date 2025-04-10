@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"fmt"
 	"strconv"
+	"time"
 )
 
 type ResultType string
@@ -73,6 +74,8 @@ type Metric interface {
 	Query(ctx context.Context, req *MetricQueryRequest) (*MetricQueryResponse, error)
 
 	Metadata(ctx context.Context) (<-chan *MetricMetadata, error)
+
+	GetScrapeInterval() time.Duration
 }
 
 // IsSuccessResponse is response success
