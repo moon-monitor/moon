@@ -26,6 +26,14 @@ type MetricRule struct {
 	Values        []float64
 	SampleMode    common.MetricStrategyItem_SampleMode
 	Condition     common.MetricStrategyItem_Condition
+	Enable        bool `json:"enable"`
+}
+
+func (m *MetricRule) GetEnable() bool {
+	if m == nil {
+		return false
+	}
+	return m.Enable
 }
 
 func (m *MetricRule) MarshalBinary() (data []byte, err error) {

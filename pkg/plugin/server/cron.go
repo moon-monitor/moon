@@ -44,7 +44,7 @@ type CronJob interface {
 
 	ID() cron.EntryID
 	Index() string
-	Sepc() CronSpec
+	Spec() CronSpec
 	WithID(id cron.EntryID) CronJob
 }
 
@@ -70,7 +70,7 @@ func (c *CronJobServer) AddJob(job CronJob) {
 	if _, ok := c.tasks.Get(job.Index()); ok {
 		return
 	}
-	id, err := c.cron.AddJob(string(job.Sepc()), job)
+	id, err := c.cron.AddJob(string(job.Spec()), job)
 	if err != nil {
 		c.helper.Warnw("method", "add job", "err", err)
 		return

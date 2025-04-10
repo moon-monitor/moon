@@ -31,5 +31,5 @@ message Auth {
 }
 
 message EventBus {
-  int64 metricIDEventBusMaxCap = 1;
+  int64 strategyJobEventBusMaxCap = 1;
 }

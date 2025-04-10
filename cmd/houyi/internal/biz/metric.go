@@ -5,8 +5,10 @@ import (
 	"time"
 
 	"github.com/go-kratos/kratos/v2/log"
+
 	"github.com/moon-monitor/moon/cmd/houyi/internal/biz/bo"
 	"github.com/moon-monitor/moon/cmd/houyi/internal/biz/do"
+	"github.com/moon-monitor/moon/cmd/houyi/internal/biz/event"
 	"github.com/moon-monitor/moon/cmd/houyi/internal/biz/repository"
 	"github.com/moon-monitor/moon/pkg/util/slices"
 )
@@ -19,6 +21,7 @@ func NewMetric(
 	logger log.Logger,
 ) *Metric {
 	return &Metric{
+		logger:         logger,
 		helper:         log.NewHelper(log.With(logger, "module", "biz.metric")),
 		judgeRepo:      judgeRepo,
 		alertRepo:      alertRepo,
@@ -28,15 +31,12 @@ func NewMetric(
 }
 
 type Metric struct {
+	logger         log.Logger
 	helper         *log.Helper
 	judgeRepo      repository.Judge
 	alertRepo      repository.Alert
 	metricInitRepo repository.MetricInit
 	configRepo     repository.Config
-}
-
-func (m *Metric) GetAlerts(ctx context.Context) ([]bo.Alert, error) {
-	return nil, nil
 }
 
 func (m *Metric) Evaluate(ctx context.Context, metric bo.MetricRule) error {
@@ -68,4 +68,11 @@ func (m *Metric) Evaluate(ctx context.Context, metric bo.MetricRule) error {
 		return err
 	}
 	return nil
+}
+
+func (m *Metric) NewStrategyJob(ctx context.Context, metric bo.MetricRule) (event.StrategyJob, error) {
+	opts := []event.StrategyMetricJobOption{
+		event.WithStrategyMetricJobHelper(m.logger),
+	}
+	return event.NewStrategyMetricJob(metric.UniqueKey(), opts...)
 }

@@ -1,2 +1,2 @@
 eventBus:
-  metricIDEventBusMaxCap: ${X_MOON_HOUYI_METRIC_ID_EVENT_BUS_MAX_CAP:1000}
+  strategyJobEventBusMaxCap: ${X_MOON_HOUYI_STRATEGY_JOB_EVENT_BUS_MAX_CAP:10000}
