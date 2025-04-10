@@ -61,3 +61,7 @@ func (m Map[K, V]) Values() []V {
 func (m Map[K, V]) Len() int {
 	return len(m)
 }
+
+func (m Map[K, V]) ToMap() map[K]V {
+	return m
+}

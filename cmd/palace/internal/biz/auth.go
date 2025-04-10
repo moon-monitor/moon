@@ -20,6 +20,7 @@ import (
 	"github.com/moon-monitor/moon/pkg/merr"
 	"github.com/moon-monitor/moon/pkg/plugin/email"
 	"github.com/moon-monitor/moon/pkg/util/crypto"
+	"github.com/moon-monitor/moon/pkg/util/hash"
 	"github.com/moon-monitor/moon/pkg/util/password"
 	"github.com/moon-monitor/moon/pkg/util/safety"
 	"github.com/moon-monitor/moon/pkg/util/validate"
@@ -317,7 +318,7 @@ func (a *AuthBiz) oauthLogin(ctx context.Context, userInfo bo.IOAuthUser) (strin
 	if oauthUserDo.User == nil || validate.CheckEmail(string(oauthUserDo.User.Email)) != nil {
 		oauthParams := &bo.OAuthLoginParams{
 			OAuthID: oauthUserDo.OAuthID,
-			Token:   password.MD5(password.GenerateRandomPassword(64)),
+			Token:   hash.MD5(password.GenerateRandomPassword(64)),
 		}
 		if err := a.cacheRepo.CacheVerifyOAuthToken(ctx, oauthParams); err != nil {
 			return "", err

@@ -9,6 +9,9 @@ import (
 	"github.com/moon-monitor/moon/pkg/util/template"
 )
 
+var _ json.Marshaler = (*Label)(nil)
+var _ json.Unmarshaler = (*Label)(nil)
+
 func NewLabel(labels map[string]string) *Label {
 	return &Label{
 		kvMap: labels,
@@ -17,6 +20,18 @@ func NewLabel(labels map[string]string) *Label {
 
 type Label struct {
 	kvMap kv.StringMap
+}
+
+func (a *Label) ToMap() map[string]string {
+	return a.kvMap.ToMap()
+}
+
+func (a *Label) UnmarshalJSON(bytes []byte) error {
+	return json.Unmarshal(bytes, &a.kvMap)
+}
+
+func (a *Label) MarshalJSON() ([]byte, error) {
+	return json.Marshal(a.kvMap)
 }
 
 func (a *Label) String() string {
@@ -97,7 +112,7 @@ func (a *Label) SetLevelId(levelId uint32) {
 }
 
 func (a *Label) Format(data interface{}) *Label {
-	for k, v := range a.kvMap {
+	for k, v := range a.kvMap.ToMap() {
 		a.kvMap.Set(k, template.TextFormatterX(v, data))
 	}
 	return a

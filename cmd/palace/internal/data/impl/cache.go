@@ -16,7 +16,7 @@ import (
 	"github.com/moon-monitor/moon/cmd/palace/internal/data"
 	"github.com/moon-monitor/moon/cmd/palace/internal/helper/middleware"
 	"github.com/moon-monitor/moon/pkg/merr"
-	"github.com/moon-monitor/moon/pkg/util/password"
+	"github.com/moon-monitor/moon/pkg/util/hash"
 	"github.com/moon-monitor/moon/pkg/util/template"
 	"github.com/moon-monitor/moon/pkg/util/validate"
 )
@@ -55,11 +55,11 @@ func (c *cacheReoImpl) BanToken(ctx context.Context, token string) error {
 	if expiration <= 0 {
 		return merr.ErrorInvalidToken("token is invalid")
 	}
-	return c.GetCache().Client().Set(ctx, repository.BankTokenKey.Key(password.MD5(token)), 1, expiration).Err()
+	return c.GetCache().Client().Set(ctx, repository.BankTokenKey.Key(hash.MD5(token)), 1, expiration).Err()
 }
 
 func (c *cacheReoImpl) VerifyToken(ctx context.Context, token string) error {
-	exist, err := c.GetCache().Client().Exists(ctx, repository.BankTokenKey.Key(password.MD5(token))).Result()
+	exist, err := c.GetCache().Client().Exists(ctx, repository.BankTokenKey.Key(hash.MD5(token))).Result()
 	if err != nil {
 		return err
 	}
@@ -114,7 +114,7 @@ func (c *cacheReoImpl) SendVerifyEmailCode(ctx context.Context, email string) (*
 	if err := validate.CheckEmail(email); err != nil {
 		return nil, err
 	}
-	code := strings.ToUpper(password.MD5(time.Now().String())[:6])
+	code := strings.ToUpper(hash.MD5(time.Now().String())[:6])
 	err := c.GetCache().Client().Set(ctx, repository.EmailCodeKey.Key(email), code, 5*time.Minute).Err()
 	if err != nil {
 		return nil, err

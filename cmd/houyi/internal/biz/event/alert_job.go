@@ -1,31 +1,40 @@
 package event
 
 import (
+	"encoding/json"
 	"time"
 
 	"github.com/moon-monitor/moon/cmd/houyi/internal/biz/bo"
 	"github.com/moon-monitor/moon/pkg/api/houyi/common"
+	"github.com/moon-monitor/moon/pkg/plugin/cache"
+	"github.com/moon-monitor/moon/pkg/util/hash"
+	"github.com/moon-monitor/moon/pkg/util/kv"
 	"github.com/moon-monitor/moon/pkg/util/kv/label"
+	"github.com/moon-monitor/moon/pkg/util/pointer"
 )
 
-func NewAlertJob(opts ...AlertJobOption) (*AlertJob, error) {
-	a := &AlertJob{}
-	for _, opt := range opts {
-		if err := opt(a); err != nil {
-			return nil, err
-		}
-	}
-	return a, nil
-}
+var _ cache.Object = (*AlertJob)(nil)
 
 type AlertJob struct {
-	Status       common.EventStatus
-	Labels       *label.Label
-	Annotations  *label.Annotation
-	StartsAt     *time.Time
-	EndsAt       *time.Time
-	GeneratorURL string
-	Fingerprint  string
+	Status       common.EventStatus `json:"status"`
+	Labels       *label.Label       `json:"labels"`
+	Annotations  *label.Annotation  `json:"annotations"`
+	StartsAt     *time.Time         `json:"startsAt"`
+	EndsAt       *time.Time         `json:"endsAt"`
+	GeneratorURL string             `json:"generatorURL"`
+	Fingerprint  string             `json:"fingerprint"`
+}
+
+func (a *AlertJob) MarshalBinary() (data []byte, err error) {
+	return json.Marshal(a)
+}
+
+func (a *AlertJob) UnmarshalBinary(data []byte) error {
+	return json.Unmarshal(data, a)
+}
+
+func (a *AlertJob) UniqueKey() string {
+	return a.Fingerprint
 }
 
 func (a *AlertJob) GetStatus() common.EventStatus {
@@ -74,7 +83,8 @@ func (a *AlertJob) GetFingerprint() string {
 	if a == nil {
 		return ""
 	}
-	return a.Fingerprint
+	stringMap := kv.NewStringMap(a.Labels.ToMap())
+	return hash.MD5(kv.SortString(stringMap))
 }
 
 func (a *AlertJob) StatusNext() bo.Alert {
@@ -86,11 +96,12 @@ func (a *AlertJob) StatusNext() bo.Alert {
 	default:
 		a.Status = common.EventStatus_resolved
 	}
+	if a.Status == common.EventStatus_resolved && a.EndsAt == nil {
+		a.EndsAt = pointer.Of(time.Now().UTC())
+	}
 	return a
 }
 
 func (a *AlertJob) IsFiring() bool {
 	return a.Status == common.EventStatus_firing
 }
-
-type AlertJobOption func(*AlertJob) error

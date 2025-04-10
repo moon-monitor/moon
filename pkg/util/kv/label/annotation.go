@@ -8,6 +8,9 @@ import (
 	"github.com/moon-monitor/moon/pkg/util/template"
 )
 
+var _ json.Marshaler = (*Annotation)(nil)
+var _ json.Unmarshaler = (*Annotation)(nil)
+
 func NewAnnotation(summary, description string) *Annotation {
 	return &Annotation{
 		kvMap: kv.NewStringMap(map[string]string{
@@ -21,17 +24,25 @@ type Annotation struct {
 	kvMap kv.StringMap
 }
 
+func (a *Annotation) UnmarshalJSON(bytes []byte) error {
+	return json.Unmarshal(bytes, &a.kvMap)
+}
+
+func (a *Annotation) MarshalJSON() ([]byte, error) {
+	return json.Marshal(a.kvMap)
+}
+
 func (a *Annotation) String() string {
 	bs, _ := a.MarshalBinary()
 	return string(bs)
 }
 
 func (a *Annotation) MarshalBinary() (data []byte, err error) {
-	return json.Marshal(a.kvMap)
+	return a.kvMap.MarshalBinary()
 }
 
 func (a *Annotation) UnmarshalBinary(data []byte) error {
-	return json.Unmarshal(data, &a.kvMap)
+	return a.kvMap.UnmarshalBinary(data)
 }
 
 func (a *Annotation) GetSummary() string {
@@ -59,7 +70,7 @@ func (a *Annotation) SetDescription(description string) {
 }
 
 func (a *Annotation) Format(data interface{}) *Annotation {
-	for k, v := range a.kvMap {
+	for k, v := range a.kvMap.ToMap() {
 		a.kvMap.Set(k, template.TextFormatterX(v, data))
 	}
 	return a

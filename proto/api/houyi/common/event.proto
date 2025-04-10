@@ -6,8 +6,8 @@ option go_package = "github.com/moon-monitor/moon/pkg/api/houyi/common;common";
 
 enum EventStatus {
   pending = 0;
-  resolved = 1;
-  firing = 2;
+  firing = 1;
+  resolved = 2;
 }
 
 message AlertItem {
