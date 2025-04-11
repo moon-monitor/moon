@@ -100,9 +100,3 @@ func (a *Alert) IsFiring() bool {
 func (a *Alert) IsResolved() bool {
 	return a.Status == common.EventStatus_resolved
 }
-
-func (a *Alert) Firing() {
-	a.Status = common.EventStatus_firing
-	a.LastUpdated = time.Now()
-	a.EndsAt = nil
-}

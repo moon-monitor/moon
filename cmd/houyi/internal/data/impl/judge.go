@@ -82,7 +82,7 @@ func (j *judgeImpl) generateAlert(rule bo.MetricJudgeRule, value bo.MetricJudgeD
 		Status:       common.EventStatus_pending,
 		Labels:       labels,
 		Annotations:  annotations,
-		StartsAt:     pointer.Of(time.Unix(value.GetTimestamp(), 0).UTC()),
+		StartsAt:     pointer.Of(time.Unix(value.GetTimestamp(), 0)),
 		EndsAt:       nil,
 		GeneratorURL: "",
 		Fingerprint:  fingerprint,

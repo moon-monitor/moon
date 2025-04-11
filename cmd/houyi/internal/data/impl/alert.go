@@ -11,6 +11,7 @@ import (
 	"github.com/moon-monitor/moon/cmd/houyi/internal/biz/repository"
 	"github.com/moon-monitor/moon/cmd/houyi/internal/biz/vobj"
 	"github.com/moon-monitor/moon/cmd/houyi/internal/data"
+	"github.com/moon-monitor/moon/pkg/api/houyi/common"
 )
 
 func NewAlertRepo(data *data.Data, logger log.Logger) repository.Alert {
@@ -23,6 +24,15 @@ func NewAlertRepo(data *data.Data, logger log.Logger) repository.Alert {
 type alertImpl struct {
 	*data.Data
 	helper *log.Helper
+}
+
+func (a *alertImpl) Delete(ctx context.Context, fingerprint string) error {
+	key := vobj.AlertEventCacheKey.Key()
+	if err := a.GetCache().Client().HDel(ctx, key, fingerprint).Err(); err != nil {
+		a.helper.Warnw("method", "DeleteAlert", "err", err)
+		return err
+	}
+	return nil
 }
 
 func (a *alertImpl) Get(ctx context.Context, fingerprint string) (bo.Alert, bool) {
@@ -63,11 +73,33 @@ func (a *alertImpl) Save(ctx context.Context, alerts ...bo.Alert) error {
 			Duration:     alert.GetDuration(),
 			LastUpdated:  time.Now(),
 		}
-		alertMap[fingerprint] = item
+
+		alertMap[fingerprint] = a.oldAlert(ctx, item)
 	}
 	if err := a.GetCache().Client().HSet(ctx, key, alertMap).Err(); err != nil {
 		a.helper.Warnw("method", "SaveAlert", "err", err)
 		return err
 	}
 	return nil
+}
+
+func (a *alertImpl) oldAlert(ctx context.Context, newAlert *do.Alert) *do.Alert {
+	key := vobj.AlertEventCacheKey.Key()
+	exist, err := a.GetCache().Client().HExists(ctx, key, newAlert.GetFingerprint()).Result()
+	if err != nil {
+		a.helper.Warnw("method", "SaveAlert", "err", err)
+		return newAlert
+	}
+	if !exist {
+		return newAlert
+	}
+	var oldAlert do.Alert
+	if err := a.GetCache().Client().HGet(ctx, key, newAlert.GetFingerprint()).Scan(&oldAlert); err != nil {
+		a.helper.Warnw("method", "SaveAlert", "err", err)
+		return newAlert
+	}
+	newAlert.Status = common.EventStatus_firing
+	newAlert.StartsAt = oldAlert.StartsAt
+
+	return newAlert
 }

@@ -12,9 +12,14 @@ import (
 
 var _ transport.Server = (*CronAlertJobServer)(nil)
 
-func NewCronAlertJobServer(evaluateService *service.EventBusService, logger log.Logger) *CronAlertJobServer {
+func NewCronAlertJobServer(
+	evaluateService *service.EventBusService,
+	alertService *service.AlertService,
+	logger log.Logger,
+) *CronAlertJobServer {
 	return &CronAlertJobServer{
 		evaluateService: evaluateService,
+		alertService:    alertService,
 		logger:          logger,
 		helper:          log.NewHelper(log.With(logger, "module", "server.cron.alert.job")),
 		CronJobServer:   server.NewCronJobServer("Alert", logger),
@@ -23,8 +28,10 @@ func NewCronAlertJobServer(evaluateService *service.EventBusService, logger log.
 
 type CronAlertJobServer struct {
 	evaluateService *service.EventBusService
-	logger          log.Logger
-	helper          *log.Helper
+	alertService    *service.AlertService
+
+	logger log.Logger
+	helper *log.Helper
 	*server.CronJobServer
 }
 
@@ -37,10 +44,11 @@ func (c *CronAlertJobServer) Start(ctx context.Context) error {
 		}()
 		for alertJob := range c.evaluateService.OutAlertJobEventBus() {
 			if alertJob.IsResolved() {
+				c.helper.Debugw("method", "watchEventBus", "alertJobResolved", alertJob.GetFingerprint())
 				c.RemoveJob(alertJob)
-			} else {
-				c.AddJob(alertJob)
+				continue
 			}
+			c.AddJob(alertJob)
 		}
 	}()
 	return c.CronJobServer.Start(ctx)

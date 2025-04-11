@@ -9,4 +9,5 @@ import (
 type Alert interface {
 	Save(ctx context.Context, alerts ...bo.Alert) error
 	Get(ctx context.Context, fingerprint string) (bo.Alert, bool)
+	Delete(ctx context.Context, fingerprint string) error
 }

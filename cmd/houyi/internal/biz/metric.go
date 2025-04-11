@@ -81,6 +81,7 @@ func (m *Metric) newStrategyJob(_ context.Context, metric bo.MetricRule) (bo.Str
 		event.WithStrategyMetricJobMetricInitRepo(m.metricInitRepo),
 		event.WithStrategyMetricJobSpec(server.CronSpecEvery(m.evaluateInterval)),
 		event.WithStrategyMetricJobTimeout(m.evaluateTimeout),
+		event.WithStrategyMetricJobEventBusRepo(m.eventBusRepo),
 	}
 	return event.NewStrategyMetricJob(metric.UniqueKey(), opts...)
 }

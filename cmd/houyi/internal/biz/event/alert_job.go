@@ -72,22 +72,31 @@ func WithAlertJobHelper(logger log.Logger) AlertJobOption {
 	}
 }
 
-func (a *alertJob) isSustaining() bool {
-	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
+func (a *alertJob) isSustaining() (alert bo.Alert, sustaining bool) {
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
+	defer func() {
+		if sustaining {
+			return
+		}
+		if err := a.alertRepo.Delete(ctx, a.GetFingerprint()); err != nil {
+			a.helper.Warnw("msg", "delete alert error", "error", err)
+		}
+	}()
 	alert, ok := a.alertRepo.Get(ctx, a.GetFingerprint())
 	if !ok {
-		return false
+		return a, false
 	}
-	return alert.GetLastUpdated().Add(-a.GetDuration()).After(time.Now())
+	return alert, alert.GetLastUpdated().Add(a.GetDuration()).After(time.Now())
 }
 
 func (a *alertJob) Run() {
-	if a.isSustaining() {
-		return
+	alertInfo, ok := a.isSustaining()
+	if !ok {
+		alertInfo.Resolved()
+		a.Alert = alertInfo
+		a.eventBusRepo.InAlertEventBus() <- a
 	}
-	a.Resolved()
-	a.eventBusRepo.InAlertEventBus() <- a
 }
 
 func (a *alertJob) ID() cron.EntryID {

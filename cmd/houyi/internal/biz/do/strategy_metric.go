@@ -13,21 +13,21 @@ import (
 )
 
 type MetricRule struct {
-	TeamId        uint32
-	Datasource    string
-	StrategyId    uint32
-	LevelId       uint32
-	Receiver      []string
-	LabelReceiver []*LabelNotices
-	Expr          string
-	Labels        *label.Label
-	Annotations   *label.Annotation
-	Duration      time.Duration
-	Count         int64
-	Values        []float64
-	SampleMode    common.MetricStrategyItem_SampleMode
-	Condition     common.MetricStrategyItem_Condition
-	Enable        bool `json:"enable"`
+	TeamId        uint32                               `json:"teamId"`
+	Datasource    string                               `json:"datasource"`
+	StrategyId    uint32                               `json:"strategyId"`
+	LevelId       uint32                               `json:"levelId"`
+	Receiver      []string                             `json:"receiver"`
+	LabelReceiver []*LabelNotices                      `json:"labelReceiver"`
+	Expr          string                               `json:"expr"`
+	Labels        *label.Label                         `json:"labels"`
+	Annotations   *label.Annotation                    `json:"annotations"`
+	Duration      time.Duration                        `json:"duration"`
+	Count         int64                                `json:"count"`
+	Values        []float64                            `json:"values"`
+	SampleMode    common.MetricStrategyItem_SampleMode `json:"sampleMode"`
+	Condition     common.MetricStrategyItem_Condition  `json:"condition"`
+	Enable        bool                                 `json:"enable"`
 }
 
 func (m *MetricRule) GetEnable() bool {

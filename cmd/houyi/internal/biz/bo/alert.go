@@ -19,6 +19,7 @@ type Alert interface {
 	GetValue() float64
 	Resolved()
 	IsResolved() bool
+	IsFiring() bool
 	GetDuration() time.Duration
 	GetLastUpdated() time.Time
 }
