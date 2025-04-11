@@ -10,15 +10,6 @@ import (
 
 type ResultType string
 
-const (
-	ResultTypeVector  ResultType = "vector"
-	ResultTypeMatrix  ResultType = "matrix"
-	ResultTypeScalar  ResultType = "scalar"
-	ResultTypeString  ResultType = "string"
-	ResultTypeStream  ResultType = "stream"
-	ResultTypeUnknown ResultType = "unknown"
-)
-
 type (
 	MetricQueryValue struct {
 		Timestamp float64 `json:"timestamp"`

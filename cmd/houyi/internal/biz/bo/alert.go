@@ -17,4 +17,8 @@ type Alert interface {
 	GetFingerprint() string
 	StatusNext() Alert
 	IsFiring() bool
+	GetValue() float64
+
+	GetDuration() time.Duration
+	IsSustaining() bool
 }

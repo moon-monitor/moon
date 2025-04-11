@@ -5,9 +5,9 @@ import (
 	"time"
 
 	"github.com/go-kratos/kratos/v2/log"
-	"github.com/moon-monitor/moon/cmd/houyi/internal/biz/do"
 
 	"github.com/moon-monitor/moon/cmd/houyi/internal/biz/bo"
+	"github.com/moon-monitor/moon/cmd/houyi/internal/biz/do"
 	"github.com/moon-monitor/moon/cmd/houyi/internal/biz/repository"
 	"github.com/moon-monitor/moon/cmd/houyi/internal/data"
 	"github.com/moon-monitor/moon/pkg/api/houyi/common"
@@ -32,6 +32,7 @@ type metricImpl struct {
 
 type metricInstance struct {
 	metric datasource.Metric
+	helper *log.Helper
 }
 
 func (m *metricImpl) Init(config bo.MetricDatasourceConfig) (repository.Metric, error) {
@@ -57,23 +58,103 @@ func (m *metricImpl) Init(config bo.MetricDatasourceConfig) (repository.Metric, 
 	default:
 		return nil, merr.ErrorParamsError("invalid metric datasource driver: %s", config.GetDriver())
 	}
-	return &metricInstance{metric: metricDatasource}, nil
+	return &metricInstance{
+		metric: metricDatasource,
+		helper: log.NewHelper(log.With(m.logger, "module", "data.repo.metric.instance")),
+	}, nil
 }
 
-func (m *metricInstance) Query(ctx context.Context, expr string, duration time.Duration) ([]*do.MetricQueryReply, error) {
-	//TODO implement me
-	panic("implement me")
+func (m *metricInstance) Query(ctx context.Context, expr string, t time.Time) ([]*do.MetricQueryReply, error) {
+	queryParams := &datasource.MetricQueryRequest{
+		Expr: expr,
+		Time: t.Unix(),
+	}
+	metricQueryResponse, err := m.metric.Query(ctx, queryParams)
+	if err != nil {
+		m.helper.Warnw("msg", "query metric failed", "err", err)
+		return nil, err
+	}
+	list := make([]*do.MetricQueryReply, 0, len(metricQueryResponse.Data.Result))
+	for _, result := range metricQueryResponse.Data.Result {
+		queryValue := result.GetMetricQueryValue()
+		item := &do.MetricQueryReply{
+			Labels: result.Metric,
+			Value: &do.MetricQueryValue{
+				Value:     queryValue.Value,
+				Timestamp: int64(queryValue.Timestamp),
+			},
+			ResultType: string(metricQueryResponse.Data.ResultType),
+		}
+		list = append(list, item)
+	}
+	return list, nil
 }
 
 func (m *metricInstance) QueryRange(ctx context.Context, expr string, start, end time.Time) ([]*do.MetricQueryRangeReply, error) {
 	// 分辨率计算
-	//TODO implement me
-	panic("implement me")
+	step := m.getOptimalStep(start, end)
+	queryParams := &datasource.MetricQueryRequest{
+		Expr:      expr,
+		Time:      0,
+		StartTime: start.Unix(),
+		EndTime:   end.Unix(),
+		Step:      uint32(step.Seconds()),
+	}
+	metricQueryResponse, err := m.metric.Query(ctx, queryParams)
+	if err != nil {
+		m.helper.Warnw("msg", "query metric range failed", "err", err)
+		return nil, err
+	}
+	list := make([]*do.MetricQueryRangeReply, 0, len(metricQueryResponse.Data.Result))
+	for _, result := range metricQueryResponse.Data.Result {
+		queryValues := result.GetMetricQueryValues()
+		for _, queryValue := range queryValues {
+			item := &do.MetricQueryRangeReply{
+				Labels: result.Metric,
+				Values: []*do.MetricQueryValue{
+					{
+						Value:     queryValue.Value,
+						Timestamp: int64(queryValue.Timestamp),
+					},
+				},
+				ResultType: string(metricQueryResponse.Data.ResultType),
+			}
+			list = append(list, item)
+		}
+	}
+	return list, nil
 }
 
 func (m *metricInstance) Metadata(ctx context.Context) (<-chan []*do.MetricItem, error) {
-	//TODO implement me
-	panic("implement me")
+	metricMetadata, err := m.metric.Metadata(ctx)
+	if err != nil {
+		m.helper.Warnw("msg", "get metric metadata failed", "err", err)
+		return nil, err
+	}
+	ch := make(chan []*do.MetricItem)
+	go func() {
+		defer func() {
+			close(ch)
+			if r := recover(); r != nil {
+				m.helper.Errorw("msg", "panic occurred", "err", r)
+			}
+		}()
+		for metadata := range metricMetadata {
+			syncList := make([]*do.MetricItem, 0, len(metadata.Metric))
+			for _, metricMetadataItem := range metadata.Metric {
+				item := &do.MetricItem{
+					Name:   metricMetadataItem.Name,
+					Help:   metricMetadataItem.Help,
+					Type:   metricMetadataItem.Type,
+					Labels: metricMetadataItem.Labels,
+					Unit:   metricMetadataItem.Unit,
+				}
+				syncList = append(syncList, item)
+			}
+			ch <- syncList
+		}
+	}()
+	return ch, nil
 }
 
 func (m *metricInstance) getOptimalStep(start, end time.Time) time.Duration {

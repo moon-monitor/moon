@@ -7,6 +7,7 @@ import (
 
 	"github.com/moon-monitor/moon/cmd/houyi/internal/biz/bo"
 	"github.com/moon-monitor/moon/pkg/api/houyi/common"
+	"github.com/moon-monitor/moon/pkg/util/kv"
 	"github.com/moon-monitor/moon/pkg/util/kv/label"
 	"github.com/moon-monitor/moon/pkg/util/slices"
 )
@@ -149,4 +150,11 @@ func (m *MetricRule) GetCondition() common.MetricStrategyItem_Condition {
 		return common.MetricStrategyItem_Condition_EQ
 	}
 	return m.Condition
+}
+
+func (m *MetricRule) GetExt() kv.Map[string, any] {
+	if m == nil {
+		return nil
+	}
+	return map[string]any{}
 }

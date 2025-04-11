@@ -41,7 +41,7 @@ message MetricStrategyItem {
 
   // 采样方式
   enum SampleMode {
-    // m时间内出现n次
+    // m时间内连续出现n次
     SampleMode_For = 0;
     // m时间内最多出现n次
     SampleMode_Max = 1;

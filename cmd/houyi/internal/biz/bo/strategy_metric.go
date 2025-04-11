@@ -5,6 +5,7 @@ import (
 
 	"github.com/moon-monitor/moon/pkg/api/houyi/common"
 	"github.com/moon-monitor/moon/pkg/plugin/cache"
+	"github.com/moon-monitor/moon/pkg/util/kv"
 	"github.com/moon-monitor/moon/pkg/util/kv/label"
 )
 
@@ -16,6 +17,7 @@ type MetricJudgeRule interface {
 	GetValues() []float64
 	GetSampleMode() common.MetricStrategyItem_SampleMode
 	GetCondition() common.MetricStrategyItem_Condition
+	GetExt() kv.Map[string, any]
 }
 
 type MetricJudgeDataValue interface {

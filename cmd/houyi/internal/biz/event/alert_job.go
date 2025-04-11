@@ -23,6 +23,18 @@ type AlertJob struct {
 	EndsAt       *time.Time         `json:"endsAt"`
 	GeneratorURL string             `json:"generatorURL"`
 	Fingerprint  string             `json:"fingerprint"`
+	Value        float64            `json:"value"`
+
+	LastUpdated time.Time     `json:"lastUpdated"`
+	Duration    time.Duration `json:"duration"`
+}
+
+func (a *AlertJob) GetValue() float64 {
+	return a.Value
+}
+
+func (a *AlertJob) GetDuration() time.Duration {
+	return a.Duration
 }
 
 func (a *AlertJob) MarshalBinary() (data []byte, err error) {
@@ -34,7 +46,7 @@ func (a *AlertJob) UnmarshalBinary(data []byte) error {
 }
 
 func (a *AlertJob) UniqueKey() string {
-	return a.Fingerprint
+	return a.GetFingerprint()
 }
 
 func (a *AlertJob) GetStatus() common.EventStatus {
@@ -83,8 +95,12 @@ func (a *AlertJob) GetFingerprint() string {
 	if a == nil {
 		return ""
 	}
+	if a.Fingerprint == "" {
+		return a.Fingerprint
+	}
 	stringMap := kv.NewStringMap(a.Labels.ToMap())
-	return hash.MD5(kv.SortString(stringMap))
+	a.Fingerprint = hash.MD5(kv.SortString(stringMap))
+	return a.Fingerprint
 }
 
 func (a *AlertJob) StatusNext() bo.Alert {
@@ -104,4 +120,8 @@ func (a *AlertJob) StatusNext() bo.Alert {
 
 func (a *AlertJob) IsFiring() bool {
 	return a.Status == common.EventStatus_firing
+}
+
+func (a *AlertJob) IsSustaining() bool {
+	return time.Now().Add(-a.Duration).Before(a.LastUpdated)
 }

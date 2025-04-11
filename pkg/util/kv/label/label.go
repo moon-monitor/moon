@@ -47,6 +47,13 @@ func (a *Label) UnmarshalBinary(data []byte) error {
 	return json.Unmarshal(data, &a.kvMap)
 }
 
+func (a *Label) Appends(labels map[string]string) *Label {
+	for k, v := range labels {
+		a.kvMap.Set(k, v)
+	}
+	return a
+}
+
 func (a *Label) GetStrategyId() uint32 {
 	v, ok := a.kvMap.Get(cnst.LabelKeyStrategyID)
 	if !ok {
