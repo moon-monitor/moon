@@ -5,7 +5,6 @@ import (
 	"time"
 
 	"github.com/go-kratos/kratos/v2/log"
-
 	"github.com/moon-monitor/moon/cmd/houyi/internal/biz/bo"
 	"github.com/moon-monitor/moon/cmd/houyi/internal/biz/event"
 	"github.com/moon-monitor/moon/cmd/houyi/internal/biz/repository"
@@ -45,7 +44,16 @@ type Metric struct {
 	evaluateTimeout  time.Duration
 }
 
-func (m *Metric) NewStrategyJob(_ context.Context, metric bo.MetricRule) (bo.StrategyJob, error) {
+func (m *Metric) SaveMetricRules(ctx context.Context, rules ...bo.MetricRule) error {
+	if len(rules) == 0 {
+		return nil
+	}
+
+	m.helper.Debug("save metric rules success")
+	return nil
+}
+
+func (m *Metric) newStrategyJob(_ context.Context, metric bo.MetricRule) (bo.StrategyJob, error) {
 	opts := []event.StrategyMetricJobOption{
 		event.WithStrategyMetricJobHelper(m.logger),
 		event.WithStrategyMetricJobMetric(metric.UniqueKey(), metric.GetEnable()),

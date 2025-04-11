@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/go-kratos/kratos/v2/log"
-	
+
 	"github.com/moon-monitor/moon/cmd/houyi/internal/biz"
 	"github.com/moon-monitor/moon/cmd/houyi/internal/biz/bo"
 	"github.com/moon-monitor/moon/cmd/houyi/internal/service/build"
@@ -17,17 +17,32 @@ type SyncService struct {
 	houyiv1.UnimplementedSyncServer
 
 	configBiz *biz.Config
+	metricBiz *biz.Metric
 	helper    *log.Helper
 }
 
-func NewSyncService(configBiz *biz.Config, logger log.Logger) *SyncService {
+func NewSyncService(
+	configBiz *biz.Config,
+	metricBiz *biz.Metric,
+	logger log.Logger,
+) *SyncService {
 	return &SyncService{
 		configBiz: configBiz,
+		metricBiz: metricBiz,
 		helper:    log.NewHelper(log.With(logger, "module", "service.sync")),
 	}
 }
 
 func (s *SyncService) MetricStrategy(ctx context.Context, req *houyiv1.MetricStrategyRequest) (*houyiv1.SyncReply, error) {
+	metricRules := make([]bo.MetricRule, 0)
+	if err := s.configBiz.SetMetricRules(ctx, metricRules...); err != nil {
+		s.helper.Errorw("method", "SetMetricRules", "params", metricRules, "error", err)
+		return nil, err
+	}
+
+	if err := s.metricBiz.SaveMetricRules(ctx, metricRules...); err != nil {
+		return nil, err
+	}
 	return &houyiv1.SyncReply{}, nil
 }
 
