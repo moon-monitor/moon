@@ -38,17 +38,6 @@ func (c *Config) SetMetricDatasourceConfig(ctx context.Context, configs ...bo.Me
 	return c.configRepo.SetMetricDatasourceConfig(ctx, configs...)
 }
 
-func (c *Config) SetMetricRules(ctx context.Context, rules ...bo.MetricRule) error {
-	if len(rules) == 0 {
-		return nil
-	}
-	return c.configRepo.SetMetricRules(ctx, rules...)
-}
-
-func (c *Config) GetMetricRule(ctx context.Context, id string) (bo.MetricRule, bool) {
-	return c.configRepo.GetMetricRule(ctx, id)
-}
-
 func (c *Config) RemoveMetricRules(ctx context.Context, ids ...string) error {
 	if len(ids) == 0 {
 		return nil

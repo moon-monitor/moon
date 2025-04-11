@@ -83,7 +83,6 @@ message MetricStrategyItem {
   map<string, string> annotations = 7;
   uint32 strategy_id = 8;
   repeated MetricRuleItem rules = 9;
-  google.protobuf.Duration duration = 10;
 }
 
 message CertificateStrategyItem {

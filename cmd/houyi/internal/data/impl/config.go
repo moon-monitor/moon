@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/go-kratos/kratos/v2/log"
+	"github.com/moon-monitor/moon/pkg/util/slices"
 
 	"github.com/moon-monitor/moon/cmd/houyi/internal/biz/bo"
 	"github.com/moon-monitor/moon/cmd/houyi/internal/biz/do"
@@ -76,7 +77,32 @@ func (c *configImpl) SetMetricDatasourceConfig(ctx context.Context, configs ...b
 func (c *configImpl) SetMetricRules(ctx context.Context, rules ...bo.MetricRule) error {
 	configDos := make(map[string]any, len(rules))
 	for _, v := range rules {
-		item := &do.MetricRule{}
+		item := &do.MetricRule{
+			TeamId:     v.GetTeamId(),
+			Datasource: v.GetDatasource(),
+			StrategyId: v.GetStrategyId(),
+			LevelId:    v.GetLevelId(),
+			Receiver:   v.GetReceiverRoutes(),
+			LabelReceiver: slices.MapFilter(v.GetLabelReceiverRoutes(), func(noticeItem bo.LabelNotices) (*do.LabelNotices, bool) {
+				if noticeItem == nil || len(noticeItem.GetReceiverRoutes()) == 0 {
+					return nil, false
+				}
+				return &do.LabelNotices{
+					Key:            noticeItem.GetKey(),
+					Value:          noticeItem.GetValue(),
+					ReceiverRoutes: noticeItem.GetReceiverRoutes(),
+				}, true
+			}),
+			Expr:        v.GetExpr(),
+			Labels:      v.GetLabels(),
+			Annotations: v.GetAnnotations(),
+			Duration:    v.GetDuration(),
+			Count:       v.GetCount(),
+			Values:      v.GetValues(),
+			SampleMode:  v.GetSampleMode(),
+			Condition:   v.GetCondition(),
+			Enable:      v.GetEnable(),
+		}
 		configDos[v.UniqueKey()] = item
 	}
 	return c.Data.GetCache().Client().HSet(ctx, vobj.MetricRuleCacheKey.Key(), configDos).Err()

@@ -7,8 +7,6 @@ import (
 	"github.com/moon-monitor/moon/cmd/houyi/internal/biz/bo"
 	"github.com/moon-monitor/moon/pkg/api/houyi/common"
 	"github.com/moon-monitor/moon/pkg/plugin/cache"
-	"github.com/moon-monitor/moon/pkg/util/hash"
-	"github.com/moon-monitor/moon/pkg/util/kv"
 	"github.com/moon-monitor/moon/pkg/util/kv/label"
 	"github.com/moon-monitor/moon/pkg/util/pointer"
 )
@@ -95,11 +93,6 @@ func (a *AlertJob) GetFingerprint() string {
 	if a == nil {
 		return ""
 	}
-	if a.Fingerprint == "" {
-		return a.Fingerprint
-	}
-	stringMap := kv.NewStringMap(a.Labels.ToMap())
-	a.Fingerprint = hash.MD5(kv.SortString(stringMap))
 	return a.Fingerprint
 }
 

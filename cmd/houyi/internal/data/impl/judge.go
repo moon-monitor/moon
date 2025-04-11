@@ -5,6 +5,8 @@ import (
 	"time"
 
 	"github.com/go-kratos/kratos/v2/log"
+	"github.com/moon-monitor/moon/pkg/util/hash"
+	"github.com/moon-monitor/moon/pkg/util/kv"
 
 	"github.com/moon-monitor/moon/cmd/houyi/internal/biz/bo"
 	"github.com/moon-monitor/moon/cmd/houyi/internal/biz/event"
@@ -72,6 +74,9 @@ func (j *judgeImpl) generateAlert(rule bo.MetricJudgeRule, value bo.MetricJudgeD
 	annotations.SetSummary(summary)
 	annotations.SetDescription(description)
 
+	stringMap := kv.NewStringMap(originLabels)
+	fingerprint := hash.MD5(kv.SortString(stringMap))
+
 	now := time.Now()
 	alert := &event.AlertJob{
 		Status:       common.EventStatus_pending,
@@ -80,7 +85,7 @@ func (j *judgeImpl) generateAlert(rule bo.MetricJudgeRule, value bo.MetricJudgeD
 		StartsAt:     pointer.Of(time.Unix(value.GetTimestamp(), 0).UTC()),
 		EndsAt:       nil,
 		GeneratorURL: "",
-		Fingerprint:  "",
+		Fingerprint:  fingerprint,
 		Value:        value.GetValue(),
 		LastUpdated:  now,
 		Duration:     j.evaluateInterval,

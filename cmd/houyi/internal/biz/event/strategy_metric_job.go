@@ -193,6 +193,9 @@ func (s *StrategyMetricJob) Run() {
 		s.helper.Warnw("msg", "judge fail", "err", err)
 		return
 	}
+	if len(alerts) > 0 {
+		s.helper.Debugw("msg", "judge success", "alerts", len(alerts))
+	}
 	if err := s.alertRepo.Save(ctx, alerts...); err != nil {
 		s.helper.Warnw("msg", "alert fail", "err", err)
 		return
