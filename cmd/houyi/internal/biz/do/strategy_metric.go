@@ -2,10 +2,10 @@ package do
 
 import (
 	"encoding/json"
-	"fmt"
 	"time"
 
 	"github.com/moon-monitor/moon/cmd/houyi/internal/biz/bo"
+	"github.com/moon-monitor/moon/cmd/houyi/internal/biz/vobj"
 	"github.com/moon-monitor/moon/pkg/api/houyi/common"
 	"github.com/moon-monitor/moon/pkg/util/kv"
 	"github.com/moon-monitor/moon/pkg/util/kv/label"
@@ -49,7 +49,7 @@ func (m *MetricRule) UniqueKey() string {
 	if m == nil {
 		return ""
 	}
-	return fmt.Sprintf("%d:%d:%s", m.TeamId, m.StrategyId, m.Datasource)
+	return vobj.MetricRuleUniqueKey(m.TeamId, m.StrategyId, m.LevelId, m.Datasource)
 }
 
 func (m *MetricRule) GetTeamId() uint32 {

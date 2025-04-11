@@ -65,10 +65,17 @@ message MetricStrategyItem {
     repeated double values = 7;
     repeated string receiver_routes = 8;
     repeated LabelNotices label_notices = 9;
+    google.protobuf.Duration duration = 10;
+    bool enable = 11;
+  }
+
+  message MetricDatasourceItem {
+    houyi.common.MetricDatasourceItem.Driver driver = 1;
+    uint32 id = 2;
   }
 
   houyi.common.TeamItem team = 1;
-  repeated houyi.common.MetricDatasourceItem datasource = 2;
+  repeated MetricDatasourceItem datasource = 2;
   string name = 3;
   string expr = 4;
   repeated string receiver_routes = 5;

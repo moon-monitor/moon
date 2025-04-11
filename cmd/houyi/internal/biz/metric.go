@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/go-kratos/kratos/v2/log"
+
 	"github.com/moon-monitor/moon/cmd/houyi/internal/biz/bo"
 	"github.com/moon-monitor/moon/cmd/houyi/internal/biz/event"
 	"github.com/moon-monitor/moon/cmd/houyi/internal/biz/repository"
@@ -18,6 +19,7 @@ func NewMetric(
 	alertRepo repository.Alert,
 	metricInitRepo repository.MetricInit,
 	configRepo repository.Config,
+	eventBusRepo repository.EventBus,
 	logger log.Logger,
 ) *Metric {
 	evaluateConf := bc.GetEvaluate()
@@ -28,6 +30,7 @@ func NewMetric(
 		alertRepo:        alertRepo,
 		metricInitRepo:   metricInitRepo,
 		configRepo:       configRepo,
+		eventBusRepo:     eventBusRepo,
 		evaluateInterval: evaluateConf.GetInterval().AsDuration(),
 		evaluateTimeout:  evaluateConf.GetTimeout().AsDuration(),
 	}
@@ -40,6 +43,7 @@ type Metric struct {
 	alertRepo        repository.Alert
 	metricInitRepo   repository.MetricInit
 	configRepo       repository.Config
+	eventBusRepo     repository.EventBus
 	evaluateInterval time.Duration
 	evaluateTimeout  time.Duration
 }
@@ -47,6 +51,20 @@ type Metric struct {
 func (m *Metric) SaveMetricRules(ctx context.Context, rules ...bo.MetricRule) error {
 	if len(rules) == 0 {
 		return nil
+	}
+
+	if err := m.configRepo.SetMetricRules(ctx, rules...); err != nil {
+		m.helper.Errorw("msg", "save metric rules error", "err", err)
+		return err
+	}
+	inStrategyJobEventBus := m.eventBusRepo.InStrategyJobEventBus()
+	for _, rule := range rules {
+		strategyJob, err := m.newStrategyJob(ctx, rule)
+		if err != nil {
+			m.helper.Warnw("msg", "new strategy job error", "err", err)
+			continue
+		}
+		inStrategyJobEventBus <- strategyJob
 	}
 
 	m.helper.Debug("save metric rules success")

@@ -34,10 +34,9 @@ func NewSyncService(
 }
 
 func (s *SyncService) MetricStrategy(ctx context.Context, req *houyiv1.MetricStrategyRequest) (*houyiv1.SyncReply, error) {
-	metricRules := make([]bo.MetricRule, 0)
-	if err := s.configBiz.SetMetricRules(ctx, metricRules...); err != nil {
-		s.helper.Errorw("method", "SetMetricRules", "params", metricRules, "error", err)
-		return nil, err
+	metricRules := build.ToMetricRules(req.GetStrategies())
+	if len(metricRules) == 0 {
+		return &houyiv1.SyncReply{}, nil
 	}
 
 	if err := s.metricBiz.SaveMetricRules(ctx, metricRules...); err != nil {

@@ -2,9 +2,9 @@ package do
 
 import (
 	"encoding/json"
-	"fmt"
 	"time"
 
+	"github.com/moon-monitor/moon/cmd/houyi/internal/biz/vobj"
 	"github.com/moon-monitor/moon/pkg/api/houyi/common"
 	"github.com/moon-monitor/moon/pkg/plugin/cache"
 	"github.com/moon-monitor/moon/pkg/plugin/datasource"
@@ -112,5 +112,5 @@ func (d *DatasourceMetricConfig) UnmarshalBinary(data []byte) error {
 }
 
 func (d *DatasourceMetricConfig) UniqueKey() string {
-	return fmt.Sprintf("%d:%d", d.Driver, d.ID)
+	return vobj.MetricDatasourceUniqueKey(d.Driver, d.ID)
 }

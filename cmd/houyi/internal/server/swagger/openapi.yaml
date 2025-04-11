@@ -762,7 +762,7 @@ components:
                 datasource:
                     type: array
                     items:
-                        $ref: '#/components/schemas/api.houyi.common.MetricDatasourceItem'
+                        $ref: '#/components/schemas/api.houyi.common.MetricStrategyItem_MetricDatasourceItem'
                 name:
                     type: string
                 expr:
@@ -800,6 +800,15 @@ components:
                     type: array
                     items:
                         type: string
+        api.houyi.common.MetricStrategyItem_MetricDatasourceItem:
+            type: object
+            properties:
+                driver:
+                    type: integer
+                    format: enum
+                id:
+                    type: integer
+                    format: uint32
         api.houyi.common.MetricStrategyItem_MetricRuleItem:
             type: object
             properties:
@@ -832,6 +841,11 @@ components:
                     type: array
                     items:
                         $ref: '#/components/schemas/api.houyi.common.MetricStrategyItem_LabelNotices'
+                duration:
+                    pattern: ^-?(?:0|[1-9][0-9]{0,11})(?:\.[0-9]{1,9})?s$
+                    type: string
+                enable:
+                    type: boolean
         api.houyi.common.PingDatasourceItem:
             type: object
             properties:
