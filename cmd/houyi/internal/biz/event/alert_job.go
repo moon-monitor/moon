@@ -1,120 +1,114 @@
 package event
 
 import (
-	"encoding/json"
+	"context"
 	"time"
 
+	"github.com/go-kratos/kratos/v2/log"
+	"github.com/robfig/cron/v3"
+
 	"github.com/moon-monitor/moon/cmd/houyi/internal/biz/bo"
-	"github.com/moon-monitor/moon/pkg/api/houyi/common"
-	"github.com/moon-monitor/moon/pkg/plugin/cache"
-	"github.com/moon-monitor/moon/pkg/util/kv/label"
-	"github.com/moon-monitor/moon/pkg/util/pointer"
+	"github.com/moon-monitor/moon/cmd/houyi/internal/biz/repository"
+	"github.com/moon-monitor/moon/pkg/merr"
+	"github.com/moon-monitor/moon/pkg/plugin/server"
 )
 
-var _ cache.Object = (*AlertJob)(nil)
-
-type AlertJob struct {
-	Status       common.EventStatus `json:"status"`
-	Labels       *label.Label       `json:"labels"`
-	Annotations  *label.Annotation  `json:"annotations"`
-	StartsAt     *time.Time         `json:"startsAt"`
-	EndsAt       *time.Time         `json:"endsAt"`
-	GeneratorURL string             `json:"generatorURL"`
-	Fingerprint  string             `json:"fingerprint"`
-	Value        float64            `json:"value"`
-
-	LastUpdated time.Time     `json:"lastUpdated"`
-	Duration    time.Duration `json:"duration"`
+func NewAlertJob(alert bo.Alert, opts ...AlertJobOption) (bo.AlertJob, error) {
+	a := &alertJob{
+		Alert: alert,
+	}
+	for _, opt := range opts {
+		if err := opt(a); err != nil {
+			return nil, err
+		}
+	}
+	checkOpts := []*checkItem{
+		{"alertRepo", a.alertRepo},
+		{"eventBusRepo", a.eventBusRepo},
+		{"helper", a.helper},
+	}
+	return a, checkList(checkOpts...)
 }
 
-func (a *AlertJob) GetValue() float64 {
-	return a.Value
+type alertJob struct {
+	bo.Alert
+
+	id           cron.EntryID
+	alertRepo    repository.Alert
+	eventBusRepo repository.EventBus
+
+	helper *log.Helper
 }
 
-func (a *AlertJob) GetDuration() time.Duration {
-	return a.Duration
+type AlertJobOption func(*alertJob) error
+
+func WithAlertJobAlertRepo(alertRepo repository.Alert) AlertJobOption {
+	return func(a *alertJob) error {
+		if alertRepo == nil {
+			return merr.ErrorInternalServerError("alertRepo is nil")
+		}
+		a.alertRepo = alertRepo
+		return nil
+	}
 }
 
-func (a *AlertJob) MarshalBinary() (data []byte, err error) {
-	return json.Marshal(a)
+func WithAlertJobEventBusRepo(eventBusRepo repository.EventBus) AlertJobOption {
+	return func(a *alertJob) error {
+		if eventBusRepo == nil {
+			return merr.ErrorInternalServerError("eventBusRepo is nil")
+		}
+		a.eventBusRepo = eventBusRepo
+		return nil
+	}
 }
 
-func (a *AlertJob) UnmarshalBinary(data []byte) error {
-	return json.Unmarshal(data, a)
+func WithAlertJobHelper(logger log.Logger) AlertJobOption {
+	return func(a *alertJob) error {
+		if logger == nil {
+			return merr.ErrorInternalServerError("logger is nil")
+		}
+		a.helper = log.NewHelper(log.With(logger, "module", "event.alert", "jobKey", a.GetFingerprint()))
+		return nil
+	}
 }
 
-func (a *AlertJob) UniqueKey() string {
+func (a *alertJob) isSustaining() bool {
+	ctx, cancel := context.WithTimeout(context.Background(), 1*time.Second)
+	defer cancel()
+	alert, ok := a.alertRepo.Get(ctx, a.GetFingerprint())
+	if !ok {
+		return false
+	}
+	return alert.GetLastUpdated().Add(-a.GetDuration()).After(time.Now())
+}
+
+func (a *alertJob) Run() {
+	if a.isSustaining() {
+		return
+	}
+	a.Resolved()
+	a.eventBusRepo.InAlertEventBus() <- a
+}
+
+func (a *alertJob) ID() cron.EntryID {
+	if a == nil {
+		return 0
+	}
+	return a.id
+}
+
+func (a *alertJob) Index() string {
 	return a.GetFingerprint()
 }
 
-func (a *AlertJob) GetStatus() common.EventStatus {
+func (a *alertJob) Spec() server.CronSpec {
 	if a == nil {
-		return common.EventStatus_pending
+		return server.CronSpecEvery(1 * time.Minute)
 	}
-	return a.Status
+	return server.CronSpecEvery(a.GetDuration())
 }
 
-func (a *AlertJob) GetLabels() *label.Label {
-	if a == nil {
-		return nil
-	}
-	return a.Labels
-}
-
-func (a *AlertJob) GetAnnotations() *label.Annotation {
-	if a == nil {
-		return nil
-	}
-	return a.Annotations
-}
-
-func (a *AlertJob) GetStartsAt() *time.Time {
-	if a == nil {
-		return nil
-	}
-	return a.StartsAt
-}
-
-func (a *AlertJob) GetEndsAt() *time.Time {
-	if a == nil {
-		return nil
-	}
-	return a.EndsAt
-}
-
-func (a *AlertJob) GetGeneratorURL() string {
-	if a == nil {
-		return ""
-	}
-	return a.GeneratorURL
-}
-
-func (a *AlertJob) GetFingerprint() string {
-	if a == nil {
-		return ""
-	}
-	return a.Fingerprint
-}
-
-func (a *AlertJob) StatusNext() bo.Alert {
-	switch a.Status {
-	case common.EventStatus_firing:
-		a.Status = common.EventStatus_resolved
-	case common.EventStatus_pending:
-		a.Status = common.EventStatus_firing
-	default:
-		a.Status = common.EventStatus_resolved
-	}
-	if a.Status == common.EventStatus_resolved && a.EndsAt == nil {
-		a.EndsAt = pointer.Of(time.Now().UTC())
-	}
+func (a *alertJob) WithID(id cron.EntryID) server.CronJob {
+	a.id = id
 	return a
-}
-
-func (a *AlertJob) IsFiring() bool {
-	return a.Status == common.EventStatus_firing
-}
-
-func (a *AlertJob) IsSustaining() bool {
-	return time.Now().Add(-a.Duration).Before(a.LastUpdated)
 }

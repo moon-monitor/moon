@@ -5,11 +5,9 @@ import (
 	"time"
 
 	"github.com/go-kratos/kratos/v2/log"
-	"github.com/moon-monitor/moon/pkg/util/hash"
-	"github.com/moon-monitor/moon/pkg/util/kv"
 
 	"github.com/moon-monitor/moon/cmd/houyi/internal/biz/bo"
-	"github.com/moon-monitor/moon/cmd/houyi/internal/biz/event"
+	"github.com/moon-monitor/moon/cmd/houyi/internal/biz/do"
 	"github.com/moon-monitor/moon/cmd/houyi/internal/biz/repository"
 	"github.com/moon-monitor/moon/cmd/houyi/internal/conf"
 	"github.com/moon-monitor/moon/cmd/houyi/internal/data"
@@ -17,6 +15,8 @@ import (
 	"github.com/moon-monitor/moon/cmd/houyi/internal/data/impl/judge/condition"
 	"github.com/moon-monitor/moon/pkg/api/houyi/common"
 	"github.com/moon-monitor/moon/pkg/util/cnst"
+	"github.com/moon-monitor/moon/pkg/util/hash"
+	"github.com/moon-monitor/moon/pkg/util/kv"
 	"github.com/moon-monitor/moon/pkg/util/pointer"
 	"github.com/moon-monitor/moon/pkg/util/template"
 )
@@ -55,7 +55,7 @@ func (j *judgeImpl) Metric(_ context.Context, data []bo.MetricJudgeData, rule bo
 	return alerts, nil
 }
 
-func (j *judgeImpl) generateAlert(rule bo.MetricJudgeRule, value bo.MetricJudgeDataValue, originLabels map[string]string) *event.AlertJob {
+func (j *judgeImpl) generateAlert(rule bo.MetricJudgeRule, value bo.MetricJudgeDataValue, originLabels map[string]string) bo.Alert {
 	ext := rule.GetExt()
 	ext.Set(cnst.ExtKeyValues, value.GetValue())
 	ext.Set(cnst.ExtKeyTimestamp, value.GetTimestamp())
@@ -78,7 +78,7 @@ func (j *judgeImpl) generateAlert(rule bo.MetricJudgeRule, value bo.MetricJudgeD
 	fingerprint := hash.MD5(kv.SortString(stringMap))
 
 	now := time.Now()
-	alert := &event.AlertJob{
+	alert := &do.Alert{
 		Status:       common.EventStatus_pending,
 		Labels:       labels,
 		Annotations:  annotations,

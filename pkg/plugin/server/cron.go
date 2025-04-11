@@ -49,13 +49,15 @@ type CronJob interface {
 }
 
 type CronJobServer struct {
+	name   string
 	cron   *cron.Cron
 	tasks  *safety.Map[string, CronJob]
 	helper *log.Helper
 }
 
-func NewCronJobServer(logger log.Logger, jobs ...CronJob) *CronJobServer {
+func NewCronJobServer(name string, logger log.Logger, jobs ...CronJob) *CronJobServer {
 	c := &CronJobServer{
+		name:   name,
 		cron:   cron.New(),
 		tasks:  safety.NewMap[string, CronJob](),
 		helper: log.NewHelper(logger),
@@ -101,13 +103,13 @@ func (c *CronJobServer) RemoveJob(job CronJob) {
 }
 
 func (c *CronJobServer) Start(_ context.Context) error {
-	defer c.helper.Info("[CronJob] server started")
+	defer c.helper.Infof("[CronJob] %s server started", c.name)
 	c.cron.Start()
 	return nil
 }
 
 func (c *CronJobServer) Stop(_ context.Context) error {
-	defer c.helper.Info("[CronJob] server stopped")
+	defer c.helper.Infof("[CronJob] %s server stopped", c.name)
 	c.cron.Stop()
 	c.tasks.Clear()
 	return nil

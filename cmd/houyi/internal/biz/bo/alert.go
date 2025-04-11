@@ -4,6 +4,7 @@ import (
 	"time"
 
 	"github.com/moon-monitor/moon/pkg/api/houyi/common"
+	"github.com/moon-monitor/moon/pkg/plugin/server"
 	"github.com/moon-monitor/moon/pkg/util/kv/label"
 )
 
@@ -15,10 +16,14 @@ type Alert interface {
 	GetEndsAt() *time.Time
 	GetGeneratorURL() string
 	GetFingerprint() string
-	StatusNext() Alert
-	IsFiring() bool
 	GetValue() float64
-
+	Resolved()
+	IsResolved() bool
 	GetDuration() time.Duration
-	IsSustaining() bool
+	GetLastUpdated() time.Time
+}
+
+type AlertJob interface {
+	Alert
+	server.CronJob
 }

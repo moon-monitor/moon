@@ -27,3 +27,7 @@ func (e *EventBus) InStrategyJobEventBus() chan<- bo.StrategyJob {
 func (e *EventBus) OutStrategyJobEventBus() <-chan bo.StrategyJob {
 	return e.eventBus.OutStrategyJobEventBus()
 }
+
+func (e *EventBus) OutAlertJobEventBus() <-chan bo.AlertJob {
+	return e.eventBus.OutAlertEventBus()
+}

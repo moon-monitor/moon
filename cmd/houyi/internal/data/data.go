@@ -22,7 +22,7 @@ func New(c *conf.Bootstrap, logger log.Logger) (*Data, func(), error) {
 		dataConf:            dataConf,
 		metricDatasource:    safety.NewMap[string, datasource.Metric](),
 		StrategyJobEventBus: make(chan bo.StrategyJob, eventBusConf.GetStrategyJobEventBusMaxCap()),
-		AlertEventBus:       make(chan bo.Alert, eventBusConf.GetAlertEventBusMaxCap()),
+		AlertEventBus:       make(chan bo.AlertJob, eventBusConf.GetAlertEventBusMaxCap()),
 		helper:              log.NewHelper(log.With(logger, "module", "data")),
 	}
 	data.cache, err = cache.NewCache(c.GetCache())
@@ -47,7 +47,7 @@ type Data struct {
 	metricDatasource *safety.Map[string, datasource.Metric]
 
 	StrategyJobEventBus chan bo.StrategyJob
-	AlertEventBus       chan bo.Alert
+	AlertEventBus       chan bo.AlertJob
 }
 
 func (d *Data) GetCache() cache.Cache {
@@ -70,10 +70,10 @@ func (d *Data) OutStrategyJobEventBus() <-chan bo.StrategyJob {
 	return d.StrategyJobEventBus
 }
 
-func (d *Data) InAlertEventBus() chan<- bo.Alert {
+func (d *Data) InAlertEventBus() chan<- bo.AlertJob {
 	return d.AlertEventBus
 }
 
-func (d *Data) OutAlertEventBus() <-chan bo.Alert {
+func (d *Data) OutAlertEventBus() <-chan bo.AlertJob {
 	return d.AlertEventBus
 }

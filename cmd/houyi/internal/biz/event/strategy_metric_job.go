@@ -15,8 +15,8 @@ import (
 	"github.com/moon-monitor/moon/pkg/util/slices"
 )
 
-func NewStrategyMetricJob(key string, opts ...StrategyMetricJobOption) (*StrategyMetricJob, error) {
-	s := &StrategyMetricJob{
+func NewStrategyMetricJob(key string, opts ...StrategyMetricJobOption) (bo.StrategyJob, error) {
+	s := &strategyMetricJob{
 		key: key,
 	}
 	for _, opt := range opts {
@@ -34,22 +34,24 @@ func NewStrategyMetricJob(key string, opts ...StrategyMetricJobOption) (*Strateg
 		{"alertRepo", s.alertRepo},
 		{"helper", s.helper},
 		{"spec", s.spec},
+		{"eventBusRepo", s.eventBusRepo},
 	}
 	return s, checkList(checkOpts...)
 }
 
 func WithStrategyMetricJobHelper(logger log.Logger) StrategyMetricJobOption {
-	return func(s *StrategyMetricJob) error {
+	return func(s *strategyMetricJob) error {
 		if logger == nil {
 			return merr.ErrorInternalServerError("logger is nil")
 		}
 		s.helper = log.NewHelper(log.With(logger, "module", "event.strategy.metric", "jobKey", s.key))
+		s.logger = logger
 		return nil
 	}
 }
 
 func WithStrategyMetricJobMetric(metricStrategyUniqueKey string, metricStrategyEnable bool) StrategyMetricJobOption {
-	return func(s *StrategyMetricJob) error {
+	return func(s *strategyMetricJob) error {
 		if metricStrategyUniqueKey == "" {
 			return merr.ErrorInternalServerError("metric strategy unique key is null")
 		}
@@ -60,7 +62,7 @@ func WithStrategyMetricJobMetric(metricStrategyUniqueKey string, metricStrategyE
 }
 
 func WithStrategyMetricJobConfigRepo(configRepo repository.Config) StrategyMetricJobOption {
-	return func(s *StrategyMetricJob) error {
+	return func(s *strategyMetricJob) error {
 		if configRepo == nil {
 			return merr.ErrorInternalServerError("configRepo is nil")
 		}
@@ -70,7 +72,7 @@ func WithStrategyMetricJobConfigRepo(configRepo repository.Config) StrategyMetri
 }
 
 func WithStrategyMetricJobMetricInitRepo(metricInitRepo repository.MetricInit) StrategyMetricJobOption {
-	return func(s *StrategyMetricJob) error {
+	return func(s *strategyMetricJob) error {
 		if metricInitRepo == nil {
 			return merr.ErrorInternalServerError("metricInitRepo is nil")
 		}
@@ -80,7 +82,7 @@ func WithStrategyMetricJobMetricInitRepo(metricInitRepo repository.MetricInit) S
 }
 
 func WithStrategyMetricJobJudgeRepo(judgeRepo repository.Judge) StrategyMetricJobOption {
-	return func(s *StrategyMetricJob) error {
+	return func(s *strategyMetricJob) error {
 		if judgeRepo == nil {
 			return merr.ErrorInternalServerError("judgeRepo is nil")
 		}
@@ -90,7 +92,7 @@ func WithStrategyMetricJobJudgeRepo(judgeRepo repository.Judge) StrategyMetricJo
 }
 
 func WithStrategyMetricJobAlertRepo(alertRepo repository.Alert) StrategyMetricJobOption {
-	return func(s *StrategyMetricJob) error {
+	return func(s *strategyMetricJob) error {
 		if alertRepo == nil {
 			return merr.ErrorInternalServerError("alertRepo is nil")
 		}
@@ -100,7 +102,7 @@ func WithStrategyMetricJobAlertRepo(alertRepo repository.Alert) StrategyMetricJo
 }
 
 func WithStrategyMetricJobSpec(spec server.CronSpec) StrategyMetricJobOption {
-	return func(s *StrategyMetricJob) error {
+	return func(s *strategyMetricJob) error {
 		if spec == "" {
 			return merr.ErrorInternalServerError("spec is empty")
 		}
@@ -110,7 +112,7 @@ func WithStrategyMetricJobSpec(spec server.CronSpec) StrategyMetricJobOption {
 }
 
 func WithStrategyMetricJobTimeout(timeout time.Duration) StrategyMetricJobOption {
-	return func(s *StrategyMetricJob) error {
+	return func(s *strategyMetricJob) error {
 		if timeout == 0 {
 			return merr.ErrorInternalServerError("timeout is 0")
 		}
@@ -119,7 +121,18 @@ func WithStrategyMetricJobTimeout(timeout time.Duration) StrategyMetricJobOption
 	}
 }
 
-type StrategyMetricJob struct {
+func WithStrategyMetricJobEventBusRepo(eventBusRepo repository.EventBus) StrategyMetricJobOption {
+	return func(s *strategyMetricJob) error {
+		if eventBusRepo == nil {
+			return merr.ErrorInternalServerError("eventBusRepo is nil")
+		}
+		s.eventBusRepo = eventBusRepo
+		return nil
+	}
+}
+
+type strategyMetricJob struct {
+	logger log.Logger
 	helper *log.Helper
 	key    string
 	id     cron.EntryID
@@ -133,9 +146,10 @@ type StrategyMetricJob struct {
 	metricInitRepo repository.MetricInit
 	judgeRepo      repository.Judge
 	alertRepo      repository.Alert
+	eventBusRepo   repository.EventBus
 }
 
-type StrategyMetricJobOption func(*StrategyMetricJob) error
+type StrategyMetricJobOption func(*strategyMetricJob) error
 
 type checkItem struct {
 	name  string
@@ -151,14 +165,14 @@ func checkList(list ...*checkItem) error {
 	return nil
 }
 
-func (s *StrategyMetricJob) Timeout() time.Duration {
+func (s *strategyMetricJob) Timeout() time.Duration {
 	if s.timeout == 0 {
 		s.timeout = time.Second * 5
 	}
 	return s.timeout
 }
 
-func (s *StrategyMetricJob) Run() {
+func (s *strategyMetricJob) Run() {
 	ctx, cancel := context.WithTimeout(context.Background(), s.Timeout())
 	defer cancel()
 	metricStrategy, ok := s.configRepo.GetMetricRule(ctx, s.metricStrategyUniqueKey)
@@ -200,35 +214,49 @@ func (s *StrategyMetricJob) Run() {
 		s.helper.Warnw("msg", "alert fail", "err", err)
 		return
 	}
+	alertEventBus := s.eventBusRepo.InAlertEventBus()
+	alertJobOpts := []AlertJobOption{
+		WithAlertJobHelper(s.logger),
+		WithAlertJobEventBusRepo(s.eventBusRepo),
+		WithAlertJobAlertRepo(s.alertRepo),
+	}
+	for _, alert := range alerts {
+		alertJobItem, err := NewAlertJob(alert, alertJobOpts...)
+		if err != nil {
+			s.helper.Warnw("msg", "create alert job fail", "err", err)
+			continue
+		}
+		alertEventBus <- alertJobItem
+	}
 }
 
-func (s *StrategyMetricJob) ID() cron.EntryID {
+func (s *strategyMetricJob) ID() cron.EntryID {
 	if s == nil {
 		return 0
 	}
 	return s.id
 }
 
-func (s *StrategyMetricJob) Index() string {
+func (s *strategyMetricJob) Index() string {
 	if s == nil {
 		return ""
 	}
 	return s.key
 }
 
-func (s *StrategyMetricJob) Spec() server.CronSpec {
+func (s *strategyMetricJob) Spec() server.CronSpec {
 	if s == nil || s.spec == nil {
 		return server.CronSpecEvery(1 * time.Minute)
 	}
 	return *s.spec
 }
 
-func (s *StrategyMetricJob) WithID(id cron.EntryID) server.CronJob {
+func (s *strategyMetricJob) WithID(id cron.EntryID) server.CronJob {
 	s.id = id
 	return s
 }
 
-func (s *StrategyMetricJob) GetEnable() bool {
+func (s *strategyMetricJob) GetEnable() bool {
 	if s == nil {
 		return false
 	}

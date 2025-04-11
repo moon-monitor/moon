@@ -25,3 +25,7 @@ type EventBusService struct {
 func (s *EventBusService) OutStrategyJobEventBus() <-chan bo.StrategyJob {
 	return s.eventBus.OutStrategyJobEventBus()
 }
+
+func (s *EventBusService) OutAlertJobEventBus() <-chan bo.AlertJob {
+	return s.eventBus.OutAlertJobEventBus()
+}
