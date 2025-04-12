@@ -8,7 +8,7 @@ server:
     network: ${X_MOON_HTTP_NETWORK:tcp}
     addr: ${X_MOON_HTTP_ADDR:0.0.0.0:8080}
     timeout: ${X_MOON_HTTP_TIMEOUT:5s}
-    allow_headers:
+    allowHeaders:
       - Origin
       - Content-Length
       - Content-Type
@@ -22,12 +22,12 @@ server:
       - Accept-Language
       - X-Requested-With
       - X-Team-ID
-    allow_methods:
+    allowMethods:
       - GET
       - POST
       - PUT
       - DELETE
-    allow_origins: ${X_MOON_HTTP_ALLOW_ORIGINS:['*']}
+    allowOrigins: ${X_MOON_HTTP_ALLOW_ORIGINS:['*']}
 
   grpc:
     network: ${X_MOON_GRPC_NETWORK:tcp}

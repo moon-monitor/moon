@@ -7,9 +7,9 @@ import "buf/validate/validate.proto";
 option go_package = "github.com/moon-monitor/moon/pkg/api/rabbit/common;common";
 
 message AliyunSMSConfig {
-  string access_key_id = 1 [(buf.validate.field).required = true];
-  string access_key_secret = 2 [(buf.validate.field).required = true];
-  string sign_name = 3 [(buf.validate.field).required = true];
+  string accessKeyId = 1 [(buf.validate.field).required = true];
+  string accessKeySecret = 2 [(buf.validate.field).required = true];
+  string signName = 3 [(buf.validate.field).required = true];
   string endpoint = 4 [(buf.validate.field).required = true];
   string name = 5;
 }

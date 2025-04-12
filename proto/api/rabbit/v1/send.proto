@@ -41,11 +41,11 @@ message SendEmailRequest {
   }];
   string body = 2 [(buf.validate.field).required = true];
   string subject = 3 [(buf.validate.field).required = true];
-  string content_type = 4;
+  string contentType = 4;
   string attachment = 5;
   repeated string cc = 6;
-  optional rabbit.common.EmailConfig email_config = 7;
-  optional string config_name = 8;
+  optional rabbit.common.EmailConfig emailConfig = 7;
+  optional string configName = 8;
 }
 
 message SendSmsRequest {
@@ -53,10 +53,10 @@ message SendSmsRequest {
     message: "phones must be between 1 and 10"
     expression: "this.size() >= 1 && this.size() <= 100"
   }];
-  string template_parameters = 2 [(buf.validate.field).required = true];
-  string template_code = 3 [(buf.validate.field).required = true];
-  optional rabbit.common.SMSConfig sms_config = 4;
-  optional string config_name = 5;
+  string templateParameters = 2 [(buf.validate.field).required = true];
+  string templateCode = 3 [(buf.validate.field).required = true];
+  optional rabbit.common.SMSConfig smsConfig = 4;
+  optional string configName = 5;
 }
 
 message SendHookRequest {

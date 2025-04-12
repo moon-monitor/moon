@@ -40,16 +40,16 @@ message Auth {
     }
     message Config {
       APP app = 1;
-      string client_id = 2;
-      string client_secret = 3;
-      string callback_uri = 4;
-      string auth_url = 5;
-      string token_url = 6;
+      string clientId = 2;
+      string clientSecret = 3;
+      string callbackUri = 4;
+      string authUrl = 5;
+      string tokenUrl = 6;
       repeated string scopes = 7;
-      string login_url = 8;
+      string loginUrl = 8;
     }
     bool enable = 1;
-    string redirect_uri = 2;
+    string redirectUri = 2;
     repeated Config configs = 3;
   }
   config.JWT jwt = 1;

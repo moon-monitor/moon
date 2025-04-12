@@ -27,9 +27,9 @@ message Server {
   map<string, string> metadata = 2;
   HTTPServer http = 3;
   GRPCServer grpc = 4;
-  google.protobuf.Duration online_interval = 5;
-  repeated uint32 team_ids = 6;
-  string out_endpoint = 7;
+  google.protobuf.Duration onlineInterval = 5;
+  repeated uint32 teamIds = 6;
+  string outEndpoint = 7;
   Network network = 8;
 }
 
@@ -41,9 +41,9 @@ message HTTPServer {
   string addr = 2;
   // read timeout
   google.protobuf.Duration timeout = 3;
-  repeated string allow_headers = 4;
-  repeated string allow_methods = 5;
-  repeated string allow_origins = 6;
+  repeated string allowHeaders = 4;
+  repeated string allowMethods = 5;
+  repeated string allowOrigins = 6;
 }
 
 // grpc server config
@@ -59,13 +59,13 @@ message GRPCServer {
 // jwt config
 message JWT {
   // sign key
-  string sign_key = 1;
+  string signKey = 1;
   // issuer
   string issuer = 2;
   // expire
   google.protobuf.Duration expire = 3;
   // allow operations
-  repeated string allow_operations = 4;
+  repeated string allowOperations = 4;
 }
 
 message Database {
@@ -80,8 +80,8 @@ message Database {
   int32 port = 6;
   string params = 7;
   bool debug = 8;
-  bool use_system_log = 9;
-  string db_name = 10;
+  bool useSystemLog = 9;
+  string dbName = 10;
 }
 
 // 缓存配置
@@ -100,29 +100,29 @@ message Cache {
   // database
   uint32 db = 5;
   // read timeout
-  google.protobuf.Duration read_timeout = 6;
+  google.protobuf.Duration readTimeout = 6;
   // write timeout
-  google.protobuf.Duration write_timeout = 7;
+  google.protobuf.Duration writeTimeout = 7;
   // dial timeout
-  google.protobuf.Duration dial_timeout = 8;
-  string client_name = 9;
+  google.protobuf.Duration dialTimeout = 8;
+  string clientName = 9;
   int64 protocol = 10;
   string username = 11;
-  int64 max_retries = 12;
-  google.protobuf.Duration min_retry_backoff = 13;
-  google.protobuf.Duration max_retry_backoff = 14;
-  bool context_timeout_enabled = 15;
-  bool pool_fifo = 16;
-  int64 pool_size = 17;
-  google.protobuf.Duration pool_timeout = 18;
-  int64 min_idle_conns = 19;
-  int64 max_idle_conns = 20;
-  int64 max_active_conns = 21;
-  google.protobuf.Duration conn_max_idle_time = 22;
-  google.protobuf.Duration conn_max_lifetime = 23;
-  bool disable_identity = 24;
-  string identity_suffix = 25;
-  bool unstable_resp3 = 26;
+  int64 maxRetries = 12;
+  google.protobuf.Duration minRetryBackoff = 13;
+  google.protobuf.Duration maxRetryBackoff = 14;
+  bool contextTimeoutEnabled = 15;
+  bool poolFifo = 16;
+  int64 poolSize = 17;
+  google.protobuf.Duration poolTimeout = 18;
+  int64 minIdleConns = 19;
+  int64 maxIdleConns = 20;
+  int64 maxActiveConns = 21;
+  google.protobuf.Duration connMaxIdleTime = 22;
+  google.protobuf.Duration connMaxLifetime = 23;
+  bool disableIdentity = 24;
+  string identitySuffix = 25;
+  bool unstableResp3 = 26;
 }
 
 message Crypto {
@@ -178,16 +178,16 @@ message Etcd {
   string username = 2;
   string password = 3;
   google.protobuf.Duration timeout = 4;
-  google.protobuf.Duration auto_sync_interval = 5;
-  google.protobuf.Duration dial_keep_alive_time = 6;
-  google.protobuf.Duration dial_keep_alive_timeout = 7;
-  int64 max_call_send_msg_size = 8;
-  int64 max_call_recv_msg_size = 9;
-  bool reject_old_cluster = 10;
-  bool permit_without_stream = 11;
-  uint64 max_unary_retries = 12;
-  google.protobuf.Duration backoff_wait_between = 13;
-  double backoff_jitter_fraction = 14;
+  google.protobuf.Duration autoSyncInterval = 5;
+  google.protobuf.Duration dialKeepAliveTime = 6;
+  google.protobuf.Duration dialKeepAliveTimeout = 7;
+  int64 maxCallSendMsgSize = 8;
+  int64 maxCallRecvMsgSize = 9;
+  bool rejectOldCluster = 10;
+  bool permitWithoutStream = 11;
+  uint64 maxUnaryRetries = 12;
+  google.protobuf.Duration backoffWaitBetween = 13;
+  double backoffJitterFraction = 14;
 }
 
 enum RegistryDriver {
@@ -234,9 +234,9 @@ message Log {
   message SugaredLogConfig {
     string format = 1;
     string output = 2;
-    bool disable_caller = 3;
-    bool disable_stacktrace = 4;
-    bool enable_color = 5;
+    bool disableCaller = 3;
+    bool disableStacktrace = 4;
+    bool enableColor = 5;
   }
   Driver driver = 1;
   Level level = 2;
@@ -290,8 +290,8 @@ message Oss {
   }
   // file size limit
   message Limit {
-    optional int64 max_byte_size = 1;
-    optional int64 min_byte_size = 2;
+    optional int64 maxByteSize = 1;
+    optional int64 minByteSize = 2;
   }
   // oss type
   Driver driver = 1;
@@ -375,9 +375,9 @@ message Event {
 }
 
 message AliyunSMSConfig {
-  string access_key_id = 1;
-  string access_key_secret = 2;
-  string sign_name = 3;
+  string accessKeyId = 1;
+  string accessKeySecret = 2;
+  string signName = 3;
   string endpoint = 4;
   string name = 5;
 }

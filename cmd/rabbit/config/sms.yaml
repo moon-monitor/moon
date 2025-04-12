@@ -1,6 +1,6 @@
 aliyun_sms_config:
   - name: 'default'
-    access_key_id: ${X_MOON_RABBIT_ALIYUN_SMS_ACCESS_KEY_ID}
-    access_key_secret: ${X_MOON_RABBIT_ALIYUN_SMS_ACCESS_KEY_SECRET}
-    sign_name: ${X_MOON_RABBIT_ALIYUN_SMS_SIGN_NAME}
+    accessKeyId: ${X_MOON_RABBIT_ALIYUN_SMS_ACCESS_KEY_ID}
+    accessKeySecret: ${X_MOON_RABBIT_ALIYUN_SMS_ACCESS_KEY_SECRET}
+    signName: ${X_MOON_RABBIT_ALIYUN_SMS_SIGN_NAME}
     endpoint: ${X_MOON_RABBIT_ALIYUN_SMS_ENDPOINT}

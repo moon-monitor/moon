@@ -4,17 +4,17 @@ server:
   name: ${X_MOON_RABBIT_SERVER_NAME:rabbit}
   metadata:
     summary: ${X_MOON_RABBIT_SUMMARY}
-  team_ids: ${X_MOON_RABBIT_TEAM_IDS:[]}
-  out_endpoint: ${X_MOON_RABBIT_OUT_ENDPOINT}
-  online_interval: ${X_MOON_RABBIT_ONLINE_INTERVAL:60s}
+  teamIds: ${X_MOON_RABBIT_TEAM_IDS:[]}
+  outEndpoint: ${X_MOON_RABBIT_OUT_ENDPOINT}
+  onlineInterval: ${X_MOON_RABBIT_ONLINE_INTERVAL:60s}
   network: ${X_MOON_RABBIT_NETWORK:GRPC}
   http:
     network: ${X_MOON_RABBIT_HTTP_NETWORK:tcp}
     addr: ${X_MOON_RABBIT_HTTP_ADDR:0.0.0.0:8080}
     timeout: ${X_MOON_RABBIT_HTTP_TIMEOUT:5s}
-    allow_headers: ${X_MOON_RABBIT_HTTP_ALLOW_HEADERS:['*']}
-    allow_methods: ${X_MOON_RABBIT_HTTP_ALLOW_METHODS:['*']}
-    allow_origins: ${X_MOON_RABBIT_HTTP_ALLOW_ORIGINS:['*']}
+    allowHeaders: ${X_MOON_RABBIT_HTTP_ALLOW_HEADERS:['*']}
+    allowMethods: ${X_MOON_RABBIT_HTTP_ALLOW_METHODS:['*']}
+    allowOrigins: ${X_MOON_RABBIT_HTTP_ALLOW_ORIGINS:['*']}
 
   grpc:
     network: ${X_MOON_RABBIT_GRPC_NETWORK:tcp}

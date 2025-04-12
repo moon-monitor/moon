@@ -129,7 +129,7 @@ message GetCaptchaReply {
   // Base64 encoded captcha image data
   string captchaImg = 2;
   // Captcha expiration time in seconds
-  int32 expired_seconds = 3;
+  int32 expiredSeconds = 3;
 }
 
 // LoginByPasswordRequest represents the request data for logging in with password
@@ -228,7 +228,7 @@ message LoginReply {
   // Login token
   string token = 1;
   // Token expiration time in seconds
-  int32 expired_seconds = 2;
+  int32 expiredSeconds = 2;
   // User basic information
   api.palace.common.UserBaseItem user = 3;
 }
@@ -262,7 +262,7 @@ message VerifyEmailRequest {
 // VerifyEmailReply contains the response data for successful email verification
 message VerifyEmailReply {
   // Email verification code expiration time in seconds
-  int32 expired_seconds = 2;
+  int32 expiredSeconds = 2;
 }
 
 // OAuth2ListReply contains the list of supported OAuth2.0 providers

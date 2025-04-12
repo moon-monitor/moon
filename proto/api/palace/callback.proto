@@ -17,7 +17,7 @@ service Callback {
 }
 
 message SendMsgCallbackRequest {
-	string request_id = 1 [(buf.validate.field).required = true];
+	string requestId = 1 [(buf.validate.field).required = true];
 	// Code of the callback 0 is success, other is failed
 	int32 code = 2 [(buf.validate.field).required = true];
 	// Message of the callback, only when code is not 0, it is not empty

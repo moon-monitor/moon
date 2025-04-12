@@ -4,6 +4,6 @@ log:
   sugared:
     format: ${X_MOON_RABBIT_LOG_SUGARED_FORMAT:console}
     output: ${X_MOON_RABBIT_LOG_SUGARED_OUTPUT:stdout}
-    disable_caller: ${X_MOON_RABBIT_LOG_SUGARED_DISABLE_CALLER:false}
-    disable_stacktrace: ${X_MOON_RABBIT_LOG_SUGARED_DISABLE_STACKTRACE:true}
-    enable_color: ${X_MOON_RABBIT_LOG_SUGARED_ENABLE_COLOR:true}
+    disableCaller: ${X_MOON_RABBIT_LOG_SUGARED_DISABLE_CALLER:false}
+    disableStacktrace: ${X_MOON_RABBIT_LOG_SUGARED_DISABLE_STACKTRACE:true}
+    enableColor: ${X_MOON_RABBIT_LOG_SUGARED_ENABLE_COLOR:true}

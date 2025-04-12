@@ -1,7 +1,7 @@
 auth:
   jwt:
-    sign_key: ${X_MOON_HOUYI_AUTH_JWT_SIGN_KEY:houyi-sign-key}
+    signKey: ${X_MOON_HOUYI_AUTH_JWT_SIGN_KEY:houyi-sign-key}
     issuer: ${X_MOON_HOUYI_AUTH_JWT_ISSUER:moon.houyi}
     expire: ${X_MOON_HOUYI_AUTH_JWT_EXPIRE:3600s}
-    allow_operations:
+    allowOperations:
       - /api.common.Health/Check
