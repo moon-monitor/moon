@@ -1,6 +1,7 @@
 package kv
 
 import (
+	"database/sql/driver"
 	"encoding/json"
 )
 
@@ -27,6 +28,14 @@ func (m Map[K, V]) MarshalBinary() (data []byte, err error) {
 
 func (m Map[K, V]) UnmarshalBinary(data []byte) error {
 	return json.Unmarshal(data, &m)
+}
+
+func (m Map[K, V]) Value() (driver.Value, error) {
+	return json.Marshal(m)
+}
+
+func (m *Map[K, V]) Scan(value interface{}) error {
+	return json.Unmarshal(value.([]byte), m)
 }
 
 func (m Map[K, V]) Get(key K) (V, bool) {

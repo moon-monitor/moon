@@ -1,17 +1,18 @@
-package system
+package team
 
 import (
 	"time"
 
+	"gorm.io/plugin/soft_delete"
+
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/vobj"
 	"github.com/moon-monitor/moon/pkg/util/slices"
-	"gorm.io/plugin/soft_delete"
 )
 
 var _ do.Resource = (*Resource)(nil)
 
-const tableNameResource = "sys_resources"
+const tableNameResource = "team_resources"
 
 type Resource struct {
 	do.BaseModel
@@ -20,28 +21,8 @@ type Resource struct {
 	Status vobj.GlobalStatus  `gorm:"column:status;type:tinyint(2);not null;comment:状态" json:"status"`
 	Allow  vobj.ResourceAllow `gorm:"column:allow;type:tinyint(2);not null;comment:放行规则" json:"allow"`
 	Remark string             `gorm:"column:remark;type:varchar(255);not null;comment:备注" json:"remark"`
-	Menus  []*Menu            `gorm:"many2many:sys_menu_resources" json:"menus"`
-}
-
-func (u *Resource) GetDeletedAt() soft_delete.DeletedAt {
-	if u == nil {
-		return 0
-	}
-	return u.DeletedAt
-}
-
-func (u *Resource) GetCreatedAt() time.Time {
-	if u == nil {
-		return time.Time{}
-	}
-	return u.CreatedAt
-}
-
-func (u *Resource) GetUpdatedAt() time.Time {
-	if u == nil {
-		return time.Time{}
-	}
-	return u.UpdatedAt
+	MenuID uint32             `gorm:"column:menu_id;type:int unsigned;not null;comment:菜单id" json:"menuID"`
+	Menus  []*Menu            `gorm:"many2many:team_menu_resources" json:"menus"`
 }
 
 func (u *Resource) GetID() uint32 {
@@ -91,6 +72,27 @@ func (u *Resource) GetMenus() []do.Menu {
 		return nil
 	}
 	return slices.Map(u.Menus, func(m *Menu) do.Menu { return m })
+}
+
+func (u *Resource) GetCreatedAt() time.Time {
+	if u == nil {
+		return time.Time{}
+	}
+	return u.CreatedAt
+}
+
+func (u *Resource) GetUpdatedAt() time.Time {
+	if u == nil {
+		return time.Time{}
+	}
+	return u.UpdatedAt
+}
+
+func (u *Resource) GetDeletedAt() soft_delete.DeletedAt {
+	if u == nil {
+		return 0
+	}
+	return u.DeletedAt
 }
 
 func (u *Resource) TableName() string {

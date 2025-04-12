@@ -6,11 +6,14 @@ import (
 	"github.com/go-kratos/kratos/v2/log"
 
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/bo"
+	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do/system"
+	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do/team"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/repository"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/vobj"
 	"github.com/moon-monitor/moon/cmd/palace/internal/data"
 	"github.com/moon-monitor/moon/cmd/palace/internal/data/query/systemgen"
+	"github.com/moon-monitor/moon/cmd/palace/internal/data/query/teamgen"
 	"github.com/moon-monitor/moon/cmd/palace/internal/helper/permission"
 	"github.com/moon-monitor/moon/pkg/util/slices"
 )
@@ -29,11 +32,15 @@ type resourceImpl struct {
 	helper *log.Helper
 }
 
-func (r *resourceImpl) GetResources(ctx context.Context) ([]*system.Resource, error) {
-	return r.Resource.WithContext(ctx).Find()
+func (r *resourceImpl) GetResources(ctx context.Context) ([]do.Resource, error) {
+	resources, err := r.Resource.WithContext(ctx).Find()
+	if err != nil {
+		return nil, err
+	}
+	return slices.Map(resources, func(resource *system.Resource) do.Resource { return resource }), nil
 }
 
-func (r *resourceImpl) GetResourceByID(ctx context.Context, id uint32) (*system.Resource, error) {
+func (r *resourceImpl) GetResourceByID(ctx context.Context, id uint32) (do.Resource, error) {
 	resourceDo, err := r.Resource.WithContext(ctx).Where(r.Resource.ID.Eq(id)).First()
 	if err != nil {
 		return nil, resourceNotFound(err)
@@ -41,7 +48,7 @@ func (r *resourceImpl) GetResourceByID(ctx context.Context, id uint32) (*system.
 	return resourceDo, nil
 }
 
-func (r *resourceImpl) GetResourceByOperation(ctx context.Context, operation string) (*system.Resource, error) {
+func (r *resourceImpl) GetResourceByOperation(ctx context.Context, operation string) (do.Resource, error) {
 	resourceDo, err := r.Resource.WithContext(ctx).Where(r.Resource.Path.Eq(operation)).First()
 	if err != nil {
 		return nil, resourceNotFound(err)
@@ -83,37 +90,45 @@ func (r *resourceImpl) ListResources(ctx context.Context, req *bo.ListResourceRe
 	}
 	return &bo.ListResourceReply{
 		PaginationReply: req.ToReply(),
-		Resources:       resources,
+		Resources:       slices.Map(resources, func(resource *system.Resource) do.Resource { return resource }),
 	}, nil
 }
 
-func (r *resourceImpl) GetMenusByUserID(ctx context.Context, userID uint32) ([]*system.Menu, error) {
+func (r *resourceImpl) GetMenusByUserID(ctx context.Context, userID uint32) ([]do.Menu, error) {
 	user := r.User
 	userQuery := user.WithContext(ctx).Where(user.ID.Eq(userID)).Preload(user.Roles.Menus)
 	userDo, err := userQuery.First()
 	if err != nil {
 		return nil, userNotFound(err)
 	}
-	menus := make([]*system.Menu, 0, len(userDo.Roles))
+	menus := make([]do.Menu, 0, len(userDo.Roles))
 	for _, role := range userDo.Roles {
-		menus = append(menus, role.Menus...)
+		menus = append(menus, slices.Map(role.Menus, func(menu *system.Menu) do.Menu { return menu })...)
 	}
 	teamID, ok := permission.GetTeamIDByContext(ctx)
 	if !ok || teamID <= 0 {
 		return menus, nil
 	}
-	teamMember := r.TeamMember
+	bizDB, err := r.GetBizDB(teamID)
+	if err != nil {
+		return nil, err
+	}
+	teamMember := teamgen.Use(bizDB.GetDB()).Member
 	teamQuery := teamMember.WithContext(ctx).Where(teamMember.TeamID.Eq(teamID)).Preload(teamMember.Roles.Menus)
 	teamMemberDo, err := teamQuery.First()
 	if err != nil {
 		return nil, teamMemberNotFound(err)
 	}
 	for _, role := range teamMemberDo.Roles {
-		menus = append(menus, role.Menus...)
+		menus = append(menus, slices.Map(role.Menus, func(menu *team.Menu) do.Menu { return menu })...)
 	}
 	return menus, nil
 }
 
-func (r *resourceImpl) GetMenus(ctx context.Context, t vobj.MenuType) ([]*system.Menu, error) {
-	return r.Menu.WithContext(ctx).Where(r.Menu.Type.Eq(t.GetValue())).Find()
+func (r *resourceImpl) GetMenus(ctx context.Context, t vobj.MenuType) ([]do.Menu, error) {
+	menus, err := r.Menu.WithContext(ctx).Where(r.Menu.Type.Eq(t.GetValue())).Find()
+	if err != nil {
+		return nil, err
+	}
+	return slices.Map(menus, func(menu *system.Menu) do.Menu { return menu }), nil
 }

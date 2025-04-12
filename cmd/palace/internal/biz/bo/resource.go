@@ -1,7 +1,7 @@
 package bo
 
 import (
-	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do/system"
+	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/vobj"
 )
 
@@ -18,5 +18,5 @@ type ListResourceReq struct {
 
 type ListResourceReply struct {
 	*PaginationReply
-	Resources []*system.Resource `json:"resources"`
+	Resources []do.Resource `json:"resources"`
 }

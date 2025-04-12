@@ -3,26 +3,26 @@ package build
 import (
 	"time"
 
-	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do/system"
+	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do"
 	"github.com/moon-monitor/moon/pkg/api/palace/common"
 )
 
-func ToResourceItemProto(resource *system.Resource) *common.ResourceItem {
+func ToResourceItemProto(resource do.Resource) *common.ResourceItem {
 	if resource == nil {
 		return nil
 	}
 	return &common.ResourceItem{
-		Id:        resource.ID,
-		Name:      resource.Name,
-		Path:      resource.Path,
-		Status:    common.GlobalStatus(resource.Status),
-		Remark:    resource.Remark,
-		CreatedAt: resource.CreatedAt.Format(time.DateTime),
-		UpdatedAt: resource.UpdatedAt.Format(time.DateTime),
+		Id:        resource.GetID(),
+		Name:      resource.GetName(),
+		Path:      resource.GetPath(),
+		Status:    common.GlobalStatus(resource.GetStatus()),
+		Remark:    resource.GetRemark(),
+		CreatedAt: resource.GetCreatedAt().Format(time.DateTime),
+		UpdatedAt: resource.GetUpdatedAt().Format(time.DateTime),
 	}
 }
 
-func ToResourceItemProtoList(resources []*system.Resource) []*common.ResourceItem {
+func ToResourceItemProtoList(resources []do.Resource) []*common.ResourceItem {
 	result := make([]*common.ResourceItem, 0, len(resources))
 	for _, resource := range resources {
 		result = append(result, ToResourceItemProto(resource))
@@ -30,16 +30,16 @@ func ToResourceItemProtoList(resources []*system.Resource) []*common.ResourceIte
 	return result
 }
 
-func ToMenuTreeProto(menus []*system.Menu) []*common.MenuTreeItem {
-	menuMap := make(map[uint32]*system.Menu)
+func ToMenuTreeProto(menus []do.Menu) []*common.MenuTreeItem {
+	menuMap := make(map[uint32]do.Menu)
 	for _, menu := range menus {
-		menuMap[menu.ID] = menu
+		menuMap[menu.GetID()] = menu
 	}
 
 	// 构建树形结构
 	var roots []*common.MenuTreeItem
 	for _, menu := range menus {
-		if menu.ParentID == 0 {
+		if menu.GetParentID() == 0 {
 			roots = append(roots, convertMenuToTreeItemWithMap(menu, menuMap))
 		}
 	}
@@ -47,19 +47,19 @@ func ToMenuTreeProto(menus []*system.Menu) []*common.MenuTreeItem {
 	return roots
 }
 
-func convertMenuToTreeItemWithMap(menu *system.Menu, menuMap map[uint32]*system.Menu) *common.MenuTreeItem {
+func convertMenuToTreeItemWithMap(menu do.Menu, menuMap map[uint32]do.Menu) *common.MenuTreeItem {
 	treeItem := &common.MenuTreeItem{
-		Id:       menu.ID,
-		Name:     menu.Name,
-		Path:     menu.Path,
-		Status:   common.GlobalStatus(menu.Status),
-		Icon:     menu.Icon,
+		Id:       menu.GetID(),
+		Name:     menu.GetName(),
+		Path:     menu.GetPath(),
+		Status:   common.GlobalStatus(menu.GetStatus()),
+		Icon:     menu.GetIcon(),
 		Children: nil,
 	}
 
 	// 查找所有子菜单
 	for _, m := range menuMap {
-		if m.ParentID == menu.ID {
+		if m.GetParentID() == menu.GetID() {
 			if treeItem.Children == nil {
 				treeItem.Children = make([]*common.MenuTreeItem, 0)
 			}

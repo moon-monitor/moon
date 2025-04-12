@@ -22,8 +22,8 @@ type User struct {
 	Gender   vobj.Gender     `gorm:"column:gender;type:tinyint(2);not null;comment:性别" json:"gender"`
 	Position vobj.Role       `gorm:"column:position;type:tinyint(2);not null;comment:系统默认角色类型" json:"position"`
 	Status   vobj.UserStatus `gorm:"column:status;type:tinyint(2);not null;comment:状态" json:"status"`
-
-	Roles []*SysRole `gorm:"many2many:sys_user_roles;foreignKey:ID;joinForeignKey:UserID;references:ID;joinReferences:RoleID" json:"roles"`
+	Roles    []*Role         `gorm:"many2many:sys_user_roles" json:"roles"`
+	Teams    []*Team         `gorm:"many2many:sys_user_teams" json:"teams"`
 }
 
 func (u *User) TableName() string {

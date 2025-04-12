@@ -259,7 +259,7 @@ func (a *AuthBiz) giteeLogin(ctx context.Context, code string) (string, error) {
 	return a.oauthLogin(ctx, &userInfo)
 }
 
-func (a *AuthBiz) oauthUserFirstOrCreate(ctx context.Context, userInfo bo.IOAuthUser) (*system.OAuthUser, error) {
+func (a *AuthBiz) oauthUserFirstOrCreate(ctx context.Context, userInfo bo.IOAuthUser) (*system.UserOAuth, error) {
 	oauthUserDoExist := true
 	oauthUserDo, err := a.oauthRepo.FindByOAuthID(ctx, userInfo.GetOAuthID(), userInfo.GetAPP())
 	if err != nil {
@@ -268,7 +268,7 @@ func (a *AuthBiz) oauthUserFirstOrCreate(ctx context.Context, userInfo bo.IOAuth
 		}
 		oauthUserDoExist = false
 	}
-	if oauthUserDo.SysUserID == 0 {
+	if oauthUserDo.UserID == 0 {
 		userDo, err := a.userRepo.FindByEmail(ctx, crypto.String(userInfo.GetEmail()))
 		if err != nil {
 			if !merr.IsUserNotFound(err) {
@@ -293,7 +293,7 @@ func (a *AuthBiz) oauthUserFirstOrCreate(ctx context.Context, userInfo bo.IOAuth
 			if err != nil {
 				return err
 			}
-			oauthUserDo.SysUserID = userDo.ID
+			oauthUserDo.UserID = userDo.ID
 			oauthUserDo.User = userDo
 			oauthUserDo, err = a.oauthRepo.SetUser(ctx, oauthUserDo)
 			if err != nil {

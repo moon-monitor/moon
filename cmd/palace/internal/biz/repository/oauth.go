@@ -9,7 +9,7 @@ import (
 )
 
 type OAuth interface {
-	Create(ctx context.Context, user bo.IOAuthUser) (*system.OAuthUser, error)
-	FindByOAuthID(ctx context.Context, oauthID uint32, app vobj.OAuthAPP) (*system.OAuthUser, error)
-	SetUser(ctx context.Context, user *system.OAuthUser) (*system.OAuthUser, error)
+	Create(ctx context.Context, user bo.IOAuthUser) (*system.UserOAuth, error)
+	FindByOAuthID(ctx context.Context, oauthID uint32, app vobj.OAuthAPP) (*system.UserOAuth, error)
+	SetUser(ctx context.Context, user *system.UserOAuth) (*system.UserOAuth, error)
 }

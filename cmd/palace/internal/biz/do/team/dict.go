@@ -4,7 +4,7 @@ import (
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do"
 )
 
-const tableNameDict = "team_dict"
+const tableNameDict = "team_dictionaries"
 
 type Dict struct {
 	do.TeamModel

@@ -5,7 +5,9 @@ import (
 
 	"github.com/go-kratos/kratos/v2/log"
 
+	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do/system"
+	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do/team"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/repository"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/vobj"
 	"github.com/moon-monitor/moon/cmd/palace/internal/helper/permission"
@@ -63,12 +65,12 @@ func (a *PermissionBiz) VerifyPermission(ctx context.Context) error {
 // PermissionContext permission check context
 type PermissionContext struct {
 	Operation      string
-	Resource       *system.Resource
+	Resource       do.Resource
 	User           *system.User
 	Team           *system.Team
 	SystemPosition vobj.Role
 	TeamPosition   vobj.Role
-	TeamMember     *system.TeamMember
+	TeamMember     *team.Member
 }
 
 // PermissionHandler permission handler interface
@@ -99,13 +101,13 @@ func (h *basePermissionHandler) OperationHandler() PermissionHandler {
 }
 
 // ResourceHandler resourceRepo check
-func (h *basePermissionHandler) ResourceHandler(getResourceByOperation func(ctx context.Context, operation string) (*system.Resource, error)) PermissionHandler {
+func (h *basePermissionHandler) ResourceHandler(getResourceByOperation func(ctx context.Context, operation string) (do.Resource, error)) PermissionHandler {
 	return PermissionHandlerFunc(func(ctx context.Context, pCtx *PermissionContext) (bool, error) {
 		resource, err := getResourceByOperation(ctx, pCtx.Operation)
 		if err != nil {
 			return true, err
 		}
-		if !resource.Status.IsEnable() {
+		if !resource.GetStatus().IsEnable() {
 			return true, merr.ErrorPermissionDenied("permission denied")
 		}
 		pCtx.Resource = resource
@@ -136,7 +138,7 @@ func (h *basePermissionHandler) UserHandler(findUserByID func(ctx context.Contex
 // AllowCheckHandler allow check
 func (h *basePermissionHandler) AllowCheckHandler() PermissionHandler {
 	return PermissionHandlerFunc(func(ctx context.Context, pCtx *PermissionContext) (bool, error) {
-		if pCtx.Resource.Allow.IsNone() || pCtx.Resource.Allow.IsUser() {
+		if pCtx.Resource.GetAllow().IsNone() || pCtx.Resource.GetAllow().IsUser() {
 			return true, nil // satisfy condition directly pass
 		}
 		return false, nil
@@ -154,7 +156,7 @@ func (h *basePermissionHandler) SystemAdminCheckHandler() PermissionHandler {
 }
 
 // SystemRBACHandler system rbac check
-func (h *basePermissionHandler) SystemRBACHandler(checkSystemRBAC func(ctx context.Context, user *system.User, resource *system.Resource) (bool, error)) PermissionHandler {
+func (h *basePermissionHandler) SystemRBACHandler(checkSystemRBAC func(ctx context.Context, user *system.User, resource do.Resource) (bool, error)) PermissionHandler {
 	return PermissionHandlerFunc(func(ctx context.Context, pCtx *PermissionContext) (bool, error) {
 		ok, err := checkSystemRBAC(ctx, pCtx.User, pCtx.Resource)
 		if err != nil {
@@ -171,20 +173,20 @@ func (h *basePermissionHandler) TeamIDHandler(findTeamByID func(ctx context.Cont
 		if !ok {
 			return true, merr.ErrorPermissionDenied("team id is invalid")
 		}
-		team, err := findTeamByID(ctx, teamID)
+		teamItem, err := findTeamByID(ctx, teamID)
 		if err != nil {
 			return true, err
 		}
-		if !team.Status.IsNormal() {
+		if !teamItem.Status.IsNormal() {
 			return true, merr.ErrorPermissionDenied("team is invalid")
 		}
-		pCtx.Team = team
+		pCtx.Team = teamItem
 		return false, nil
 	})
 }
 
 // TeamMemberHandler team member check
-func (h *basePermissionHandler) TeamMemberHandler(findTeamMemberByUserID func(ctx context.Context, userID uint32) (*system.TeamMember, error)) PermissionHandler {
+func (h *basePermissionHandler) TeamMemberHandler(findTeamMemberByUserID func(ctx context.Context, userID uint32) (*team.Member, error)) PermissionHandler {
 	return PermissionHandlerFunc(func(ctx context.Context, pCtx *PermissionContext) (bool, error) {
 		member, err := findTeamMemberByUserID(ctx, pCtx.User.ID)
 		if err != nil {
@@ -213,7 +215,7 @@ func (h *basePermissionHandler) TeamAdminCheckHandler() PermissionHandler {
 }
 
 // TeamRBACHandler team rbac check
-func (h *basePermissionHandler) TeamRBACHandler(checkTeamRBAC func(ctx context.Context, member *system.TeamMember, resource *system.Resource) (bool, error)) PermissionHandler {
+func (h *basePermissionHandler) TeamRBACHandler(checkTeamRBAC func(ctx context.Context, member *team.Member, resource do.Resource) (bool, error)) PermissionHandler {
 	return PermissionHandlerFunc(func(ctx context.Context, pCtx *PermissionContext) (bool, error) {
 		ok, err := checkTeamRBAC(ctx, pCtx.TeamMember, pCtx.Resource)
 		if err != nil {
@@ -223,8 +225,8 @@ func (h *basePermissionHandler) TeamRBACHandler(checkTeamRBAC func(ctx context.C
 	})
 }
 
-func checkSystemRBAC(_ context.Context, user *system.User, resource *system.Resource) (bool, error) {
-	if !resource.Allow.IsSystemRBAC() {
+func checkSystemRBAC(_ context.Context, user *system.User, resource do.Resource) (bool, error) {
+	if !resource.GetAllow().IsSystemRBAC() {
 		return false, nil
 	}
 	resources := make([]*system.Resource, 0, len(user.Roles)*10)
@@ -238,18 +240,18 @@ func checkSystemRBAC(_ context.Context, user *system.User, resource *system.Reso
 			}
 		}
 	}
-	_, ok := slices.FindByValue(resources, resource.ID, func(role *system.Resource) uint32 { return role.ID })
+	_, ok := slices.FindByValue(resources, resource.GetID(), func(role *system.Resource) uint32 { return role.ID })
 	if ok {
 		return true, nil
 	}
 	return false, merr.ErrorPermissionDenied("user role resourceRepo is invalid.")
 }
 
-func checkTeamRBAC(_ context.Context, member *system.TeamMember, resource *system.Resource) (bool, error) {
-	if !resource.Allow.IsTeamRBAC() {
+func checkTeamRBAC(_ context.Context, member *team.Member, resource do.Resource) (bool, error) {
+	if !resource.GetAllow().IsTeamRBAC() {
 		return false, nil
 	}
-	resources := make([]*system.Resource, 0, len(member.Roles)*10)
+	resources := make([]*team.Resource, 0, len(member.Roles)*10)
 	for _, role := range member.Roles {
 		if role.Status.IsEnable() {
 			for _, menu := range role.Menus {
@@ -260,7 +262,7 @@ func checkTeamRBAC(_ context.Context, member *system.TeamMember, resource *syste
 			}
 		}
 	}
-	_, ok := slices.FindByValue(resources, resource.ID, func(role *system.Resource) uint32 { return role.ID })
+	_, ok := slices.FindByValue(resources, resource.GetID(), func(role *team.Resource) uint32 { return role.ID })
 	if ok {
 		return true, nil
 	}

@@ -2,6 +2,8 @@ package do
 
 import (
 	"context"
+	"database/sql"
+	"database/sql/driver"
 	"time"
 
 	"gorm.io/gorm"
@@ -10,6 +12,11 @@ import (
 	"github.com/moon-monitor/moon/cmd/palace/internal/helper/permission"
 	"github.com/moon-monitor/moon/pkg/merr"
 )
+
+type ORMModel interface {
+	sql.Scanner
+	driver.Valuer
+}
 
 // BaseModel gorm base model
 type BaseModel struct {

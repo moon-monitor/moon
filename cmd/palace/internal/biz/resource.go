@@ -4,9 +4,9 @@ import (
 	"context"
 
 	"github.com/go-kratos/kratos/v2/log"
+	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do"
 
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/bo"
-	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do/system"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/repository"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/vobj"
 	"github.com/moon-monitor/moon/cmd/palace/internal/helper/permission"
@@ -33,7 +33,7 @@ func (r *ResourceBiz) BatchUpdateResourceStatus(ctx context.Context, req *bo.Bat
 	return r.resourceRepo.BatchUpdateResourceStatus(ctx, req.IDs, req.Status)
 }
 
-func (r *ResourceBiz) GetResource(ctx context.Context, id uint32) (*system.Resource, error) {
+func (r *ResourceBiz) GetResource(ctx context.Context, id uint32) (do.Resource, error) {
 	return r.resourceRepo.GetResourceByID(ctx, id)
 }
 
@@ -41,7 +41,7 @@ func (r *ResourceBiz) ListResource(ctx context.Context, req *bo.ListResourceReq)
 	return r.resourceRepo.ListResources(ctx, req)
 }
 
-func (r *ResourceBiz) SelfMenus(ctx context.Context) ([]*system.Menu, error) {
+func (r *ResourceBiz) SelfMenus(ctx context.Context) ([]do.Menu, error) {
 	userID, ok := permission.GetUserIDByContext(ctx)
 	if !ok {
 		return nil, merr.ErrorUnauthorized("user id not found")
@@ -49,6 +49,6 @@ func (r *ResourceBiz) SelfMenus(ctx context.Context) ([]*system.Menu, error) {
 	return r.resourceRepo.GetMenusByUserID(ctx, userID)
 }
 
-func (r *ResourceBiz) Menus(ctx context.Context, t vobj.MenuType) ([]*system.Menu, error) {
+func (r *ResourceBiz) Menus(ctx context.Context, t vobj.MenuType) ([]do.Menu, error) {
 	return r.resourceRepo.GetMenus(ctx, t)
 }

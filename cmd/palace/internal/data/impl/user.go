@@ -6,6 +6,7 @@ import (
 
 	"github.com/go-kratos/kratos/v2/errors"
 	"github.com/go-kratos/kratos/v2/log"
+	"github.com/moon-monitor/moon/cmd/palace/internal/data/query/teamgen"
 	"gorm.io/gen"
 	"gorm.io/gen/field"
 	"gorm.io/gorm"
@@ -13,6 +14,7 @@ import (
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/bo"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do/system"
+	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do/team"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/repository"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/vobj"
 	"github.com/moon-monitor/moon/cmd/palace/internal/conf"
@@ -165,47 +167,24 @@ func (u *userRepoImpl) sendUserPassword(ctx context.Context, user *system.User, 
 	return sendEmailFunc(ctx, sendEmailParams)
 }
 
-// GetTeamsByUserID 获取用户所属的所有团队
+// GetTeamsByUserID Gets all the teams to which the user belongs
 func (u *userRepoImpl) GetTeamsByUserID(ctx context.Context, userID uint32) ([]*system.Team, error) {
-	// 获取用户加入的所有团队
-	teamMemberQuery := u.TeamMember
-	teamQuery := u.Team
-
-	// 查找用户的所有团队成员记录
-	members, err := teamMemberQuery.WithContext(ctx).
-		Where(teamMemberQuery.UserID.Eq(userID), teamMemberQuery.Status.Eq(int8(vobj.MemberStatusNormal))).
-		Find()
+	userQuery := u.User
+	user, err := userQuery.WithContext(ctx).Where(userQuery.ID.Eq(userID)).Preload(userQuery.Teams).First()
 	if err != nil {
-		return nil, err
+		return nil, userNotFound(err)
 	}
 
-	if len(members) == 0 {
-		return []*system.Team{}, nil
-	}
-
-	// 提取所有团队ID
-	teamIDs := make([]uint32, 0, len(members))
-	for _, member := range members {
-		teamIDs = append(teamIDs, member.TeamID)
-	}
-
-	// 查询所有团队信息，并预加载Leader和Creator关系
-	teams, err := teamQuery.WithContext(ctx).
-		Where(teamQuery.ID.In(teamIDs...), teamQuery.Status.Eq(int8(vobj.TeamStatusNormal))).
-		Preload(teamQuery.Leader).
-		Find()
-	if err != nil {
-		return nil, err
-	}
-
-	return teams, nil
+	return user.Teams, nil
 }
 
-// GetMemberByUserIDAndTeamID 获取用户在特定团队中的成员信息
-func (u *userRepoImpl) GetMemberByUserIDAndTeamID(ctx context.Context, userID, teamID uint32) (*system.TeamMember, error) {
-	teamMemberQuery := u.TeamMember
-
-	// 查找用户在指定团队中的成员记录，包括角色信息
+// GetMemberByUserIDAndTeamID Gets information about a user's membership in a particular team
+func (u *userRepoImpl) GetMemberByUserIDAndTeamID(ctx context.Context, userID, teamID uint32) (*team.Member, error) {
+	bizDB, err := u.GetBizDB(teamID)
+	if err != nil {
+		return nil, err
+	}
+	teamMemberQuery := teamgen.Use(bizDB.GetDB()).Member
 	member, err := teamMemberQuery.WithContext(ctx).
 		Where(teamMemberQuery.UserID.Eq(userID), teamMemberQuery.TeamID.Eq(teamID)).
 		Preload(teamMemberQuery.Roles.Menus.RelationField).
@@ -220,23 +199,7 @@ func (u *userRepoImpl) GetMemberByUserIDAndTeamID(ctx context.Context, userID, t
 	return member, nil
 }
 
-// GetAllTeamMembers 获取用户所有团队的成员信息
-func (u *userRepoImpl) GetAllTeamMembers(ctx context.Context, userID uint32) ([]*system.TeamMember, error) {
-	teamMemberQuery := u.TeamMember
-
-	// 查找用户的所有团队成员记录，包括角色信息
-	members, err := teamMemberQuery.WithContext(ctx).
-		Where(teamMemberQuery.UserID.Eq(userID)).
-		Preload(teamMemberQuery.Roles.Menus.RelationField).
-		Find()
-	if err != nil {
-		return nil, err
-	}
-
-	return members, nil
-}
-
-// GetTeamsByIDs 根据团队ID列表获取团队
+// GetTeamsByIDs Gets all the teams by ID
 func (u *userRepoImpl) GetTeamsByIDs(ctx context.Context, teamIDs []uint32) ([]*system.Team, error) {
 	// 查询所有团队信息
 	teamQuery := u.Team

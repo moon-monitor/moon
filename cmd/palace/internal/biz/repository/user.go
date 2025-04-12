@@ -5,6 +5,7 @@ import (
 
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/bo"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do/system"
+	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do/team"
 	"github.com/moon-monitor/moon/pkg/util/crypto"
 )
 
@@ -19,7 +20,6 @@ type User interface {
 	UpdateSelfInfo(ctx context.Context, user *system.User) error
 	UpdatePassword(ctx context.Context, updateUserPasswordInfo *bo.UpdateUserPasswordInfo) error
 	GetTeamsByUserID(ctx context.Context, userID uint32) ([]*system.Team, error)
-	GetMemberByUserIDAndTeamID(ctx context.Context, userID, teamID uint32) (*system.TeamMember, error)
-	GetAllTeamMembers(ctx context.Context, userID uint32) ([]*system.TeamMember, error)
+	GetMemberByUserIDAndTeamID(ctx context.Context, userID, teamID uint32) (*team.Member, error)
 	GetTeamsByIDs(ctx context.Context, teamIDs []uint32) ([]*system.Team, error)
 }

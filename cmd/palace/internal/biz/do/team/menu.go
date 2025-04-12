@@ -1,18 +1,17 @@
-package system
+package team
 
 import (
 	"time"
 
-	"gorm.io/plugin/soft_delete"
-
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/vobj"
 	"github.com/moon-monitor/moon/pkg/util/slices"
+	"gorm.io/plugin/soft_delete"
 )
 
 var _ do.Menu = (*Menu)(nil)
 
-const tableNameMenu = "sys_menus"
+const tableNameMenu = "team_menus"
 
 type Menu struct {
 	do.BaseModel
@@ -23,7 +22,15 @@ type Menu struct {
 	ParentID  uint32            `gorm:"column:parent_id;type:int unsigned;not null;default:0;comment:父级id" json:"parentID"`
 	Type      vobj.MenuType     `gorm:"column:type;type:tinyint(2);not null;comment:菜单类型" json:"type"`
 	Parent    *Menu             `gorm:"foreignKey:ParentID;references:ID" json:"parent"`
-	Resources []*Resource       `gorm:"many2many:sys_menu_resources" json:"resources"`
+	Resources []*Resource       `gorm:"many2many:team_menu_resources" json:"resources"`
+	Roles     []*Role           `gorm:"many2many:team_role_menus" json:"roles"`
+}
+
+func (u *Menu) GetParent() do.Menu {
+	if u == nil {
+		return nil
+	}
+	return u.Parent
 }
 
 func (u *Menu) GetCreatedAt() time.Time {
@@ -101,13 +108,6 @@ func (u *Menu) GetResources() []do.Resource {
 		return nil
 	}
 	return slices.Map(u.Resources, func(r *Resource) do.Resource { return r })
-}
-
-func (u *Menu) GetParent() do.Menu {
-	if u == nil {
-		return nil
-	}
-	return u.Parent
 }
 
 func (u *Menu) TableName() string {

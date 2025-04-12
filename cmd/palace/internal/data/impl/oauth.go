@@ -28,22 +28,22 @@ type oauthRepoImpl struct {
 	helper *log.Helper
 }
 
-func toOAuthUserDo(u bo.IOAuthUser) *system.OAuthUser {
+func toOAuthUserDo(u bo.IOAuthUser) *system.UserOAuth {
 	if u == nil {
 		return nil
 	}
-	return &system.OAuthUser{
-		OAuthID:   u.GetOAuthID(),
-		SysUserID: u.GetUserID(),
-		Row:       u.String(),
-		APP:       u.GetAPP(),
-		User:      nil,
+	return &system.UserOAuth{
+		OAuthID: u.GetOAuthID(),
+		UserID:  u.GetUserID(),
+		Row:     u.String(),
+		APP:     u.GetAPP(),
+		User:    nil,
 	}
 }
 
-func (o *oauthRepoImpl) Create(ctx context.Context, user bo.IOAuthUser) (*system.OAuthUser, error) {
+func (o *oauthRepoImpl) Create(ctx context.Context, user bo.IOAuthUser) (*system.UserOAuth, error) {
 	oauthUserDo := toOAuthUserDo(user)
-	oauthUserMutation := o.OAuthUser
+	oauthUserMutation := o.UserOAuth
 	if err := oauthUserMutation.WithContext(ctx).Create(oauthUserDo); err != nil {
 		return nil, err
 	}
@@ -54,8 +54,8 @@ func (o *oauthRepoImpl) Create(ctx context.Context, user bo.IOAuthUser) (*system
 		First()
 }
 
-func (o *oauthRepoImpl) FindByOAuthID(ctx context.Context, oauthID uint32, app vobj.OAuthAPP) (*system.OAuthUser, error) {
-	oauthUserMutation := o.OAuthUser
+func (o *oauthRepoImpl) FindByOAuthID(ctx context.Context, oauthID uint32, app vobj.OAuthAPP) (*system.UserOAuth, error) {
+	oauthUserMutation := o.UserOAuth
 	oauthUserDo, err := oauthUserMutation.WithContext(ctx).
 		Where(oauthUserMutation.OAuthID.Eq(oauthID)).
 		Where(oauthUserMutation.APP.Eq(app.GetValue())).
@@ -67,15 +67,15 @@ func (o *oauthRepoImpl) FindByOAuthID(ctx context.Context, oauthID uint32, app v
 	return oauthUserDo, nil
 }
 
-func (o *oauthRepoImpl) SetUser(ctx context.Context, user *system.OAuthUser) (*system.OAuthUser, error) {
-	oauthUserMutation := o.OAuthUser
+func (o *oauthRepoImpl) SetUser(ctx context.Context, user *system.UserOAuth) (*system.UserOAuth, error) {
+	oauthUserMutation := o.UserOAuth
 	wrapper := []gen.Condition{
 		oauthUserMutation.ID.Eq(user.ID),
 		oauthUserMutation.APP.Eq(user.APP.GetValue()),
 		oauthUserMutation.OAuthID.Eq(user.OAuthID),
 	}
 
-	if _, err := oauthUserMutation.WithContext(ctx).Where(wrapper...).UpdateSimple(oauthUserMutation.SysUserID.Value(user.SysUserID)); err != nil {
+	if _, err := oauthUserMutation.WithContext(ctx).Where(wrapper...).UpdateSimple(oauthUserMutation.UserID.Value(user.UserID)); err != nil {
 		return nil, err
 	}
 	return oauthUserMutation.WithContext(ctx).Where(wrapper...).Preload(oauthUserMutation.User).First()
