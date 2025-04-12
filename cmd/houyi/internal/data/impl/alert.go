@@ -35,6 +35,33 @@ func (a *alertImpl) Delete(ctx context.Context, fingerprint string) error {
 	return nil
 }
 
+func (a *alertImpl) GetAll(ctx context.Context) ([]bo.Alert, error) {
+	key := vobj.AlertEventCacheKey.Key()
+	exist, err := a.GetCache().Client().Exists(ctx, key).Result()
+	if err != nil {
+		a.helper.Warnw("method", "GetAllAlerts", "err", err)
+		return nil, err
+	}
+	if exist == 0 {
+		return nil, nil
+	}
+	alertMap, err := a.GetCache().Client().HGetAll(ctx, key).Result()
+	if err != nil {
+		a.helper.Warnw("method", "GetAllAlerts", "err", err)
+		return nil, err
+	}
+	alerts := make([]bo.Alert, 0, len(alertMap))
+	for _, v := range alertMap {
+		var alert do.Alert
+		if err := alert.UnmarshalBinary([]byte(v)); err != nil {
+			a.helper.Warnw("method", "UnmarshalBinary", "err", err)
+			continue
+		}
+		alerts = append(alerts, &alert)
+	}
+	return alerts, nil
+}
+
 func (a *alertImpl) Get(ctx context.Context, fingerprint string) (bo.Alert, bool) {
 	key := vobj.AlertEventCacheKey.Key()
 	exist, err := a.GetCache().Client().HExists(ctx, key, fingerprint).Result()

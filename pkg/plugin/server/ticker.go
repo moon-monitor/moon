@@ -27,10 +27,11 @@ func NewTicker(interval time.Duration, task *TickTask, opts ...TickerOption) *Ti
 }
 
 type TickTask struct {
-	Fn       func(ctx context.Context, isStop bool) error
-	Name     string
-	Timeout  time.Duration
-	Interval time.Duration
+	Fn        func(ctx context.Context, isStop bool) error
+	Name      string
+	Timeout   time.Duration
+	Interval  time.Duration
+	Immediate bool
 }
 
 type Ticker struct {
@@ -151,7 +152,7 @@ func (t *Tickers) Add(interval time.Duration, task *TickTask) uint64 {
 	} else {
 		t.autoID++
 	}
-	ticker := NewTicker(interval, task, WithTickerLogger(t.logger))
+	ticker := NewTicker(interval, task, WithTickerLogger(t.logger), WithTickerImmediate(task.Immediate))
 	defer ticker.Start(context.Background())
 	t.tickers[id] = ticker
 	return id

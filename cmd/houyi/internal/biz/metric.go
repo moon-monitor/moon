@@ -21,10 +21,10 @@ func NewMetric(
 	configRepo repository.Config,
 	eventBusRepo repository.EventBus,
 	logger log.Logger,
-) (*Metric, error) {
+) *Metric {
 	evaluateConf := bc.GetEvaluate()
 	syncConfig := bc.GetConfig()
-	m := &Metric{
+	return &Metric{
 		logger:           logger,
 		helper:           log.NewHelper(log.With(logger, "module", "biz.metric")),
 		judgeRepo:        judgeRepo,
@@ -37,7 +37,6 @@ func NewMetric(
 		syncInterval:     syncConfig.GetSyncInterval().AsDuration(),
 		syncTimeout:      syncConfig.GetSyncTimeout().AsDuration(),
 	}
-	return m, m.sync()
 }
 
 type Metric struct {
@@ -55,15 +54,16 @@ type Metric struct {
 	syncTimeout      time.Duration
 }
 
-func (m *Metric) sync() error {
-	task := &server.TickTask{
-		Fn:       m.syncMetricRuleConfigs,
-		Interval: m.syncInterval,
-		Name:     "syncMetricRuleConfigs",
-		Timeout:  m.syncTimeout,
+func (m *Metric) Loads() []*server.TickTask {
+	return []*server.TickTask{
+		{
+			Fn:        m.syncMetricRuleConfigs,
+			Name:      "syncMetricRuleConfigs",
+			Timeout:   m.syncTimeout,
+			Interval:  m.syncInterval,
+			Immediate: true,
+		},
 	}
-	ticker := server.NewTicker(m.syncInterval, task, server.WithTickerLogger(m.logger), server.WithTickerImmediate(true))
-	return ticker.Start(context.Background())
 }
 
 func (m *Metric) syncMetricRuleConfigs(ctx context.Context, isStop bool) error {

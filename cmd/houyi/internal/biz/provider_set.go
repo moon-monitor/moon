@@ -11,4 +11,5 @@ var ProviderSetBiz = wire.NewSet(
 	NewConfig,
 	NewMetric,
 	NewEventBus,
+	NewAlert,
 )

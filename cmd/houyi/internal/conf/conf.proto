@@ -19,6 +19,7 @@ message Bootstrap {
   EventBus eventBus = 9;
   Evaluate evaluate = 10;
   Config config = 11;
+  Alert alert = 12;
 }
 
 message Data {
@@ -45,6 +46,11 @@ message Evaluate {
 }
 
 message Config {
+  google.protobuf.Duration syncInterval = 1;
+  google.protobuf.Duration syncTimeout = 2;
+}
+
+message Alert {
   google.protobuf.Duration syncInterval = 1;
   google.protobuf.Duration syncTimeout = 2;
 }
