@@ -2,8 +2,10 @@ package service
 
 import (
 	"context"
+	"encoding/json"
 
 	"github.com/go-kratos/kratos/v2/log"
+	"github.com/moon-monitor/moon/cmd/houyi/internal/biz/bo"
 	houyiv1 "github.com/moon-monitor/moon/pkg/api/houyi/v1"
 )
 
@@ -21,4 +23,11 @@ func NewAlertService(logger log.Logger) *AlertService {
 
 func (s *AlertService) Push(ctx context.Context, req *houyiv1.PushAlertRequest) (*houyiv1.PushAlertReply, error) {
 	return &houyiv1.PushAlertReply{}, nil
+}
+
+func (s *AlertService) InnerPush(_ context.Context, req bo.Alert) {
+	bs, err := json.Marshal(req)
+	if err == nil {
+		s.helper.Debugw("status", req.GetStatus().String(), "alert", string(bs))
+	}
 }

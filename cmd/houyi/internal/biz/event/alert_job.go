@@ -15,7 +15,7 @@ import (
 
 func NewAlertJob(alert bo.Alert, opts ...AlertJobOption) (bo.AlertJob, error) {
 	a := &alertJob{
-		Alert: alert,
+		alert: alert,
 	}
 	for _, opt := range opts {
 		if err := opt(a); err != nil {
@@ -28,16 +28,6 @@ func NewAlertJob(alert bo.Alert, opts ...AlertJobOption) (bo.AlertJob, error) {
 		{"helper", a.helper},
 	}
 	return a, checkList(checkOpts...)
-}
-
-type alertJob struct {
-	bo.Alert
-
-	id           cron.EntryID
-	alertRepo    repository.Alert
-	eventBusRepo repository.EventBus
-
-	helper *log.Helper
 }
 
 type AlertJobOption func(*alertJob) error
@@ -67,35 +57,56 @@ func WithAlertJobHelper(logger log.Logger) AlertJobOption {
 		if logger == nil {
 			return merr.ErrorInternalServerError("logger is nil")
 		}
-		a.helper = log.NewHelper(log.With(logger, "module", "event.alert", "jobKey", a.GetFingerprint()))
+		a.helper = log.NewHelper(log.With(logger, "module", "event.alert", "jobKey", a.alert.GetFingerprint()))
 		return nil
 	}
+}
+
+type alertJob struct {
+	alert bo.Alert
+
+	id           cron.EntryID
+	alertRepo    repository.Alert
+	eventBusRepo repository.EventBus
+
+	helper *log.Helper
+}
+
+func (a *alertJob) GetAlert() bo.Alert {
+	return a.alert
 }
 
 func (a *alertJob) isSustaining() (alert bo.Alert, sustaining bool) {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 	defer func() {
+		a.helper.Debugw("sustaining", sustaining)
 		if sustaining {
 			return
 		}
-		if err := a.alertRepo.Delete(ctx, a.GetFingerprint()); err != nil {
+		if err := a.alertRepo.Delete(ctx, a.alert.GetFingerprint()); err != nil {
 			a.helper.Warnw("msg", "delete alertInfo error", "error", err)
 		}
 	}()
-	alertInfo, ok := a.alertRepo.Get(ctx, a.GetFingerprint())
+	alertInfo, ok := a.alertRepo.Get(ctx, a.alert.GetFingerprint())
 	if !ok {
-		return a, false
+		return a.alert, false
 	}
-	return alertInfo, alertInfo.GetLastUpdated().Add(a.GetDuration()).After(time.Now())
+	return alertInfo, alertInfo.GetLastUpdated().Add(a.alert.GetDuration()).After(time.Now())
 }
 
 func (a *alertJob) Run() {
 	alertInfo, ok := a.isSustaining()
 	if !ok {
 		alertInfo.Resolved()
-		a.Alert = alertInfo
+		a.alert = alertInfo
 		a.eventBusRepo.InAlertJobEventBus() <- a
+		a.eventBusRepo.InAlertEventBus() <- alertInfo
+		return
+	}
+	if alertInfo.IsFiring() {
+		a.helper.Debugw("msg", "alert is firing")
+		a.eventBusRepo.InAlertEventBus() <- alertInfo
 	}
 }
 
@@ -107,14 +118,14 @@ func (a *alertJob) ID() cron.EntryID {
 }
 
 func (a *alertJob) Index() string {
-	return a.GetFingerprint()
+	return a.alert.GetFingerprint()
 }
 
 func (a *alertJob) Spec() server.CronSpec {
 	if a == nil {
 		return server.CronSpecEvery(1 * time.Minute)
 	}
-	return server.CronSpecEvery(a.GetDuration())
+	return server.CronSpecEvery(a.alert.GetDuration())
 }
 
 func (a *alertJob) WithID(id cron.EntryID) server.CronJob {

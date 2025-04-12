@@ -9,12 +9,14 @@ import (
 
 func NewEventBusServer(
 	eventBusService *service.EventBusService,
+	alertService *service.AlertService,
 	logger log.Logger,
 ) *EventBusServer {
 	return &EventBusServer{
-		helper:          log.NewHelper(log.With(logger, "module", "server.event-bus")),
+		helper:          log.NewHelper(logger),
 		stop:            make(chan struct{}),
 		eventBusService: eventBusService,
+		alertService:    alertService,
 	}
 }
 
@@ -23,6 +25,7 @@ type EventBusServer struct {
 	stop   chan struct{}
 
 	eventBusService *service.EventBusService
+	alertService    *service.AlertService
 }
 
 func (e *EventBusServer) Start(ctx context.Context) error {
@@ -33,6 +36,17 @@ func (e *EventBusServer) Start(ctx context.Context) error {
 				e.helper.Errorw("method", "watchEventBus", "panic", err)
 			}
 		}()
+		for {
+			select {
+			case <-e.stop:
+				return
+			case <-ctx.Done():
+				return
+			case alert := <-e.eventBusService.OutAlertEventBus():
+				e.helper.Debugw("msg", "[EventBus] receive alert event", "alert", alert.GetFingerprint())
+				e.alertService.InnerPush(ctx, alert)
+			}
+		}
 	}()
 
 	return nil

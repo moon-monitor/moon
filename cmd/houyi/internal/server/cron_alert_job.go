@@ -43,8 +43,8 @@ func (c *CronAlertJobServer) Start(ctx context.Context) error {
 			}
 		}()
 		for alertJob := range c.evaluateService.OutAlertJobEventBus() {
-			if alertJob.IsResolved() {
-				c.helper.Debugw("method", "watchEventBus", "alertJobResolved", alertJob.GetFingerprint())
+			if alertJob.GetAlert().IsResolved() {
+				c.helper.Debugw("method", "watchEventBus", "alertJobResolved", alertJob.GetAlert().GetFingerprint())
 				c.RemoveJob(alertJob)
 				continue
 			}

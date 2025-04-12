@@ -77,6 +77,11 @@ func (a *Alert) Resolved() {
 	a.EndsAt = &a.LastUpdated
 }
 
+func (a *Alert) Firing() {
+	a.Status = common.EventStatus_firing
+	a.LastUpdated = time.Now()
+}
+
 func (a *Alert) GetValue() float64 {
 	return a.Value
 }

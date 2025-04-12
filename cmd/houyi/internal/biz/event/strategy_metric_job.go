@@ -214,7 +214,7 @@ func (s *strategyMetricJob) Run() {
 		s.helper.Warnw("msg", "alert fail", "err", err)
 		return
 	}
-	alertEventBus := s.eventBusRepo.InAlertEventBus()
+	alertJobEventBus := s.eventBusRepo.InAlertJobEventBus()
 	alertJobOpts := []AlertJobOption{
 		WithAlertJobHelper(s.logger),
 		WithAlertJobEventBusRepo(s.eventBusRepo),
@@ -226,7 +226,7 @@ func (s *strategyMetricJob) Run() {
 			s.helper.Warnw("msg", "create alert job fail", "err", err)
 			continue
 		}
-		alertEventBus <- alertJobItem
+		alertJobEventBus <- alertJobItem
 	}
 }
 

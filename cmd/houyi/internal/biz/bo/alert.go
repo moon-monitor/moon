@@ -18,13 +18,15 @@ type Alert interface {
 	GetFingerprint() string
 	GetValue() float64
 	Resolved()
+	Firing()
 	IsResolved() bool
 	IsFiring() bool
+	IsPending() bool
 	GetDuration() time.Duration
 	GetLastUpdated() time.Time
 }
 
 type AlertJob interface {
-	Alert
+	GetAlert() Alert
 	server.CronJob
 }
