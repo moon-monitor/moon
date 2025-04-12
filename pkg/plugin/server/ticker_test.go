@@ -55,9 +55,9 @@ func TestTestNewTickers(t *testing.T) {
 		5 * time.Second,
 	}
 	start := time.Now()
-	task := make(map[time.Duration]*server.TickTask)
-	for _, v := range list {
-		task[v] = &server.TickTask{
+	task := make([]*server.TickTask, len(list))
+	for i, v := range list {
+		task[i] = &server.TickTask{
 			Fn: func(ctx context.Context, isStop bool) error {
 				if isStop {
 					t.Logf("Task stopped")
@@ -72,12 +72,13 @@ func TestTestNewTickers(t *testing.T) {
 				t.Logf("Task executed after %v: %v", v, diff)
 				return nil
 			},
-			Name:    fmt.Sprintf("%v", v),
-			Timeout: 0,
+			Name:     fmt.Sprintf("%v", v),
+			Timeout:  v,
+			Interval: v,
 		}
 	}
 
-	tickers := server.NewTickers(server.WithTickersTasks(task))
+	tickers := server.NewTickers(server.WithTickersTasks(task...))
 	err := tickers.Start(ctx)
 	if err != nil {
 		t.Fatalf("Failed to start timer: %v", err)

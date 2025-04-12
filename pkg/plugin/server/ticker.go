@@ -27,16 +27,18 @@ func NewTicker(interval time.Duration, task *TickTask, opts ...TickerOption) *Ti
 }
 
 type TickTask struct {
-	Fn      func(ctx context.Context, isStop bool) error
-	Name    string
-	Timeout time.Duration
+	Fn       func(ctx context.Context, isStop bool) error
+	Name     string
+	Timeout  time.Duration
+	Interval time.Duration
 }
 
 type Ticker struct {
-	interval time.Duration
-	ticker   *time.Ticker
-	stop     chan struct{}
-	task     *TickTask
+	interval  time.Duration
+	ticker    *time.Ticker
+	stop      chan struct{}
+	task      *TickTask
+	immediate bool
 
 	helper *log.Helper
 }
@@ -49,9 +51,23 @@ func WithTickerLogger(logger log.Logger) TickerOption {
 	}
 }
 
+func WithTickerImmediate(immediate bool) TickerOption {
+	return func(t *Ticker) {
+		t.immediate = immediate
+	}
+}
+
 func (t *Ticker) Start(ctx context.Context) error {
 	t.ticker = time.NewTicker(t.interval)
 	go func() {
+		defer func() {
+			if err := recover(); err != nil {
+				t.helper.Errorw("method", "Start", "panic", err)
+			}
+		}()
+		if t.immediate {
+			t.call(ctx, false)
+		}
 		for {
 			select {
 			case <-t.ticker.C:
@@ -117,10 +133,10 @@ func WithTickersLogger(logger log.Logger) TickersOption {
 	}
 }
 
-func WithTickersTasks(tasks map[time.Duration]*TickTask) TickersOption {
+func WithTickersTasks(tasks ...*TickTask) TickersOption {
 	return func(t *Tickers) {
-		for interval, task := range tasks {
-			t.Add(interval, task)
+		for _, task := range tasks {
+			t.Add(task.Interval, task)
 		}
 	}
 }

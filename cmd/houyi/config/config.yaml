@@ -1,0 +1,3 @@
+config:
+  syncInterval: ${X_MOON_HOUYI_CONFIG_SYNC_INTERVAL:600s}
+  syncTimeout: ${X_MOON_HOUYI_CONFIG_SYNC_TIMEOUT:10s}
