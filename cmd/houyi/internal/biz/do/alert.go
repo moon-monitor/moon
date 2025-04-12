@@ -14,17 +14,17 @@ import (
 var _ cache.Object = (*Alert)(nil)
 
 type Alert struct {
-	Status       common.EventStatus `json:"status"`
-	Labels       *label.Label       `json:"labels"`
-	Annotations  *label.Annotation  `json:"annotations"`
-	StartsAt     *time.Time         `json:"startsAt"`
-	EndsAt       *time.Time         `json:"endsAt"`
-	GeneratorURL string             `json:"generatorURL"`
-	Fingerprint  string             `json:"fingerprint"`
-	Value        float64            `json:"value"`
+	Status       common.EventStatus `json:"status,omitempty"`
+	Labels       *label.Label       `json:"labels,omitempty"`
+	Annotations  *label.Annotation  `json:"annotations,omitempty"`
+	StartsAt     *time.Time         `json:"startsAt,omitempty"`
+	EndsAt       *time.Time         `json:"endsAt,omitempty"`
+	GeneratorURL string             `json:"generatorURL,omitempty"`
+	Fingerprint  string             `json:"fingerprint,omitempty"`
+	Value        float64            `json:"value,omitempty"`
 
-	Duration    time.Duration `json:"duration"`
-	LastUpdated time.Time     `json:"lastUpdated"`
+	Duration    time.Duration `json:"duration,omitempty"`
+	LastUpdated time.Time     `json:"lastUpdated,omitempty"`
 }
 
 func (a *Alert) MarshalBinary() (data []byte, err error) {

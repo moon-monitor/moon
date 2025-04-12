@@ -13,21 +13,21 @@ import (
 )
 
 type MetricRule struct {
-	TeamId        uint32                              `json:"teamId"`
-	Datasource    string                              `json:"datasource"`
-	StrategyId    uint32                              `json:"strategyId"`
-	LevelId       uint32                              `json:"levelId"`
-	Receiver      []string                            `json:"receiver"`
-	LabelReceiver []*LabelNotices                     `json:"labelReceiver"`
-	Expr          string                              `json:"expr"`
-	Labels        *label.Label                        `json:"labels"`
-	Annotations   *label.Annotation                   `json:"annotations"`
-	Duration      time.Duration                       `json:"duration"`
-	Count         int64                               `json:"count"`
-	Values        []float64                           `json:"values"`
-	SampleMode    common.SampleMode                   `json:"sampleMode"`
-	Condition     common.MetricStrategyItem_Condition `json:"condition"`
-	Enable        bool                                `json:"enable"`
+	TeamId        uint32                              `json:"teamId,omitempty"`
+	Datasource    string                              `json:"datasource,omitempty"`
+	StrategyId    uint32                              `json:"strategyId,omitempty"`
+	LevelId       uint32                              `json:"levelId,omitempty"`
+	Receiver      []string                            `json:"receiver,omitempty"`
+	LabelReceiver []*LabelNotices                     `json:"labelReceiver,omitempty"`
+	Expr          string                              `json:"expr,omitempty"`
+	Labels        *label.Label                        `json:"labels,omitempty"`
+	Annotations   *label.Annotation                   `json:"annotations,omitempty"`
+	Duration      time.Duration                       `json:"duration,omitempty"`
+	Count         int64                               `json:"count,omitempty"`
+	Values        []float64                           `json:"values,omitempty"`
+	SampleMode    common.SampleMode                   `json:"sampleMode,omitempty"`
+	Condition     common.MetricStrategyItem_Condition `json:"condition,omitempty"`
+	Enable        bool                                `json:"enable,omitempty"`
 }
 
 func (m *MetricRule) GetEnable() bool {

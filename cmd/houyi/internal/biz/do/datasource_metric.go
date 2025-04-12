@@ -13,18 +13,18 @@ import (
 var _ cache.Object = (*DatasourceMetricConfig)(nil)
 
 type DatasourceMetricConfig struct {
-	TeamId         uint32                        `json:"teamId"`
-	ID             uint32                        `json:"id"`
-	Name           string                        `json:"name"`
-	Driver         common.MetricDatasourceDriver `json:"driver"`
-	Endpoint       string                        `json:"endpoint"`
-	Headers        map[string]string             `json:"headers"`
-	Method         common.DatasourceQueryMethod  `json:"method"`
-	CA             string                        `json:"ca"`
-	BasicAuth      *BasicAuth                    `json:"basicAuth"`
-	TLS            *TLS                          `json:"tls"`
-	Enable         bool                          `json:"enable"`
-	ScrapeInterval time.Duration                 `json:"scrapeInterval"`
+	TeamId         uint32                        `json:"teamId,omitempty"`
+	ID             uint32                        `json:"id,omitempty"`
+	Name           string                        `json:"name,omitempty"`
+	Driver         common.MetricDatasourceDriver `json:"driver,omitempty"`
+	Endpoint       string                        `json:"endpoint,omitempty"`
+	Headers        map[string]string             `json:"headers,omitempty"`
+	Method         common.DatasourceQueryMethod  `json:"method,omitempty"`
+	CA             string                        `json:"ca,omitempty"`
+	BasicAuth      *BasicAuth                    `json:"basicAuth,omitempty"`
+	TLS            *TLS                          `json:"tls,omitempty"`
+	Enable         bool                          `json:"enable,omitempty"`
+	ScrapeInterval time.Duration                 `json:"scrapeInterval,omitempty"`
 }
 
 func (d *DatasourceMetricConfig) GetScrapeInterval() time.Duration {

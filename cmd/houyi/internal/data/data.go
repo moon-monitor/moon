@@ -20,10 +20,11 @@ func New(c *conf.Bootstrap, logger log.Logger) (*Data, func(), error) {
 	eventBusConf := c.GetEventBus()
 	data := &Data{
 		dataConf:            dataConf,
+		helper:              log.NewHelper(log.With(logger, "module", "data")),
 		metricDatasource:    safety.NewMap[string, datasource.Metric](),
 		StrategyJobEventBus: make(chan bo.StrategyJob, eventBusConf.GetStrategyJobEventBusMaxCap()),
-		AlertEventBus:       make(chan bo.AlertJob, eventBusConf.GetAlertEventBusMaxCap()),
-		helper:              log.NewHelper(log.With(logger, "module", "data")),
+		AlertJobEventBus:    make(chan bo.AlertJob, eventBusConf.GetAlertEventJobBusMaxCap()),
+		AlertEventBus:       make(chan bo.Alert, eventBusConf.GetAlertEventBusMaxCap()),
 	}
 	data.cache, err = cache.NewCache(c.GetCache())
 	if err != nil {
@@ -47,7 +48,8 @@ type Data struct {
 	metricDatasource *safety.Map[string, datasource.Metric]
 
 	StrategyJobEventBus chan bo.StrategyJob
-	AlertEventBus       chan bo.AlertJob
+	AlertJobEventBus    chan bo.AlertJob
+	AlertEventBus       chan bo.Alert
 }
 
 func (d *Data) GetCache() cache.Cache {
@@ -70,10 +72,18 @@ func (d *Data) OutStrategyJobEventBus() <-chan bo.StrategyJob {
 	return d.StrategyJobEventBus
 }
 
-func (d *Data) InAlertEventBus() chan<- bo.AlertJob {
+func (d *Data) InAlertJobEventBus() chan<- bo.AlertJob {
+	return d.AlertJobEventBus
+}
+
+func (d *Data) OutAlertJobEventBus() <-chan bo.AlertJob {
+	return d.AlertJobEventBus
+}
+
+func (d *Data) InAlertEventBus() chan<- bo.Alert {
 	return d.AlertEventBus
 }
 
-func (d *Data) OutAlertEventBus() <-chan bo.AlertJob {
+func (d *Data) OutAlertEventBus() <-chan bo.Alert {
 	return d.AlertEventBus
 }

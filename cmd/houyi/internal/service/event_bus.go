@@ -29,3 +29,7 @@ func (s *EventBusService) OutStrategyJobEventBus() <-chan bo.StrategyJob {
 func (s *EventBusService) OutAlertJobEventBus() <-chan bo.AlertJob {
 	return s.eventBus.OutAlertJobEventBus()
 }
+
+func (s *EventBusService) OutAlertEventBus() <-chan bo.Alert {
+	return s.eventBus.OutAlertEventBus()
+}

@@ -1,9 +1,9 @@
 package do
 
 type TLS struct {
-	ServerName        string `json:"serverName"`
-	ClientCertificate string `json:"clientCertificate"`
-	ClientKey         string `json:"clientKey"`
+	ServerName        string `json:"serverName,omitempty"`
+	ClientCertificate string `json:"clientCertificate,omitempty"`
+	ClientKey         string `json:"clientKey,omitempty"`
 }
 
 func (t *TLS) GetClientCertificate() string {
@@ -28,8 +28,8 @@ func (t *TLS) GetServerName() string {
 }
 
 type BasicAuth struct {
-	Username string `json:"username"`
-	Password string `json:"password"`
+	Username string `json:"username,omitempty"`
+	Password string `json:"password,omitempty"`
 }
 
 func (b *BasicAuth) GetUsername() string {

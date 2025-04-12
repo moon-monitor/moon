@@ -19,6 +19,7 @@ var ProviderSetServer = wire.NewSet(
 	RegisterService,
 	NewCronStrategyJobServer,
 	NewCronAlertJobServer,
+	NewEventBusServer,
 )
 
 // RegisterService register service
@@ -28,6 +29,7 @@ func RegisterService(
 	httpSrv *http.Server,
 	cronStrategySrv *CronStrategyJobServer,
 	cronAlertSrv *CronAlertJobServer,
+	eventBusService *EventBusServer,
 	healthService *service.HealthService,
 	syncService *service.SyncService,
 	alertService *service.AlertService,
@@ -37,5 +39,5 @@ func RegisterService(
 	houyiv1.RegisterSyncServer(rpcSrv, syncService)
 	houyiv1.RegisterSyncHTTPServer(httpSrv, syncService)
 	houyiv1.RegisterAlertHTTPServer(httpSrv, alertService)
-	return server.Servers{rpcSrv, httpSrv, cronStrategySrv, cronAlertSrv}
+	return server.Servers{rpcSrv, httpSrv, cronStrategySrv, cronAlertSrv, eventBusService}
 }

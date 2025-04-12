@@ -20,14 +20,14 @@ type EventBus struct {
 	eventBus repository.EventBus
 }
 
-func (e *EventBus) InStrategyJobEventBus() chan<- bo.StrategyJob {
-	return e.eventBus.InStrategyJobEventBus()
-}
-
 func (e *EventBus) OutStrategyJobEventBus() <-chan bo.StrategyJob {
 	return e.eventBus.OutStrategyJobEventBus()
 }
 
 func (e *EventBus) OutAlertJobEventBus() <-chan bo.AlertJob {
+	return e.eventBus.OutAlertJobEventBus()
+}
+
+func (e *EventBus) OutAlertEventBus() <-chan bo.Alert {
 	return e.eventBus.OutAlertEventBus()
 }

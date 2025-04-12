@@ -80,14 +80,14 @@ func (a *alertJob) isSustaining() (alert bo.Alert, sustaining bool) {
 			return
 		}
 		if err := a.alertRepo.Delete(ctx, a.GetFingerprint()); err != nil {
-			a.helper.Warnw("msg", "delete alert error", "error", err)
+			a.helper.Warnw("msg", "delete alertInfo error", "error", err)
 		}
 	}()
-	alert, ok := a.alertRepo.Get(ctx, a.GetFingerprint())
+	alertInfo, ok := a.alertRepo.Get(ctx, a.GetFingerprint())
 	if !ok {
 		return a, false
 	}
-	return alert, alert.GetLastUpdated().Add(a.GetDuration()).After(time.Now())
+	return alertInfo, alertInfo.GetLastUpdated().Add(a.GetDuration()).After(time.Now())
 }
 
 func (a *alertJob) Run() {
@@ -95,7 +95,7 @@ func (a *alertJob) Run() {
 	if !ok {
 		alertInfo.Resolved()
 		a.Alert = alertInfo
-		a.eventBusRepo.InAlertEventBus() <- a
+		a.eventBusRepo.InAlertJobEventBus() <- a
 	}
 }
 

@@ -1,9 +1,9 @@
 package do
 
 type LabelNotices struct {
-	Key            string   `json:"key"`
-	Value          string   `json:"value"`
-	ReceiverRoutes []string `json:"receiverRoutes"`
+	Key            string   `json:"key,omitempty"`
+	Value          string   `json:"value,omitempty"`
+	ReceiverRoutes []string `json:"receiverRoutes,omitempty"`
 }
 
 func (l *LabelNotices) GetKey() string {

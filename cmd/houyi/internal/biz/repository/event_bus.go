@@ -8,6 +8,9 @@ type EventBus interface {
 	InStrategyJobEventBus() chan<- bo.StrategyJob
 	OutStrategyJobEventBus() <-chan bo.StrategyJob
 
-	InAlertEventBus() chan<- bo.AlertJob
-	OutAlertEventBus() <-chan bo.AlertJob
+	InAlertJobEventBus() chan<- bo.AlertJob
+	OutAlertJobEventBus() <-chan bo.AlertJob
+
+	InAlertEventBus() chan<- bo.Alert
+	OutAlertEventBus() <-chan bo.Alert
 }

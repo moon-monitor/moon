@@ -5,6 +5,7 @@ import (
 
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/moon-monitor/moon/pkg/util/slices"
+	"github.com/moon-monitor/moon/pkg/util/validate"
 
 	"github.com/moon-monitor/moon/cmd/houyi/internal/biz/bo"
 	"github.com/moon-monitor/moon/cmd/houyi/internal/biz/do"
@@ -47,23 +48,28 @@ func (c *configImpl) SetMetricDatasourceConfig(ctx context.Context, configs ...b
 	configDos := make(map[string]any, len(configs))
 	for _, v := range configs {
 		item := &do.DatasourceMetricConfig{
-			TeamId:   v.GetTeamId(),
-			ID:       v.GetId(),
-			Driver:   v.GetDriver(),
-			Endpoint: v.GetEndpoint(),
-			Headers:  v.GetHeaders(),
-			Method:   v.GetMethod(),
-			CA:       v.GetCA(),
+			TeamId:         v.GetTeamId(),
+			ID:             v.GetId(),
+			Name:           v.GetName(),
+			Driver:         v.GetDriver(),
+			Endpoint:       v.GetEndpoint(),
+			Headers:        v.GetHeaders(),
+			Method:         v.GetMethod(),
+			CA:             v.GetCA(),
+			BasicAuth:      nil,
+			TLS:            nil,
+			Enable:         v.GetEnable(),
+			ScrapeInterval: v.GetScrapeInterval(),
 		}
 		basicAuth := v.GetBasicAuth()
-		if basicAuth != nil {
+		if validate.IsNotNil(basicAuth) {
 			item.BasicAuth = &do.BasicAuth{
 				Username: basicAuth.GetUsername(),
 				Password: basicAuth.GetPassword(),
 			}
 		}
 		tls := v.GetTLS()
-		if tls != nil {
+		if validate.IsNotNil(tls) {
 			item.TLS = &do.TLS{
 				ClientCertificate: tls.GetClientCertificate(),
 				ClientKey:         tls.GetClientKey(),
