@@ -6,17 +6,17 @@ import (
 	"github.com/moon-monitor/moon/pkg/api/houyi/common"
 )
 
-func NewMetricJudge(sampleModeType common.MetricStrategyItem_SampleMode, opts ...MetricJudgeOption) MetricJudge {
+func NewMetricJudge(sampleModeType common.SampleMode, opts ...MetricJudgeOption) MetricJudge {
 	var config MetricJudgeConfig
 	for _, opt := range opts {
 		opt(&config)
 	}
 	switch sampleModeType {
-	case common.MetricStrategyItem_SampleMode_For:
+	case common.SampleMode_For:
 		return &metricForJudge{config}
-	case common.MetricStrategyItem_SampleMode_Max:
+	case common.SampleMode_Max:
 		return &metricMaxJudge{config}
-	case common.MetricStrategyItem_SampleMode_Min:
+	case common.SampleMode_Min:
 		return &metricMinJudge{config}
 	default:
 		return &metricForJudge{config}
@@ -51,15 +51,15 @@ func WithMetricJudgeConditionCount(count int64) MetricJudgeOption {
 
 type MetricJudge interface {
 	Judge(originValues []bo.MetricJudgeDataValue) (bo.MetricJudgeDataValue, bool)
-	Type() common.MetricStrategyItem_SampleMode
+	Type() common.SampleMode
 }
 
 type metricForJudge struct {
 	MetricJudgeConfig
 }
 
-func (m *metricForJudge) Type() common.MetricStrategyItem_SampleMode {
-	return common.MetricStrategyItem_SampleMode_For
+func (m *metricForJudge) Type() common.SampleMode {
+	return common.SampleMode_For
 }
 
 func (m *metricForJudge) Judge(originValues []bo.MetricJudgeDataValue) (bo.MetricJudgeDataValue, bool) {
@@ -84,8 +84,8 @@ type metricMaxJudge struct {
 	MetricJudgeConfig
 }
 
-func (m *metricMaxJudge) Type() common.MetricStrategyItem_SampleMode {
-	return common.MetricStrategyItem_SampleMode_Max
+func (m *metricMaxJudge) Type() common.SampleMode {
+	return common.SampleMode_Max
 }
 
 func (m *metricMaxJudge) Judge(originValues []bo.MetricJudgeDataValue) (bo.MetricJudgeDataValue, bool) {
@@ -109,8 +109,8 @@ type metricMinJudge struct {
 	MetricJudgeConfig
 }
 
-func (m *metricMinJudge) Type() common.MetricStrategyItem_SampleMode {
-	return common.MetricStrategyItem_SampleMode_Min
+func (m *metricMinJudge) Type() common.SampleMode {
+	return common.SampleMode_Min
 }
 
 func (m *metricMinJudge) Judge(originValues []bo.MetricJudgeDataValue) (bo.MetricJudgeDataValue, bool) {

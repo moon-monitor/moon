@@ -15,7 +15,7 @@ type MetricJudgeRule interface {
 	GetDuration() time.Duration
 	GetCount() int64
 	GetValues() []float64
-	GetSampleMode() common.MetricStrategyItem_SampleMode
+	GetSampleMode() common.SampleMode
 	GetCondition() common.MetricStrategyItem_Condition
 	GetExt() kv.Map[string, any]
 }

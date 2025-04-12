@@ -31,7 +31,7 @@ func ToMetricRules(strategyItems ...*common.MetricStrategyItem) []bo.MetricRule 
 				annotations := strategyItem.GetAnnotations()
 				item := &do.MetricRule{
 					TeamId:     strategyItem.GetTeam().GetTeamId(),
-					Datasource: vobj.MetricDatasourceUniqueKey(datasourceItem.GetDriver(), datasourceItem.GetId()),
+					Datasource: vobj.MetricDatasourceUniqueKey(datasourceItem.GetDriver(), strategyItem.GetTeam().GetTeamId(), datasourceItem.GetId()),
 					StrategyId: strategyItem.GetStrategyId(),
 					LevelId:    rule.GetLevelId(),
 					Receiver:   rule.GetReceiverRoutes(),

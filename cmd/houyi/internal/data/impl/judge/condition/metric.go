@@ -42,7 +42,7 @@ type MetricCondition interface {
 type metricConditionEQ struct{}
 
 func (m *metricConditionEQ) Type() common.MetricStrategyItem_Condition {
-	return common.MetricStrategyItem_Condition_EQ
+	return common.MetricStrategyItem_EQ
 }
 
 func (m *metricConditionEQ) Comparable(conditionValues []float64, originValue float64) bool {
@@ -55,7 +55,7 @@ func (m *metricConditionEQ) Comparable(conditionValues []float64, originValue fl
 type metricConditionNE struct{}
 
 func (m *metricConditionNE) Type() common.MetricStrategyItem_Condition {
-	return common.MetricStrategyItem_Condition_NE
+	return common.MetricStrategyItem_NE
 }
 
 func (m *metricConditionNE) Comparable(conditionValues []float64, originValue float64) bool {
@@ -68,7 +68,7 @@ func (m *metricConditionNE) Comparable(conditionValues []float64, originValue fl
 type metricConditionGT struct{}
 
 func (m *metricConditionGT) Type() common.MetricStrategyItem_Condition {
-	return common.MetricStrategyItem_Condition_GT
+	return common.MetricStrategyItem_GT
 }
 
 func (m *metricConditionGT) Comparable(conditionValues []float64, originValue float64) bool {
@@ -81,7 +81,7 @@ func (m *metricConditionGT) Comparable(conditionValues []float64, originValue fl
 type metricConditionGTE struct{}
 
 func (m *metricConditionGTE) Type() common.MetricStrategyItem_Condition {
-	return common.MetricStrategyItem_Condition_GTE
+	return common.MetricStrategyItem_GTE
 }
 
 func (m *metricConditionGTE) Comparable(conditionValues []float64, originValue float64) bool {
@@ -94,7 +94,7 @@ func (m *metricConditionGTE) Comparable(conditionValues []float64, originValue f
 type metricConditionLT struct{}
 
 func (m *metricConditionLT) Type() common.MetricStrategyItem_Condition {
-	return common.MetricStrategyItem_Condition_LT
+	return common.MetricStrategyItem_LT
 }
 
 func (m *metricConditionLT) Comparable(conditionValues []float64, originValue float64) bool {
@@ -107,7 +107,7 @@ func (m *metricConditionLT) Comparable(conditionValues []float64, originValue fl
 type metricConditionLTE struct{}
 
 func (m *metricConditionLTE) Type() common.MetricStrategyItem_Condition {
-	return common.MetricStrategyItem_Condition_LTE
+	return common.MetricStrategyItem_LTE
 }
 
 func (m *metricConditionLTE) Comparable(conditionValues []float64, originValue float64) bool {
@@ -120,7 +120,7 @@ func (m *metricConditionLTE) Comparable(conditionValues []float64, originValue f
 type metricConditionInRange struct{}
 
 func (m *metricConditionInRange) Type() common.MetricStrategyItem_Condition {
-	return common.MetricStrategyItem_Condition_In
+	return common.MetricStrategyItem_In
 }
 
 func (m *metricConditionInRange) Comparable(conditionValues []float64, originValue float64) bool {
@@ -133,7 +133,7 @@ func (m *metricConditionInRange) Comparable(conditionValues []float64, originVal
 type metricConditionNotInRange struct{}
 
 func (m *metricConditionNotInRange) Type() common.MetricStrategyItem_Condition {
-	return common.MetricStrategyItem_Condition_NotIn
+	return common.MetricStrategyItem_NotIn
 }
 
 func (m *metricConditionNotInRange) Comparable(conditionValues []float64, originValue float64) bool {

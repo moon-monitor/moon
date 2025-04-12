@@ -10,9 +10,10 @@ import (
 
 type MetricDatasourceConfig interface {
 	cache.Object
+	GetTeamId() uint32
 	GetId() uint32
 	GetName() string
-	GetDriver() common.MetricDatasourceItem_Driver
+	GetDriver() common.MetricDatasourceDriver
 	GetEndpoint() string
 	GetHeaders() map[string]string
 	GetMethod() common.DatasourceQueryMethod

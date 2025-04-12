@@ -8,9 +8,9 @@ import (
 
 func ToMetricDatasourceConfig(metricItem *common.MetricDatasourceItem) (*do.DatasourceMetricConfig, error) {
 	switch metricItem.GetDriver() {
-	case common.MetricDatasourceItem_Driver_PROMETHEUS:
+	case common.MetricDatasourceDriver_prometheus:
 		return ToMetricDatasourceConfigWithPrometheus(metricItem)
-	case common.MetricDatasourceItem_Driver_VICTORIA_METRICS:
+	case common.MetricDatasourceDriver_victoriametrics:
 		return ToMetricDatasourceConfigWithVictoriaMetrics(metricItem)
 	default:
 		return nil, merr.ErrorParamsError("invalid metric datasource driver: %s", metricItem.GetDriver())
@@ -23,16 +23,18 @@ func ToMetricDatasourceConfigWithPrometheus(metricItem *common.MetricDatasourceI
 		return nil, merr.ErrorParamsError("prometheus config is nil")
 	}
 	return &do.DatasourceMetricConfig{
-		ID:        metricItem.GetId(),
-		Name:      metricItem.GetName(),
-		Driver:    common.MetricDatasourceItem_Driver_PROMETHEUS,
-		Endpoint:  prometheusConfig.GetEndpoint(),
-		Headers:   prometheusConfig.GetHeaders(),
-		Method:    prometheusConfig.GetMethod(),
-		CA:        prometheusConfig.GetCa(),
-		BasicAuth: ToBasicAuth(prometheusConfig.GetBasicAuth()),
-		TLS:       ToTLS(prometheusConfig.GetTls()),
-		Enable:    metricItem.GetEnable(),
+		TeamId:         metricItem.GetTeam().GetTeamId(),
+		ID:             metricItem.GetId(),
+		Name:           metricItem.GetName(),
+		Driver:         common.MetricDatasourceDriver_prometheus,
+		Endpoint:       prometheusConfig.GetEndpoint(),
+		Headers:        prometheusConfig.GetHeaders(),
+		Method:         prometheusConfig.GetMethod(),
+		CA:             prometheusConfig.GetCa(),
+		BasicAuth:      ToBasicAuth(prometheusConfig.GetBasicAuth()),
+		TLS:            ToTLS(prometheusConfig.GetTls()),
+		Enable:         metricItem.GetEnable(),
+		ScrapeInterval: metricItem.GetScrapeInterval().AsDuration(),
 	}, nil
 }
 
@@ -42,15 +44,17 @@ func ToMetricDatasourceConfigWithVictoriaMetrics(metricItem *common.MetricDataso
 		return nil, merr.ErrorParamsError("victoria metrics config is nil")
 	}
 	return &do.DatasourceMetricConfig{
-		ID:        metricItem.GetId(),
-		Name:      metricItem.GetName(),
-		Driver:    common.MetricDatasourceItem_Driver_VICTORIA_METRICS,
-		Endpoint:  victoriaMetricsConfig.GetEndpoint(),
-		Headers:   victoriaMetricsConfig.GetHeaders(),
-		Method:    victoriaMetricsConfig.GetMethod(),
-		CA:        victoriaMetricsConfig.GetCa(),
-		BasicAuth: ToBasicAuth(victoriaMetricsConfig.GetBasicAuth()),
-		TLS:       ToTLS(victoriaMetricsConfig.GetTls()),
-		Enable:    metricItem.GetEnable(),
+		TeamId:         metricItem.GetTeam().GetTeamId(),
+		ID:             metricItem.GetId(),
+		Name:           metricItem.GetName(),
+		Driver:         common.MetricDatasourceDriver_victoriametrics,
+		Endpoint:       victoriaMetricsConfig.GetEndpoint(),
+		Headers:        victoriaMetricsConfig.GetHeaders(),
+		Method:         victoriaMetricsConfig.GetMethod(),
+		CA:             victoriaMetricsConfig.GetCa(),
+		BasicAuth:      ToBasicAuth(victoriaMetricsConfig.GetBasicAuth()),
+		TLS:            ToTLS(victoriaMetricsConfig.GetTls()),
+		Enable:         metricItem.GetEnable(),
+		ScrapeInterval: metricItem.GetScrapeInterval().AsDuration(),
 	}, nil
 }

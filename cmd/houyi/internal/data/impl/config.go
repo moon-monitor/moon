@@ -47,6 +47,7 @@ func (c *configImpl) SetMetricDatasourceConfig(ctx context.Context, configs ...b
 	configDos := make(map[string]any, len(configs))
 	for _, v := range configs {
 		item := &do.DatasourceMetricConfig{
+			TeamId:   v.GetTeamId(),
 			ID:       v.GetId(),
 			Driver:   v.GetDriver(),
 			Endpoint: v.GetEndpoint(),

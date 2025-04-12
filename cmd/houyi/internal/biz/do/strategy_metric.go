@@ -13,21 +13,21 @@ import (
 )
 
 type MetricRule struct {
-	TeamId        uint32                               `json:"teamId"`
-	Datasource    string                               `json:"datasource"`
-	StrategyId    uint32                               `json:"strategyId"`
-	LevelId       uint32                               `json:"levelId"`
-	Receiver      []string                             `json:"receiver"`
-	LabelReceiver []*LabelNotices                      `json:"labelReceiver"`
-	Expr          string                               `json:"expr"`
-	Labels        *label.Label                         `json:"labels"`
-	Annotations   *label.Annotation                    `json:"annotations"`
-	Duration      time.Duration                        `json:"duration"`
-	Count         int64                                `json:"count"`
-	Values        []float64                            `json:"values"`
-	SampleMode    common.MetricStrategyItem_SampleMode `json:"sampleMode"`
-	Condition     common.MetricStrategyItem_Condition  `json:"condition"`
-	Enable        bool                                 `json:"enable"`
+	TeamId        uint32                              `json:"teamId"`
+	Datasource    string                              `json:"datasource"`
+	StrategyId    uint32                              `json:"strategyId"`
+	LevelId       uint32                              `json:"levelId"`
+	Receiver      []string                            `json:"receiver"`
+	LabelReceiver []*LabelNotices                     `json:"labelReceiver"`
+	Expr          string                              `json:"expr"`
+	Labels        *label.Label                        `json:"labels"`
+	Annotations   *label.Annotation                   `json:"annotations"`
+	Duration      time.Duration                       `json:"duration"`
+	Count         int64                               `json:"count"`
+	Values        []float64                           `json:"values"`
+	SampleMode    common.SampleMode                   `json:"sampleMode"`
+	Condition     common.MetricStrategyItem_Condition `json:"condition"`
+	Enable        bool                                `json:"enable"`
 }
 
 func (m *MetricRule) GetEnable() bool {
@@ -138,16 +138,16 @@ func (m *MetricRule) GetValues() []float64 {
 	return m.Values
 }
 
-func (m *MetricRule) GetSampleMode() common.MetricStrategyItem_SampleMode {
+func (m *MetricRule) GetSampleMode() common.SampleMode {
 	if m == nil {
-		return common.MetricStrategyItem_SampleMode_For
+		return common.SampleMode_For
 	}
 	return m.SampleMode
 }
 
 func (m *MetricRule) GetCondition() common.MetricStrategyItem_Condition {
 	if m == nil {
-		return common.MetricStrategyItem_Condition_EQ
+		return common.MetricStrategyItem_EQ
 	}
 	return m.Condition
 }

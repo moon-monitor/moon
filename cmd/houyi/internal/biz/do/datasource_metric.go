@@ -13,17 +13,18 @@ import (
 var _ cache.Object = (*DatasourceMetricConfig)(nil)
 
 type DatasourceMetricConfig struct {
-	ID             uint32                             `json:"id"`
-	Name           string                             `json:"name"`
-	Driver         common.MetricDatasourceItem_Driver `json:"driver"`
-	Endpoint       string                             `json:"endpoint"`
-	Headers        map[string]string                  `json:"headers"`
-	Method         common.DatasourceQueryMethod       `json:"method"`
-	CA             string                             `json:"ca"`
-	BasicAuth      *BasicAuth                         `json:"basicAuth"`
-	TLS            *TLS                               `json:"tls"`
-	Enable         bool                               `json:"enable"`
-	ScrapeInterval time.Duration                      `json:"scrapeInterval"`
+	TeamId         uint32                        `json:"teamId"`
+	ID             uint32                        `json:"id"`
+	Name           string                        `json:"name"`
+	Driver         common.MetricDatasourceDriver `json:"driver"`
+	Endpoint       string                        `json:"endpoint"`
+	Headers        map[string]string             `json:"headers"`
+	Method         common.DatasourceQueryMethod  `json:"method"`
+	CA             string                        `json:"ca"`
+	BasicAuth      *BasicAuth                    `json:"basicAuth"`
+	TLS            *TLS                          `json:"tls"`
+	Enable         bool                          `json:"enable"`
+	ScrapeInterval time.Duration                 `json:"scrapeInterval"`
 }
 
 func (d *DatasourceMetricConfig) GetScrapeInterval() time.Duration {
@@ -31,6 +32,13 @@ func (d *DatasourceMetricConfig) GetScrapeInterval() time.Duration {
 		return 0
 	}
 	return d.ScrapeInterval
+}
+
+func (d *DatasourceMetricConfig) GetTeamId() uint32 {
+	if d == nil {
+		return 0
+	}
+	return d.TeamId
 }
 
 func (d *DatasourceMetricConfig) GetId() uint32 {
@@ -54,9 +62,9 @@ func (d *DatasourceMetricConfig) GetEnable() bool {
 	return d.Enable
 }
 
-func (d *DatasourceMetricConfig) GetDriver() common.MetricDatasourceItem_Driver {
+func (d *DatasourceMetricConfig) GetDriver() common.MetricDatasourceDriver {
 	if d == nil {
-		return common.MetricDatasourceItem_Driver_UNKNOWN
+		return common.MetricDatasourceDriver_MetricDatasourceDriverUNKNOWN
 	}
 	return d.Driver
 }
@@ -77,7 +85,7 @@ func (d *DatasourceMetricConfig) GetHeaders() map[string]string {
 
 func (d *DatasourceMetricConfig) GetMethod() common.DatasourceQueryMethod {
 	if d == nil {
-		return common.DatasourceQueryMethod_QueryMethod_HTTP_POST
+		return common.DatasourceQueryMethod_POST
 	}
 	return d.Method
 }
@@ -112,5 +120,5 @@ func (d *DatasourceMetricConfig) UnmarshalBinary(data []byte) error {
 }
 
 func (d *DatasourceMetricConfig) UniqueKey() string {
-	return vobj.MetricDatasourceUniqueKey(d.Driver, d.ID)
+	return vobj.MetricDatasourceUniqueKey(d.Driver, d.TeamId, d.ID)
 }

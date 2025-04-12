@@ -375,7 +375,7 @@ components:
                 driver:
                     type: integer
                     format: enum
-                rocketMq:
+                rocketmq:
                     $ref: '#/components/schemas/api.houyi.common.EventDatasourceItem_RocketMQ'
                 mqtt:
                     $ref: '#/components/schemas/api.houyi.common.EventDatasourceItem_Mqtt'
@@ -717,6 +717,9 @@ components:
                     type: integer
                     format: uint32
                 name:
+                    type: string
+                scrapeInterval:
+                    pattern: ^-?(?:0|[1-9][0-9]{0,11})(?:\.[0-9]{1,9})?s$
                     type: string
         api.houyi.common.MetricDatasourceItem_Prometheus:
             type: object
