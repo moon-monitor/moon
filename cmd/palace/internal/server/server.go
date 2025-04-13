@@ -26,6 +26,12 @@ func RegisterService(
 	resourceService *service.ResourceService,
 	userService *service.UserService,
 	dashboardService *service.DashboardService,
+	callbackService *service.CallbackService,
+	teamDashboardService *service.TeamDashboardService,
+	datasourceService *service.TeamDatasourceService,
+	dictService *service.TeamDictService,
+	noticeService *service.TeamNoticeService,
+	strategyService *service.TeamStrategyService,
 ) server.Servers {
 	commonv1.RegisterHealthServer(rpcSrv, healthService)
 	commonv1.RegisterServerServer(rpcSrv, serverService)
@@ -36,5 +42,11 @@ func RegisterService(
 	palacev1.RegisterResourceHTTPServer(httpSrv, resourceService)
 	palacev1.RegisterUserHTTPServer(httpSrv, userService)
 	palacev1.RegisterTeamDashboardHTTPServer(httpSrv, dashboardService)
+	palacev1.RegisterCallbackHTTPServer(httpSrv, callbackService)
+	palacev1.RegisterTeamDashboardHTTPServer(httpSrv, teamDashboardService)
+	palacev1.RegisterTeamDatasourceHTTPServer(httpSrv, datasourceService)
+	palacev1.RegisterTeamDictHTTPServer(httpSrv, dictService)
+	palacev1.RegisterTeamNoticeHTTPServer(httpSrv, noticeService)
+	palacev1.RegisterTeamStrategyHTTPServer(httpSrv, strategyService)
 	return server.Servers{rpcSrv, httpSrv}
 }
