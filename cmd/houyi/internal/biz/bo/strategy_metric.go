@@ -40,6 +40,7 @@ type MetricRule interface {
 	GetLabelReceiverRoutes() []LabelNotices
 	GetExpr() string
 	GetEnable() bool
+	Renovate()
 
 	MetricJudgeRule
 }

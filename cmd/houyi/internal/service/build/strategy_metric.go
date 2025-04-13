@@ -1,6 +1,8 @@
 package build
 
 import (
+	"strconv"
+
 	"github.com/moon-monitor/moon/cmd/houyi/internal/biz/bo"
 	"github.com/moon-monitor/moon/cmd/houyi/internal/biz/do"
 	"github.com/moon-monitor/moon/cmd/houyi/internal/biz/vobj"
@@ -30,16 +32,22 @@ func ToMetricRules(strategyItems ...*common.MetricStrategyItem) []bo.MetricRule 
 				}
 				annotations := strategyItem.GetAnnotations()
 				item := &do.MetricRule{
-					TeamId:     strategyItem.GetTeam().GetTeamId(),
-					Datasource: vobj.MetricDatasourceUniqueKey(datasourceItem.GetDriver(), strategyItem.GetTeam().GetTeamId(), datasourceItem.GetId()),
-					StrategyId: strategyItem.GetStrategyId(),
-					LevelId:    rule.GetLevelId(),
-					Receiver:   rule.GetReceiverRoutes(),
+					TeamId:       strategyItem.GetTeam().GetTeamId(),
+					DatasourceId: datasourceItem.GetId(),
+					Datasource:   vobj.MetricDatasourceUniqueKey(datasourceItem.GetDriver(), strategyItem.GetTeam().GetTeamId(), datasourceItem.GetId()),
+					StrategyId:   strategyItem.GetStrategyId(),
+					LevelId:      rule.GetLevelId(),
+					Receiver:     rule.GetReceiverRoutes(),
 					LabelReceiver: slices.Map(rule.GetLabelNotices(), func(item *common.MetricStrategyItem_LabelNotices) *do.LabelNotices {
 						return ToLabelNotice(item)
 					}),
-					Expr:        strategyItem.GetExpr(),
-					Labels:      label.NewLabel(strategyItem.GetLabels()),
+					Expr: strategyItem.GetExpr(),
+					Labels: label.NewLabel(strategyItem.GetLabels()).Appends(map[string]string{
+						cnst.LabelKeyTeamID:       strconv.FormatUint(uint64(strategyItem.GetTeam().GetTeamId()), 10),
+						cnst.LabelKeyStrategyID:   strconv.FormatUint(uint64(strategyItem.GetStrategyId()), 10),
+						cnst.LabelKeyLevelID:      strconv.FormatUint(uint64(rule.GetLevelId()), 10),
+						cnst.LabelKeyDatasourceID: strconv.FormatUint(uint64(datasourceItem.GetId()), 10),
+					}),
 					Annotations: label.NewAnnotation(annotations[cnst.AnnotationKeySummary], annotations[cnst.AnnotationKeyDescription]),
 					Duration:    rule.GetDuration().AsDuration(),
 					Count:       rule.GetCount(),

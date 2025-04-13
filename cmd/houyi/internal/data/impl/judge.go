@@ -60,7 +60,7 @@ func (j *judgeImpl) generateAlert(rule bo.MetricJudgeRule, value bo.MetricJudgeD
 	ext.Set(cnst.ExtKeyValues, value.GetValue())
 	ext.Set(cnst.ExtKeyTimestamp, value.GetTimestamp())
 
-	labels := rule.GetLabels()
+	labels := rule.GetLabels().Copy()
 	labelsMap := labels.ToMap()
 	for k, v := range labelsMap {
 		labelsMap[k] = template.TextFormatterX(v, ext)
@@ -68,7 +68,7 @@ func (j *judgeImpl) generateAlert(rule bo.MetricJudgeRule, value bo.MetricJudgeD
 	labels = labels.Appends(labelsMap).Appends(originLabels)
 	ext.Set(cnst.ExtKeyLabels, labels.ToMap())
 
-	annotations := rule.GetAnnotations()
+	annotations := rule.GetAnnotations().Copy()
 	summary := template.TextFormatterX(annotations.GetSummary(), ext)
 	description := template.TextFormatterX(annotations.GetDescription(), ext)
 	annotations.SetSummary(summary)

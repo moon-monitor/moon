@@ -2,11 +2,13 @@ package do
 
 import (
 	"encoding/json"
+	"strconv"
 	"time"
 
 	"github.com/moon-monitor/moon/cmd/houyi/internal/biz/bo"
 	"github.com/moon-monitor/moon/cmd/houyi/internal/biz/vobj"
 	"github.com/moon-monitor/moon/pkg/api/houyi/common"
+	"github.com/moon-monitor/moon/pkg/util/cnst"
 	"github.com/moon-monitor/moon/pkg/util/kv"
 	"github.com/moon-monitor/moon/pkg/util/kv/label"
 	"github.com/moon-monitor/moon/pkg/util/slices"
@@ -14,6 +16,7 @@ import (
 
 type MetricRule struct {
 	TeamId        uint32                              `json:"teamId,omitempty"`
+	DatasourceId  uint32                              `json:"datasourceId,omitempty"`
 	Datasource    string                              `json:"datasource,omitempty"`
 	StrategyId    uint32                              `json:"strategyId,omitempty"`
 	LevelId       uint32                              `json:"levelId,omitempty"`
@@ -28,6 +31,15 @@ type MetricRule struct {
 	SampleMode    common.SampleMode                   `json:"sampleMode,omitempty"`
 	Condition     common.MetricStrategyItem_Condition `json:"condition,omitempty"`
 	Enable        bool                                `json:"enable,omitempty"`
+}
+
+func (m *MetricRule) Renovate() {
+	m.Labels.Appends(map[string]string{
+		cnst.LabelKeyTeamID:       strconv.FormatUint(uint64(m.TeamId), 10),
+		cnst.LabelKeyStrategyID:   strconv.FormatUint(uint64(m.StrategyId), 10),
+		cnst.LabelKeyLevelID:      strconv.FormatUint(uint64(m.LevelId), 10),
+		cnst.LabelKeyDatasourceID: strconv.FormatUint(uint64(m.DatasourceId), 10),
+	})
 }
 
 func (m *MetricRule) GetEnable() bool {

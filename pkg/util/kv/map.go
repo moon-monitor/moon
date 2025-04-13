@@ -74,3 +74,7 @@ func (m Map[K, V]) Len() int {
 func (m Map[K, V]) ToMap() map[K]V {
 	return m
 }
+
+func (m Map[K, V]) Copy() Map[K, V] {
+	return New(m)
+}

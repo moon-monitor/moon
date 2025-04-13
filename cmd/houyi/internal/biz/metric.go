@@ -82,6 +82,7 @@ func (m *Metric) syncMetricRuleConfigs(ctx context.Context, isStop bool) error {
 func (m *Metric) syncMetricJob(ctx context.Context, rules ...bo.MetricRule) error {
 	inStrategyJobEventBus := m.eventBusRepo.InStrategyJobEventBus()
 	for _, rule := range rules {
+		rule.Renovate()
 		strategyJob, err := m.newStrategyJob(ctx, rule)
 		if err != nil {
 			m.helper.Warnw("msg", "new strategy job error", "err", err)

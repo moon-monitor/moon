@@ -47,6 +47,12 @@ func (a *Label) UnmarshalBinary(data []byte) error {
 	return json.Unmarshal(data, &a.kvMap)
 }
 
+func (a *Label) Copy() *Label {
+	return &Label{
+		kvMap: a.kvMap.Copy(),
+	}
+}
+
 func (a *Label) Appends(labels map[string]string) *Label {
 	for k, v := range labels {
 		a.kvMap.Set(k, v)

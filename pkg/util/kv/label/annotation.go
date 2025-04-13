@@ -45,6 +45,12 @@ func (a *Annotation) UnmarshalBinary(data []byte) error {
 	return a.kvMap.UnmarshalBinary(data)
 }
 
+func (a *Annotation) Copy() *Annotation {
+	return &Annotation{
+		kvMap: a.kvMap.Copy(),
+	}
+}
+
 func (a *Annotation) GetSummary() string {
 	summary, ok := a.kvMap.Get(cnst.AnnotationKeySummary)
 	if !ok {
