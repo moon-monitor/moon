@@ -4,6 +4,7 @@ func Models() []any {
 	return []any{
 		&Dashboard{},
 		&DashboardChart{},
+		&DatasourceMetric{},
 		&Dict{},
 		&Member{},
 		&Menu{},
@@ -14,6 +15,9 @@ func Models() []any {
 		&Role{},
 		&Strategy{},
 		&StrategyGroup{},
+		&StrategyMetric{},
+		&StrategyMetricRule{},
+		&StrategyMetricRuleLabelNotice{},
 		&TimeEngine{},
 		&TimeEngineRule{},
 	}
