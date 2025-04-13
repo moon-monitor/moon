@@ -14,6 +14,7 @@ type Strategy struct {
 	Remark          string            `gorm:"column:remark;type:varchar(255);not null;comment:备注" json:"remark"`
 	Status          vobj.GlobalStatus `gorm:"column:status;type:tinyint(2);not null;comment:状态" json:"status"`
 	StrategyGroup   *StrategyGroup    `gorm:"foreignKey:StrategyGroupID;references:ID" json:"strategyGroup"`
+	Notices         []*NoticeGroup    `gorm:"many2many:team_strategy_notice_groups" json:"notices"`
 }
 
 func (s *Strategy) TableName() string {
