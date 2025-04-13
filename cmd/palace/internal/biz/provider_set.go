@@ -12,4 +12,5 @@ var ProviderSetBiz = wire.NewSet(
 	NewUserBiz,
 	NewDashboardBiz,
 	NewServerBiz,
+	NewDict,
 )

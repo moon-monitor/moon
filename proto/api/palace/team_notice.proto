@@ -144,6 +144,7 @@ message ListTeamNoticeGroupRequest {
   repeated uint32 memberIDs = 2;
   api.palace.common.GlobalStatus status = 3;
   string keyword = 4;
+  repeated uint32 hookIDs = 5;
 }
 message ListTeamNoticeGroupReply {
   api.palace.common.PaginationReply pagination = 1;

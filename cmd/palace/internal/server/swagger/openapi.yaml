@@ -805,7 +805,7 @@ paths:
                 - TeamDict
             operationId: TeamDict_GetTeamDict
             parameters:
-                - name: dictId
+                - name: dictID
                   in: query
                   schema:
                     type: integer
@@ -839,13 +839,11 @@ paths:
                 - TeamDict
             operationId: TeamDict_DeleteTeamDict
             parameters:
-                - name: dictIds
+                - name: dictID
                   in: query
                   schema:
-                    type: array
-                    items:
-                        type: integer
-                        format: uint32
+                    type: integer
+                    format: uint32
             responses:
                 "200":
                     description: OK
@@ -2306,6 +2304,11 @@ components:
                     format: enum
                 keyword:
                     type: string
+                hookIDs:
+                    type: array
+                    items:
+                        type: integer
+                        format: uint32
         api.palace.ListTeamNoticeHookReply:
             type: object
             properties:
@@ -2678,6 +2681,9 @@ components:
                 dictType:
                     type: integer
                     format: enum
+                dictID:
+                    type: integer
+                    format: uint32
         api.palace.SaveTeamMetricDatasourceRequest:
             type: object
             properties:

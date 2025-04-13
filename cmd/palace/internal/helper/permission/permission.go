@@ -6,26 +6,26 @@ import (
 
 type userIDContextKey struct{}
 
-// GetUserIDByContext Retrieve the user ID from the context.
+// GetUserIDByContext Retrieve the user DictID from the context.
 func GetUserIDByContext(ctx context.Context) (uint32, bool) {
 	userID, ok := ctx.Value(userIDContextKey{}).(uint32)
 	return userID, ok
 }
 
-// WithUserIDContext Set the user ID in the context.
+// WithUserIDContext Set the user DictID in the context.
 func WithUserIDContext(ctx context.Context, userID uint32) context.Context {
 	return context.WithValue(ctx, userIDContextKey{}, userID)
 }
 
 type teamIDContextKey struct{}
 
-// GetTeamIDByContext Retrieve the team ID from the context.
+// GetTeamIDByContext Retrieve the team DictID from the context.
 func GetTeamIDByContext(ctx context.Context) (uint32, bool) {
 	teamID, ok := ctx.Value(teamIDContextKey{}).(uint32)
 	return teamID, ok
 }
 
-// WithTeamIDContext Set the team ID in the context.
+// WithTeamIDContext Set the team DictID in the context.
 func WithTeamIDContext(ctx context.Context, teamID uint32) context.Context {
 	return context.WithValue(ctx, teamIDContextKey{}, teamID)
 }

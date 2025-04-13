@@ -199,7 +199,7 @@ func (u *userRepoImpl) GetMemberByUserIDAndTeamID(ctx context.Context, userID, t
 	return member, nil
 }
 
-// GetTeamsByIDs Gets all the teams by ID
+// GetTeamsByIDs Gets all the teams by DictID
 func (u *userRepoImpl) GetTeamsByIDs(ctx context.Context, teamIDs []uint32) ([]*system.Team, error) {
 	// 查询所有团队信息
 	teamQuery := u.Team

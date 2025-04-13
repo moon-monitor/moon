@@ -17,7 +17,7 @@ const (
 )
 
 const (
-	XHeaderTeamID = "X-Team-ID"
+	XHeaderTeamID = "X-Team-DictID"
 	XHeaderToken  = "Authorization"
 )
 

@@ -17,4 +17,5 @@ var ProviderSetImpl = wire.NewSet(
 	NewDashboardRepo,
 	NewDashboardChartRepo,
 	NewServerRepo,
+	NewTeamDictRepo,
 )
