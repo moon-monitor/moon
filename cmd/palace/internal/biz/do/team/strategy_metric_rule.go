@@ -25,6 +25,7 @@ type StrategyMetricRule struct {
 	Status           vobj.GlobalStatus                `gorm:"column:status;type:tinyint(2);not null;comment:状态" json:"status"`
 	Notices          []*NoticeGroup                   `gorm:"many2many:team_strategy_metric_rule_notice_groups" json:"notices"`
 	LabelNotices     []*StrategyMetricRuleLabelNotice `gorm:"foreignKey:StrategyMetricRuleID;references:ID" json:"labelNotices"`
+	AlarmPages       []*Dict                          `gorm:"many2many:team_strategy_metric_rule_alarm_pages" json:"alarmPages"`
 }
 
 func (StrategyMetricRule) TableName() string {

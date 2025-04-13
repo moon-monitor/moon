@@ -2,9 +2,13 @@ syntax = "proto3";
 
 package api.palace.common;
 
+import "google/protobuf/duration.proto";
 import "palace/common/common_enum.proto";
 import "palace/common/team.proto";
 import "palace/common/system.proto";
+import "palace/common/team_datasource.proto";
+import "palace/common/team_notice.proto";
+import "palace/common/team_dict.proto";
 
 option go_package = "github.com/moon-monitor/moon/pkg/api/palace/common;common";
 
@@ -50,4 +54,29 @@ message TeamStrategyItem {
   string updatedAt = 8;
   // Information about the team associated with the strategy.
   api.palace.common.TeamItem team = 9;
+  repeated NoticeGroupItem notices = 10;
+}
+
+message TeamStrategyMetricItem {
+  message RuleItem {
+    uint32 strategyMetricID = 1;
+    api.palace.common.TeamDictItem level = 2;
+    uint32 ruleID = 3;
+    SampleMode sampleMode = 4;
+    ConditionMetric condition = 5;
+    int64 count = 6;
+    repeated double values = 7;
+    google.protobuf.Duration duration = 8;
+    GlobalStatus status = 9;
+    repeated NoticeGroupItem notices = 10;
+    repeated StrategyMetricRuleLabelNotice labelNotices = 11;
+    repeated api.palace.common.TeamDictItem alarmPages = 12;
+  }
+  TeamStrategyItem base = 1;
+  uint32 StrategyMetricID = 2;
+  string expr = 3;
+  map<string, string> labels = 4;
+  map<string, string> annotations = 5;
+  repeated RuleItem strategyMetricRules = 6;
+  repeated api.palace.common.TeamMetricDatasourceItem datasource = 7;
 }

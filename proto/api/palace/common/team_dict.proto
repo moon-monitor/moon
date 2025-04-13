@@ -1,0 +1,19 @@
+syntax = "proto3";
+
+package api.palace.common;
+
+import "palace/common/common_enum.proto";
+
+option go_package = "github.com/moon-monitor/moon/pkg/api/palace/common;common";
+
+message TeamDictItem {
+  uint32 teamID = 1;
+  uint32 dictID = 2;
+  string createdAt = 3;
+  string updatedAt = 4;
+  string key = 5;
+  string value = 6;
+  string lang = 7;
+  string color = 8;
+  api.palace.common.DictType dictType = 9;
+}

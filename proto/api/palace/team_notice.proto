@@ -1,0 +1,151 @@
+syntax = "proto3";
+
+package api.palace;
+
+import "google/api/annotations.proto";
+import "palace/common/common.proto";
+import "palace/common/common_enum.proto";
+import "palace/common/team_notice.proto";
+
+option go_package = "github.com/moon-monitor/moon/pkg/api/palace;palace";
+
+service TeamNotice {
+  rpc SaveTeamNoticeHook (SaveTeamNoticeHookRequest) returns (api.palace.common.EmptyReply) {
+    option (google.api.http) = {
+      post: "/api/team/notice/hook"
+      body: "*"
+    };
+  }
+  rpc UpdateTeamNoticeHookStatus (UpdateTeamNoticeHookStatusRequest) returns (api.palace.common.EmptyReply) {
+    option (google.api.http) = {
+      put: "/api/team/notice/hook/status"
+      body: "*"
+    };
+  }
+  rpc DeleteTeamNoticeHook (DeleteTeamNoticeHookRequest) returns (api.palace.common.EmptyReply) {
+    option (google.api.http) = {
+      post: "/api/team/notice/hook"
+      body: "*"
+    };
+  }
+  rpc GetTeamNoticeHook (GetTeamNoticeHookRequest) returns (GetTeamNoticeHookReply) {
+    option (google.api.http) = {
+      get: "/api/team/notice/hook"
+    };
+  }
+  rpc ListTeamNoticeHook (ListTeamNoticeHookRequest) returns (ListTeamNoticeHookReply) {
+    option (google.api.http) = {
+      post: "/api/team/notice/hook/list"
+      body: "*"
+    };
+  }
+
+  rpc SaveTeamNoticeGroup (SaveTeamNoticeGroupRequest) returns (api.palace.common.EmptyReply) {
+    option (google.api.http) = {
+      post: "/api/team/notice/group"
+      body: "*"
+    };
+  }
+  rpc UpdateTeamNoticeGroupStatus (UpdateTeamNoticeGroupStatusRequest) returns (api.palace.common.EmptyReply) {
+    option (google.api.http) = {
+      put: "/api/team/notice/group/status"
+      body: "*"
+    };
+  }
+  rpc DeleteTeamNoticeGroup (DeleteTeamNoticeGroupRequest) returns (api.palace.common.EmptyReply) {
+    option (google.api.http) = {
+      post: "/api/team/notice/group"
+      body: "*"
+    };
+  }
+  rpc GetTeamNoticeGroup (GetTeamNoticeGroupRequest) returns (GetTeamNoticeGroupReply) {
+    option (google.api.http) = {
+      get: "/api/team/notice/group"
+    };
+  }
+  rpc ListTeamNoticeGroup (ListTeamNoticeGroupRequest) returns (ListTeamNoticeGroupReply) {
+    option (google.api.http) = {
+      post: "/api/team/notice/group/list"
+      body: "*"
+    };
+  }
+}
+
+message SaveTeamNoticeHookRequest {
+  string name = 1;
+  string remark = 2;
+  api.palace.common.GlobalStatus status = 3;
+  string url = 4;
+  string secret = 5;
+  api.palace.common.HTTPMethod method = 6;
+  map<string, string> headers = 7;
+  api.palace.common.HookAPP app = 8;
+  uint32 hookID = 9;
+}
+
+message UpdateTeamNoticeHookStatusRequest {
+  uint32 hookID = 1;
+}
+
+message DeleteTeamNoticeHookRequest {
+  uint32 hookID = 1;
+}
+
+message GetTeamNoticeHookRequest {
+  uint32 hookID = 1;
+}
+message GetTeamNoticeHookReply {
+  api.palace.common.NoticeHookItem detail = 1;
+}
+
+message ListTeamNoticeHookRequest {
+  api.palace.common.PaginationRequest pagination = 1;
+  repeated api.palace.common.HookAPP apps = 2;
+  api.palace.common.GlobalStatus status = 3;
+  string keyword = 4;
+  string url = 5;
+}
+message ListTeamNoticeHookReply {
+  api.palace.common.PaginationReply pagination = 1;
+  repeated api.palace.common.NoticeHookItem items = 2;
+}
+
+message SaveTeamNoticeGroupRequest {
+  message Member {
+    uint32 memberID = 1;
+    api.palace.common.NoticeType noticeType = 2;
+  }
+  string name = 1;
+  string remark = 2;
+  api.palace.common.GlobalStatus status = 3;
+  repeated uint32 hookIDs = 4;
+  repeated Member members = 5;
+  uint32 groupID = 6;
+}
+
+message UpdateTeamNoticeGroupStatusRequest {
+  uint32 groupID = 1;
+  api.palace.common.GlobalStatus status = 2;
+}
+
+message DeleteTeamNoticeGroupRequest {
+  uint32 groupID = 1;
+}
+
+message GetTeamNoticeGroupRequest {
+  uint32 groupID = 1;
+}
+message GetTeamNoticeGroupReply {
+  api.palace.common.NoticeGroupItem detail = 1;
+}
+
+message ListTeamNoticeGroupRequest {
+  api.palace.common.PaginationRequest pagination = 1;
+  repeated uint32 memberIDs = 2;
+  api.palace.common.GlobalStatus status = 3;
+  string keyword = 4;
+}
+message ListTeamNoticeGroupReply {
+  api.palace.common.PaginationReply pagination = 1;
+  repeated api.palace.common.NoticeGroupItem items = 2;
+}

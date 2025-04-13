@@ -42,3 +42,14 @@ message EmptyRequest {}
 message EmptyReply {
   string message = 1;
 }
+
+message BasicAuth {
+  string username = 1;
+  string password = 2;
+}
+
+message TLS {
+  string serverName = 1;
+  string clientCert = 2;
+  string clientKey = 3;
+}

@@ -97,7 +97,7 @@ service TeamStrategy {
   }
 
   // SubscribeTeamStrategies subscribes or unsubscribes from multiple team strategies
-  rpc SubscribeTeamStrategies (SubscribeTeamStrategiesRequest) returns (api.palace.common.EmptyReply) {
+  rpc SubscribeTeamStrategies (SubscribeTeamStrategiesRequest) returns (SubscribeTeamStrategiesReply) {
     option (google.api.http) = {
       post: "/api/team/strategy/subscribe/list"
       body: "*"
@@ -194,7 +194,7 @@ message GetTeamStrategyRequest {
 // GetTeamStrategyReply contains the response data for retrieving a team strategy
 message GetTeamStrategyReply {
   // Detailed information about the strategy
-  api.palace.common.TeamStrategyItem detail = 1;
+  api.palace.common.TeamStrategyMetricItem detail = 1;
 }
 
 // ListTeamStrategyRequest represents the request data for listing team strategies
@@ -227,6 +227,9 @@ message SubscribeTeamStrategyRequest {
 message SubscribeTeamStrategiesRequest {
   // Pagination request details
   api.palace.common.PaginationRequest pagination = 1;
-  // Strategy ID to subscribe or unsubscribe
-  uint32 strategyID = 2 [(buf.validate.field).uint32.gt = 0];
+  string keyword = 2 [(buf.validate.field).string.max_len = 20];
+}
+message SubscribeTeamStrategiesReply {
+  repeated api.palace.common.TeamStrategyItem items = 1;
+  api.palace.common.PaginationReply pagination = 2;
 }

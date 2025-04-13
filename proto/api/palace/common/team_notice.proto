@@ -1,0 +1,50 @@
+syntax = "proto3";
+
+package api.palace.common;
+
+import "palace/common/common_enum.proto";
+import "palace/common/team.proto";
+
+option go_package = "github.com/moon-monitor/moon/pkg/api/palace/common;common";
+
+message NoticeHookItem {
+  uint32 noticeHookID = 1;
+  string createdAt = 2;
+  string updatedAt = 3;
+  string name = 4;
+  string remark = 5;
+  api.palace.common.GlobalStatus status = 6;
+  string url = 7;
+  api.palace.common.HTTPMethod method = 8;
+  string secret = 9;
+  map<string, string> headers = 10;
+}
+
+message NoticeMemberItem {
+  uint32 noticeGroupID = 1;
+  uint32 memberID = 2;
+  api.palace.common.NoticeType noticeType = 3;
+  NoticeGroupItem noticeGroup = 4;
+  api.palace.common.TeamMemberItem member = 5;
+}
+
+message NoticeGroupItem {
+  uint32 noticeGroupID = 1;
+  string createdAt = 2;
+  string updatedAt = 3;
+  string name = 4;
+  string remark = 5;
+  api.palace.common.GlobalStatus status = 6;
+  repeated api.palace.common.TeamMemberItem members = 7;
+  repeated NoticeHookItem hooks = 8;
+}
+
+message StrategyMetricRuleLabelNotice {
+  uint32 labelNoticeID = 1;
+  string createdAt = 2;
+  string updatedAt = 3;
+  uint32 strategyMetricRuleID = 4;
+  string labelKey = 5;
+  string labelValue = 6;
+  repeated api.palace.common.NoticeGroupItem notices = 7;
+}
