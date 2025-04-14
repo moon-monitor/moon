@@ -10,6 +10,7 @@ import (
 	"github.com/moon-monitor/moon/cmd/houyi/internal/biz/bo"
 	"github.com/moon-monitor/moon/cmd/houyi/internal/biz/do"
 	"github.com/moon-monitor/moon/cmd/houyi/internal/biz/repository"
+	"github.com/moon-monitor/moon/cmd/houyi/internal/biz/vobj"
 	"github.com/moon-monitor/moon/pkg/merr"
 	"github.com/moon-monitor/moon/pkg/plugin/server"
 	"github.com/moon-monitor/moon/pkg/util/slices"
@@ -35,6 +36,7 @@ func NewStrategyMetricJob(key string, opts ...StrategyMetricJobOption) (bo.Strat
 		{"helper", s.helper},
 		{"spec", s.spec},
 		{"eventBusRepo", s.eventBusRepo},
+		{"cacheRepo", s.cacheRepo},
 	}
 	return s, checkList(checkOpts...)
 }
@@ -101,8 +103,13 @@ func WithStrategyMetricJobAlertRepo(alertRepo repository.Alert) StrategyMetricJo
 	}
 }
 
-func WithStrategyMetricJobSpec(spec server.CronSpec) StrategyMetricJobOption {
+func WithStrategyMetricJobSpec(evaluateInterval time.Duration) StrategyMetricJobOption {
 	return func(s *strategyMetricJob) error {
+		if evaluateInterval <= 0 {
+			return merr.ErrorInternalServerError("evaluateInterval is 0")
+		}
+		s.evaluateInterval = evaluateInterval
+		spec := server.CronSpecEvery(evaluateInterval)
 		if spec == "" {
 			return merr.ErrorInternalServerError("spec is empty")
 		}
@@ -131,6 +138,16 @@ func WithStrategyMetricJobEventBusRepo(eventBusRepo repository.EventBus) Strateg
 	}
 }
 
+func WithStrategyMetricJobCacheRepo(cacheRepo repository.Cache) StrategyMetricJobOption {
+	return func(s *strategyMetricJob) error {
+		if cacheRepo == nil {
+			return merr.ErrorInternalServerError("cacheRepo is nil")
+		}
+		s.cacheRepo = cacheRepo
+		return nil
+	}
+}
+
 type strategyMetricJob struct {
 	logger log.Logger
 	helper *log.Helper
@@ -141,12 +158,14 @@ type strategyMetricJob struct {
 	metricStrategyUniqueKey string
 	metricStrategyEnable    bool
 	timeout                 time.Duration
+	evaluateInterval        time.Duration
 
 	configRepo     repository.Config
 	metricInitRepo repository.MetricInit
 	judgeRepo      repository.Judge
 	alertRepo      repository.Alert
 	eventBusRepo   repository.EventBus
+	cacheRepo      repository.Cache
 }
 
 type StrategyMetricJobOption func(*strategyMetricJob) error
@@ -173,8 +192,18 @@ func (s *strategyMetricJob) Timeout() time.Duration {
 }
 
 func (s *strategyMetricJob) Run() {
+	lockKey := vobj.StrategyMetricJobLockKey.Key(s.key)
 	ctx, cancel := context.WithTimeout(context.Background(), s.Timeout())
 	defer cancel()
+	locked, err := s.cacheRepo.Lock(ctx, lockKey, s.evaluateInterval)
+	if err != nil {
+		s.helper.Warnw("msg", "lock fail", "err", err)
+		return
+	}
+	if !locked {
+		return
+	}
+	defer s.cacheRepo.Unlock(ctx, lockKey)
 	metricStrategy, ok := s.configRepo.GetMetricRule(ctx, s.metricStrategyUniqueKey)
 	if !ok {
 		s.helper.Warnw("metric strategy not found")
@@ -219,6 +248,7 @@ func (s *strategyMetricJob) Run() {
 		WithAlertJobHelper(s.logger),
 		WithAlertJobEventBusRepo(s.eventBusRepo),
 		WithAlertJobAlertRepo(s.alertRepo),
+		WithAlertJobCacheRepo(s.cacheRepo),
 	}
 	for _, alert := range alerts {
 		alertJobItem, err := NewAlertJob(alert, alertJobOpts...)

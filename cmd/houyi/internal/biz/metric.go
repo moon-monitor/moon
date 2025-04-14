@@ -20,6 +20,7 @@ func NewMetric(
 	metricInitRepo repository.MetricInit,
 	configRepo repository.Config,
 	eventBusRepo repository.EventBus,
+	cacheRepo repository.Cache,
 	logger log.Logger,
 ) *Metric {
 	evaluateConf := bc.GetEvaluate()
@@ -32,6 +33,7 @@ func NewMetric(
 		metricInitRepo:   metricInitRepo,
 		configRepo:       configRepo,
 		eventBusRepo:     eventBusRepo,
+		cacheRepo:        cacheRepo,
 		evaluateInterval: evaluateConf.GetInterval().AsDuration(),
 		evaluateTimeout:  evaluateConf.GetTimeout().AsDuration(),
 		syncInterval:     syncConfig.GetSyncInterval().AsDuration(),
@@ -48,6 +50,7 @@ type Metric struct {
 	metricInitRepo   repository.MetricInit
 	configRepo       repository.Config
 	eventBusRepo     repository.EventBus
+	cacheRepo        repository.Cache
 	evaluateInterval time.Duration
 	evaluateTimeout  time.Duration
 	syncInterval     time.Duration
@@ -116,9 +119,10 @@ func (m *Metric) newStrategyJob(_ context.Context, metric bo.MetricRule) (bo.Str
 		event.WithStrategyMetricJobJudgeRepo(m.judgeRepo),
 		event.WithStrategyMetricJobAlertRepo(m.alertRepo),
 		event.WithStrategyMetricJobMetricInitRepo(m.metricInitRepo),
-		event.WithStrategyMetricJobSpec(server.CronSpecEvery(m.evaluateInterval)),
+		event.WithStrategyMetricJobSpec(m.evaluateInterval),
 		event.WithStrategyMetricJobTimeout(m.evaluateTimeout),
 		event.WithStrategyMetricJobEventBusRepo(m.eventBusRepo),
+		event.WithStrategyMetricJobCacheRepo(m.cacheRepo),
 	}
 	return event.NewStrategyMetricJob(metric.UniqueKey(), opts...)
 }

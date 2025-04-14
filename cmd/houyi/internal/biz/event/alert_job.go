@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/go-kratos/kratos/v2/log"
+	"github.com/moon-monitor/moon/cmd/houyi/internal/biz/vobj"
 	"github.com/robfig/cron/v3"
 
 	"github.com/moon-monitor/moon/cmd/houyi/internal/biz/bo"
@@ -25,6 +26,7 @@ func NewAlertJob(alert bo.Alert, opts ...AlertJobOption) (bo.AlertJob, error) {
 	checkOpts := []*checkItem{
 		{"alertRepo", a.alertRepo},
 		{"eventBusRepo", a.eventBusRepo},
+		{"cacheRepo", a.cacheRepo},
 		{"helper", a.helper},
 	}
 	return a, checkList(checkOpts...)
@@ -62,12 +64,23 @@ func WithAlertJobHelper(logger log.Logger) AlertJobOption {
 	}
 }
 
+func WithAlertJobCacheRepo(cacheRepo repository.Cache) AlertJobOption {
+	return func(a *alertJob) error {
+		if cacheRepo == nil {
+			return merr.ErrorInternalServerError("cacheRepo is nil")
+		}
+		a.cacheRepo = cacheRepo
+		return nil
+	}
+}
+
 type alertJob struct {
 	alert bo.Alert
 
 	id           cron.EntryID
 	alertRepo    repository.Alert
 	eventBusRepo repository.EventBus
+	cacheRepo    repository.Cache
 
 	helper *log.Helper
 }
@@ -96,6 +109,19 @@ func (a *alertJob) isSustaining() (alert bo.Alert, sustaining bool) {
 }
 
 func (a *alertJob) Run() {
+	lockKey := vobj.AlertJobLockKey.Key(a.alert.GetFingerprint())
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+	locked, err := a.cacheRepo.Lock(ctx, lockKey, a.alert.GetDuration())
+	if err != nil {
+		a.helper.Errorw("msg", "lock error", "error", err)
+		return
+	}
+	if !locked {
+		return
+	}
+	defer a.cacheRepo.Unlock(ctx, lockKey)
+
 	alertInfo, ok := a.isSustaining()
 	if !ok {
 		alertInfo.Resolved()
