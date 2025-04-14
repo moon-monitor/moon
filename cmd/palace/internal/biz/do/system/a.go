@@ -7,6 +7,8 @@ func Models() []any {
 		&Role{},
 		&Team{},
 		&TeamAudit{},
+		&TeamInviteLink{},
+		&TeamInviteUser{},
 		&User{},
 		&UserOAuth{},
 	}

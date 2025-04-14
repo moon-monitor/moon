@@ -21,6 +21,7 @@ type Team struct {
 	Leader    *User             `gorm:"foreignKey:LeaderID;references:ID" json:"leader"`
 	Admins    []*User           `gorm:"many2many:sys_team_admins" json:"admins"`
 	Resources []*Resource       `gorm:"many2many:sys_team_resources" json:"resources"`
+	DBName    string            `gorm:"column:db_name;type:varchar(64);not null;comment:数据库名" json:"db_name"`
 }
 
 func (u *Team) TableName() string {
