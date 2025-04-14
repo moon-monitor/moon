@@ -95,11 +95,16 @@ func (s *sendImpl) Hook(ctx context.Context, params bo.SendHookParams) error {
 	if len(hooks) == 0 {
 		return merr.ErrorParamsError("No hook is available")
 	}
+	bodyMap := params.GetBody()
 	eg := new(errgroup.Group)
 	for _, hookInstance := range hooks {
 		sender := hookInstance
+		body, ok := bodyMap.Get(sender.Type())
+		if !ok {
+			continue
+		}
 		eg.Go(func() error {
-			return sender.Send(ctx, params.GetBody())
+			return sender.Send(ctx, body)
 		})
 	}
 

@@ -35,35 +35,51 @@ service Send {
 }
 
 message SendEmailRequest {
-  repeated string emails = 1 [(buf.validate.field).cel = {
+  string requestId = 1 [(buf.validate.field).required = true, (buf.validate.field).string = {
+    min_len: 32,
+    max_len: 36,
+  }];
+  repeated string emails = 2 [(buf.validate.field).cel = {
     expression: "this.size() > 0 && this.size() < 100"
     message: "emails must be between 1 and 100"
   }];
-  string body = 2 [(buf.validate.field).required = true];
-  string subject = 3 [(buf.validate.field).required = true];
-  string contentType = 4;
-  string attachment = 5;
-  repeated string cc = 6;
-  optional rabbit.common.EmailConfig emailConfig = 7;
-  optional string configName = 8;
+  string body = 3 [(buf.validate.field).required = true];
+  string subject = 4 [(buf.validate.field).required = true];
+  string contentType = 5;
+  string attachment = 6;
+  repeated string cc = 7;
+  optional rabbit.common.EmailConfig emailConfig = 8;
+  optional string configName = 9;
 }
 
 message SendSmsRequest {
-  repeated string phones = 1 [(buf.validate.field).cel = {
+  string requestId = 1 [(buf.validate.field).required = true, (buf.validate.field).string = {
+    min_len: 32,
+    max_len: 36,
+  }];
+  repeated string phones = 2 [(buf.validate.field).cel = {
     message: "phones must be between 1 and 10"
     expression: "this.size() >= 1 && this.size() <= 100"
   }];
-  string templateParameters = 2 [(buf.validate.field).required = true];
-  string templateCode = 3 [(buf.validate.field).required = true];
-  optional rabbit.common.SMSConfig smsConfig = 4;
-  optional string configName = 5;
+  string templateParameters = 3 [(buf.validate.field).required = true];
+  string templateCode = 4 [(buf.validate.field).required = true];
+  optional rabbit.common.SMSConfig smsConfig = 5;
+  optional string configName = 6;
 }
 
 message SendHookRequest {
-  repeated rabbit.common.HookConfig hooks = 1 [(buf.validate.field).cel = {
+  message Body {
+    api.rabbit.common.HookAPP app = 1 [(buf.validate.field).required = true];
+    string body = 2 [(buf.validate.field).required = true];
+  }
+  string requestId = 1 [(buf.validate.field).required = true, (buf.validate.field).string = {
+    min_len: 32,
+    max_len: 36,
+  }];
+  repeated rabbit.common.HookConfig hooks = 2 [(buf.validate.field).cel = {
     message: "hooks must be between 1 and 10"
     expression: "this.size() >= 1 && this.size() <= 100"
   }];
-  string body = 2 [(buf.validate.field).required = true];
+  repeated Body body = 3 [(buf.validate.field).required = true];
 }
 

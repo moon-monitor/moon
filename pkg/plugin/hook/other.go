@@ -7,6 +7,7 @@ import (
 
 	"github.com/go-kratos/kratos/v2/log"
 
+	"github.com/moon-monitor/moon/pkg/api/rabbit/common"
 	"github.com/moon-monitor/moon/pkg/merr"
 	"github.com/moon-monitor/moon/pkg/util/httpx"
 )
@@ -57,6 +58,10 @@ type otherHook struct {
 	basicAuth *BasicAuth
 	header    http.Header
 	helper    *log.Helper
+}
+
+func (o *otherHook) Type() common.HookAPP {
+	return common.HookAPP_OTHER
 }
 
 // Send implements Hook.

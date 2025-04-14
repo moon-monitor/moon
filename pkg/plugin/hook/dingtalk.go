@@ -14,6 +14,7 @@ import (
 
 	"github.com/go-kratos/kratos/v2/log"
 
+	"github.com/moon-monitor/moon/pkg/api/rabbit/common"
 	"github.com/moon-monitor/moon/pkg/merr"
 	"github.com/moon-monitor/moon/pkg/util/httpx"
 )
@@ -37,6 +38,10 @@ type dingTalkHook struct {
 	api    string
 	secret string
 	helper *log.Helper
+}
+
+func (d *dingTalkHook) Type() common.HookAPP {
+	return common.HookAPP_DINGTALK
 }
 
 type dingTalkHookResp struct {

@@ -13,6 +13,7 @@ import (
 
 	"github.com/go-kratos/kratos/v2/log"
 
+	"github.com/moon-monitor/moon/pkg/api/rabbit/common"
 	"github.com/moon-monitor/moon/pkg/merr"
 	"github.com/moon-monitor/moon/pkg/util/httpx"
 )
@@ -42,6 +43,10 @@ type feishuHook struct {
 	api    string
 	secret string
 	helper *log.Helper
+}
+
+func (f *feishuHook) Type() common.HookAPP {
+	return common.HookAPP_FEISHU
 }
 
 type feishuHookResp struct {

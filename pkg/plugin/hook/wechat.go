@@ -8,6 +8,7 @@ import (
 
 	"github.com/go-kratos/kratos/v2/log"
 
+	"github.com/moon-monitor/moon/pkg/api/rabbit/common"
 	"github.com/moon-monitor/moon/pkg/merr"
 	"github.com/moon-monitor/moon/pkg/util/httpx"
 )
@@ -36,6 +37,10 @@ type WechatHookOption func(*wechatHook)
 type wechatHook struct {
 	api    string
 	helper *log.Helper
+}
+
+func (h *wechatHook) Type() common.HookAPP {
+	return common.HookAPP_WECHAT
 }
 
 type wechatHookResp struct {

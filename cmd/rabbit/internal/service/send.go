@@ -4,15 +4,16 @@ import (
 	"context"
 
 	"github.com/go-kratos/kratos/v2/log"
-	"github.com/moon-monitor/moon/cmd/rabbit/internal/biz/do"
-	"github.com/moon-monitor/moon/pkg/util/pointer"
-	"github.com/moon-monitor/moon/pkg/util/slices"
 
 	"github.com/moon-monitor/moon/cmd/rabbit/internal/biz"
 	"github.com/moon-monitor/moon/cmd/rabbit/internal/biz/bo"
+	"github.com/moon-monitor/moon/cmd/rabbit/internal/biz/do"
+	"github.com/moon-monitor/moon/cmd/rabbit/internal/biz/vobj"
 	"github.com/moon-monitor/moon/cmd/rabbit/internal/service/build"
 	"github.com/moon-monitor/moon/pkg/api/rabbit/common"
 	apiv1 "github.com/moon-monitor/moon/pkg/api/rabbit/v1"
+	"github.com/moon-monitor/moon/pkg/util/pointer"
+	"github.com/moon-monitor/moon/pkg/util/slices"
 )
 
 type SendService struct {
@@ -21,6 +22,7 @@ type SendService struct {
 	emailBiz  *biz.Email
 	smsBiz    *biz.SMS
 	hookBiz   *biz.Hook
+	lockBiz   *biz.Lock
 
 	helper *log.Helper
 }
@@ -30,6 +32,7 @@ func NewSendService(
 	emailBiz *biz.Email,
 	smsBiz *biz.SMS,
 	hookBiz *biz.Hook,
+	lockBiz *biz.Lock,
 	logger log.Logger,
 ) *SendService {
 	return &SendService{
@@ -37,11 +40,15 @@ func NewSendService(
 		emailBiz:  emailBiz,
 		smsBiz:    smsBiz,
 		hookBiz:   hookBiz,
+		lockBiz:   lockBiz,
 		helper:    log.NewHelper(log.With(logger, "module", "service.send")),
 	}
 }
 
 func (s *SendService) Email(ctx context.Context, req *apiv1.SendEmailRequest) (*common.EmptyReply, error) {
+	if !s.lockBiz.LockByAPP(ctx, req.GetRequestId(), vobj.APPEmail) {
+		return &common.EmptyReply{}, nil
+	}
 	emailConfig := s.configBiz.GetEmailConfig(ctx, req.ConfigName, req.GetEmailConfig())
 	opts := []bo.SendEmailParamsOption{
 		bo.WithSendEmailParamsOptionEmail(req.GetEmails()...),
@@ -62,6 +69,9 @@ func (s *SendService) Email(ctx context.Context, req *apiv1.SendEmailRequest) (*
 }
 
 func (s *SendService) Sms(ctx context.Context, req *apiv1.SendSmsRequest) (*common.EmptyReply, error) {
+	if !s.lockBiz.LockByAPP(ctx, req.GetRequestId(), vobj.APPSms) {
+		return &common.EmptyReply{}, nil
+	}
 	smsConfig, _ := build.ToSMSConfig(req.GetSmsConfig())
 	smsConfig = s.configBiz.GetSMSConfig(ctx, req.ConfigName, smsConfig)
 	opts := []bo.SendSMSParamsOption{
@@ -81,6 +91,9 @@ func (s *SendService) Sms(ctx context.Context, req *apiv1.SendSmsRequest) (*comm
 
 func (s *SendService) Hook(ctx context.Context, req *apiv1.SendHookRequest) (*common.EmptyReply, error) {
 	hookConfigs := slices.MapFilter(req.GetHooks(), func(hookItem *common.HookConfig) (bo.HookConfig, bool) {
+		if !s.lockBiz.LockByAPP(ctx, req.GetRequestId(), build.ToSendHookAPP(hookItem.GetApp())) {
+			return nil, false
+		}
 		opts := []do.HookConfigOption{
 			do.WithHookConfigOptionApp(hookItem.App),
 			do.WithHookConfigOptionEnable(hookItem.Enable),
@@ -98,8 +111,15 @@ func (s *SendService) Hook(ctx context.Context, req *apiv1.SendHookRequest) (*co
 		}
 		return s.configBiz.GetHookConfig(ctx, pointer.Of(hookItem.Name), hookConfig), true
 	})
+	if len(hookConfigs) == 0 || len(req.GetBody()) == 0 {
+		return &common.EmptyReply{}, nil
+	}
+	bodyMap := make(map[common.HookAPP][]byte)
+	for _, body := range req.GetBody() {
+		bodyMap[body.App] = []byte(body.Body)
+	}
 	opts := []bo.SendHookParamsOption{
-		bo.WithSendHookParamsOptionBody([]byte(req.GetBody())),
+		bo.WithSendHookParamsOptionBody(bodyMap),
 	}
 	sendHookParams, err := bo.NewSendHookParams(hookConfigs, opts...)
 	if err != nil {

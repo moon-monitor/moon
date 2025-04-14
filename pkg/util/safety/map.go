@@ -5,10 +5,16 @@ import (
 )
 
 // NewMap Create a thread-safe map.
-func NewMap[K comparable, T any]() *Map[K, T] {
-	return &Map[K, T]{
+func NewMap[K comparable, T any](ms ...map[K]T) *Map[K, T] {
+	s := &Map[K, T]{
 		m: new(sync.Map),
 	}
+	for _, m := range ms {
+		for k, v := range m {
+			s.Set(k, v)
+		}
+	}
+	return s
 }
 
 // Map a thread-safe map.

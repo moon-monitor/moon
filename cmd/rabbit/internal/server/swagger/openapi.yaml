@@ -249,6 +249,8 @@ components:
         api.rabbit.v1.SendEmailRequest:
             type: object
             properties:
+                requestId:
+                    type: string
                 emails:
                     type: array
                     items:
@@ -272,15 +274,29 @@ components:
         api.rabbit.v1.SendHookRequest:
             type: object
             properties:
+                requestId:
+                    type: string
                 hooks:
                     type: array
                     items:
                         $ref: '#/components/schemas/api.rabbit.common.HookConfig'
                 body:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/api.rabbit.v1.SendHookRequest_Body'
+        api.rabbit.v1.SendHookRequest_Body:
+            type: object
+            properties:
+                app:
+                    type: integer
+                    format: enum
+                body:
                     type: string
         api.rabbit.v1.SendSmsRequest:
             type: object
             properties:
+                requestId:
+                    type: string
                 phones:
                     type: array
                     items:
