@@ -1,12 +1,16 @@
 package crypto
 
 import (
+	"database/sql"
 	"database/sql/driver"
 	"encoding/base64"
 	"encoding/json"
 
 	"github.com/moon-monitor/moon/pkg/merr"
 )
+
+var _ sql.Scanner = (*Object[any])(nil)
+var _ driver.Valuer = (*Object[any])(nil)
 
 type Object[T any] struct {
 	Data T `json:"data"`

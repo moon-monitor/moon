@@ -1,9 +1,15 @@
 package crypto
 
 import (
+	"database/sql"
 	"database/sql/driver"
 	"encoding/base64"
+
+	"github.com/moon-monitor/moon/pkg/merr"
 )
+
+var _ sql.Scanner = (*String)(nil)
+var _ driver.Valuer = (*String)(nil)
 
 type String string
 
@@ -34,6 +40,8 @@ func (s *String) Scan(value interface{}) error {
 			*s = ""
 			return nil
 		}
+	default:
+		return merr.ErrorInternalServerError("invalid value type of crypto.String")
 	}
 	decodedString, err := base64.StdEncoding.DecodeString(val)
 	if err != nil {

@@ -2596,9 +2596,10 @@ components:
                     type: integer
                     description: Email server port
                     format: uint32
-                enable:
-                    type: boolean
+                status:
+                    type: integer
                     description: Enable email configuration
+                    format: enum
                 name:
                     type: string
                     description: Name of the email configuration

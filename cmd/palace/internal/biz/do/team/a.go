@@ -2,6 +2,7 @@ package team
 
 func Models() []any {
 	return []any{
+		&EmailConfig{},
 		&Dashboard{},
 		&DashboardChart{},
 		&DatasourceMetric{},
