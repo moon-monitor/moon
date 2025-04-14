@@ -1,8 +1,10 @@
 package system
 
 import (
-	"github.com/google/uuid"
+	"time"
 
+	"github.com/google/uuid"
+	
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/vobj"
 )
@@ -22,6 +24,83 @@ type Team struct {
 	Admins    []*User           `gorm:"many2many:sys_team_admins" json:"admins"`
 	Resources []*Resource       `gorm:"many2many:sys_team_resources" json:"resources"`
 	DBName    string            `gorm:"column:db_name;type:varchar(64);not null;comment:数据库名" json:"db_name"`
+}
+
+func (u *Team) GetCreatedAt() time.Time {
+	if u == nil {
+		return time.Time{}
+	}
+	return u.CreatedAt
+}
+
+func (u *Team) GetUpdatedAt() time.Time {
+	if u == nil {
+		return time.Time{}
+	}
+	return u.UpdatedAt
+}
+
+func (u *Team) GetTeamID() uint32 {
+	if u == nil {
+		return 0
+	}
+	return u.ID
+}
+
+func (u *Team) GetName() string {
+	if u == nil {
+		return ""
+	}
+	return u.Name
+}
+
+func (u *Team) GetRemark() string {
+	if u == nil {
+		return ""
+	}
+	return u.Remark
+}
+
+func (u *Team) GetLogo() string {
+	if u == nil {
+		return ""
+	}
+	return u.Logo
+}
+
+func (u *Team) GetStatus() vobj.TeamStatus {
+	if u == nil {
+		return vobj.TeamStatusUnknown
+	}
+	return u.Status
+}
+
+func (u *Team) GetLeaderID() uint32 {
+	if u == nil {
+		return 0
+	}
+	return u.LeaderID
+}
+
+func (u *Team) GetUUID() uuid.UUID {
+	if u == nil {
+		return uuid.UUID{}
+	}
+	return u.UUID
+}
+
+func (u *Team) GetCapacity() vobj.TeamCapacity {
+	if u == nil {
+		return vobj.TeamCapacityDefault
+	}
+	return u.Capacity
+}
+
+func (u *Team) GetDBName() string {
+	if u == nil {
+		return ""
+	}
+	return u.DBName
 }
 
 func (u *Team) TableName() string {

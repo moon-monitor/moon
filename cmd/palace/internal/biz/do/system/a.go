@@ -11,5 +11,6 @@ func Models() []any {
 		&TeamInviteUser{},
 		&User{},
 		&UserOAuth{},
+		&UserTeam{},
 	}
 }

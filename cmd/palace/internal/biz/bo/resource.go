@@ -5,6 +5,9 @@ import (
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/vobj"
 )
 
+type Resource struct {
+}
+
 type BatchUpdateResourceStatusReq struct {
 	IDs    []uint32          `json:"ids"`
 	Status vobj.GlobalStatus `json:"status"`
