@@ -4,10 +4,13 @@ import (
 	"time"
 
 	"github.com/google/uuid"
-	
+
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/vobj"
+	"github.com/moon-monitor/moon/pkg/util/slices"
 )
+
+var _ do.Team = (*Team)(nil)
 
 const tableNameTeam = "sys_teams"
 
@@ -24,6 +27,27 @@ type Team struct {
 	Admins    []*User           `gorm:"many2many:sys_team_admins" json:"admins"`
 	Resources []*Resource       `gorm:"many2many:sys_team_resources" json:"resources"`
 	DBName    string            `gorm:"column:db_name;type:varchar(64);not null;comment:数据库名" json:"db_name"`
+}
+
+func (u *Team) GetLeader() do.User {
+	if u == nil {
+		return nil
+	}
+	return u.Leader
+}
+
+func (u *Team) GetAdmins() []do.User {
+	if u == nil {
+		return nil
+	}
+	return slices.Map(u.Admins, func(v *User) do.User { return v })
+}
+
+func (u *Team) GetResources() []do.Resource {
+	if u == nil {
+		return nil
+	}
+	return slices.Map(u.Resources, func(v *Resource) do.Resource { return v })
 }
 
 func (u *Team) GetCreatedAt() time.Time {

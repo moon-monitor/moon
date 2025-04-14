@@ -1,11 +1,16 @@
 package system
 
 import (
+	"time"
+
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/vobj"
 	"github.com/moon-monitor/moon/pkg/util/crypto"
 	"github.com/moon-monitor/moon/pkg/util/password"
+	"github.com/moon-monitor/moon/pkg/util/slices"
 )
+
+var _ do.User = (*User)(nil)
 
 const tableNameUser = "sys_users"
 
@@ -24,6 +29,111 @@ type User struct {
 	Status   vobj.UserStatus `gorm:"column:status;type:tinyint(2);not null;comment:状态" json:"status"`
 	Roles    []*Role         `gorm:"many2many:sys_user_roles" json:"roles"`
 	Teams    []*Team         `gorm:"many2many:sys_user_teams" json:"teams"`
+}
+
+func (u *User) GetCreatedAt() time.Time {
+	if u == nil {
+		return time.Time{}
+	}
+	return u.CreatedAt
+}
+
+func (u *User) GetUpdatedAt() time.Time {
+	if u == nil {
+		return time.Time{}
+	}
+	return u.UpdatedAt
+}
+
+func (u *User) GetUserID() uint32 {
+	if u == nil {
+		return 0
+	}
+	return u.ID
+}
+
+func (u *User) GetUsername() string {
+	if u == nil {
+		return ""
+	}
+	return u.Username
+}
+
+func (u *User) GetNickname() string {
+	if u == nil {
+		return ""
+	}
+	return u.Nickname
+}
+
+func (u *User) GetEmail() crypto.String {
+	if u == nil {
+		return ""
+	}
+	return u.Email
+}
+
+func (u *User) GetPhone() crypto.String {
+	if u == nil {
+		return ""
+	}
+	return u.Phone
+}
+
+func (u *User) GetPassword() string {
+	if u == nil {
+		return ""
+	}
+	return u.Password
+}
+
+func (u *User) GetSalt() string {
+	if u == nil {
+		return ""
+	}
+	return u.Salt
+}
+
+func (u *User) GetGender() vobj.Gender {
+	if u == nil {
+		return vobj.GenderUnknown
+	}
+	return u.Gender
+}
+
+func (u *User) GetAvatar() string {
+	if u == nil {
+		return ""
+	}
+	return u.Avatar
+}
+
+func (u *User) GetStatus() vobj.UserStatus {
+	if u == nil {
+		return vobj.UserStatusUnknown
+	}
+	return u.Status
+}
+
+func (u *User) GetPosition() vobj.Role {
+	if u == nil {
+		return vobj.RoleUnknown
+	}
+	return u.Position
+}
+
+func (u *User) GetRoles() []do.Role {
+	if u == nil {
+		return nil
+	}
+	return slices.Map(u.Roles, func(r *Role) do.Role { return r })
+}
+
+func (u *User) GetTeams() []do.Team {
+	if u == nil {
+		return nil
+	}
+	return slices.Map(u.Teams, func(t *Team) do.Team { return t })
 }
 
 func (u *User) TableName() string {
