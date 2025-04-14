@@ -2,7 +2,10 @@ package crypto
 
 import (
 	"database/sql/driver"
+	"encoding/base64"
 	"encoding/json"
+
+	"github.com/moon-monitor/moon/pkg/merr"
 )
 
 type Object[T any] struct {
@@ -18,7 +21,20 @@ func (o *Object[T]) Scan(value interface{}) error {
 	if err != nil {
 		return err
 	}
-	decrypt, err := aes.Decrypt(value.([]byte))
+	var origin string
+	switch val := value.(type) {
+	case []byte:
+		origin = string(val)
+	case string:
+		origin = val
+	default:
+		return merr.ErrorInternalServerError("invalid value type of crypto.Object")
+	}
+	decodedString, err := base64.StdEncoding.DecodeString(origin)
+	if err != nil {
+		return err
+	}
+	decrypt, err := aes.Decrypt(decodedString)
 	if err != nil {
 		return err
 	}
@@ -34,5 +50,10 @@ func (o Object[T]) Value() (driver.Value, error) {
 	if err != nil {
 		return nil, err
 	}
-	return aes.Encrypt(bs)
+	encrypt, err := aes.Encrypt(bs)
+	if err != nil {
+		return "", err
+	}
+	encodeToString := base64.StdEncoding.EncodeToString(encrypt)
+	return encodeToString, nil
 }

@@ -20,7 +20,17 @@ func TestObject_Scan_Success(t *testing.T) {
 		t.Fatal(err)
 	}
 
-	t.Logf("val: %v", string(val.([]byte)))
+	var origin string
+	switch val.(type) {
+	case string:
+		origin = val.(string)
+	case []byte:
+		origin = string(val.([]byte))
+	default:
+		t.Fatal("Unexpected type")
+	}
+
+	t.Logf("val: %v", origin)
 	var userObject crypto.Object[*User]
 	if err := userObject.Scan(val); err != nil {
 		t.Fatal(err)
