@@ -44,11 +44,11 @@ func (o *Object[T]) Scan(value interface{}) error {
 func (o Object[T]) Value() (driver.Value, error) {
 	aes, err := WithAes()
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 	bs, err := json.Marshal(o)
 	if err != nil {
-		return nil, err
+		return "", err
 	}
 	encrypt, err := aes.Encrypt(bs)
 	if err != nil {
