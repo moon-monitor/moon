@@ -50,7 +50,7 @@ message SaveTeamDictRequest {
 }
 
 message UpdateTeamDictStatusRequest {
-  repeated uint32 ids = 1;
+  repeated uint32 dictIds = 1;
   api.palace.common.GlobalStatus status = 2;
 }
 

@@ -4,6 +4,9 @@ import (
 	"context"
 
 	"github.com/go-kratos/kratos/v2/log"
+	"gorm.io/gen"
+	"gorm.io/gen/field"
+
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/bo"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do/team"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/repository"
@@ -12,7 +15,6 @@ import (
 	"github.com/moon-monitor/moon/cmd/palace/internal/data/query/teamgen"
 	"github.com/moon-monitor/moon/pkg/util/slices"
 	"github.com/moon-monitor/moon/pkg/util/validate"
-	"gorm.io/gen/field"
 )
 
 func NewTeamDictRepo(d *data.Data, logger log.Logger) repository.TeamDict {
@@ -40,8 +42,13 @@ func (t *teamDictImpl) Get(ctx context.Context, teamID, dictID uint32) (bo.Dict,
 	if err != nil {
 		return nil, err
 	}
+
 	bizDictQuery := bizQuery.Dict
-	return bizDictQuery.WithContext(ctx).Where(bizDictQuery.TeamID.Eq(teamID)).Where(bizDictQuery.ID.Eq(dictID)).First()
+	wrappers := []gen.Condition{
+		bizDictQuery.TeamID.Eq(teamID),
+		bizDictQuery.ID.Eq(dictID),
+	}
+	return bizDictQuery.WithContext(ctx).Where(wrappers...).First()
 }
 
 func (t *teamDictImpl) Delete(ctx context.Context, teamID, dictID uint32) error {
@@ -50,7 +57,11 @@ func (t *teamDictImpl) Delete(ctx context.Context, teamID, dictID uint32) error 
 		return err
 	}
 	bizDictQuery := bizQuery.Dict
-	_, err = bizDictQuery.WithContext(ctx).Where(bizDictQuery.ID.Eq(dictID)).Delete()
+	wrappers := []gen.Condition{
+		bizDictQuery.TeamID.Eq(teamID),
+		bizDictQuery.ID.Eq(dictID),
+	}
+	_, err = bizDictQuery.WithContext(ctx).Where(wrappers...).Delete()
 	return err
 }
 
@@ -86,23 +97,29 @@ func (t *teamDictImpl) Update(ctx context.Context, teamID uint32, dict bo.Dict) 
 		bizDictQuery.DictType.Value(dict.GetType().GetValue()),
 		bizDictQuery.Status.Value(dict.GetStatus().GetValue()),
 	}
-	_, err = bizDictQuery.WithContext(ctx).
-		Where(bizDictQuery.TeamID.Eq(teamID)).
-		Where(bizDictQuery.ID.Eq(dict.GetID())).
-		UpdateColumnSimple(mutations...)
+	wrappers := []gen.Condition{
+		bizDictQuery.TeamID.Eq(teamID),
+		bizDictQuery.ID.Eq(dict.GetID()),
+	}
+	_, err = bizDictQuery.WithContext(ctx).Where(wrappers...).UpdateColumnSimple(mutations...)
 	return err
 }
 
-func (t *teamDictImpl) UpdateStatus(ctx context.Context, teamID uint32, dictIds []uint32, status vobj.GlobalStatus) error {
+func (t *teamDictImpl) UpdateStatus(ctx context.Context, teamID uint32, req *bo.UpdateDictStatusReq) error {
+	if len(req.DictIds) == 0 {
+		return nil
+	}
 	bizQuery, err := t.bizQuery(teamID)
 	if err != nil {
 		return err
 	}
 	bizDictQuery := bizQuery.Dict
-	_, err = bizDictQuery.WithContext(ctx).
-		Where(bizDictQuery.TeamID.Eq(teamID)).
-		Where(bizDictQuery.ID.In(dictIds...)).
-		UpdateColumnSimple(bizDictQuery.Status.Value(status.GetValue()))
+	wrappers := []gen.Condition{
+		bizDictQuery.TeamID.Eq(teamID),
+		bizDictQuery.ID.In(req.DictIds...),
+	}
+	_, err = bizDictQuery.WithContext(ctx).Where(wrappers...).
+		UpdateColumnSimple(bizDictQuery.Status.Value(req.Status.GetValue()))
 	return err
 }
 
@@ -127,11 +144,11 @@ func (t *teamDictImpl) List(ctx context.Context, teamID uint32, req *bo.ListDict
 		wrapper = wrapper.Where(bizDictQuery.Key.Like(req.Keyword))
 	}
 	if validate.IsNotNil(req.PaginationRequest) {
-		wrapper = wrapper.Offset(req.Offset()).Limit(int(req.Limit))
 		total, err := wrapper.Count()
 		if err != nil {
 			return nil, err
 		}
+		wrapper = wrapper.Offset(req.Offset()).Limit(int(req.Limit))
 		req.WithTotal(total)
 	}
 	dictItems, err := wrapper.Find()

@@ -85,6 +85,7 @@ message SaveTeamNoticeHookRequest {
 
 message UpdateTeamNoticeHookStatusRequest {
   uint32 hookID = 1;
+  api.palace.common.GlobalStatus status = 2;
 }
 
 message DeleteTeamNoticeHookRequest {

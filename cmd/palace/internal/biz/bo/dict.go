@@ -113,8 +113,8 @@ func (d *SaveDictReq) WithUpdateParams(dictItem Dict) Dict {
 }
 
 type UpdateDictStatusReq struct {
-	Ids    []uint32          `json:"ids"`
-	Status vobj.GlobalStatus `json:"status"`
+	DictIds []uint32          `json:"dictIds"`
+	Status  vobj.GlobalStatus `json:"status"`
 }
 
 type OperateOneDictReq struct {

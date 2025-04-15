@@ -3076,7 +3076,7 @@ components:
         api.palace.UpdateTeamDictStatusRequest:
             type: object
             properties:
-                ids:
+                dictIds:
                     type: array
                     items:
                         type: integer
@@ -3111,6 +3111,9 @@ components:
                 hookID:
                     type: integer
                     format: uint32
+                status:
+                    type: integer
+                    format: enum
         api.palace.UpdateTeamStrategiesStatusRequest:
             type: object
             properties:

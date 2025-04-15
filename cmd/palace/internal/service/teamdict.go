@@ -42,8 +42,8 @@ func (s *TeamDictService) SaveTeamDict(ctx context.Context, req *palacev1.SaveTe
 
 func (s *TeamDictService) UpdateTeamDictStatus(ctx context.Context, req *palacev1.UpdateTeamDictStatusRequest) (*common.EmptyReply, error) {
 	params := &bo.UpdateDictStatusReq{
-		Ids:    req.GetIds(),
-		Status: vobj.GlobalStatus(req.GetStatus()),
+		DictIds: req.GetDictIds(),
+		Status:  vobj.GlobalStatus(req.GetStatus()),
 	}
 	if err := s.dictBiz.UpdateDictStatus(ctx, params); err != nil {
 		return nil, err

@@ -63,7 +63,7 @@ func (d *Dict) UpdateDictStatus(ctx context.Context, req *bo.UpdateDictStatusReq
 	if err != nil {
 		return err
 	}
-	return d.teamDictRepo.UpdateStatus(ctx, teamID, req.Ids, req.Status)
+	return d.teamDictRepo.UpdateStatus(ctx, teamID, req)
 }
 
 func (d *Dict) DeleteDict(ctx context.Context, req *bo.OperateOneDictReq) error {

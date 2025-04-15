@@ -6,7 +6,7 @@ import (
 	"github.com/moon-monitor/moon/pkg/util/crypto"
 )
 
-const tableNameConfig = "team_config"
+const tableNameConfig = "team_configs"
 
 type EmailConfig struct {
 	do.TeamModel

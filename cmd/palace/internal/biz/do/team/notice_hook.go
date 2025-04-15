@@ -1,9 +1,12 @@
 package team
 
 import (
+	"time"
+
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/vobj"
 	"github.com/moon-monitor/moon/pkg/util/kv"
+	"github.com/moon-monitor/moon/pkg/util/slices"
 )
 
 const tableNameNoticeHook = "team_notice_hooks"
@@ -19,6 +22,97 @@ type NoticeHook struct {
 	Headers      kv.StringMap      `gorm:"column:headers;type:text;not null;comment:请求头" json:"headers"`
 	NoticeGroups []*NoticeGroup    `gorm:"many2many:team_notice_group_hooks" json:"noticeGroups"`
 	APP          vobj.HookApp      `gorm:"column:app;type:tinyint(2);not null;comment:应用" json:"app"`
+}
+
+func (n *NoticeHook) GetHookID() uint32 {
+	if n == nil {
+		return 0
+	}
+	return n.ID
+}
+
+func (n *NoticeHook) GetTeamID() uint32 {
+	if n == nil {
+		return 0
+	}
+	return n.TeamID
+}
+
+func (n *NoticeHook) GetName() string {
+	if n == nil {
+		return ""
+	}
+	return n.Name
+}
+
+func (n *NoticeHook) GetRemark() string {
+	if n == nil {
+		return ""
+	}
+	return n.Remark
+}
+
+func (n *NoticeHook) GetStatus() vobj.GlobalStatus {
+	if n == nil {
+		return vobj.GlobalStatusUnknown
+	}
+	return n.Status
+}
+
+func (n *NoticeHook) GetCreatedAt() time.Time {
+	if n == nil {
+		return time.Time{}
+	}
+	return n.CreatedAt
+}
+
+func (n *NoticeHook) GetUpdatedAt() time.Time {
+	if n == nil {
+		return time.Time{}
+	}
+	return n.UpdatedAt
+}
+
+func (n *NoticeHook) GetURL() string {
+	if n == nil {
+		return ""
+	}
+	return n.URL
+}
+
+func (n *NoticeHook) GetMethod() vobj.HTTPMethod {
+	if n == nil {
+		return vobj.HTTPMethodPost
+	}
+	return n.Method
+}
+
+func (n *NoticeHook) GetSecret() string {
+	if n == nil {
+		return ""
+	}
+	return n.Secret
+}
+
+func (n *NoticeHook) GetHeaders() kv.StringMap {
+	if n == nil {
+		return nil
+	}
+	return n.Headers
+}
+
+func (n *NoticeHook) GetApp() vobj.HookApp {
+	if n == nil {
+		return vobj.HookAppOther
+	}
+	return n.APP
+}
+
+func (n *NoticeHook) GetNoticeGroups() []do.NoticeGroup {
+	if n == nil {
+		return nil
+	}
+	return slices.Map(n.NoticeGroups, func(v *NoticeGroup) do.NoticeGroup { return v })
 }
 
 func (n *NoticeHook) TableName() string {
