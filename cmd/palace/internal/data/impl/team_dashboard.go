@@ -8,9 +8,9 @@ import (
 
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/bo"
+	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do/team"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/repository"
-	"github.com/moon-monitor/moon/cmd/palace/internal/biz/vobj"
 	"github.com/moon-monitor/moon/cmd/palace/internal/data"
 )
 
@@ -28,27 +28,38 @@ type dashboardImpl struct {
 	helper *log.Helper
 }
 
-// SaveDashboard save dashboard
-func (r *dashboardImpl) SaveDashboard(ctx context.Context, dashboard *team.Dashboard) error {
+func (r *dashboardImpl) CreateDashboard(ctx context.Context, dashboard bo.Dashboard) error {
+	query, _, err := getTeamBizQuery(ctx, r)
+	if err != nil {
+		return err
+	}
+	dashboardDo := &team.Dashboard{
+		Title:    dashboard.GetTitle(),
+		Remark:   dashboard.GetRemark(),
+		Status:   dashboard.GetStatus(),
+		ColorHex: dashboard.GetColorHex(),
+	}
+	dashboardDo.WithContext(ctx)
+	return query.Dashboard.WithContext(ctx).Create(dashboardDo)
+}
+
+func (r *dashboardImpl) UpdateDashboard(ctx context.Context, dashboard bo.Dashboard) error {
 	query, teamID, err := getTeamBizQuery(ctx, r)
 	if err != nil {
 		return err
 	}
 	mutation := query.Dashboard
-	if dashboard.ID == 0 {
-		dashboard.WithContext(ctx)
-		return mutation.WithContext(ctx).Create(dashboard)
-	}
 	wrappers := []gen.Condition{
 		mutation.TeamID.Eq(teamID),
-		mutation.ID.Eq(dashboard.ID),
+		mutation.ID.Eq(dashboard.GetDashboardID()),
 	}
-	updates := []field.AssignExpr{
-		mutation.Title.Value(dashboard.Title),
-		mutation.Remark.Value(dashboard.Remark),
-		mutation.ColorHex.Value(dashboard.ColorHex),
+	mutations := []field.AssignExpr{
+		mutation.Title.Value(dashboard.GetTitle()),
+		mutation.Remark.Value(dashboard.GetRemark()),
+		mutation.Status.Value(dashboard.GetStatus().GetValue()),
+		mutation.ColorHex.Value(dashboard.GetColorHex()),
 	}
-	_, err = mutation.WithContext(ctx).Where(wrappers...).UpdateColumnSimple(updates...)
+	_, err = mutation.WithContext(ctx).Where(wrappers...).UpdateColumnSimple(mutations...)
 	return err
 }
 
@@ -68,7 +79,7 @@ func (r *dashboardImpl) DeleteDashboard(ctx context.Context, id uint32) error {
 }
 
 // GetDashboard get dashboard by id
-func (r *dashboardImpl) GetDashboard(ctx context.Context, id uint32) (*team.Dashboard, error) {
+func (r *dashboardImpl) GetDashboard(ctx context.Context, id uint32) (do.Dashboard, error) {
 	query, teamID, err := getTeamBizQuery(ctx, r)
 	if err != nil {
 		return nil, err
@@ -118,8 +129,8 @@ func (r *dashboardImpl) ListDashboards(ctx context.Context, req *bo.ListDashboar
 }
 
 // BatchUpdateDashboardStatus update multiple dashboards status
-func (r *dashboardImpl) BatchUpdateDashboardStatus(ctx context.Context, ids []uint32, status vobj.GlobalStatus) error {
-	if len(ids) == 0 {
+func (r *dashboardImpl) BatchUpdateDashboardStatus(ctx context.Context, req *bo.BatchUpdateDashboardStatusReq) error {
+	if len(req.IDs) == 0 {
 		return nil
 	}
 	query, teamID, err := getTeamBizQuery(ctx, r)
@@ -129,8 +140,8 @@ func (r *dashboardImpl) BatchUpdateDashboardStatus(ctx context.Context, ids []ui
 	mutation := query.Dashboard
 	wrappers := []gen.Condition{
 		mutation.TeamID.Eq(teamID),
-		mutation.ID.In(ids...),
+		mutation.ID.In(req.IDs...),
 	}
-	_, err = mutation.WithContext(ctx).Where(wrappers...).UpdateColumnSimple(mutation.Status.Value(int8(status)))
+	_, err = mutation.WithContext(ctx).Where(wrappers...).UpdateColumnSimple(mutation.Status.Value(req.Status.GetValue()))
 	return err
 }

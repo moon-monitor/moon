@@ -33,15 +33,18 @@ func NewDashboardBiz(
 
 // SaveDashboard saves a dashboard.
 func (b *DashboardBiz) SaveDashboard(ctx context.Context, req *bo.SaveDashboardReq) error {
-	dashboard := &team.Dashboard{
-		TeamModel: do.TeamModel{BaseModel: do.BaseModel{ID: req.ID}},
-		Title:     req.Title,
-		Remark:    req.Remark,
-		Status:    req.Status,
-		ColorHex:  req.ColorHex,
+	if req.GetDashboardID() == 0 {
+		return b.dashboardRepo.CreateDashboard(ctx, req)
 	}
 
-	return b.dashboardRepo.SaveDashboard(ctx, dashboard)
+	dashboardDo, err := b.dashboardRepo.GetDashboard(ctx, req.GetDashboardID())
+	if err != nil {
+		return err
+	}
+
+	dashboard := req.WithDashboard(dashboardDo)
+
+	return b.dashboardRepo.UpdateDashboard(ctx, dashboard)
 }
 
 // DeleteDashboard deletes a dashboard.
@@ -71,7 +74,7 @@ func (b *DashboardBiz) ListDashboard(ctx context.Context, req *bo.ListDashboardR
 
 // BatchUpdateDashboardStatus updates multiple dashboards' status.
 func (b *DashboardBiz) BatchUpdateDashboardStatus(ctx context.Context, req *bo.BatchUpdateDashboardStatusReq) error {
-	return b.dashboardRepo.BatchUpdateDashboardStatus(ctx, req.IDs, req.Status)
+	return b.dashboardRepo.BatchUpdateDashboardStatus(ctx, req)
 }
 
 // SaveDashboardChart saves a dashboard chart.

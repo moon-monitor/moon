@@ -5,13 +5,50 @@ import (
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/vobj"
 )
 
+type Dashboard interface {
+	GetDashboardID() uint32
+	GetTitle() string
+	GetRemark() string
+	GetStatus() vobj.GlobalStatus
+	GetColorHex() string
+}
+
 // SaveDashboardReq represents a request to save a dashboard
 type SaveDashboardReq struct {
-	ID       uint32
-	Title    string
-	Remark   string
-	Status   vobj.GlobalStatus
-	ColorHex string
+	dashboard Dashboard
+	ID        uint32
+	Title     string
+	Remark    string
+	Status    vobj.GlobalStatus
+	ColorHex  string
+}
+
+func (d *SaveDashboardReq) GetDashboardID() uint32 {
+	if d == nil || d.dashboard == nil {
+		return 0
+	}
+	return d.dashboard.GetDashboardID()
+}
+
+func (d *SaveDashboardReq) GetTitle() string {
+	return d.Title
+}
+
+func (d *SaveDashboardReq) GetRemark() string {
+	return d.Remark
+}
+
+func (d *SaveDashboardReq) GetStatus() vobj.GlobalStatus {
+	return d.Status
+}
+
+func (d *SaveDashboardReq) GetColorHex() string {
+	return d.ColorHex
+}
+
+func (d *SaveDashboardReq) WithDashboard(dashboard Dashboard) Dashboard {
+	d.dashboard = dashboard
+	return d
 }
 
 // SaveDashboardChartReq represents a request to save a dashboard chart

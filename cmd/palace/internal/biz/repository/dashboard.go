@@ -4,26 +4,27 @@ import (
 	"context"
 
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/bo"
+	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do/team"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/vobj"
 )
 
 type Dashboard interface {
-	// SaveDashboard save dashboard
-	// exist id update, else insert
-	SaveDashboard(ctx context.Context, dashboard *team.Dashboard) error
+	CreateDashboard(ctx context.Context, dashboard bo.Dashboard) error
+
+	UpdateDashboard(ctx context.Context, dashboard bo.Dashboard) error
 
 	// DeleteDashboard delete dashboard by id
 	DeleteDashboard(ctx context.Context, id uint32) error
 
 	// GetDashboard get dashboard by id
-	GetDashboard(ctx context.Context, id uint32) (*team.Dashboard, error)
+	GetDashboard(ctx context.Context, id uint32) (do.Dashboard, error)
 
 	// ListDashboards list dashboards with filter
 	ListDashboards(ctx context.Context, req *bo.ListDashboardReq) (*bo.ListDashboardReply, error)
 
 	// BatchUpdateDashboardStatus update multiple dashboards status
-	BatchUpdateDashboardStatus(ctx context.Context, ids []uint32, status vobj.GlobalStatus) error
+	BatchUpdateDashboardStatus(ctx context.Context, req *bo.BatchUpdateDashboardStatusReq) error
 }
 
 type DashboardChart interface {
