@@ -4,9 +4,7 @@ import (
 	"context"
 
 	"github.com/go-kratos/kratos/v2/log"
-	"github.com/moon-monitor/moon/cmd/palace/internal/data/query/teamgen"
-	"github.com/moon-monitor/moon/cmd/palace/internal/helper/permission"
-	"github.com/moon-monitor/moon/pkg/merr"
+	"gorm.io/gen"
 
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do/team"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/repository"
@@ -29,16 +27,16 @@ type memberImpl struct {
 }
 
 func (m *memberImpl) FindByUserID(ctx context.Context, userID uint32) (*team.Member, error) {
-	teamId, ok := permission.GetTeamIDByContext(ctx)
-	if !ok {
-		return nil, merr.ErrorPermissionDenied("team id is invalid")
-	}
-	bizDB, err := m.GetBizDB(teamId)
+	query, teamID, err := getTeamBizQuery(ctx, m)
 	if err != nil {
 		return nil, err
 	}
-	memberQuery := teamgen.Use(bizDB.GetDB()).Member
-	member, err := memberQuery.WithContext(ctx).Where(memberQuery.UserID.Eq(userID)).First()
+	memberQuery := query.Member
+	wrappers := []gen.Condition{
+		memberQuery.TeamID.Eq(teamID),
+		memberQuery.UserID.Eq(userID),
+	}
+	member, err := memberQuery.WithContext(ctx).Where(wrappers...).First()
 	if err != nil {
 		return nil, teamMemberNotFound(err)
 	}

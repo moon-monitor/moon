@@ -3,18 +3,15 @@ package impl
 import (
 	"context"
 
-	"gorm.io/gen/field"
-
 	"github.com/go-kratos/kratos/v2/log"
+	"gorm.io/gen"
+	"gorm.io/gen/field"
 
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/bo"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do/team"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/repository"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/vobj"
 	"github.com/moon-monitor/moon/cmd/palace/internal/data"
-	"github.com/moon-monitor/moon/cmd/palace/internal/data/query/teamgen"
-	"github.com/moon-monitor/moon/cmd/palace/internal/helper/permission"
-	"github.com/moon-monitor/moon/pkg/merr"
 )
 
 // NewDashboardChartRepo creates a new dashboard chart repository
@@ -31,27 +28,20 @@ type dashboardChartImpl struct {
 	helper *log.Helper
 }
 
-func (r *dashboardChartImpl) getDashboardChartTX(ctx context.Context) (*teamgen.Query, error) {
-	teamID, ok := permission.GetTeamIDByContext(ctx)
-	if !ok {
-		return nil, merr.ErrorInternalServerError("team id not found")
-	}
-	db, err := r.GetBizDB(teamID)
-	if err != nil {
-		return nil, err
-	}
-	return teamgen.Use(db.GetDB()), nil
-}
-
 // SaveDashboardChart save dashboard chart
 func (r *dashboardChartImpl) SaveDashboardChart(ctx context.Context, chart *team.DashboardChart) error {
-	tx, err := r.getDashboardChartTX(ctx)
+	tx, teamID, err := getTeamBizQuery(ctx, r)
 	if err != nil {
 		return err
 	}
 	mutation := tx.DashboardChart
 	if chart.ID == 0 {
+		chart.WithContext(ctx)
 		return mutation.WithContext(ctx).Create(chart)
+	}
+	wrapper := []gen.Condition{
+		mutation.TeamID.Eq(teamID),
+		mutation.ID.Eq(chart.ID),
 	}
 	updates := []field.AssignExpr{
 		mutation.Title.Value(chart.Title),
@@ -60,29 +50,37 @@ func (r *dashboardChartImpl) SaveDashboardChart(ctx context.Context, chart *team
 		mutation.Width.Value(chart.Width),
 		mutation.Height.Value(chart.Height),
 	}
-	_, err = mutation.WithContext(ctx).Where(mutation.ID.Eq(chart.ID)).UpdateColumnSimple(updates...)
+	_, err = mutation.WithContext(ctx).Where(wrapper...).UpdateColumnSimple(updates...)
 	return err
 }
 
 // DeleteDashboardChart delete dashboard chart by id
 func (r *dashboardChartImpl) DeleteDashboardChart(ctx context.Context, id uint32) error {
-	tx, err := r.getDashboardChartTX(ctx)
+	tx, teamID, err := getTeamBizQuery(ctx, r)
 	if err != nil {
 		return err
 	}
 	mutation := tx.DashboardChart
-	_, err = mutation.WithContext(ctx).Where(mutation.ID.Eq(id)).Delete()
+	wrapper := []gen.Condition{
+		mutation.TeamID.Eq(teamID),
+		mutation.ID.Eq(id),
+	}
+	_, err = mutation.WithContext(ctx).Where(wrapper...).Delete()
 	return err
 }
 
 // GetDashboardChart get dashboard chart by id
 func (r *dashboardChartImpl) GetDashboardChart(ctx context.Context, id uint32) (*team.DashboardChart, error) {
-	tx, err := r.getDashboardChartTX(ctx)
+	tx, teamID, err := getTeamBizQuery(ctx, r)
 	if err != nil {
 		return nil, err
 	}
 	mutation := tx.DashboardChart
-	dashboardChartDo, err := mutation.WithContext(ctx).Where(mutation.ID.Eq(id)).First()
+	wrapper := []gen.Condition{
+		mutation.TeamID.Eq(teamID),
+		mutation.ID.Eq(id),
+	}
+	dashboardChartDo, err := mutation.WithContext(ctx).Where(wrapper...).First()
 	if err != nil {
 		return nil, teamDashboardChartNotFound(err)
 	}
@@ -91,12 +89,12 @@ func (r *dashboardChartImpl) GetDashboardChart(ctx context.Context, id uint32) (
 
 // ListDashboardCharts list dashboard charts with filter
 func (r *dashboardChartImpl) ListDashboardCharts(ctx context.Context, req *bo.ListDashboardChartReq) (*bo.ListDashboardChartReply, error) {
-	tx, err := r.getDashboardChartTX(ctx)
+	tx, teamID, err := getTeamBizQuery(ctx, r)
 	if err != nil {
 		return nil, err
 	}
 	mutation := tx.DashboardChart
-	query := mutation.WithContext(ctx)
+	query := mutation.WithContext(ctx).Where(mutation.TeamID.Eq(teamID), mutation.DashboardID.Eq(req.DashboardID))
 
 	if !req.Status.IsUnknown() {
 		query = query.Where(mutation.Status.Eq(req.Status.GetValue()))
@@ -123,11 +121,15 @@ func (r *dashboardChartImpl) ListDashboardCharts(ctx context.Context, req *bo.Li
 
 // BatchUpdateDashboardChartStatus update multiple dashboard charts status
 func (r *dashboardChartImpl) BatchUpdateDashboardChartStatus(ctx context.Context, ids []uint32, status vobj.GlobalStatus) error {
-	tx, err := r.getDashboardChartTX(ctx)
+	tx, teamID, err := getTeamBizQuery(ctx, r)
 	if err != nil {
 		return err
 	}
 	mutation := tx.DashboardChart
-	_, err = mutation.WithContext(ctx).Where(mutation.ID.In(ids...)).UpdateColumnSimple(mutation.Status.Value(int8(status)))
+	wrapper := []gen.Condition{
+		mutation.TeamID.Eq(teamID),
+		mutation.ID.In(ids...),
+	}
+	_, err = mutation.WithContext(ctx).Where(wrapper...).UpdateColumnSimple(mutation.Status.Value(int8(status)))
 	return err
 }

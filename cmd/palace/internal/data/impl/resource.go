@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/go-kratos/kratos/v2/log"
+	"github.com/moon-monitor/moon/pkg/util/validate"
 
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/bo"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do"
@@ -72,9 +73,8 @@ func (r *resourceImpl) ListResources(ctx context.Context, req *bo.ListResourceRe
 	if len(req.Statuses) > 0 {
 		resourceQuery = resourceQuery.Where(resource.Status.In(slices.Map(req.Statuses, func(status vobj.GlobalStatus) int8 { return status.GetValue() })...))
 	}
-	if req.Keyword != "" {
-		keyword := "%" + req.Keyword + "%"
-		resourceQuery = resourceQuery.Where(resource.Name.Like(keyword))
+	if !validate.TextIsNull(req.Keyword) {
+		resourceQuery = resourceQuery.Where(resource.Name.Like(req.Keyword))
 	}
 	if req.PaginationRequest != nil {
 		total, err := resourceQuery.Count()

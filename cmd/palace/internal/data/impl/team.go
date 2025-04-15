@@ -7,9 +7,6 @@ import (
 
 	"github.com/go-kratos/kratos/v2/errors"
 	"github.com/go-kratos/kratos/v2/log"
-	"github.com/moon-monitor/moon/cmd/palace/internal/biz/vobj"
-	"github.com/moon-monitor/moon/pkg/util/slices"
-	"github.com/moon-monitor/moon/pkg/util/validate"
 	"gorm.io/gen"
 	"gorm.io/gen/field"
 	ggorm "gorm.io/gorm"
@@ -17,11 +14,14 @@ import (
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/bo"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do/system"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/repository"
+	"github.com/moon-monitor/moon/cmd/palace/internal/biz/vobj"
 	"github.com/moon-monitor/moon/cmd/palace/internal/data"
 	"github.com/moon-monitor/moon/cmd/palace/internal/data/query/systemgen"
 	"github.com/moon-monitor/moon/pkg/config"
 	"github.com/moon-monitor/moon/pkg/merr"
 	"github.com/moon-monitor/moon/pkg/plugin/gorm"
+	"github.com/moon-monitor/moon/pkg/util/slices"
+	"github.com/moon-monitor/moon/pkg/util/validate"
 )
 
 func NewTeamRepo(d *data.Data, logger log.Logger) repository.Team {
