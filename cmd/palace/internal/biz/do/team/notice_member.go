@@ -1,11 +1,11 @@
 package team
 
 import (
-	"time"
-
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/vobj"
 )
+
+var _ do.NoticeMember = (*NoticeMember)(nil)
 
 const tableNameNoticeMember = "team_notice_members"
 
@@ -18,69 +18,41 @@ type NoticeMember struct {
 	Member        *Member         `gorm:"foreignKey:MemberID;references:ID" json:"member"`
 }
 
-func (u *NoticeMember) GetID() uint32 {
-	if u == nil {
+func (n *NoticeMember) GetNoticeGroupID() uint32 {
+	if n == nil {
 		return 0
 	}
-	return u.ID
+	return n.NoticeGroupID
 }
 
-func (u *NoticeMember) GetTeamID() uint32 {
-	if u == nil {
+func (n *NoticeMember) GetMemberID() uint32 {
+	if n == nil {
 		return 0
 	}
-	return u.TeamID
+	return n.MemberID
 }
 
-func (u *NoticeMember) GetNoticeGroupID() uint32 {
-	if u == nil {
-		return 0
+func (n *NoticeMember) GetNoticeType() vobj.NoticeType {
+	if n == nil {
+		return vobj.NoticeTypeNone
 	}
-	return u.NoticeGroupID
+	return n.NoticeType
 }
 
-func (u *NoticeMember) GetMemberID() uint32 {
-	if u == nil {
-		return 0
-	}
-	return u.MemberID
-}
-
-func (u *NoticeMember) GetNoticeType() vobj.NoticeType {
-	if u == nil {
-		return 0
-	}
-	return u.NoticeType
-}
-
-func (u *NoticeMember) GetCreatedAt() time.Time {
-	if u == nil {
-		return time.Time{}
-	}
-	return u.CreatedAt
-}
-
-func (u *NoticeMember) GetUpdatedAt() time.Time {
-	if u == nil {
-		return time.Time{}
-	}
-	return u.UpdatedAt
-}
-
-func (u *NoticeMember) GetNoticeGroup() do.NoticeGroup {
-	if u == nil || u.NoticeGroup == nil {
+func (n *NoticeMember) GetNoticeGroup() do.NoticeGroup {
+	if n == nil || n.NoticeGroup == nil {
 		return nil
 	}
-	return u.NoticeGroup
+	return n.NoticeGroup
 }
 
-func (u *NoticeMember) GetMember() do.TeamMember {
-	if u == nil || u.Member == nil {
+func (n *NoticeMember) GetMember() do.TeamMember {
+	if n == nil || n.Member == nil {
 		return nil
 	}
-	return u.Member
+	return n.Member
 }
 
-func (u *NoticeMember) TableName() string {
+func (n *NoticeMember) TableName() string {
 	return tableNameNoticeMember
 }

@@ -1,8 +1,6 @@
 package system
 
 import (
-	"time"
-
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/vobj"
 	"github.com/moon-monitor/moon/pkg/util/slices"
@@ -13,33 +11,12 @@ var _ do.Role = (*Role)(nil)
 const tableNameRole = "sys_roles"
 
 type Role struct {
-	do.BaseModel
+	do.CreatorModel
 	Name   string            `gorm:"column:name;type:varchar(64);not null;comment:角色名" json:"name"`
 	Remark string            `gorm:"column:remark;type:varchar(255);not null;comment:备注" json:"remark"`
 	Status vobj.GlobalStatus `gorm:"column:status;type:tinyint(2);not null;comment:状态" json:"status"`
 	Users  []*User           `gorm:"many2many:sys_user_roles" json:"users"`
 	Menus  []*Menu           `gorm:"many2many:sys_role_menus" json:"menus"`
-}
-
-func (u *Role) GetCreatedAt() time.Time {
-	if u == nil {
-		return time.Time{}
-	}
-	return u.CreatedAt
-}
-
-func (u *Role) GetUpdatedAt() time.Time {
-	if u == nil {
-		return time.Time{}
-	}
-	return u.UpdatedAt
-}
-
-func (u *Role) GetRoleID() uint32 {
-	if u == nil {
-		return 0
-	}
-	return u.ID
 }
 
 func (u *Role) GetName() string {

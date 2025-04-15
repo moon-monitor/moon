@@ -34,3 +34,8 @@ func (r *PaginationRequest) ToReply() *PaginationReply {
 		Limit: r.Limit,
 	}
 }
+
+type ListReply[T any] struct {
+	*PaginationReply
+	Items []T
+}

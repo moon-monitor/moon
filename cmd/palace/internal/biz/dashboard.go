@@ -7,7 +7,6 @@ import (
 
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/bo"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do"
-	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do/team"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/repository"
 )
 
@@ -33,11 +32,11 @@ func NewDashboardBiz(
 
 // SaveDashboard saves a dashboard.
 func (b *DashboardBiz) SaveDashboard(ctx context.Context, req *bo.SaveDashboardReq) error {
-	if req.GetDashboardID() == 0 {
+	if req.GetID() == 0 {
 		return b.dashboardRepo.CreateDashboard(ctx, req)
 	}
 
-	dashboardDo, err := b.dashboardRepo.GetDashboard(ctx, req.GetDashboardID())
+	dashboardDo, err := b.dashboardRepo.GetDashboard(ctx, req.GetID())
 	if err != nil {
 		return err
 	}
@@ -79,18 +78,18 @@ func (b *DashboardBiz) BatchUpdateDashboardStatus(ctx context.Context, req *bo.B
 
 // SaveDashboardChart saves a dashboard chart.
 func (b *DashboardBiz) SaveDashboardChart(ctx context.Context, req *bo.SaveDashboardChartReq) error {
-	chart := &team.DashboardChart{
-		TeamModel:   do.TeamModel{BaseModel: do.BaseModel{ID: req.ID}},
-		DashboardID: req.DashboardID,
-		Title:       req.Title,
-		Remark:      req.Remark,
-		Status:      req.Status,
-		Url:         req.Url,
-		Width:       req.Width,
-		Height:      req.Height,
+	if req.GetID() == 0 {
+		return b.dashboardChartRepo.CreateDashboardChart(ctx, req)
 	}
 
-	return b.dashboardChartRepo.SaveDashboardChart(ctx, chart)
+	dashboardChartDo, err := b.dashboardChartRepo.GetDashboardChart(ctx, req.GetID())
+	if err != nil {
+		return err
+	}
+
+	chart := req.WithDashboardChart(dashboardChartDo)
+
+	return b.dashboardChartRepo.UpdateDashboardChart(ctx, chart)
 }
 
 // DeleteDashboardChart deletes a dashboard chart.
@@ -99,7 +98,7 @@ func (b *DashboardBiz) DeleteDashboardChart(ctx context.Context, id uint32) erro
 }
 
 // GetDashboardChart gets a dashboard chart.
-func (b *DashboardBiz) GetDashboardChart(ctx context.Context, id uint32) (*team.DashboardChart, error) {
+func (b *DashboardBiz) GetDashboardChart(ctx context.Context, id uint32) (do.DashboardChart, error) {
 	chart, err := b.dashboardChartRepo.GetDashboardChart(ctx, id)
 	if err != nil {
 		return nil, err
@@ -120,5 +119,5 @@ func (b *DashboardBiz) ListDashboardChart(ctx context.Context, req *bo.ListDashb
 
 // BatchUpdateDashboardChartStatus updates multiple dashboard charts' status.
 func (b *DashboardBiz) BatchUpdateDashboardChartStatus(ctx context.Context, req *bo.BatchUpdateDashboardChartStatusReq) error {
-	return b.dashboardChartRepo.BatchUpdateDashboardChartStatus(ctx, req.IDs, req.Status)
+	return b.dashboardChartRepo.BatchUpdateDashboardChartStatus(ctx, req)
 }

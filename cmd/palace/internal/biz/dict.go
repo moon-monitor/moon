@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/go-kratos/kratos/v2/log"
+	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do"
 	"github.com/moon-monitor/moon/cmd/palace/internal/helper/permission"
 	"github.com/moon-monitor/moon/pkg/merr"
 
@@ -41,7 +42,7 @@ func (d *Dict) SaveDict(ctx context.Context, req *bo.SaveDictReq) error {
 		return err
 	}
 	if req.DictID == 0 {
-		return d.teamDictRepo.Create(ctx, teamID, req.WithCreateParams())
+		return d.teamDictRepo.Create(ctx, teamID, req)
 	}
 	dictItem, err := d.teamDictRepo.Get(ctx, teamID, req.DictID)
 	if err != nil {
@@ -50,7 +51,7 @@ func (d *Dict) SaveDict(ctx context.Context, req *bo.SaveDictReq) error {
 	return d.teamDictRepo.Update(ctx, teamID, req.WithUpdateParams(dictItem))
 }
 
-func (d *Dict) GetDict(ctx context.Context, req *bo.OperateOneDictReq) (bo.Dict, error) {
+func (d *Dict) GetDict(ctx context.Context, req *bo.OperateOneDictReq) (do.Dict, error) {
 	teamID, err := d.getTeamID(ctx)
 	if err != nil {
 		return nil, err

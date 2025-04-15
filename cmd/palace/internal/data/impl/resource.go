@@ -4,7 +4,6 @@ import (
 	"context"
 
 	"github.com/go-kratos/kratos/v2/log"
-	"github.com/moon-monitor/moon/pkg/util/validate"
 
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/bo"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do"
@@ -17,6 +16,7 @@ import (
 	"github.com/moon-monitor/moon/cmd/palace/internal/data/query/teamgen"
 	"github.com/moon-monitor/moon/cmd/palace/internal/helper/permission"
 	"github.com/moon-monitor/moon/pkg/util/slices"
+	"github.com/moon-monitor/moon/pkg/util/validate"
 )
 
 func NewResourceRepo(d *data.Data, logger log.Logger) repository.Resource {
@@ -88,10 +88,7 @@ func (r *resourceImpl) ListResources(ctx context.Context, req *bo.ListResourceRe
 	if err != nil {
 		return nil, err
 	}
-	return &bo.ListResourceReply{
-		PaginationReply: req.ToReply(),
-		Resources:       slices.Map(resources, func(resource *system.Resource) do.Resource { return resource }),
-	}, nil
+	return req.ToListResourceReply(resources), nil
 }
 
 func (r *resourceImpl) GetMenusByUserID(ctx context.Context, userID uint32) ([]do.Menu, error) {

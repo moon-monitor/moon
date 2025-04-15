@@ -1,8 +1,6 @@
 package team
 
 import (
-	"time"
-
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/vobj"
 	"github.com/moon-monitor/moon/pkg/util/slices"
@@ -19,34 +17,6 @@ type Role struct {
 	Status  vobj.GlobalStatus `gorm:"column:status;type:tinyint(2);not null;comment:状态" json:"status"`
 	Members []*Member         `gorm:"many2many:team_member_roles" json:"members"`
 	Menus   []*Menu           `gorm:"many2many:team_role_menus" json:"menus"`
-}
-
-func (u *Role) GetTeamID() uint32 {
-	if u == nil {
-		return 0
-	}
-	return u.TeamID
-}
-
-func (u *Role) GetCreatedAt() time.Time {
-	if u == nil {
-		return time.Time{}
-	}
-	return u.CreatedAt
-}
-
-func (u *Role) GetUpdatedAt() time.Time {
-	if u == nil {
-		return time.Time{}
-	}
-	return u.UpdatedAt
-}
-
-func (u *Role) GetRoleID() uint32 {
-	if u == nil {
-		return 0
-	}
-	return u.ID
 }
 
 func (u *Role) GetName() string {

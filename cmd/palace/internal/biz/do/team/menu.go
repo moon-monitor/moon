@@ -1,12 +1,9 @@
 package team
 
 import (
-	"time"
-
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/vobj"
 	"github.com/moon-monitor/moon/pkg/util/slices"
-	"gorm.io/plugin/soft_delete"
 )
 
 var _ do.Menu = (*Menu)(nil)
@@ -31,34 +28,6 @@ func (u *Menu) GetParent() do.Menu {
 		return nil
 	}
 	return u.Parent
-}
-
-func (u *Menu) GetCreatedAt() time.Time {
-	if u == nil {
-		return time.Time{}
-	}
-	return u.CreatedAt
-}
-
-func (u *Menu) GetUpdatedAt() time.Time {
-	if u == nil {
-		return time.Time{}
-	}
-	return u.UpdatedAt
-}
-
-func (u *Menu) GetDeletedAt() soft_delete.DeletedAt {
-	if u == nil {
-		return 0
-	}
-	return u.DeletedAt
-}
-
-func (u *Menu) GetID() uint32 {
-	if u == nil {
-		return 0
-	}
-	return u.ID
 }
 
 func (u *Menu) GetName() string {

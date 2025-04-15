@@ -4,10 +4,11 @@ import (
 	"context"
 
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/bo"
+	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do"
 )
 
 type TeamDict interface {
-	Get(ctx context.Context, teamID uint32, dictID uint32) (bo.Dict, error)
+	Get(ctx context.Context, teamID uint32, dictID uint32) (do.Dict, error)
 	Delete(ctx context.Context, teamID, dictID uint32) error
 	Create(ctx context.Context, teamID uint32, dict bo.Dict) error
 	Update(ctx context.Context, teamID uint32, dict bo.Dict) error

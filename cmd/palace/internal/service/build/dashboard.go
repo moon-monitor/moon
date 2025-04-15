@@ -4,7 +4,6 @@ import (
 	"time"
 
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do"
-	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do/team"
 	"github.com/moon-monitor/moon/pkg/api/palace/common"
 )
 
@@ -15,7 +14,7 @@ func ToDashboardItemProto(dashboard do.Dashboard) *common.TeamDashboardItem {
 	}
 
 	return &common.TeamDashboardItem{
-		Id:        dashboard.GetDashboardID(),
+		Id:        dashboard.GetID(),
 		Name:      dashboard.GetTitle(),
 		Remark:    dashboard.GetRemark(),
 		Status:    common.GlobalStatus(dashboard.GetStatus()),
@@ -26,7 +25,7 @@ func ToDashboardItemProto(dashboard do.Dashboard) *common.TeamDashboardItem {
 }
 
 // ToDashboardItemProtoList converts a list of business objects to proto objects
-func ToDashboardItemProtoList(dashboards []*team.Dashboard) []*common.TeamDashboardItem {
+func ToDashboardItemProtoList(dashboards []do.Dashboard) []*common.TeamDashboardItem {
 	if dashboards == nil {
 		return nil
 	}
@@ -40,27 +39,27 @@ func ToDashboardItemProtoList(dashboards []*team.Dashboard) []*common.TeamDashbo
 }
 
 // ToDashboardChartItemProto converts a business object to a proto object
-func ToDashboardChartItemProto(chart *team.DashboardChart) *common.TeamDashboardChartItem {
+func ToDashboardChartItemProto(chart do.DashboardChart) *common.TeamDashboardChartItem {
 	if chart == nil {
 		return nil
 	}
 
 	return &common.TeamDashboardChartItem{
-		Id:          chart.ID,
-		DashboardID: chart.DashboardID,
-		Title:       chart.Title,
-		Remark:      chart.Remark,
-		Status:      common.GlobalStatus(chart.Status),
-		Url:         chart.Url,
-		Width:       chart.Width,
-		Height:      chart.Height,
-		CreatedAt:   chart.CreatedAt.Format(time.DateTime),
-		UpdatedAt:   chart.UpdatedAt.Format(time.DateTime),
+		Id:          chart.GetID(),
+		DashboardID: chart.GetDashboardID(),
+		Title:       chart.GetTitle(),
+		Remark:      chart.GetRemark(),
+		Status:      common.GlobalStatus(chart.GetStatus()),
+		Url:         chart.GetUrl(),
+		Width:       chart.GetWidth(),
+		Height:      chart.GetHeight(),
+		CreatedAt:   chart.GetCreatedAt().Format(time.DateTime),
+		UpdatedAt:   chart.GetUpdatedAt().Format(time.DateTime),
 	}
 }
 
 // ToDashboardChartItemProtoList converts a list of business objects to proto objects
-func ToDashboardChartItemProtoList(charts []*team.DashboardChart) []*common.TeamDashboardChartItem {
+func ToDashboardChartItemProtoList(charts []do.DashboardChart) []*common.TeamDashboardChartItem {
 	if charts == nil {
 		return nil
 	}

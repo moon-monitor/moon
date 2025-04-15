@@ -1,15 +1,11 @@
 package do
 
 import (
-	"time"
-
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/vobj"
 )
 
 type Role interface {
-	GetCreatedAt() time.Time
-	GetUpdatedAt() time.Time
-	GetRoleID() uint32
+	Creator
 	GetName() string
 	GetRemark() string
 	GetStatus() vobj.GlobalStatus
@@ -18,10 +14,7 @@ type Role interface {
 }
 
 type TeamRole interface {
-	GetTeamID() uint32
-	GetCreatedAt() time.Time
-	GetUpdatedAt() time.Time
-	GetRoleID() uint32
+	TeamBase
 	GetName() string
 	GetRemark() string
 	GetStatus() vobj.GlobalStatus

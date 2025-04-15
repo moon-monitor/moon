@@ -1,12 +1,24 @@
 package bo
 
 import (
-	"time"
-
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do"
+	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do/team"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/vobj"
 	"github.com/moon-monitor/moon/pkg/util/kv"
+	"github.com/moon-monitor/moon/pkg/util/slices"
 )
+
+type NoticeHook interface {
+	GetID() uint32
+	GetName() string
+	GetRemark() string
+	GetStatus() vobj.GlobalStatus
+	GetURL() string
+	GetMethod() vobj.HTTPMethod
+	GetSecret() string
+	GetHeaders() kv.StringMap
+	GetApp() vobj.HookApp
+}
 
 // SaveTeamNoticeHookRequest 保存团队通知钩子请求
 type SaveTeamNoticeHookRequest struct {
@@ -22,39 +34,11 @@ type SaveTeamNoticeHookRequest struct {
 	APP     vobj.HookApp      `json:"app"`
 }
 
-func (r *SaveTeamNoticeHookRequest) GetHookID() uint32 {
+func (r *SaveTeamNoticeHookRequest) GetID() uint32 {
 	if r == nil || r.hookDo == nil {
 		return 0
 	}
-	return r.hookDo.GetHookID()
-}
-
-func (r *SaveTeamNoticeHookRequest) GetTeamID() uint32 {
-	if r == nil || r.hookDo == nil {
-		return 0
-	}
-	return r.hookDo.GetTeamID()
-}
-
-func (r *SaveTeamNoticeHookRequest) GetCreatedAt() time.Time {
-	if r == nil || r.hookDo == nil {
-		return time.Now()
-	}
-	return r.hookDo.GetCreatedAt()
-}
-
-func (r *SaveTeamNoticeHookRequest) GetUpdatedAt() time.Time {
-	if r == nil || r.hookDo == nil {
-		return time.Now()
-	}
-	return r.hookDo.GetUpdatedAt()
-}
-
-func (r *SaveTeamNoticeHookRequest) GetNoticeGroups() []do.NoticeGroup {
-	if r == nil || r.hookDo == nil {
-		return nil
-	}
-	return r.hookDo.GetNoticeGroups()
+	return r.hookDo.GetID()
 }
 
 func (r *SaveTeamNoticeHookRequest) GetName() string {
@@ -113,7 +97,7 @@ func (r *SaveTeamNoticeHookRequest) GetApp() vobj.HookApp {
 	return r.APP
 }
 
-func (r *SaveTeamNoticeHookRequest) WithUpdateHookRequest(hook do.NoticeHook) do.NoticeHook {
+func (r *SaveTeamNoticeHookRequest) WithUpdateHookRequest(hook do.NoticeHook) NoticeHook {
 	r.hookDo = hook
 	return r
 }
@@ -126,18 +110,15 @@ type ListTeamNoticeHookRequest struct {
 	Apps    []vobj.HookApp    `json:"apps"`
 }
 
-func (r *ListTeamNoticeHookRequest) ToListTeamNoticeHookReply(hooks []do.NoticeHook) *ListTeamNoticeHookReply {
+func (r *ListTeamNoticeHookRequest) ToListTeamNoticeHookReply(hooks []*team.NoticeHook) *ListTeamNoticeHookReply {
 	return &ListTeamNoticeHookReply{
 		PaginationReply: r.ToReply(),
-		Hooks:           hooks,
+		Items:           slices.Map(hooks, func(hook *team.NoticeHook) do.NoticeHook { return hook }),
 	}
 }
 
 // ListTeamNoticeHookReply 列表响应
-type ListTeamNoticeHookReply struct {
-	*PaginationReply
-	Hooks []do.NoticeHook `json:"hooks"`
-}
+type ListTeamNoticeHookReply = ListReply[do.NoticeHook]
 
 // UpdateTeamNoticeHookStatusRequest 更新状态请求
 type UpdateTeamNoticeHookStatusRequest struct {

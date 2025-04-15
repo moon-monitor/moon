@@ -9,6 +9,7 @@ import (
 )
 
 type Resource interface {
+	Base
 	GetID() uint32
 	GetName() string
 	GetPath() string
@@ -19,4 +20,9 @@ type Resource interface {
 	GetCreatedAt() time.Time
 	GetUpdatedAt() time.Time
 	GetDeletedAt() soft_delete.DeletedAt
+}
+
+type TeamResource interface {
+	TeamBase
+	Resource
 }

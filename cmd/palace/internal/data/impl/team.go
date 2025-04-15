@@ -60,7 +60,7 @@ func (r *teamRepoImpl) Create(ctx context.Context, team bo.Team) error {
 func (r *teamRepoImpl) Update(ctx context.Context, team bo.Team) error {
 	teamMutation := r.Team
 	wrappers := []gen.Condition{
-		teamMutation.ID.Eq(team.GetTeamID()),
+		teamMutation.ID.Eq(team.GetID()),
 	}
 	mutations := []field.AssignExpr{
 		teamMutation.Name.Value(team.GetName()),
@@ -124,10 +124,7 @@ func (r *teamRepoImpl) List(ctx context.Context, req *bo.TeamListRequest) (*bo.T
 	if err != nil {
 		return nil, err
 	}
-	return &bo.TeamListReply{
-		PaginationReply: req.ToReply(),
-		Items:           slices.Map(teamDos, func(teamDo *system.Team) bo.Team { return teamDo }),
-	}, nil
+	return req.ToTeamListReply(teamDos), nil
 }
 
 func (r *teamRepoImpl) createDatabase(c *config.Database, teamID uint32) (gorm.DB, error) {

@@ -1,15 +1,11 @@
 package do
 
 import (
-	"time"
-
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/vobj"
 )
 
 type TeamMember interface {
-	GetTeamID() uint32
-	GetCreatedAt() time.Time
-	GetUpdatedAt() time.Time
+	TeamBase
 	GetTeamMemberID() uint32
 	GetUserID() uint32
 	GetInviterID() uint32

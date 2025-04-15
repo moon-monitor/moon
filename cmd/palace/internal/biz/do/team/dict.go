@@ -1,13 +1,11 @@
 package team
 
 import (
-	"time"
-
-	"gorm.io/plugin/soft_delete"
-
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/vobj"
 )
+
+var _ do.Dict = (*Dict)(nil)
 
 const tableNameDict = "team_dictionaries"
 
@@ -19,20 +17,6 @@ type Dict struct {
 	Color    string            `gorm:"column:color;type:varchar(16);not null;comment:颜色Hex" json:"color"`
 	DictType vobj.DictType     `gorm:"column:type;type:tinyint(2);not null;comment:字典类型" json:"type"`
 	Status   vobj.GlobalStatus `gorm:"column:status;type:tinyint(2);not null;comment:状态" json:"status"`
-}
-
-func (u *Dict) GetTeamID() uint32 {
-	if u == nil {
-		return 0
-	}
-	return u.TeamID
-}
-
-func (u *Dict) GetID() uint32 {
-	if u == nil {
-		return 0
-	}
-	return u.ID
 }
 
 func (u *Dict) GetKey() string {
@@ -75,27 +59,6 @@ func (u *Dict) GetLang() string {
 		return ""
 	}
 	return u.Lang
-}
-
-func (u *Dict) GetCreatedAt() time.Time {
-	if u == nil {
-		return time.Time{}
-	}
-	return u.CreatedAt
-}
-
-func (u *Dict) GetUpdatedAt() time.Time {
-	if u == nil {
-		return time.Time{}
-	}
-	return u.UpdatedAt
-}
-
-func (u *Dict) GetDeletedAt() soft_delete.DeletedAt {
-	if u == nil {
-		return 0
-	}
-	return u.DeletedAt
 }
 
 func (u *Dict) TableName() string {

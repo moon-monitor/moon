@@ -1,12 +1,12 @@
 package team
 
 import (
-	"time"
-
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/vobj"
-	"gorm.io/plugin/soft_delete"
+	"github.com/moon-monitor/moon/pkg/util/slices"
 )
+
+var _ do.Dashboard = (*Dashboard)(nil)
 
 const tableNameDashboard = "team_dashboards"
 
@@ -19,54 +19,39 @@ type Dashboard struct {
 	Charts   []*DashboardChart `gorm:"foreignKey:DashboardID;references:ID" json:"charts"`
 }
 
-func (d *Dashboard) GetDashboardID() uint32 {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (d *Dashboard) GetTeamID() uint32 {
-	//TODO implement me
-	panic("implement me")
-}
-
 func (d *Dashboard) GetTitle() string {
-	//TODO implement me
-	panic("implement me")
+	if d == nil {
+		return ""
+	}
+	return d.Title
 }
 
 func (d *Dashboard) GetRemark() string {
-	//TODO implement me
-	panic("implement me")
+	if d == nil {
+		return ""
+	}
+	return d.Remark
 }
 
 func (d *Dashboard) GetStatus() vobj.GlobalStatus {
-	//TODO implement me
-	panic("implement me")
+	if d == nil {
+		return vobj.GlobalStatusUnknown
+	}
+	return d.Status
 }
 
 func (d *Dashboard) GetColorHex() string {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (d *Dashboard) GetCreatedAt() time.Time {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (d *Dashboard) GetUpdatedAt() time.Time {
-	//TODO implement me
-	panic("implement me")
-}
-
-func (d *Dashboard) GetDeletedAt() soft_delete.DeletedAt {
-	//TODO implement me
-	panic("implement me")
+	if d == nil {
+		return ""
+	}
+	return d.ColorHex
 }
 
 func (d *Dashboard) GetCharts() []do.DashboardChart {
-	//TODO implement me
-	panic("implement me")
+	if d == nil || d.Charts == nil {
+		return nil
+	}
+	return slices.Map(d.Charts, func(chart *DashboardChart) do.DashboardChart { return chart })
 }
 
 func (d *Dashboard) TableName() string {

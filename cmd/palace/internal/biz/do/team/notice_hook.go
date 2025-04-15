@@ -1,13 +1,13 @@
 package team
 
 import (
-	"time"
-
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/vobj"
 	"github.com/moon-monitor/moon/pkg/util/kv"
 	"github.com/moon-monitor/moon/pkg/util/slices"
 )
+
+var _ do.NoticeHook = (*NoticeHook)(nil)
 
 const tableNameNoticeHook = "team_notice_hooks"
 
@@ -22,20 +22,6 @@ type NoticeHook struct {
 	Headers      kv.StringMap      `gorm:"column:headers;type:text;not null;comment:请求头" json:"headers"`
 	NoticeGroups []*NoticeGroup    `gorm:"many2many:team_notice_group_hooks" json:"noticeGroups"`
 	APP          vobj.HookApp      `gorm:"column:app;type:tinyint(2);not null;comment:应用" json:"app"`
-}
-
-func (n *NoticeHook) GetHookID() uint32 {
-	if n == nil {
-		return 0
-	}
-	return n.ID
-}
-
-func (n *NoticeHook) GetTeamID() uint32 {
-	if n == nil {
-		return 0
-	}
-	return n.TeamID
 }
 
 func (n *NoticeHook) GetName() string {
@@ -57,20 +43,6 @@ func (n *NoticeHook) GetStatus() vobj.GlobalStatus {
 		return vobj.GlobalStatusUnknown
 	}
 	return n.Status
-}
-
-func (n *NoticeHook) GetCreatedAt() time.Time {
-	if n == nil {
-		return time.Time{}
-	}
-	return n.CreatedAt
-}
-
-func (n *NoticeHook) GetUpdatedAt() time.Time {
-	if n == nil {
-		return time.Time{}
-	}
-	return n.UpdatedAt
 }
 
 func (n *NoticeHook) GetURL() string {

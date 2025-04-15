@@ -8,6 +8,7 @@ import (
 	"gorm.io/gen/field"
 
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/bo"
+	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do/team"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/repository"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/vobj"
@@ -37,7 +38,7 @@ func (t *teamDictImpl) bizQuery(teamID uint32) (*teamgen.Query, error) {
 	return teamgen.Use(bizDB.GetDB()), nil
 }
 
-func (t *teamDictImpl) Get(ctx context.Context, teamID, dictID uint32) (bo.Dict, error) {
+func (t *teamDictImpl) Get(ctx context.Context, teamID, dictID uint32) (do.Dict, error) {
 	bizQuery, err := t.bizQuery(teamID)
 	if err != nil {
 		return nil, err
@@ -155,5 +156,5 @@ func (t *teamDictImpl) List(ctx context.Context, teamID uint32, req *bo.ListDict
 	if err != nil {
 		return nil, err
 	}
-	return req.NewListDictReply(slices.Map(dictItems, func(item *team.Dict) bo.Dict { return item })), nil
+	return req.ToListDictReply(dictItems), nil
 }

@@ -8,8 +8,8 @@ import (
 )
 
 type TeamHook interface {
-	Create(ctx context.Context, hook do.NoticeHook) error
-	Update(ctx context.Context, hook do.NoticeHook) error
+	Create(ctx context.Context, hook bo.NoticeHook) error
+	Update(ctx context.Context, hook bo.NoticeHook) error
 	UpdateStatus(ctx context.Context, req *bo.UpdateTeamNoticeHookStatusRequest) error
 	Delete(ctx context.Context, hookID uint32) error
 	Get(ctx context.Context, hookID uint32) (do.NoticeHook, error)

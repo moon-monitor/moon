@@ -3,12 +3,12 @@ package build
 import (
 	"time"
 
-	"github.com/moon-monitor/moon/cmd/palace/internal/biz/bo"
+	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do"
 	"github.com/moon-monitor/moon/pkg/api/palace/common"
 	"github.com/moon-monitor/moon/pkg/util/slices"
 )
 
-func ToDictProto(dictItem bo.Dict) *common.TeamDictItem {
+func ToDictProto(dictItem do.Dict) *common.TeamDictItem {
 	return &common.TeamDictItem{
 		TeamID:    dictItem.GetTeamID(),
 		DictID:    dictItem.GetID(),
@@ -22,6 +22,6 @@ func ToDictProto(dictItem bo.Dict) *common.TeamDictItem {
 	}
 }
 
-func ToDictProtos(dictItems []bo.Dict) []*common.TeamDictItem {
+func ToDictProtos(dictItems []do.Dict) []*common.TeamDictItem {
 	return slices.Map(dictItems, ToDictProto)
 }

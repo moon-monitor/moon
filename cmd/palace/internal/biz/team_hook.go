@@ -27,10 +27,10 @@ type TeamHook struct {
 
 // SaveHook 保存团队通知钩子
 func (h *TeamHook) SaveHook(ctx context.Context, req *bo.SaveTeamNoticeHookRequest) error {
-	if req.GetHookID() <= 0 {
+	if req.GetID() <= 0 {
 		return h.teamHookRepo.Create(ctx, req)
 	}
-	hookDo, err := h.teamHookRepo.Get(ctx, req.GetHookID())
+	hookDo, err := h.teamHookRepo.Get(ctx, req.GetID())
 	if err != nil {
 		return err
 	}

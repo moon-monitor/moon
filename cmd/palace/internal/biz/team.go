@@ -25,14 +25,14 @@ type Team struct {
 }
 
 func (t *Team) SaveTeam(ctx context.Context, req *bo.SaveOneTeamRequest) error {
-	if req.GetTeamID() <= 0 {
+	if req.GetID() <= 0 {
 		params, err := req.WithCreateTeamRequest(ctx)
 		if err != nil {
 			return err
 		}
 		return t.teamRepo.Create(ctx, params)
 	}
-	teamInfo, err := t.teamRepo.FindByID(ctx, req.GetTeamID())
+	teamInfo, err := t.teamRepo.FindByID(ctx, req.GetID())
 	if err != nil {
 		return err
 	}

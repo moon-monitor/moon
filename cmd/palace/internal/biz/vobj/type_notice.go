@@ -6,6 +6,7 @@ package vobj
 type NoticeType int8
 
 const (
+	NoticeTypeNone  NoticeType = 0
 	NoticeTypeEmail NoticeType = 1 << iota // Email
 	NoticeTypeSMS                          // SMS
 	NoticeTypeVoice                        // Voice

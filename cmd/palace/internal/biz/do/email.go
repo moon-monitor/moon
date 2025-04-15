@@ -1,8 +1,6 @@
 package do
 
 import (
-	"time"
-
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/vobj"
 	"github.com/moon-monitor/moon/pkg/plugin/email"
 )
@@ -43,9 +41,7 @@ func (e *Email) GetEnable() bool {
 }
 
 type EmailConfig interface {
-	GetEmailConfigID() uint32
-	GetCreatedAt() time.Time
-	GetUpdatedAt() time.Time
+	Creator
 	GetName() string
 	GetRemark() string
 	GetStatus() vobj.GlobalStatus

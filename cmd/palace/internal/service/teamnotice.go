@@ -69,7 +69,7 @@ func (s *TeamNoticeService) ListTeamNoticeHook(ctx context.Context, req *palace.
 	}
 
 	return &palace.ListTeamNoticeHookReply{
-		Items:      build.ToNoticeHookItems(reply.Hooks),
+		Items:      build.ToNoticeHookItems(reply.Items),
 		Pagination: build.ToPaginationReplyProto(reply.PaginationReply),
 	}, nil
 }

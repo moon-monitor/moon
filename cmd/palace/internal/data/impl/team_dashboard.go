@@ -7,6 +7,7 @@ import (
 	"gorm.io/gen/field"
 
 	"github.com/go-kratos/kratos/v2/log"
+	
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/bo"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do/team"
@@ -51,7 +52,7 @@ func (r *dashboardImpl) UpdateDashboard(ctx context.Context, dashboard bo.Dashbo
 	mutation := query.Dashboard
 	wrappers := []gen.Condition{
 		mutation.TeamID.Eq(teamID),
-		mutation.ID.Eq(dashboard.GetDashboardID()),
+		mutation.ID.Eq(dashboard.GetID()),
 	}
 	mutations := []field.AssignExpr{
 		mutation.Title.Value(dashboard.GetTitle()),
@@ -122,15 +123,12 @@ func (r *dashboardImpl) ListDashboards(ctx context.Context, req *bo.ListDashboar
 	if err != nil {
 		return nil, err
 	}
-	return &bo.ListDashboardReply{
-		PaginationReply: req.ToReply(),
-		Dashboards:      dashboards,
-	}, nil
+	return req.ToListDashboardReply(dashboards), nil
 }
 
 // BatchUpdateDashboardStatus update multiple dashboards status
 func (r *dashboardImpl) BatchUpdateDashboardStatus(ctx context.Context, req *bo.BatchUpdateDashboardStatusReq) error {
-	if len(req.IDs) == 0 {
+	if len(req.Ids) == 0 {
 		return nil
 	}
 	query, teamID, err := getTeamBizQuery(ctx, r)
@@ -140,7 +138,7 @@ func (r *dashboardImpl) BatchUpdateDashboardStatus(ctx context.Context, req *bo.
 	mutation := query.Dashboard
 	wrappers := []gen.Condition{
 		mutation.TeamID.Eq(teamID),
-		mutation.ID.In(req.IDs...),
+		mutation.ID.In(req.Ids...),
 	}
 	_, err = mutation.WithContext(ctx).Where(wrappers...).UpdateColumnSimple(mutation.Status.Value(req.Status.GetValue()))
 	return err

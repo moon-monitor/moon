@@ -29,7 +29,7 @@ type teamHookImpl struct {
 	helper *log.Helper
 }
 
-func (t *teamHookImpl) Create(ctx context.Context, hook do.NoticeHook) error {
+func (t *teamHookImpl) Create(ctx context.Context, hook bo.NoticeHook) error {
 	noticeHook := &team.NoticeHook{
 		Name:    hook.GetName(),
 		Remark:  hook.GetRemark(),
@@ -50,13 +50,13 @@ func (t *teamHookImpl) Create(ctx context.Context, hook do.NoticeHook) error {
 	return query.NoticeHook.WithContext(ctx).Create(noticeHook)
 }
 
-func (t *teamHookImpl) Update(ctx context.Context, hook do.NoticeHook) error {
+func (t *teamHookImpl) Update(ctx context.Context, hook bo.NoticeHook) error {
 	query, teamID, err := getTeamBizQuery(ctx, t)
 	if err != nil {
 		return err
 	}
 	wrapper := []gen.Condition{
-		query.NoticeHook.ID.Eq(hook.GetHookID()),
+		query.NoticeHook.ID.Eq(hook.GetID()),
 		query.NoticeHook.TeamID.Eq(teamID),
 	}
 
@@ -158,6 +158,5 @@ func (t *teamHookImpl) List(ctx context.Context, req *bo.ListTeamNoticeHookReque
 	if err != nil {
 		return nil, err
 	}
-	hooks := slices.Map(noticeHooks, func(hook *team.NoticeHook) do.NoticeHook { return hook })
-	return req.ToListTeamNoticeHookReply(hooks), nil
+	return req.ToListTeamNoticeHookReply(noticeHooks), nil
 }

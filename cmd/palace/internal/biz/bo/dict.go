@@ -1,14 +1,25 @@
 package bo
 
 import (
-	"time"
-
-	"gorm.io/plugin/soft_delete"
-
+	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do"
+	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do/team"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/vobj"
+	"github.com/moon-monitor/moon/pkg/util/slices"
 )
 
+type Dict interface {
+	GetID() uint32
+	GetKey() string
+	GetValue() string
+	GetStatus() vobj.GlobalStatus
+	GetType() vobj.DictType
+	GetColor() string
+	GetLang() string
+}
+
 type SaveDictReq struct {
+	dictItem Dict
+
 	DictID uint32            `json:"dictID"`
 	Key    string            `json:"key"`
 	Value  string            `json:"value"`
@@ -18,98 +29,43 @@ type SaveDictReq struct {
 	Lang   string            `json:"lang"`
 }
 
-type updateDictReq struct {
-	dictItem Dict
-
-	Key    string            `json:"key"`
-	Value  string            `json:"value"`
-	Status vobj.GlobalStatus `json:"status"`
-	Type   vobj.DictType     `json:"type"`
-	Color  string            `json:"color"`
-	Lang   string            `json:"lang"`
-}
-
-func (u *updateDictReq) GetTeamID() uint32 {
-	if u == nil || u.dictItem == nil {
+func (s *SaveDictReq) GetID() uint32 {
+	if s == nil {
 		return 0
 	}
-	return u.dictItem.GetTeamID()
-}
-
-func (u *updateDictReq) GetID() uint32 {
-	if u == nil || u.dictItem == nil {
-		return 0
+	if s.dictItem == nil {
+		return s.DictID
 	}
-	return u.dictItem.GetID()
+	return s.dictItem.GetID()
 }
 
-func (u *updateDictReq) GetKey() string {
-	return u.Key
+func (s *SaveDictReq) GetKey() string {
+	return s.Key
 }
 
-func (u *updateDictReq) GetValue() string {
-	return u.Value
+func (s *SaveDictReq) GetValue() string {
+	return s.Value
 }
 
-func (u *updateDictReq) GetStatus() vobj.GlobalStatus {
-	return u.Status
+func (s *SaveDictReq) GetStatus() vobj.GlobalStatus {
+	return s.Status
 }
 
-func (u *updateDictReq) GetType() vobj.DictType {
-	return u.Type
+func (s *SaveDictReq) GetType() vobj.DictType {
+	return s.Type
 }
 
-func (u *updateDictReq) GetColor() string {
-	return u.Color
+func (s *SaveDictReq) GetColor() string {
+	return s.Color
 }
 
-func (u *updateDictReq) GetLang() string {
-	return u.Lang
+func (s *SaveDictReq) GetLang() string {
+	return s.Lang
 }
 
-func (u *updateDictReq) GetCreatedAt() time.Time {
-	if u == nil || u.dictItem == nil {
-		return time.Now()
-	}
-	return u.dictItem.GetCreatedAt()
-}
-
-func (u *updateDictReq) GetUpdatedAt() time.Time {
-	if u == nil || u.dictItem == nil {
-		return time.Now()
-	}
-	return u.dictItem.GetUpdatedAt()
-}
-
-func (u *updateDictReq) GetDeletedAt() soft_delete.DeletedAt {
-	if u == nil || u.dictItem == nil {
-		return 0
-	}
-	return u.dictItem.GetDeletedAt()
-}
-
-func (d *SaveDictReq) WithCreateParams() Dict {
-	return &updateDictReq{
-		dictItem: nil,
-		Key:      d.Key,
-		Value:    d.Value,
-		Status:   d.Status,
-		Type:     d.Type,
-		Color:    d.Color,
-		Lang:     d.Lang,
-	}
-}
-
-func (d *SaveDictReq) WithUpdateParams(dictItem Dict) Dict {
-	return &updateDictReq{
-		dictItem: dictItem,
-		Key:      d.Key,
-		Value:    d.Value,
-		Status:   d.Status,
-		Type:     d.Type,
-		Color:    d.Color,
-		Lang:     d.Lang,
-	}
+func (s *SaveDictReq) WithUpdateParams(dictItem Dict) Dict {
+	s.dictItem = dictItem
+	return s
 }
 
 type UpdateDictStatusReq struct {
@@ -129,28 +85,11 @@ type ListDictReq struct {
 	Langs     []string          `json:"langs"`
 }
 
-type ListDictReply struct {
-	Items []Dict
-	*PaginationReply
-}
-
-func (l *ListDictReq) NewListDictReply(dictItems []Dict) *ListDictReply {
+func (r *ListDictReq) ToListDictReply(dictItems []*team.Dict) *ListDictReply {
 	return &ListDictReply{
-		Items:           dictItems,
-		PaginationReply: l.ToReply(),
+		PaginationReply: r.ToReply(),
+		Items:           slices.Map(dictItems, func(item *team.Dict) do.Dict { return item }),
 	}
 }
 
-type Dict interface {
-	GetTeamID() uint32
-	GetID() uint32
-	GetKey() string
-	GetValue() string
-	GetStatus() vobj.GlobalStatus
-	GetType() vobj.DictType
-	GetColor() string
-	GetLang() string
-	GetCreatedAt() time.Time
-	GetUpdatedAt() time.Time
-	GetDeletedAt() soft_delete.DeletedAt
-}
+type ListDictReply = ListReply[do.Dict]

@@ -2,18 +2,19 @@ package bo
 
 import (
 	"context"
-	"time"
 
 	"github.com/google/uuid"
+	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do/system"
+	"github.com/moon-monitor/moon/pkg/util/slices"
+
+	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/vobj"
 	"github.com/moon-monitor/moon/cmd/palace/internal/helper/permission"
 	"github.com/moon-monitor/moon/pkg/merr"
 )
 
 type Team interface {
-	GetCreatedAt() time.Time
-	GetUpdatedAt() time.Time
-	GetTeamID() uint32
+	GetID() uint32
 	GetName() string
 	GetRemark() string
 	GetLogo() string
@@ -54,31 +55,18 @@ func (o *SaveOneTeamRequest) WithUpdateTeamRequest(team Team) Team {
 
 type SaveOneTeamRequest struct {
 	team     Team
+	TeamID   uint32
 	name     string
 	remark   string
 	logo     string
 	leaderID uint32
 }
 
-func (o *SaveOneTeamRequest) GetCreatedAt() time.Time {
+func (o *SaveOneTeamRequest) GetID() uint32 {
 	if o == nil || o.team == nil {
-		return time.Now()
+		return o.TeamID
 	}
-	return o.team.GetCreatedAt()
-}
-
-func (o *SaveOneTeamRequest) GetUpdatedAt() time.Time {
-	if o == nil || o.team == nil {
-		return time.Now()
-	}
-	return o.team.GetUpdatedAt()
-}
-
-func (o *SaveOneTeamRequest) GetTeamID() uint32 {
-	if o == nil || o.team == nil {
-		return 0
-	}
-	return o.team.GetTeamID()
+	return o.team.GetID()
 }
 
 func (o *SaveOneTeamRequest) GetName() string {
@@ -135,7 +123,11 @@ type TeamListRequest struct {
 	UserIds []uint32
 }
 
-type TeamListReply struct {
-	*PaginationReply
-	Items []Team
+func (r *TeamListRequest) ToTeamListReply(items []*system.Team) *TeamListReply {
+	return &TeamListReply{
+		PaginationReply: r.ToReply(),
+		Items:           slices.Map(items, func(team *system.Team) do.Team { return team }),
+	}
 }
+
+type TeamListReply = ListReply[do.Team]

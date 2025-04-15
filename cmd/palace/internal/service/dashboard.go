@@ -87,7 +87,7 @@ func (s *DashboardService) ListDashboard(ctx context.Context, req *palacev1.List
 
 	// Convert to proto object
 	return &palacev1.ListTeamDashboardReply{
-		Items:      build.ToDashboardItemProtoList(dashboards.Dashboards),
+		Items:      build.ToDashboardItemProtoList(dashboards.Items),
 		Pagination: build.ToPaginationReplyProto(dashboards.PaginationReply),
 	}, nil
 }
@@ -96,7 +96,7 @@ func (s *DashboardService) ListDashboard(ctx context.Context, req *palacev1.List
 func (s *DashboardService) BatchUpdateDashboardStatus(ctx context.Context, req *palacev1.UpdateTeamDashboardStatusRequest) (*common.EmptyReply, error) {
 	// Convert to business object
 	updateReq := &bo.BatchUpdateDashboardStatusReq{
-		IDs:    req.GetDashboardIds(),
+		Ids:    req.GetDashboardIds(),
 		Status: vobj.GlobalStatus(req.GetStatus()),
 	}
 
@@ -173,7 +173,7 @@ func (s *DashboardService) ListDashboardChart(ctx context.Context, req *palacev1
 
 	// Convert to proto object
 	return &palacev1.ListTeamDashboardChartReply{
-		Items:      build.ToDashboardChartItemProtoList(charts.Charts),
+		Items:      build.ToDashboardChartItemProtoList(charts.Items),
 		Pagination: build.ToPaginationReplyProto(charts.PaginationReply),
 	}, nil
 }
@@ -182,7 +182,7 @@ func (s *DashboardService) ListDashboardChart(ctx context.Context, req *palacev1
 func (s *DashboardService) BatchUpdateDashboardChartStatus(ctx context.Context, req *palacev1.UpdateTeamDashboardChartStatusRequest) (*common.EmptyReply, error) {
 	// Convert to business object
 	updateReq := &bo.BatchUpdateDashboardChartStatusReq{
-		IDs:    req.GetChartIds(),
+		Ids:    req.GetChartIds(),
 		Status: vobj.GlobalStatus(req.GetStatus()),
 	}
 

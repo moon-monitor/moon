@@ -48,7 +48,7 @@ func ToNoticeHookItem(hook do.NoticeHook) *common.NoticeHookItem {
 		return nil
 	}
 	return &common.NoticeHookItem{
-		NoticeHookID: hook.GetHookID(),
+		NoticeHookID: hook.GetID(),
 		Name:         hook.GetName(),
 		Remark:       hook.GetRemark(),
 		Status:       common.GlobalStatus(hook.GetStatus()),

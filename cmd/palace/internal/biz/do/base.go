@@ -18,6 +18,29 @@ type ORMModel interface {
 	driver.Valuer
 }
 
+type Base interface {
+	GetID() uint32
+	GetCreatedAt() time.Time
+	GetUpdatedAt() time.Time
+	GetDeletedAt() soft_delete.DeletedAt
+	GetContext() context.Context
+	WithContext(context.Context)
+}
+
+type Creator interface {
+	Base
+	GetCreatorID() uint32
+	GetCreator() User
+	WithCreator(func(ctx context.Context, creatorID uint32) (User, error)) error
+}
+
+type TeamBase interface {
+	Creator
+	GetTeamID() uint32
+}
+
+var _ Base = (*BaseModel)(nil)
+
 // BaseModel gorm base model
 type BaseModel struct {
 	ctx context.Context `gorm:"-"`
@@ -28,10 +51,37 @@ type BaseModel struct {
 	DeletedAt soft_delete.DeletedAt `gorm:"column:deleted_at;type:bigint;not null;default:0;" json:"deleted_at,omitempty"`
 }
 
+func (u *BaseModel) GetID() uint32 {
+	if u == nil {
+		return 0
+	}
+	return u.ID
+}
+
+func (u *BaseModel) GetCreatedAt() time.Time {
+	if u == nil {
+		return time.Time{}
+	}
+	return u.CreatedAt
+}
+
+func (u *BaseModel) GetUpdatedAt() time.Time {
+	if u == nil {
+		return time.Time{}
+	}
+	return u.UpdatedAt
+}
+
+func (u *BaseModel) GetDeletedAt() soft_delete.DeletedAt {
+	if u == nil {
+		return 0
+	}
+	return u.DeletedAt
+}
+
 // WithContext set context
-func (u *BaseModel) WithContext(ctx context.Context) *BaseModel {
+func (u *BaseModel) WithContext(ctx context.Context) {
 	u.ctx = ctx
-	return u
 }
 
 // GetContext get context
@@ -42,9 +92,41 @@ func (u *BaseModel) GetContext() context.Context {
 	return u.ctx
 }
 
+var _ Creator = (*CreatorModel)(nil)
+
 type CreatorModel struct {
 	BaseModel
 	CreatorID uint32 `gorm:"column:creator;type:int unsigned;not null;comment:创建者" json:"creator_id,omitempty"`
+
+	creator User
+}
+
+func (u *CreatorModel) GetCreatorID() uint32 {
+	if u == nil {
+		return 0
+	}
+	return u.CreatorID
+}
+
+func (u *CreatorModel) GetCreator() User {
+	if u == nil {
+		return nil
+	}
+	return u.creator
+}
+
+func (u *CreatorModel) WithCreator(f func(ctx context.Context, creatorID uint32) (User, error)) error {
+	if u == nil || f == nil {
+		return nil
+	}
+
+	creator, err := f(u.GetContext(), u.CreatorID)
+	if err != nil {
+		return err
+	}
+
+	u.creator = creator
+	return nil
 }
 
 func (u *CreatorModel) BeforeCreate(tx *gorm.DB) (err error) {
@@ -57,10 +139,18 @@ func (u *CreatorModel) BeforeCreate(tx *gorm.DB) (err error) {
 	return
 }
 
+var _ TeamBase = (*TeamModel)(nil)
+
 type TeamModel struct {
-	BaseModel
-	CreatorID uint32 `gorm:"column:creator;type:int unsigned;not null;comment:创建者" json:"creator_id,omitempty"`
-	TeamID    uint32 `gorm:"column:team_id;type:int unsigned;not null;comment:团队ID" json:"team_id,omitempty"`
+	CreatorModel
+	TeamID uint32 `gorm:"column:team_id;type:int unsigned;not null;comment:团队ID" json:"team_id,omitempty"`
+}
+
+func (u *TeamModel) GetTeamID() uint32 {
+	if u == nil {
+		return 0
+	}
+	return u.TeamID
 }
 
 func (u *TeamModel) BeforeCreate(tx *gorm.DB) (err error) {
@@ -74,35 +164,5 @@ func (u *TeamModel) BeforeCreate(tx *gorm.DB) (err error) {
 		return merr.ErrorInternalServerError("user id not found")
 	}
 	tx.WithContext(u.GetContext())
-	return
-}
-
-func (u *TeamModel) BeforeUpdate(tx *gorm.DB) (err error) {
-	var exist bool
-	u.TeamID, exist = permission.GetTeamIDByContext(u.GetContext())
-	if !exist || u.TeamID == 0 {
-		return merr.ErrorInternalServerError("team id not found")
-	}
-	tx.WithContext(u.GetContext()).Where(`team_id = ?`, u.TeamID)
-	return
-}
-
-func (u *TeamModel) BeforeSave(tx *gorm.DB) (err error) {
-	var exist bool
-	u.TeamID, exist = permission.GetTeamIDByContext(u.GetContext())
-	if !exist || u.TeamID == 0 {
-		return merr.ErrorInternalServerError("team id not found")
-	}
-	tx.WithContext(u.GetContext()).Where(`team_id = ?`, u.TeamID)
-	return
-}
-
-func (u *TeamModel) BeforeDelete(tx *gorm.DB) (err error) {
-	var exist bool
-	u.TeamID, exist = permission.GetTeamIDByContext(u.GetContext())
-	if !exist || u.TeamID == 0 {
-		return merr.ErrorInternalServerError("team id not found")
-	}
-	tx.WithContext(u.GetContext()).Where(`team_id = ?`, u.TeamID)
 	return
 }

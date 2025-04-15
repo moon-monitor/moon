@@ -1,12 +1,12 @@
 package team
 
 import (
-	"time"
-
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/vobj"
 	"github.com/moon-monitor/moon/pkg/util/slices"
 )
+
+var _ do.NoticeGroup = (*NoticeGroup)(nil)
 
 const tableNameNoticeGroup = "team_notice_groups"
 
@@ -19,20 +19,6 @@ type NoticeGroup struct {
 	Hooks         []*NoticeHook     `gorm:"many2many:team_notice_group_hooks" json:"hooks"`
 	EmailConfigID uint32            `gorm:"column:email_config_id;type:int(10);not null;comment:邮件配置ID" json:"emailConfigId"`
 	EmailConfig   *EmailConfig      `gorm:"foreignKey:EmailConfigID;references:ID" json:"emailConfig"`
-}
-
-func (n *NoticeGroup) GetID() uint32 {
-	if n == nil {
-		return 0
-	}
-	return n.ID
-}
-
-func (n *NoticeGroup) GetTeamID() uint32 {
-	if n == nil {
-		return 0
-	}
-	return n.TeamID
 }
 
 func (n *NoticeGroup) GetName() string {
@@ -54,20 +40,6 @@ func (n *NoticeGroup) GetStatus() vobj.GlobalStatus {
 		return vobj.GlobalStatusUnknown
 	}
 	return n.Status
-}
-
-func (n *NoticeGroup) GetCreatedAt() time.Time {
-	if n == nil {
-		return time.Time{}
-	}
-	return n.CreatedAt
-}
-
-func (n *NoticeGroup) GetUpdatedAt() time.Time {
-	if n == nil {
-		return time.Time{}
-	}
-	return n.UpdatedAt
 }
 
 func (n *NoticeGroup) GetHooks() []do.NoticeHook {

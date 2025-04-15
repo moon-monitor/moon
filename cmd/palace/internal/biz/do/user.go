@@ -1,16 +1,12 @@
 package do
 
 import (
-	"time"
-
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/vobj"
 	"github.com/moon-monitor/moon/pkg/util/crypto"
 )
 
 type User interface {
-	GetCreatedAt() time.Time
-	GetUpdatedAt() time.Time
-	GetUserID() uint32
+	Base
 	GetUsername() string
 	GetNickname() string
 	GetEmail() crypto.String

@@ -1,16 +1,12 @@
 package do
 
 import (
-	"time"
-
 	"github.com/google/uuid"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/vobj"
 )
 
 type Team interface {
-	GetCreatedAt() time.Time
-	GetUpdatedAt() time.Time
-	GetTeamID() uint32
+	Creator
 	GetName() string
 	GetRemark() string
 	GetLogo() string

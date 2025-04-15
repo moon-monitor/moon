@@ -8,13 +8,10 @@ import (
 )
 
 type NoticeHook interface {
-	GetHookID() uint32
-	GetTeamID() uint32
+	TeamBase
 	GetName() string
 	GetRemark() string
 	GetStatus() vobj.GlobalStatus
-	GetCreatedAt() time.Time
-	GetUpdatedAt() time.Time
 	GetURL() string
 	GetMethod() vobj.HTTPMethod
 	GetSecret() string
@@ -24,8 +21,7 @@ type NoticeHook interface {
 }
 
 type NoticeGroup interface {
-	GetID() uint32
-	GetTeamID() uint32
+	TeamBase
 	GetName() string
 	GetRemark() string
 	GetStatus() vobj.GlobalStatus
@@ -36,13 +32,10 @@ type NoticeGroup interface {
 }
 
 type NoticeMember interface {
-	GetID() uint32
-	GetTeamID() uint32
+	TeamBase
 	GetNoticeGroupID() uint32
 	GetMemberID() uint32
 	GetNoticeType() vobj.NoticeType
-	GetCreatedAt() time.Time
-	GetUpdatedAt() time.Time
 	GetNoticeGroup() NoticeGroup
 	GetMember() TeamMember
 }
