@@ -3,24 +3,25 @@ package build
 import (
 	"time"
 
+	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do/team"
 	"github.com/moon-monitor/moon/pkg/api/palace/common"
 )
 
 // ToDashboardItemProto converts a business object to a proto object
-func ToDashboardItemProto(dashboard *team.Dashboard) *common.TeamDashboardItem {
+func ToDashboardItemProto(dashboard do.Dashboard) *common.TeamDashboardItem {
 	if dashboard == nil {
 		return nil
 	}
 
 	return &common.TeamDashboardItem{
-		Id:        dashboard.ID,
-		Name:      dashboard.Title,
-		Remark:    dashboard.Remark,
-		Status:    common.GlobalStatus(dashboard.Status),
-		ColorHex:  dashboard.ColorHex,
-		CreatedAt: dashboard.CreatedAt.Format(time.DateTime),
-		UpdatedAt: dashboard.UpdatedAt.Format(time.DateTime),
+		Id:        dashboard.GetDashboardID(),
+		Name:      dashboard.GetTitle(),
+		Remark:    dashboard.GetRemark(),
+		Status:    common.GlobalStatus(dashboard.GetStatus()),
+		ColorHex:  dashboard.GetColorHex(),
+		CreatedAt: dashboard.GetCreatedAt().Format(time.DateTime),
+		UpdatedAt: dashboard.GetUpdatedAt().Format(time.DateTime),
 	}
 }
 

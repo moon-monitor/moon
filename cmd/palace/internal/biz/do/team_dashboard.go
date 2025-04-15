@@ -9,7 +9,7 @@ import (
 )
 
 type Dashboard interface {
-	GetID() uint32
+	GetDashboardID() uint32
 	GetTeamID() uint32
 	GetTitle() string
 	GetRemark() string
@@ -22,7 +22,7 @@ type Dashboard interface {
 }
 
 type DashboardChart interface {
-	GetID() uint32
+	GetDashboardChartID() uint32
 	GetTeamID() uint32
 	GetDashboardID() uint32
 	GetTitle() string

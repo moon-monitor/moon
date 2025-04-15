@@ -19,7 +19,7 @@ type Dashboard struct {
 	Charts   []*DashboardChart `gorm:"foreignKey:DashboardID;references:ID" json:"charts"`
 }
 
-func (d *Dashboard) GetID() uint32 {
+func (d *Dashboard) GetDashboardID() uint32 {
 	//TODO implement me
 	panic("implement me")
 }

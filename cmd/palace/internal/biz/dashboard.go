@@ -53,7 +53,7 @@ func (b *DashboardBiz) DeleteDashboard(ctx context.Context, id uint32) error {
 }
 
 // GetDashboard gets a dashboard.
-func (b *DashboardBiz) GetDashboard(ctx context.Context, id uint32) (*team.Dashboard, error) {
+func (b *DashboardBiz) GetDashboard(ctx context.Context, id uint32) (do.Dashboard, error) {
 	dashboard, err := b.dashboardRepo.GetDashboard(ctx, id)
 	if err != nil {
 		return nil, err
