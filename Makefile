@@ -2,17 +2,34 @@ GOHOSTOS:=$(shell go env GOHOSTOS)
 VERSION=$(shell git describe --tags --always)
 APP_NAME ?= $(app)
 
+# Define path separator based on OS
+ifeq ($(GOHOSTOS), windows)
+	PATHSEP=\\
+	PSEP=;
+else
+	PATHSEP=/
+	PSEP=:
+endif
+
+# Normalize paths for different OS
+NORMALIZE_PATH=$(subst /,$(PATHSEP),$1)
+DENORMALIZE_PATH=$(subst $(PATHSEP),/,$1)
+
 ifeq ($(GOHOSTOS), windows)
 	#the `find.exe` is different from `find` in bash/shell.
 	#to see https://docs.microsoft.com/en-us/windows-server/administration/windows-commands/find.
 	#changed to use git-bash.exe to run find cli or other cli friendly, caused of every developer has a Git.
-	#Git_Bash= $(subst cmd\,bin\bash.exe,$(dir $(shell where git)))
 	Git_Bash=$(subst \,/,$(subst cmd\,bin\bash.exe,$(dir $(shell where git))))
 	INTERNAL_PROTO_FILES=$(shell $(Git_Bash) -c "find cmd -name *.proto")
 	API_PROTO_FILES=$(shell $(Git_Bash) -c "find proto/api/$(APP_NAME) -name *.proto")
+	# Use mkdir -p equivalent for Windows
+	MKDIR=mkdir
+	RM=del /f /q
 else
 	INTERNAL_PROTO_FILES=$(shell find cmd -name *.proto)
 	API_PROTO_FILES=$(shell find proto/api/$(APP_NAME) -name *.proto)
+	MKDIR=mkdir -p
+	RM=rm -f
 endif
 
 .PHONY: init
@@ -45,7 +62,13 @@ api:
 	@if [ -z "$(APP_NAME)" ]; then echo "app name is required"; echo "usage: make api app=<app_name>"; exit 1; fi
 	@echo "Generating api proto"
 	@echo "APP_NAME: $(APP_NAME)"
-	mkdir -p ./pkg/api
+	@if [ "$(GOHOSTOS)" = "windows" ]; then \
+		$(Git_Bash) -c "rm -rf ./pkg/api/$(APP_NAME)"; \
+		if [ ! -d "./pkg/api" ]; then $(MKDIR) ./pkg/api; fi \
+	else \
+		rm -rf ./pkg/api/$(APP_NAME); \
+		if [ ! -d "./pkg/api" ]; then $(MKDIR) ./pkg/api; fi \
+	fi
 	protoc --proto_path=./proto/api \
 	       --proto_path=./proto/api \
 	       --proto_path=./proto/config \
