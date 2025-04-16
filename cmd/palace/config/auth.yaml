@@ -20,22 +20,22 @@ auth:
     enable: ${X_MOON_AUTH_OAUTH2_ENABLE:false}
     redirectUri: ${X_MOON_AUTH_OAUTH2_REDIRECT_URI}
     configs:
-      - app: ${X_MOON_AUTH_OAUTH2_APP_0}
+      - app: ${X_MOON_AUTH_OAUTH2_APP_0:0}
         clientId: ${X_MOON_AUTH_OAUTH2_CLIENT_ID_0}
         clientSecret: ${X_MOON_AUTH_OAUTH2_CLIENT_SECRET_0}
         callbackUri: ${X_MOON_AUTH_OAUTH2_CALLBACK_URI_0}
         authUrl: ${X_MOON_AUTH_OAUTH2_AUTH_URL_0}
         tokenUrl: ${X_MOON_AUTH_OAUTH2_TOKEN_URL_0}
-        scopes: ${X_MOON_AUTH_OAUTH2_SCOPES_0}
+        scopes: ${X_MOON_AUTH_OAUTH2_SCOPES_0:[]}
         loginUrl: ${X_MOON_AUTH_OAUTH2_LOGIN_URL_0}
 
-      - app: ${X_MOON_AUTH_OAUTH2_APP_1}
+      - app: ${X_MOON_AUTH_OAUTH2_APP_1:0}
         clientId: ${X_MOON_AUTH_OAUTH2_CLIENT_ID_1}
         clientSecret: ${X_MOON_AUTH_OAUTH2_CLIENT_SECRET_1}
         callbackUri: ${X_MOON_AUTH_OAUTH2_CALLBACK_URI_1}
         authUrl: ${X_MOON_AUTH_OAUTH2_AUTH_URL_1}
         tokenUrl: ${X_MOON_AUTH_OAUTH2_TOKEN_URL_1}
-        scopes: ${X_MOON_AUTH_OAUTH2_SCOPES_1}
+        scopes: ${X_MOON_AUTH_OAUTH2_SCOPES_1:[]}
         loginUrl: ${X_MOON_AUTH_OAUTH2_LOGIN_URL_1}
 
 filing:
