@@ -142,10 +142,12 @@ stringer-palace:
 .PHONY: stringer-rabbit
 stringer-rabbit:
 	@echo "Generating rabbit stringer"
+	cd ./cmd/rabbit/internal/biz/vobj && go generate
 
 .PHONY: stringer-houyi
 stringer-houyi:
 	@echo "Generating houyi stringer"
+	cd ./cmd/houyi/internal/biz/vobj && go generate
 
 .PHONY: gen-rabbit
 gen-rabbit:
