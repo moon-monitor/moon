@@ -9,7 +9,7 @@ import (
 
 var _ do.EmailConfig = (*EmailConfig)(nil)
 
-const tableNameConfig = "team_configs"
+const tableNameConfigEmail = "team_config_emails"
 
 // EmailConfig represents email configuration for a team
 type EmailConfig struct {
@@ -49,5 +49,5 @@ func (c *EmailConfig) GetEmailConfig() email.Config {
 }
 
 func (c *EmailConfig) TableName() string {
-	return tableNameConfig
+	return tableNameConfigEmail
 }
