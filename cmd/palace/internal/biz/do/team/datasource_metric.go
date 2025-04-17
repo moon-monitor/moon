@@ -81,7 +81,7 @@ func (d *DatasourceMetric) GetHeaders() kv.StringMap {
 
 func (d *DatasourceMetric) GetQueryMethod() vobj.HTTPMethod {
 	if d == nil {
-		return vobj.HTTPMethodGet
+		return vobj.HTTPMethodUnknown
 	}
 	return d.QueryMethod
 }

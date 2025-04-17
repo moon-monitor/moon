@@ -12,11 +12,11 @@ func NewMetricJudge(sampleModeType common.SampleMode, opts ...MetricJudgeOption)
 		opt(&config)
 	}
 	switch sampleModeType {
-	case common.SampleMode_For:
+	case common.SampleMode_FOR:
 		return &metricForJudge{config}
-	case common.SampleMode_Max:
+	case common.SampleMode_MAX:
 		return &metricMaxJudge{config}
-	case common.SampleMode_Min:
+	case common.SampleMode_MIN:
 		return &metricMinJudge{config}
 	default:
 		return &metricForJudge{config}
@@ -59,7 +59,7 @@ type metricForJudge struct {
 }
 
 func (m *metricForJudge) Type() common.SampleMode {
-	return common.SampleMode_For
+	return common.SampleMode_FOR
 }
 
 func (m *metricForJudge) Judge(originValues []bo.MetricJudgeDataValue) (bo.MetricJudgeDataValue, bool) {
@@ -85,7 +85,7 @@ type metricMaxJudge struct {
 }
 
 func (m *metricMaxJudge) Type() common.SampleMode {
-	return common.SampleMode_Max
+	return common.SampleMode_MAX
 }
 
 func (m *metricMaxJudge) Judge(originValues []bo.MetricJudgeDataValue) (bo.MetricJudgeDataValue, bool) {
@@ -110,7 +110,7 @@ type metricMinJudge struct {
 }
 
 func (m *metricMinJudge) Type() common.SampleMode {
-	return common.SampleMode_Min
+	return common.SampleMode_MIN
 }
 
 func (m *metricMinJudge) Judge(originValues []bo.MetricJudgeDataValue) (bo.MetricJudgeDataValue, bool) {

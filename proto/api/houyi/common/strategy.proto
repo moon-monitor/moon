@@ -9,44 +9,49 @@ import "houyi/common/datasource.proto";
 option go_package = "github.com/moon-monitor/moon/pkg/api/houyi/common;common";
 
 enum StrategyType {
-  metric = 0;
-  event = 1;
-  logs = 2;
-  certificate = 3;
-  port = 4;
-  http = 5;
-  ping = 6;
+  STRATEGY_TYPE_UNKNOWN = 0;
+  METRIC = 1;
+  EVENT = 2;
+  LOGS = 3;
+  PORT = 4;
+  HTTP = 5;
+  PING = 6;
+  CERT = 7;
 }
 
 // 采样方式
 enum SampleMode {
+  // 未知
+  SAMPLE_MODE_UNKNOWN = 0;
   // m时间内连续出现n次
-  For = 0;
+  FOR = 1;
   // m时间内最多出现n次
-  Max = 1;
+  MAX = 2;
   // m时间内最少出现n次
-  Min = 2;
+  MIN = 3;
 }
 
 message MetricStrategyItem {
   // 判断条件
   enum Condition {
+    // 未知
+    METRIC_STRATEGY_CONDITION_UNKNOWN = 0;
     // 等于
-    EQ = 0;
+    EQ = 1;
     // 不等于
-    NE = 1;
+    NE = 2;
     // 大于
-    GT = 2;
+    GT = 3;
     // 大于等于
-    GTE = 3;
+    GTE = 4;
     // 小于
-    LT = 4;
+    LT = 5;
     // 小于等于
-    LTE = 5;
+    LTE = 6;
     // 在范围内
-    In = 6;
+    IN = 7;
     // 不在范围内
-    NotIn = 7;
+    NOT_IN = 8;
   }
 
   message LabelNotices {
@@ -88,22 +93,23 @@ message MetricStrategyItem {
 message CertificateStrategyItem {
   // 判断条件
   enum Condition {
+    // 未知
+    CERTIFICATE_STRATEGY_CONDITION_UNKNOWN = 0;
     // 等于
-    EQ = 0;
+    EQ = 1;
     // 大于
-    GT = 1;
+    GT = 2;
     // 大于等于
-    GTE = 2;
+    GTE = 3;
     // 小于
-    LT = 3;
+    LT = 4;
     // 小于等于
-    LTE = 4;
+    LTE = 5;
     // 在当前时间之前
-    Before = 5;
+    BEFORE = 6;
     // 在当前时间之后
-    After = 6;
+    AFTER = 7;
   }
-
   message CertificateRuleItem {
     uint32 strategyId = 1;
     uint32 levelId = 2;
@@ -124,10 +130,12 @@ message CertificateStrategyItem {
 
 message ServerPortStrategyItem {
   enum Condition {
-    // 关闭
-    CLOSE = 0;
+    // 未知
+    SERVER_PORT_STRATEGY_CONDITION_UNKNOWN = 0;
     // 打开
     OPEN = 1;
+    // 关闭
+    CLOSE = 2;
   }
   houyi.common.TeamItem team = 1;
   repeated houyi.common.ServerPortDatasourceItem datasource = 2;
@@ -141,21 +149,25 @@ message ServerPortStrategyItem {
 
 message HttpStrategyItem {
   enum Condition {
+    // 未知
+    HTTP_STRATEGY_CONDITION_UNKNOWN = 0;
     // 等于
-    EQ = 0;
+    EQ = 1;
     // 大于
-    GT = 1;
+    GT = 2;
     // 大于等于
-    GTE = 2;
+    GTE = 3;
     // 小于
-    LT = 3;
+    LT = 4;
     // 小于等于
-    LTE = 4;
+    LTE = 5;
   }
 
   enum Judgment {
-    OR = 0;
-    AND = 1;
+    // 未知
+    HTTP_STRATEGY_JUDGMENT_UNKNOWN = 0;
+    OR = 1;
+    AND = 2;
   }
 
   message HttpRuleItem {
@@ -181,16 +193,18 @@ message HttpStrategyItem {
 
 message PingStrategyItem {
   enum Condition {
+    // 未知
+    PING_STRATEGY_CONDITION_UNKNOWN = 0;
     // 等于
-    EQ = 0;
+    EQ = 1;
     // 大于
-    GT = 1;
+    GT = 2;
     // 大于等于
-    GTE = 2;
+    GTE = 3;
     // 小于
-    LT = 3;
+    LT = 4;
     // 小于等于
-    LTE = 4;
+    LTE = 5;
   }
 
   message PingRuleItem {
@@ -214,48 +228,55 @@ message PingStrategyItem {
 
 message EventStrategyItem {
   enum DataType {
-    string = 0;
-    number = 1;
-    boolean = 2;
+    EVENT_STRATEGY_DATA_TYPE_UNKNOWN = 0;
+    STRING = 1;
+    NUMBER = 2;
+    BOOL = 3;
   }
 
   enum StringCondition {
+    // 未知
+    EVENT_STRATEGY_STRING_CONDITION_UNKNOWN = 0;
     // 等于
-    StringEQ = 0;
+    STRING_EQ = 1;
     // 不等于
-    StringNE = 1;
+    STRING_NE = 2;
     // 包含
-    StringContains = 2;
+    STRING_CONTAINS = 3;
     // 不包含
-    StringNotContains = 3;
+    STRING_NOT_CONTAINS = 4;
     // 前缀
-    StringPrefix = 4;
+    STRING_PREFIX = 5;
     // 后缀
-    StringSuffix = 5;
+    STRING_SUFFIX = 6;
     // 正则匹配
-    StringRegex = 6;
+    STRING_REGEX = 7;
   }
 
   enum NumberCondition {
+    // 未知
+    EVENT_STRATEGY_NUMBER_CONDITION_UNKNOWN = 0;
     // 等于
-    NumberEQ = 0;
+    NUMBER_EQ = 1;
     // 不等于
-    NumberNE = 1;
+    NUMBER_NE = 2;
     // 大于
-    NumberGT = 2;
+    NUMBER_GT = 3;
     // 大于等于
-    NumberGTE = 3;
+    NUMBER_GTE = 4;
     // 小于
-    NumberLT = 4;
+    NUMBER_LT = 5;
     // 小于等于
-    NumberLTE = 5;
+    NUMBER_LTE = 6;
   }
 
   enum BooleanCondition {
-    // 等于
-    BooleanEQ = 0;
-    // 不等于
-    BooleanNE = 1;
+    // 未知
+    EVENT_STRATEGY_BOOLEAN_CONDITION_UNKNOWN = 0;
+    // true
+    TRUE = 1;
+    // false
+    FALSE = 2;
   }
 
   message LabelNotices {
@@ -290,18 +311,20 @@ message EventStrategyItem {
 
 message LogsStrategyItem {
   enum Condition {
+    // 未知
+    LOGS_STRATEGY_CONDITION_UNKNOWN = 0;
     // 等于
-    EQ = 0;
+    EQ = 1;
     // 不等于
-    NE = 1;
+    NE = 2;
     // 大于
-    GT = 2;
+    GT = 3;
     // 大于等于
-    GTE = 3;
+    GTE = 4;
     // 小于
-    LT = 4;
+    LT = 5;
     // 小于等于
-    LTE = 5;
+    LTE = 6;
   }
 
   message LogsRuleItem {

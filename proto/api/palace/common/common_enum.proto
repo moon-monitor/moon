@@ -48,18 +48,20 @@ enum OperateType {
 
 // ResourceAllow represents the allow of a resource.
 enum ResourceAllow {
+  // RESOURCE_ALLOW_UNKNOWN is the default allow for a resource.
+  RESOURCE_ALLOW_UNKNOWN = 0;
   // RESOURCE_ALLOW_NONE indicates that the resource allow is none.
-  RESOURCE_ALLOW_NONE = 0;
+  RESOURCE_ALLOW_NONE = 1;
   // RESOURCE_ALLOW_SYSTEM indicates that the resource allow is system.
-  RESOURCE_ALLOW_SYSTEM = 1;
+  RESOURCE_ALLOW_SYSTEM = 2;
   // RESOURCE_ALLOW_SYSTEM_RBAC indicates that the resource allow is system RBAC.
-  RESOURCE_ALLOW_SYSTEM_RBAC = 2;
+  RESOURCE_ALLOW_SYSTEM_RBAC = 3;
   // RESOURCE_ALLOW_TEAM indicates that the resource allow is team.
-  RESOURCE_ALLOW_TEAM = 3;
+  RESOURCE_ALLOW_TEAM = 4;
   // RESOURCE_ALLOW_TEAM_RBAC indicates that the resource allow is team RBAC.
-  RESOURCE_ALLOW_TEAM_RBAC = 4;
+  RESOURCE_ALLOW_TEAM_RBAC = 5;
   // RESOURCE_ALLOW_USER indicates that the resource allow is user.
-  RESOURCE_ALLOW_USER = 5;
+  RESOURCE_ALLOW_USER = 6;
 }
 
 enum DatasourceDriverMetric {
@@ -69,42 +71,46 @@ enum DatasourceDriverMetric {
 }
 
 enum HTTPMethod {
-  HTTP_METHOD_GET = 0;
-  HTTP_METHOD_POST = 1;
-  HTTP_METHOD_PUT = 2;
-  HTTP_METHOD_DELETE = 3;
-  HTTP_METHOD_HEAD = 4;
-  HTTP_METHOD_OPTIONS = 5;
-  HTTP_METHOD_PATCH = 6;
+  HTTP_METHOD_UNKNOWN = 0;
+  HTTP_METHOD_GET = 1;
+  HTTP_METHOD_POST = 2;
+  HTTP_METHOD_PUT = 3;
+  HTTP_METHOD_DELETE = 4;
+  HTTP_METHOD_HEAD = 5;
+  HTTP_METHOD_OPTIONS = 6;
+  HTTP_METHOD_PATCH = 7;
 }
 
 // 采样方式
 enum SampleMode {
+  // 未知
+  SAMPLE_MODE_UNKNOWN = 0;
   // m时间内连续出现n次
-  SAMPLE_MODE_FOR = 0;
+  SAMPLE_MODE_FOR = 1;
   // m时间内最多出现n次
-  SAMPLE_MODE_MAX = 1;
+  SAMPLE_MODE_MAX = 2;
   // m时间内最少出现n次
-  SAMPLE_MODE_MIN = 2;
+  SAMPLE_MODE_MIN = 3;
 }
 
 enum ConditionMetric {
+  CONDITION_METRIC_UNKNOWN = 0;
   // 等于
-  CONDITION_METRIC_EQ = 0;
+  CONDITION_METRIC_EQ = 1;
   // 不等于
-  CONDITION_METRIC_NE = 1;
+  CONDITION_METRIC_NE = 2;
   // 大于
-  CONDITION_METRIC_GT = 2;
+  CONDITION_METRIC_GT = 3;
   // 大于等于
-  CONDITION_METRIC_GTE = 3;
+  CONDITION_METRIC_GTE = 4;
   // 小于
-  CONDITION_METRIC_LT = 4;
+  CONDITION_METRIC_LT = 5;
   // 小于等于
-  CONDITION_METRIC_LTE = 5;
+  CONDITION_METRIC_LTE = 6;
   // 在范围内
-  CONDITION_METRIC_In = 6;
+  CONDITION_METRIC_IN = 7;
   // 不在范围内
-  CONDITION_METRIC_NotIn = 7;
+  CONDITION_METRIC_NOT_IN = 8;
 }
 
 enum StrategyType {
@@ -112,10 +118,10 @@ enum StrategyType {
   STRATEGY_TYPE_METRIC = 1;
   STRATEGY_TYPE_EVENT = 2;
   STRATEGY_TYPE_LOGS = 3;
-  STRATEGY_TYPE_CERT = 4;
-  STRATEGY_TYPE_PORT = 5;
-  STRATEGY_TYPE_HTTP = 6;
-  STRATEGY_TYPE_PING = 7;
+  STRATEGY_TYPE_PORT = 4;
+  STRATEGY_TYPE_HTTP = 5;
+  STRATEGY_TYPE_PING = 6;
+  STRATEGY_TYPE_CERT = 7;
 }
 
 enum DictType {
@@ -125,10 +131,11 @@ enum DictType {
 }
 
 enum HookAPP {
-  HOOK_APP_OTHER = 0;
-  HOOK_APP_DING_TALK = 1;
-  HOOK_APP_WECHAT = 2;
-  HOOK_APP_FEI_SHU = 3;
+  HOOK_APP_UNKNOWN = 0;
+  HOOK_APP_OTHER = 1;
+  HOOK_APP_DING_TALK = 2;
+  HOOK_APP_WECHAT = 3;
+  HOOK_APP_FEI_SHU = 4;
 }
 
 enum NoticeType {

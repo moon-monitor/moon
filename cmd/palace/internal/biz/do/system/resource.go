@@ -74,7 +74,7 @@ func (u *Resource) GetStatus() vobj.GlobalStatus {
 
 func (u *Resource) GetAllow() vobj.ResourceAllow {
 	if u == nil {
-		return vobj.ResourceAllowNone
+		return vobj.ResourceAllowUnknown
 	}
 	return u.Allow
 }

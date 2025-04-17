@@ -34,7 +34,7 @@ func (n *NoticeMember) GetMemberID() uint32 {
 
 func (n *NoticeMember) GetNoticeType() vobj.NoticeType {
 	if n == nil {
-		return vobj.NoticeTypeNone
+		return vobj.NoticeTypeUnknown
 	}
 	return n.NoticeType
 }

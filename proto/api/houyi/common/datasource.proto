@@ -19,19 +19,20 @@ message TLS {
 }
 
 enum DatasourceQueryMethod {
-  POST = 0;
-  PUT = 1;
-  GET = 2;
-  DELETE = 3;
+  DATASOURCE_QUERY_METHOD_UNKNOWN = 0;
+  POST = 1;
+  PUT = 2;
+  GET = 3;
+  DELETE = 4;
 }
 
 enum MetricDatasourceDriver {
   // unknown
-  MetricDatasourceDriverUNKNOWN = 0;
+  METRIC_DATASOURCE_DRIVER_UNKNOWN = 0;
   // prometheus
-  prometheus = 1;
+  PROMETHEUS = 1;
   // victoria metrics
-  victoriametrics = 2;
+  VICTORIAMETRICS = 2;
 }
 
 message MetricDatasourceItem {
@@ -65,13 +66,13 @@ message MetricDatasourceItem {
 
 enum LogDatasourceDriver {
   // unknown
-  LogDatasourceDriverUNKNOWN = 0;
+  LOG_DATASOURCE_DRIVER_UNKNOWN = 0;
   // aliyun
-  aliyun = 1;
+  ALIYUN = 1;
   // elasticsearch
-  elasticsearch = 2;
+  ES = 2;
   // loki
-  loki = 3;
+  LOKI = 3;
 }
 
 message LogDatasourceItem {
@@ -110,13 +111,13 @@ message LogDatasourceItem {
 
 enum EventDatasourceDriver {
   // unknown
-  EventDatasourceDriverUNKNOWN = 0;
+  EVENT_DATASOURCE_DRIVER_UNKNOWN = 0;
   // rocketmq
-  rocketmq = 1;
+  ROCKETMQ = 1;
   // mqtt
-  mqtt = 2;
+  MQTT = 2;
   // kafka
-  kafka = 3;
+  KAFKA = 3;
 }
 
 message EventDatasourceItem {

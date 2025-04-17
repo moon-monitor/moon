@@ -54,7 +54,7 @@ func (n *NoticeHook) GetURL() string {
 
 func (n *NoticeHook) GetMethod() vobj.HTTPMethod {
 	if n == nil {
-		return vobj.HTTPMethodPost
+		return vobj.HTTPMethodUnknown
 	}
 	return n.Method
 }

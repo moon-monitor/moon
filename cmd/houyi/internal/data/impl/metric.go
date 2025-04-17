@@ -47,11 +47,11 @@ func (m *metricImpl) Init(config bo.MetricDatasourceConfig) (repository.Metric, 
 
 	metricDatasource, ok = m.GetMetricDatasource(config.UniqueKey())
 	switch config.GetDriver() {
-	case common.MetricDatasourceDriver_prometheus:
+	case common.MetricDatasourceDriver_PROMETHEUS:
 		if !ok {
 			metricDatasource = prometheus.New(config, m.logger)
 		}
-	case common.MetricDatasourceDriver_victoriametrics:
+	case common.MetricDatasourceDriver_VICTORIAMETRICS:
 		if !ok {
 			metricDatasource = prometheus.New(config, m.logger)
 		}

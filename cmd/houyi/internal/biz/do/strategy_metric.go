@@ -152,7 +152,7 @@ func (m *MetricRule) GetValues() []float64 {
 
 func (m *MetricRule) GetSampleMode() common.SampleMode {
 	if m == nil {
-		return common.SampleMode_For
+		return common.SampleMode_SAMPLE_MODE_UNKNOWN
 	}
 	return m.SampleMode
 }

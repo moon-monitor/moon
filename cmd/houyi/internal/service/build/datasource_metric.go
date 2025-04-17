@@ -8,9 +8,9 @@ import (
 
 func ToMetricDatasourceConfig(metricItem *common.MetricDatasourceItem) (*do.DatasourceMetricConfig, error) {
 	switch metricItem.GetDriver() {
-	case common.MetricDatasourceDriver_prometheus:
+	case common.MetricDatasourceDriver_PROMETHEUS:
 		return ToMetricDatasourceConfigWithPrometheus(metricItem)
-	case common.MetricDatasourceDriver_victoriametrics:
+	case common.MetricDatasourceDriver_VICTORIAMETRICS:
 		return ToMetricDatasourceConfigWithVictoriaMetrics(metricItem)
 	default:
 		return nil, merr.ErrorParamsError("invalid metric datasource driver: %s", metricItem.GetDriver())
@@ -26,7 +26,7 @@ func ToMetricDatasourceConfigWithPrometheus(metricItem *common.MetricDatasourceI
 		TeamId:         metricItem.GetTeam().GetTeamId(),
 		ID:             metricItem.GetId(),
 		Name:           metricItem.GetName(),
-		Driver:         common.MetricDatasourceDriver_prometheus,
+		Driver:         common.MetricDatasourceDriver_PROMETHEUS,
 		Endpoint:       prometheusConfig.GetEndpoint(),
 		Headers:        prometheusConfig.GetHeaders(),
 		Method:         prometheusConfig.GetMethod(),
@@ -47,7 +47,7 @@ func ToMetricDatasourceConfigWithVictoriaMetrics(metricItem *common.MetricDataso
 		TeamId:         metricItem.GetTeam().GetTeamId(),
 		ID:             metricItem.GetId(),
 		Name:           metricItem.GetName(),
-		Driver:         common.MetricDatasourceDriver_victoriametrics,
+		Driver:         common.MetricDatasourceDriver_VICTORIAMETRICS,
 		Endpoint:       victoriaMetricsConfig.GetEndpoint(),
 		Headers:        victoriaMetricsConfig.GetHeaders(),
 		Method:         victoriaMetricsConfig.GetMethod(),

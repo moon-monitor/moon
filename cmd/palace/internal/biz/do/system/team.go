@@ -115,7 +115,7 @@ func (u *Team) GetUUID() uuid.UUID {
 
 func (u *Team) GetCapacity() vobj.TeamCapacity {
 	if u == nil {
-		return vobj.TeamCapacityDefault
+		return vobj.TeamCapacityUnknown
 	}
 	return u.Capacity
 }

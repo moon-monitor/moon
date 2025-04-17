@@ -120,7 +120,7 @@ func (m *metricConditionLTE) Comparable(conditionValues []float64, originValue f
 type metricConditionInRange struct{}
 
 func (m *metricConditionInRange) Type() common.MetricStrategyItem_Condition {
-	return common.MetricStrategyItem_In
+	return common.MetricStrategyItem_IN
 }
 
 func (m *metricConditionInRange) Comparable(conditionValues []float64, originValue float64) bool {
@@ -133,7 +133,7 @@ func (m *metricConditionInRange) Comparable(conditionValues []float64, originVal
 type metricConditionNotInRange struct{}
 
 func (m *metricConditionNotInRange) Type() common.MetricStrategyItem_Condition {
-	return common.MetricStrategyItem_NotIn
+	return common.MetricStrategyItem_NOT_IN
 }
 
 func (m *metricConditionNotInRange) Comparable(conditionValues []float64, originValue float64) bool {

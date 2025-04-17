@@ -64,7 +64,7 @@ func (d *DatasourceMetricConfig) GetEnable() bool {
 
 func (d *DatasourceMetricConfig) GetDriver() common.MetricDatasourceDriver {
 	if d == nil {
-		return common.MetricDatasourceDriver_MetricDatasourceDriverUNKNOWN
+		return common.MetricDatasourceDriver_METRIC_DATASOURCE_DRIVER_UNKNOWN
 	}
 	return d.Driver
 }
