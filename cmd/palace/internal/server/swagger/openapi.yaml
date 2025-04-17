@@ -3932,6 +3932,33 @@ components:
                     type: integer
                     description: User's gender
                     format: enum
+                email:
+                    type: string
+                    description: User's email address (encrypted)
+                phone:
+                    type: string
+                    description: User's phone number (encrypted)
+                remark:
+                    type: string
+                    description: Remarks about the user
+                position:
+                    type: integer
+                    description: User's position/role in the system
+                    format: enum
+                status:
+                    type: integer
+                    description: User's status
+                    format: enum
+                createdAt:
+                    type: string
+                    description: User's creation time
+                updatedAt:
+                    type: string
+                    description: User's last update time
+                userID:
+                    type: integer
+                    description: User's unique identifier
+                    format: uint32
         config.Discovery:
             type: object
             properties:

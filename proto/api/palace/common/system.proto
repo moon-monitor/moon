@@ -47,6 +47,22 @@ message UserItem {
   string avatar = 3;
   // User's gender
   api.palace.common.Gender gender = 4;
+  // User's email address (encrypted)
+  string email = 5;
+  // User's phone number (encrypted)
+  string phone = 6;
+  // Remarks about the user
+  string remark = 7;
+  // User's position/role in the system
+  api.palace.common.UserPosition position = 8;
+  // User's status
+  api.palace.common.UserStatus status = 9;
+  // User's creation time
+  string createdAt = 10;
+  // User's last update time
+  string updatedAt = 11;
+  // User's unique identifier
+  uint32 userID = 12;
 }
 
 message SystemRoleItem {

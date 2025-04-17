@@ -1,6 +1,8 @@
 package build
 
 import (
+	"time"
+
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/bo"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/vobj"
@@ -17,10 +19,18 @@ func UserToUserItemProto(user do.User) *common.UserItem {
 	}
 
 	return &common.UserItem{
-		Username: user.GetUsername(),
-		Nickname: user.GetNickname(),
-		Avatar:   user.GetAvatar(),
-		Gender:   common.Gender(user.GetGender()),
+		Username:  user.GetUsername(),
+		Nickname:  user.GetNickname(),
+		Avatar:    user.GetAvatar(),
+		Gender:    common.Gender(user.GetGender()),
+		Email:     string(user.GetEmail()),
+		Phone:     string(user.GetPhone()),
+		Remark:    user.GetRemark(),
+		Position:  common.UserPosition(user.GetPosition()),
+		Status:    common.UserStatus(user.GetStatus()),
+		CreatedAt: user.GetCreatedAt().Format(time.DateTime),
+		UpdatedAt: user.GetUpdatedAt().Format(time.DateTime),
+		UserID:    user.GetID(),
 	}
 }
 

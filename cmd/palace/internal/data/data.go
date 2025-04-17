@@ -30,8 +30,6 @@ func New(c *conf.Bootstrap, logger log.Logger) (*Data, func(), error) {
 	data := &Data{
 		dataConf:   c.GetData(),
 		mainDB:     nil,
-		bizDB:      nil,
-		eventDB:    nil,
 		bizDBMap:   safety.NewMap[uint32, gorm.DB](),
 		eventDBMap: safety.NewMap[uint32, gorm.DB](),
 		cache:      nil,
@@ -71,12 +69,6 @@ func New(c *conf.Bootstrap, logger log.Logger) (*Data, func(), error) {
 				data.helper.Errorw("method", method, "err", err)
 			}
 		}
-		if err = data.bizDB.Close(); err != nil {
-			data.helper.Errorw("method", "close bizDB", "err", err)
-		}
-		if err = data.eventDB.Close(); err != nil {
-			data.helper.Errorw("method", "close eventDB", "err", err)
-		}
 		for _, server := range data.rabbitConn.List() {
 			if err = server.Conn.Close(); err != nil {
 				data.helper.Errorw("method", "close rabbit conn", "err", err)
@@ -103,7 +95,6 @@ func newSqlDB(c *config.Database) (*sql.DB, error) {
 type Data struct {
 	dataConf             *conf.Data
 	mainDB               gorm.DB
-	bizDB, eventDB       *sql.DB
 	bizDBMap, eventDBMap *safety.Map[uint32, gorm.DB]
 	cache                cache.Cache
 	rabbitConn           *safety.Map[string, *bo.Server]
