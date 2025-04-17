@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 
+	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do/team"
 	"github.com/spf13/cobra"
 
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do/system"
@@ -43,7 +44,8 @@ func run(cfgPath string) {
 		panic(err)
 	}
 
-	if err := mainDB.GetDB().AutoMigrate(system.Models()...); err != nil {
+	tableModels := append(system.Models(), team.Models()...)
+	if err := mainDB.GetDB().AutoMigrate(tableModels...); err != nil {
 		panic(err)
 	}
 }

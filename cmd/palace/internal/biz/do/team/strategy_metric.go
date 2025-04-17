@@ -18,7 +18,7 @@ type StrategyMetric struct {
 	Labels              kv.StringMap          `gorm:"column:labels;type:json;not null;comment:标签" json:"labels"`
 	Annotations         kv.StringMap          `gorm:"column:annotations;type:json;not null;comment:注解" json:"annotations"`
 	StrategyMetricRules []*StrategyMetricRule `gorm:"foreignKey:StrategyMetricID;references:ID" json:"strategyMetricRules"`
-	Datasource          []*DatasourceMetric   `gorm:"many2many:strategy_metric_datasource" json:"datasource"`
+	Datasource          []*DatasourceMetric   `gorm:"many2many:team_strategy_metric_datasource" json:"datasource"`
 }
 
 func (m *StrategyMetric) GetStrategyID() uint32 {

@@ -27,7 +27,7 @@ type DatasourceMetric struct {
 	TLS            *do.TLS                     `gorm:"column:tls;type:text;not null;comment:tls" json:"tls"`
 	BasicAuth      *do.BasicAuth               `gorm:"column:basic_auth;type:text;not null;comment:basic_auth" json:"basicAuth"`
 	Extra          kv.StringMap                `gorm:"column:extra;type:text;not null;comment:额外信息" json:"extra"`
-	Metrics        []*StrategyMetric           `gorm:"many2many:strategy_metric_datasource" json:"metrics"`
+	Metrics        []*StrategyMetric           `gorm:"many2many:team_strategy_metric_datasource" json:"metrics"`
 }
 
 func (d *DatasourceMetric) GetName() string {

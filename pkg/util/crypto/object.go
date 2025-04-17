@@ -34,6 +34,9 @@ func (o *Object[T]) Scan(value interface{}) error {
 	default:
 		return merr.ErrorInternalServerError("invalid value type of crypto.Object")
 	}
+	if len(origin) == 0 {
+		return nil
+	}
 	decodedString, err := base64.StdEncoding.DecodeString(origin)
 	if err != nil {
 		return err

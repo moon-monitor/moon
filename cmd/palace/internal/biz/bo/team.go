@@ -102,13 +102,6 @@ func (o *SaveOneTeamRequest) GetCapacity() vobj.TeamCapacity {
 	return o.Team.GetCapacity()
 }
 
-func (o *SaveOneTeamRequest) GetDBName() string {
-	if o == nil || o.Team == nil {
-		return ""
-	}
-	return o.Team.GetDBName()
-}
-
 type TeamListRequest struct {
 	*PaginationRequest
 	Keyword string

@@ -1,19 +1,24 @@
 package data
 
 import (
+	"context"
 	"database/sql"
 	"fmt"
+	"time"
 
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/google/wire"
+	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do/system"
 
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/bo"
 	"github.com/moon-monitor/moon/cmd/palace/internal/conf"
+	"github.com/moon-monitor/moon/cmd/palace/internal/data/query/systemgen"
 	"github.com/moon-monitor/moon/pkg/config"
 	"github.com/moon-monitor/moon/pkg/merr"
 	"github.com/moon-monitor/moon/pkg/plugin/cache"
 	"github.com/moon-monitor/moon/pkg/plugin/gorm"
 	"github.com/moon-monitor/moon/pkg/util/safety"
+	"github.com/moon-monitor/moon/pkg/util/validate"
 )
 
 // ProviderSetData is a set of data providers.
@@ -36,14 +41,6 @@ func New(c *conf.Bootstrap, logger log.Logger) (*Data, func(), error) {
 	}
 
 	dataConf := c.GetData()
-	data.bizDB, err = newSqlDB(dataConf.GetBiz())
-	if err != nil {
-		return nil, nil, err
-	}
-	data.eventDB, err = newSqlDB(dataConf.GetAlarm())
-	if err != nil {
-		return nil, nil, err
-	}
 
 	data.mainDB, err = gorm.NewDB(dataConf.GetMain())
 	if err != nil {
@@ -159,7 +156,21 @@ func (d *Data) GetBizDB(teamID uint32) (gorm.DB, error) {
 	if ok {
 		return db, nil
 	}
-	return nil, merr.ErrorInternalServerError("team db not found").WithMetadata(map[string]string{"method": "GetBizDB"})
+	teamDo, err := d.queryTeam(context.Background(), teamID)
+	if err != nil {
+		return nil, err
+	}
+	dbConfig := teamDo.GetBizDBConfig()
+	if validate.IsNil(dbConfig) {
+		return d.GetMainDB(), nil
+	}
+
+	db, err = gorm.NewDB(dbConfig)
+	if err != nil {
+		return nil, merr.ErrorInternalServerError("new team biz db err").WithCause(err)
+	}
+	d.bizDBMap.Set(teamID, db)
+	return db, nil
 }
 
 func (d *Data) GetEventDB(teamID uint32) (gorm.DB, error) {
@@ -167,5 +178,29 @@ func (d *Data) GetEventDB(teamID uint32) (gorm.DB, error) {
 	if ok {
 		return db, nil
 	}
-	return nil, merr.ErrorInternalServerError("team db not found").WithMetadata(map[string]string{"method": "GetEventDB"})
+	teamDo, err := d.queryTeam(context.Background(), teamID)
+	if err != nil {
+		return nil, err
+	}
+	dbConfig := teamDo.GetAlarmDBConfig()
+	if validate.IsNil(dbConfig) {
+		return d.GetMainDB(), nil
+	}
+	db, err = gorm.NewDB(dbConfig)
+	if err != nil {
+		return nil, merr.ErrorInternalServerError("new team alarm db err").WithCause(err)
+	}
+	d.eventDBMap.Set(teamID, db)
+	return db, nil
+}
+
+func (d *Data) queryTeam(ctx context.Context, teamID uint32) (*system.Team, error) {
+	teamQuery := systemgen.Use(d.GetMainDB().GetDB()).Team
+	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+	defer cancel()
+	teamDo, err := teamQuery.WithContext(ctx).Where(teamQuery.ID.Eq(teamID)).First()
+	if err != nil {
+		return nil, merr.ErrorInternalServerError("team query err").WithCause(err)
+	}
+	return teamDo, nil
 }

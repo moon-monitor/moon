@@ -22,8 +22,6 @@ message Bootstrap {
 
 message Data {
   config.Database main = 1;
-  config.Database biz = 2;
-  config.Database alarm = 3;
 }
 
 message Auth {

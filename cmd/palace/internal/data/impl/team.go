@@ -49,7 +49,6 @@ func (r *teamRepoImpl) Create(ctx context.Context, team do.Team) (do.Team, error
 		Leader:    nil,
 		Admins:    nil,
 		Resources: nil,
-		DBName:    team.GetDBName(),
 	}
 	teamDo.WithContext(ctx)
 	if err := teamMutation.WithContext(ctx).Create(teamDo); err != nil {
