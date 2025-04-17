@@ -3,6 +3,7 @@ syntax = "proto3";
 package api.palace.common;
 
 import "palace/common/common_enum.proto";
+import "palace/common/system.proto";
 
 option go_package = "github.com/moon-monitor/moon/pkg/api/palace/common;common";
 
@@ -17,4 +18,5 @@ message TeamDictItem {
   string color = 8;
   api.palace.common.DictType dictType = 9;
   api.palace.common.GlobalStatus status = 10;
+  api.palace.common.UserBaseItem creator = 11;
 }

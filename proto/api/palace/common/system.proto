@@ -35,7 +35,7 @@ message UserBaseItem {
   // User's gender
   api.palace.common.Gender gender = 4;
   // User's unique identifier
-  uint32 user_id = 5;
+  uint32 userID = 5;
 }
 
 message UserItem {

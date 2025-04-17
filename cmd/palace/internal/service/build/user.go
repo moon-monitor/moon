@@ -34,9 +34,28 @@ func UserToUserItemProto(user do.User) *common.UserItem {
 	}
 }
 
+func UserToUserBaseItemProto(user do.User) *common.UserBaseItem {
+	if validate.IsNil(user) {
+		return nil
+	}
+
+	return &common.UserBaseItem{
+		Username: user.GetUsername(),
+		Nickname: user.GetNickname(),
+		Avatar:   user.GetAvatar(),
+		Gender:   common.Gender(user.GetGender()),
+		UserID:   user.GetID(),
+	}
+}
+
 // UsersToUserItemsProto converts a slice of system.User to a slice of common.UserItem
 func UsersToUserItemsProto(users []do.User) []*common.UserItem {
 	return slices.Map(users, UserToUserItemProto)
+}
+
+// UsersToUserBaseItemsProto converts a slice of system.User to a slice of common.UserBaseItem
+func UsersToUserBaseItemsProto(users []do.User) []*common.UserBaseItem {
+	return slices.Map(users, UserToUserBaseItemProto)
 }
 
 func ToUserUpdateInfo(req *palacev1.UpdateSelfInfoRequest) *bo.UserUpdateInfo {

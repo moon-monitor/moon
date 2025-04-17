@@ -31,7 +31,7 @@ message TeamStrategyGroupItem {
   // Timestamp indicating when the group was last updated.
   string updatedAt = 8;
   // Information about the creator of the group.
-  api.palace.common.UserItem creator = 9;
+  api.palace.common.UserBaseItem creator = 9;
 }
 
 // TeamStrategyItem represents the structure of a team strategy item.
@@ -47,7 +47,7 @@ message TeamStrategyItem {
   // Status of the strategy.
   api.palace.common.GlobalStatus status = 5;
   // Information about the creator of the strategy.
-  api.palace.common.UserItem creator = 6;
+  api.palace.common.UserBaseItem creator = 6;
   // Timestamp indicating when the strategy was created.
   string createdAt = 7;
   // Timestamp indicating when the strategy was last updated.
@@ -79,4 +79,5 @@ message TeamStrategyMetricItem {
   map<string, string> annotations = 5;
   repeated RuleItem strategyMetricRules = 6;
   repeated api.palace.common.TeamMetricDatasourceItem datasource = 7;
+  api.palace.common.UserBaseItem creator = 8;
 }

@@ -5,6 +5,7 @@ package api.palace.common;
 import "google/protobuf/duration.proto";
 import "palace/common/common_enum.proto";
 import "palace/common/common.proto";
+import "palace/common/system.proto";
 
 option go_package = "github.com/moon-monitor/moon/pkg/api/palace/common;common";
 
@@ -24,4 +25,6 @@ message TeamMetricDatasourceItem {
   TLS tls = 13;
   api.palace.common.BasicAuth basicAuth = 14;
   map<string, string> extra = 15;
+  api.palace.common.GlobalStatus status = 16;
+  api.palace.common.UserBaseItem creator = 17;
 }

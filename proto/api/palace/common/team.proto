@@ -23,11 +23,11 @@ message TeamItem {
   // Status of the team.
   api.palace.common.TeamStatus status = 6;
   // Information about the creator of the team.
-  api.palace.common.UserItem creator = 7;
+  api.palace.common.UserBaseItem creator = 7;
   // Information about the leader of the team.
-  api.palace.common.UserItem leader = 8;
+  api.palace.common.UserBaseItem leader = 8;
   // List of administrators in the team.
-  repeated api.palace.common.UserItem admins = 9;
+  repeated api.palace.common.UserBaseItem admins = 9;
   // Timestamp indicating when the team was created.
   string createdAt = 10;
   // Timestamp indicating when the team was last updated.
@@ -65,13 +65,13 @@ message TeamMemberItem {
   // Unique identifier for the member.
   uint32 id = 1;
   // Information about the user who is a member.
-  api.palace.common.UserItem user = 2;
+  api.palace.common.UserBaseItem user = 2;
   // Position of the member within the team.
   api.palace.common.MemberPosition position = 3;
   // Status of the member.
   api.palace.common.MemberStatus status = 4;
   // Information about the user who invited the member.
-  api.palace.common.UserItem inviter = 5;
+  api.palace.common.UserBaseItem inviter = 5;
   // List of roles assigned to the member.
   repeated TeamRoleItem roles = 6;
   // Timestamp indicating when the member was added to the team.

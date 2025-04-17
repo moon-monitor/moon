@@ -4,6 +4,7 @@ package api.palace.common;
 
 import "palace/common/common_enum.proto";
 import "palace/common/team.proto";
+import "palace/common/system.proto";
 
 option go_package = "github.com/moon-monitor/moon/pkg/api/palace/common;common";
 
@@ -18,6 +19,9 @@ message NoticeHookItem {
   api.palace.common.HTTPMethod method = 8;
   string secret = 9;
   map<string, string> headers = 10;
+  api.palace.common.HookAPP app = 11;
+  api.palace.common.UserBaseItem creator = 12;
+  repeated api.palace.common.NoticeGroupItem noticeGroups = 13;
 }
 
 message NoticeMemberItem {
@@ -37,6 +41,7 @@ message NoticeGroupItem {
   api.palace.common.GlobalStatus status = 6;
   repeated api.palace.common.TeamMemberItem members = 7;
   repeated NoticeHookItem hooks = 8;
+  api.palace.common.UserBaseItem creator = 9;
 }
 
 message StrategyMetricRuleLabelNotice {
