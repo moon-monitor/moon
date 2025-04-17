@@ -2,13 +2,10 @@ package biz
 
 import (
 	"context"
-	"os/user"
 
 	"github.com/go-kratos/kratos/v2/log"
 
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do"
-	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do/system"
-	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do/team"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/repository"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/vobj"
 	"github.com/moon-monitor/moon/cmd/palace/internal/helper/permission"
@@ -168,7 +165,7 @@ func (h *basePermissionHandler) SystemRBACHandler(checkSystemRBAC func(ctx conte
 }
 
 // TeamIDHandler team id check
-func (h *basePermissionHandler) TeamIDHandler(findTeamByID func(ctx context.Context, teamID uint32) (*system.Team, error)) PermissionHandler {
+func (h *basePermissionHandler) TeamIDHandler(findTeamByID func(ctx context.Context, teamID uint32) (do.Team, error)) PermissionHandler {
 	return PermissionHandlerFunc(func(ctx context.Context, pCtx *PermissionContext) (bool, error) {
 		teamID, ok := permission.GetTeamIDByContext(ctx)
 		if !ok {
@@ -178,7 +175,7 @@ func (h *basePermissionHandler) TeamIDHandler(findTeamByID func(ctx context.Cont
 		if err != nil {
 			return true, err
 		}
-		if !teamItem.Status.IsNormal() {
+		if !teamItem.GetStatus().IsNormal() {
 			return true, merr.ErrorPermissionDenied("team is invalid")
 		}
 		pCtx.Team = teamItem
@@ -248,22 +245,23 @@ func checkSystemRBAC(_ context.Context, user do.User, resource do.Resource) (boo
 	return false, merr.ErrorPermissionDenied("user role resourceRepo is invalid.")
 }
 
-func checkTeamRBAC(_ context.Context, member *team.Member, resource do.Resource) (bool, error) {
+func checkTeamRBAC(_ context.Context, member do.TeamMember, resource do.Resource) (bool, error) {
 	if !resource.GetAllow().IsTeamRBAC() {
 		return false, nil
 	}
-	resources := make([]*team.Resource, 0, len(member.Roles)*10)
-	for _, role := range member.Roles {
-		if role.Status.IsEnable() {
-			for _, menu := range role.Menus {
-				if !menu.Status.IsEnable() {
+	roles := member.GetRoles()
+	resources := make([]do.Resource, 0, len(roles)*10)
+	for _, role := range roles {
+		if role.GetStatus().IsEnable() {
+			for _, menu := range role.GetMenus() {
+				if !menu.GetStatus().IsEnable() {
 					continue
 				}
-				resources = append(resources, menu.Resources...)
+				resources = append(resources, menu.GetResources()...)
 			}
 		}
 	}
-	_, ok := slices.FindByValue(resources, resource.GetID(), func(role *team.Resource) uint32 { return role.ID })
+	_, ok := slices.FindByValue(resources, resource.GetID(), func(role do.Resource) uint32 { return role.GetID() })
 	if ok {
 		return true, nil
 	}

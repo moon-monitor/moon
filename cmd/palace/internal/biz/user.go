@@ -6,7 +6,7 @@ import (
 	"github.com/go-kratos/kratos/v2/log"
 
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/bo"
-	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do/system"
+	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/repository"
 	"github.com/moon-monitor/moon/cmd/palace/internal/helper/permission"
 	"github.com/moon-monitor/moon/pkg/merr"
@@ -28,7 +28,7 @@ func NewUserBiz(userRepo repository.User, logger log.Logger) *UserBiz {
 }
 
 // GetSelfInfo retrieves the current user's information from the context.
-func (b *UserBiz) GetSelfInfo(ctx context.Context) (*system.User, error) {
+func (b *UserBiz) GetSelfInfo(ctx context.Context) (do.User, error) {
 	userID, ok := permission.GetUserIDByContext(ctx)
 	if !ok {
 		return nil, merr.ErrorUnauthorized("user not found in context")
@@ -62,14 +62,7 @@ func (b *UserBiz) UpdateSelfInfo(ctx context.Context, userUpdateInfo *bo.UserUpd
 		return merr.ErrorUserNotFound("user not found")
 	}
 
-	// Update user fields
-	user.Nickname = userUpdateInfo.Nickname
-	user.Avatar = userUpdateInfo.Avatar
-	user.Gender = userUpdateInfo.Gender
-
-	// Call repository to update user
-
-	if err = b.userRepo.UpdateSelfInfo(ctx, user); err != nil {
+	if err = b.userRepo.UpdateSelfInfo(ctx, userUpdateInfo.WithUser(user)); err != nil {
 		return merr.ErrorInternalServerError("failed to update user info").WithCause(err)
 	}
 
@@ -118,7 +111,7 @@ func (b *UserBiz) UpdateSelfPassword(ctx context.Context, passwordUpdateInfo *bo
 }
 
 // GetUserTeams retrieves all teams that the user is a member of
-func (b *UserBiz) GetUserTeams(ctx context.Context) ([]*system.Team, error) {
+func (b *UserBiz) GetUserTeams(ctx context.Context) ([]do.Team, error) {
 	userID, ok := permission.GetUserIDByContext(ctx)
 	if !ok {
 		return nil, merr.ErrorUnauthorized("user not found in context")
