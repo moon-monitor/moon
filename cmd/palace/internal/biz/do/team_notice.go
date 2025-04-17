@@ -29,6 +29,8 @@ type NoticeGroup interface {
 	GetUpdatedAt() time.Time
 	GetHooks() []NoticeHook
 	GetNoticeMembers() []NoticeMember
+	GetEmailConfig() EmailConfig
+	GetSMSConfig() SMSConfig
 }
 
 type NoticeMember interface {

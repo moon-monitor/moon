@@ -19,6 +19,22 @@ type NoticeGroup struct {
 	Hooks         []*NoticeHook     `gorm:"many2many:team_notice_group_hooks" json:"hooks"`
 	EmailConfigID uint32            `gorm:"column:email_config_id;type:int(10);not null;comment:邮件配置ID" json:"emailConfigId"`
 	EmailConfig   *EmailConfig      `gorm:"foreignKey:EmailConfigID;references:ID" json:"emailConfig"`
+	SMSConfigID   uint32            `gorm:"column:sms_config_id;type:int(10);not null;comment:短信配置ID" json:"smsConfigId"`
+	SMSConfig     *SmsConfig        `gorm:"foreignKey:SMSConfigID;references:ID" json:"smsConfig"`
+}
+
+func (n *NoticeGroup) GetEmailConfig() do.EmailConfig {
+	if n == nil {
+		return nil
+	}
+	return n.EmailConfig
+}
+
+func (n *NoticeGroup) GetSMSConfig() do.SMSConfig {
+	if n == nil {
+		return nil
+	}
+	return n.SMSConfig
 }
 
 func (n *NoticeGroup) GetName() string {
