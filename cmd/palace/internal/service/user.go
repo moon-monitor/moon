@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/go-kratos/kratos/v2/log"
+	"github.com/moon-monitor/moon/cmd/palace/internal/biz/bo"
 
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz"
 	"github.com/moon-monitor/moon/cmd/palace/internal/service/build"
@@ -16,19 +17,25 @@ type UserService struct {
 	palace.UnimplementedUserServer
 
 	userBiz *biz.UserBiz
+	teamBiz *biz.Team
 	log     *log.Helper
 }
 
 // NewUserService creates a new user service.
-func NewUserService(userBiz *biz.UserBiz, logger log.Logger) *UserService {
+func NewUserService(
+	userBiz *biz.UserBiz,
+	teamBiz *biz.Team,
+	logger log.Logger,
+) *UserService {
 	return &UserService{
 		userBiz: userBiz,
+		teamBiz: teamBiz,
 		log:     log.NewHelper(log.With(logger, "module", "service.user")),
 	}
 }
 
 // SelfInfo retrieves the current user's information.
-func (s *UserService) SelfInfo(ctx context.Context, req *common.EmptyRequest) (*palace.SelfInfoReply, error) {
+func (s *UserService) SelfInfo(ctx context.Context, _ *common.EmptyRequest) (*palace.SelfInfoReply, error) {
 	user, err := s.userBiz.GetSelfInfo(ctx)
 	if err != nil {
 		return nil, err
@@ -73,8 +80,10 @@ func (s *UserService) JoinTeam(ctx context.Context, req *palace.JoinTeamRequest)
 
 // CreateTeam allows the current user to create a new team.
 func (s *UserService) CreateTeam(ctx context.Context, req *palace.CreateTeamRequest) (*common.EmptyReply, error) {
-	// TODO: implement the logic
-	return &common.EmptyReply{}, nil
+	if err := s.teamBiz.SaveTeam(ctx, bo.NewSaveOneTeamRequest(req)); err != nil {
+		return nil, err
+	}
+	return &common.EmptyReply{Message: "创建团队成功"}, nil
 }
 
 // SelfTeamList retrieves the list of teams the current user is a member of.

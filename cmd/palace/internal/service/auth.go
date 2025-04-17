@@ -156,11 +156,13 @@ func (s *AuthService) OAuthLoginByEmail(ctx context.Context, req *palacev1.OAuth
 }
 
 func (s *AuthService) VerifyToken(ctx context.Context, token string) error {
+	// TODO 记得开启
 	return nil
 	return s.authBiz.VerifyToken(ctx, token)
 }
 
 func (s *AuthService) VerifyPermission(ctx context.Context) error {
+	// TODO 记得开启
 	return nil
 	return s.permissionBiz.VerifyPermission(ctx)
 }

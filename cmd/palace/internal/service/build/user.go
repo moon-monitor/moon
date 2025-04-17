@@ -7,11 +7,12 @@ import (
 	palacev1 "github.com/moon-monitor/moon/pkg/api/palace"
 	"github.com/moon-monitor/moon/pkg/api/palace/common"
 	"github.com/moon-monitor/moon/pkg/util/slices"
+	"github.com/moon-monitor/moon/pkg/util/validate"
 )
 
 // UserToUserItemProto converts a system.User to a common.UserItem
 func UserToUserItemProto(user do.User) *common.UserItem {
-	if user == nil {
+	if validate.IsNil(user) {
 		return nil
 	}
 

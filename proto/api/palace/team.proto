@@ -151,6 +151,7 @@ message SaveTeamRequest {
     message: "logo max length is 255"
     expression: "this.size() <= 255"
   }];
+  uint32 id = 4;
 }
 
 // GetTeamReply contains the response data for retrieving a team

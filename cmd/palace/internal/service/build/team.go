@@ -5,11 +5,12 @@ import (
 
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do"
 	"github.com/moon-monitor/moon/pkg/api/palace/common"
+	"github.com/moon-monitor/moon/pkg/util/validate"
 )
 
 // TeamToTeamItemProto 将系统Team对象转换为TeamItem proto对象
 func TeamToTeamItemProto(team do.Team) *common.TeamItem {
-	if team == nil {
+	if validate.IsNil(team) {
 		return nil
 	}
 
@@ -33,7 +34,7 @@ func TeamToTeamItemProto(team do.Team) *common.TeamItem {
 
 // TeamsToTeamItemsProto 将系统Team对象切片转换为TeamItem proto对象切片
 func TeamsToTeamItemsProto(teams []do.Team) []*common.TeamItem {
-	if teams == nil {
+	if len(teams) == 0 {
 		return nil
 	}
 

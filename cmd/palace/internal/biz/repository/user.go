@@ -20,5 +20,5 @@ type User interface {
 	UpdatePassword(ctx context.Context, updateUserPasswordInfo *bo.UpdateUserPasswordInfo) error
 	GetTeamsByUserID(ctx context.Context, userID uint32) ([]do.Team, error)
 	GetMemberByUserIDAndTeamID(ctx context.Context, userID, teamID uint32) (do.TeamMember, error)
-	GetTeamsByIDs(ctx context.Context, teamIDs []uint32) ([]do.Team, error)
+	AppendTeam(ctx context.Context, team do.Team) error
 }

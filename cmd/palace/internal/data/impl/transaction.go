@@ -62,6 +62,46 @@ func NewTransaction(d *data.Data, logger log.Logger) repository.Transaction {
 	}
 }
 
+func GetMainDB(ctx context.Context, d *data.Data) *gorm.DB {
+	tx, ok := GetMainTXByContext(ctx)
+	if ok {
+		return tx
+	}
+	return d.GetMainDB().GetDB()
+}
+
+func GetBizDB(ctx context.Context, d *data.Data) (*gorm.DB, error) {
+	tx, ok := GetBizTXByContext(ctx)
+	if ok {
+		return tx, nil
+	}
+	teamID, ok := permission.GetTeamIDByContext(ctx)
+	if !ok {
+		return nil, merr.ErrorPermissionDenied("team id not found")
+	}
+	bizDB, err := d.GetBizDB(teamID)
+	if err != nil {
+		return nil, err
+	}
+	return bizDB.GetDB(), nil
+}
+
+func GetEventDB(ctx context.Context, d *data.Data) (*gorm.DB, error) {
+	tx, ok := GetEventTXByContext(ctx)
+	if ok {
+		return tx, nil
+	}
+	teamID, ok := permission.GetTeamIDByContext(ctx)
+	if !ok {
+		return nil, merr.ErrorPermissionDenied("team id not found")
+	}
+	eventDB, err := d.GetEventDB(teamID)
+	if err != nil {
+		return nil, err
+	}
+	return eventDB.GetDB(), nil
+}
+
 type transactionRepoImpl struct {
 	*data.Data
 	logger *log.Helper

@@ -2790,6 +2790,9 @@ components:
                 logo:
                     type: string
                     description: Team logo URL
+                id:
+                    type: integer
+                    format: uint32
             description: SaveTeamRequest represents the request data for saving or updating a team
         api.palace.SaveTeamRoleRequest:
             type: object

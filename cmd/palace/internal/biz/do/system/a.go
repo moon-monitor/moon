@@ -13,6 +13,5 @@ func Models() []any {
 		&UserConfigTable{},
 		&UserConfigTheme{},
 		&UserOAuth{},
-		&UserTeam{},
 	}
 }

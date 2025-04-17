@@ -6,6 +6,7 @@ import (
 
 	"github.com/go-kratos/kratos/v2/errors"
 	"github.com/go-kratos/kratos/v2/log"
+	"github.com/moon-monitor/moon/pkg/util/slices"
 	"gorm.io/gen"
 	"gorm.io/gen/field"
 	"gorm.io/gorm"
@@ -22,7 +23,6 @@ import (
 	"github.com/moon-monitor/moon/pkg/merr"
 	"github.com/moon-monitor/moon/pkg/util/crypto"
 	"github.com/moon-monitor/moon/pkg/util/password"
-	"github.com/moon-monitor/moon/pkg/util/slices"
 	"github.com/moon-monitor/moon/pkg/util/template"
 	"github.com/moon-monitor/moon/pkg/util/validate"
 )
@@ -31,7 +31,6 @@ func NewUserRepo(bc *conf.Bootstrap, data *data.Data, logger log.Logger) reposit
 	return &userRepoImpl{
 		bc:     bc,
 		Data:   data,
-		Query:  systemgen.Use(data.GetMainDB().GetDB()),
 		helper: log.NewHelper(log.With(logger, "module", "data.repo.user")),
 	}
 }
@@ -39,8 +38,27 @@ func NewUserRepo(bc *conf.Bootstrap, data *data.Data, logger log.Logger) reposit
 type userRepoImpl struct {
 	bc *conf.Bootstrap
 	*data.Data
-	*systemgen.Query
 	helper *log.Helper
+}
+
+func (u *userRepoImpl) AppendTeam(ctx context.Context, team do.Team) error {
+	mutation := systemgen.Use(GetMainDB(ctx, u.Data))
+	userMutation := mutation.User
+	userDo := &system.User{
+		BaseModel: do.BaseModel{
+			ID: team.GetLeaderID(),
+		},
+	}
+	teamDo := &system.Team{
+		CreatorModel: do.CreatorModel{
+			BaseModel: do.BaseModel{
+				ID: team.GetID(),
+			},
+		},
+	}
+	userDo.WithContext(ctx)
+	teamDo.WithContext(ctx)
+	return userMutation.Teams.WithContext(ctx).Model(userDo).Append(teamDo)
 }
 
 func (u *userRepoImpl) CreateUserWithOAuthUser(ctx context.Context, user bo.IOAuthUser, sendEmailFunc repository.SendEmailFunc) (userDo do.User, err error) {
@@ -89,7 +107,7 @@ func (u *userRepoImpl) Create(ctx context.Context, user do.User, sendEmailFunc r
 		Status:   user.GetStatus(),
 	}
 	userDo.WithContext(ctx)
-	userMutation := u.User
+	userMutation := systemgen.Use(GetMainDB(ctx, u.Data)).User
 	if err = userMutation.WithContext(ctx).Create(userDo); err != nil {
 		return nil, err
 	}
@@ -100,7 +118,8 @@ func (u *userRepoImpl) Create(ctx context.Context, user do.User, sendEmailFunc r
 }
 
 func (u *userRepoImpl) FindByID(ctx context.Context, userID uint32) (do.User, error) {
-	userQuery := u.User
+	mutation := systemgen.Use(GetMainDB(ctx, u.Data))
+	userQuery := mutation.User
 	user, err := userQuery.WithContext(ctx).Where(userQuery.ID.Eq(userID)).Preload(userQuery.Roles.Menus.RelationField).First()
 	if err != nil {
 		return nil, userNotFound(err)
@@ -109,7 +128,8 @@ func (u *userRepoImpl) FindByID(ctx context.Context, userID uint32) (do.User, er
 }
 
 func (u *userRepoImpl) FindByEmail(ctx context.Context, email crypto.String) (do.User, error) {
-	userQuery := u.User
+	mutation := systemgen.Use(GetMainDB(ctx, u.Data))
+	userQuery := mutation.User
 	user, err := userQuery.WithContext(ctx).Where(userQuery.Email.Eq(email)).First()
 	if err != nil {
 		return nil, userNotFound(err)
@@ -118,7 +138,7 @@ func (u *userRepoImpl) FindByEmail(ctx context.Context, email crypto.String) (do
 }
 
 func (u *userRepoImpl) SetEmail(ctx context.Context, user do.User, sendEmailFunc repository.SendEmailFunc) (do.User, error) {
-	userMutation := u.User
+	userMutation := systemgen.Use(GetMainDB(ctx, u.Data)).User
 	wrapper := []gen.Condition{
 		userMutation.ID.Eq(user.GetID()),
 		userMutation.Email.Eq(crypto.String("")),
@@ -181,23 +201,36 @@ func (u *userRepoImpl) sendUserPassword(ctx context.Context, user do.User, pass 
 
 // GetTeamsByUserID Gets all the teams to which the user belongs
 func (u *userRepoImpl) GetTeamsByUserID(ctx context.Context, userID uint32) ([]do.Team, error) {
-	userQuery := u.User
-	user, err := userQuery.WithContext(ctx).Where(userQuery.ID.Eq(userID)).Preload(userQuery.Teams).First()
+	mutation := systemgen.Use(GetMainDB(ctx, u.Data))
+	userQuery := mutation.User
+	user, err := userQuery.WithContext(ctx).Where(userQuery.ID.Eq(userID)).Preload(userQuery.Teams.Where(mutation.Team.ID)).First()
 	if err != nil {
 		return nil, userNotFound(err)
 	}
+	if len(user.GetTeams()) == 0 {
+		return nil, nil
+	}
+	teamIds := slices.Map(user.GetTeams(), func(team do.Team) uint32 { return team.GetID() })
+	teamQuery := mutation.Team
+	wrappers := []gen.Condition{
+		teamQuery.ID.In(teamIds...),
+	}
 
-	teams := slices.Map(user.Teams, func(team *system.Team) do.Team { return team })
+	teamDos, err := teamQuery.WithContext(ctx).Where(wrappers...).Preload(teamQuery.Admins, teamQuery.Leader).Order(teamQuery.ID.Desc()).Find()
+	if err != nil {
+		return nil, err
+	}
+	teams := slices.Map(teamDos, func(team *system.Team) do.Team { return team })
 	return teams, nil
 }
 
 // GetMemberByUserIDAndTeamID Gets information about a user's membership in a particular team
 func (u *userRepoImpl) GetMemberByUserIDAndTeamID(ctx context.Context, userID, teamID uint32) (do.TeamMember, error) {
-	bizDB, err := u.GetBizDB(teamID)
+	bizDB, err := GetBizDB(ctx, u.Data)
 	if err != nil {
 		return nil, err
 	}
-	teamMemberQuery := teamgen.Use(bizDB.GetDB()).Member
+	teamMemberQuery := teamgen.Use(bizDB).Member
 	member, err := teamMemberQuery.WithContext(ctx).
 		Where(teamMemberQuery.UserID.Eq(userID), teamMemberQuery.TeamID.Eq(teamID)).
 		Preload(teamMemberQuery.Roles.Menus.RelationField).
@@ -212,24 +245,9 @@ func (u *userRepoImpl) GetMemberByUserIDAndTeamID(ctx context.Context, userID, t
 	return member, nil
 }
 
-// GetTeamsByIDs Gets all the teams by DictID
-func (u *userRepoImpl) GetTeamsByIDs(ctx context.Context, teamIDs []uint32) ([]do.Team, error) {
-	// 查询所有团队信息
-	teamQuery := u.Team
-	teamDos, err := teamQuery.WithContext(ctx).
-		Where(teamQuery.ID.In(teamIDs...), teamQuery.Status.Eq(int8(vobj.TeamStatusNormal))).
-		Find()
-	if err != nil {
-		return nil, err
-	}
-	teams := slices.Map(teamDos, func(team *system.Team) do.Team { return team })
-	return teams, nil
-}
-
 // UpdateSelfInfo updates the user's profile information
 func (u *userRepoImpl) UpdateSelfInfo(ctx context.Context, user do.User) error {
-	userMutation := u.User
-
+	userMutation := systemgen.Use(GetMainDB(ctx, u.Data)).User
 	// Only update the relevant fields
 	_, err := userMutation.WithContext(ctx).
 		Where(userMutation.ID.Eq(user.GetID())).
@@ -248,8 +266,7 @@ func (u *userRepoImpl) UpdateSelfInfo(ctx context.Context, user do.User) error {
 
 // UpdatePassword updates the user's password in the database
 func (u *userRepoImpl) UpdatePassword(ctx context.Context, updateUserPasswordInfo *bo.UpdateUserPasswordInfo) error {
-	userMutation := u.User
-
+	userMutation := systemgen.Use(GetMainDB(ctx, u.Data)).User
 	// Update password and salt fields
 	_, err := userMutation.WithContext(ctx).
 		Where(userMutation.ID.Eq(updateUserPasswordInfo.UserID)).

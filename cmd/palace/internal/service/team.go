@@ -22,11 +22,11 @@ func NewTeamService(teamBiz *biz.Team) *TeamService {
 }
 
 func (s *TeamService) SaveTeam(ctx context.Context, req *palacev1.SaveTeamRequest) (*common.EmptyReply, error) {
-	params := bo.NewSaveOneTeamRequest(req)
+	params := bo.NewSaveOneTeamRequest(req, req.GetId())
 	if err := s.teamBiz.SaveTeam(ctx, params); err != nil {
 		return nil, err
 	}
-	return &common.EmptyReply{}, nil
+	return &common.EmptyReply{Message: "保存团队信息成功"}, nil
 }
 
 func (s *TeamService) GetTeam(ctx context.Context, req *common.EmptyRequest) (*palacev1.GetTeamReply, error) {

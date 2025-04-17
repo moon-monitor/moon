@@ -13,33 +13,26 @@ import (
 	"github.com/moon-monitor/moon/pkg/merr"
 )
 
-type Team interface {
-	GetID() uint32
-	GetName() string
-	GetRemark() string
-	GetLogo() string
-	GetStatus() vobj.TeamStatus
-	GetLeaderID() uint32
-	GetUUID() uuid.UUID
-	GetCapacity() vobj.TeamCapacity
-	GetDBName() string
-}
-
 type SaveTeamRequest interface {
 	GetName() string
 	GetRemark() string
 	GetLogo() string
 }
 
-func NewSaveOneTeamRequest(req SaveTeamRequest) *SaveOneTeamRequest {
-	return &SaveOneTeamRequest{
-		name:   req.GetName(),
-		remark: req.GetRemark(),
-		logo:   req.GetLogo(),
+func NewSaveOneTeamRequest(req SaveTeamRequest, id ...uint32) *SaveOneTeamRequest {
+	s := &SaveOneTeamRequest{
+		name:     req.GetName(),
+		remark:   req.GetRemark(),
+		logo:     req.GetLogo(),
+		leaderID: 0,
 	}
+	if len(id) > 0 {
+		s.id = id[0]
+	}
+	return s
 }
 
-func (o *SaveOneTeamRequest) WithCreateTeamRequest(ctx context.Context) (Team, error) {
+func (o *SaveOneTeamRequest) WithCreateTeamRequest(ctx context.Context) (do.Team, error) {
 	leaderID, ok := permission.GetUserIDByContext(ctx)
 	if !ok {
 		return nil, merr.ErrorPermissionDenied("user id not found in context")
@@ -48,14 +41,14 @@ func (o *SaveOneTeamRequest) WithCreateTeamRequest(ctx context.Context) (Team, e
 	return o, nil
 }
 
-func (o *SaveOneTeamRequest) WithUpdateTeamRequest(team Team) Team {
-	o.team = team
+func (o *SaveOneTeamRequest) WithUpdateTeamRequest(team do.Team) do.Team {
+	o.Team = team
 	return o
 }
 
 type SaveOneTeamRequest struct {
-	team     Team
-	TeamID   uint32
+	do.Team
+	id       uint32
 	name     string
 	remark   string
 	logo     string
@@ -63,10 +56,10 @@ type SaveOneTeamRequest struct {
 }
 
 func (o *SaveOneTeamRequest) GetID() uint32 {
-	if o == nil || o.team == nil {
-		return o.TeamID
+	if o == nil || o.Team == nil {
+		return o.id
 	}
-	return o.team.GetID()
+	return o.Team.GetID()
 }
 
 func (o *SaveOneTeamRequest) GetName() string {
@@ -82,38 +75,38 @@ func (o *SaveOneTeamRequest) GetLogo() string {
 }
 
 func (o *SaveOneTeamRequest) GetStatus() vobj.TeamStatus {
-	if o == nil || o.team == nil {
+	if o == nil || o.Team == nil {
 		return vobj.TeamStatusApproval
 	}
-	return o.team.GetStatus()
+	return o.Team.GetStatus()
 }
 
 func (o *SaveOneTeamRequest) GetLeaderID() uint32 {
-	if o == nil || o.team == nil {
+	if o == nil || o.Team == nil {
 		return o.leaderID
 	}
-	return o.team.GetLeaderID()
+	return o.Team.GetLeaderID()
 }
 
 func (o *SaveOneTeamRequest) GetUUID() uuid.UUID {
-	if o == nil || o.team == nil {
+	if o == nil || o.Team == nil {
 		return uuid.New()
 	}
-	return o.team.GetUUID()
+	return o.Team.GetUUID()
 }
 
 func (o *SaveOneTeamRequest) GetCapacity() vobj.TeamCapacity {
-	if o == nil || o.team == nil {
+	if o == nil || o.Team == nil {
 		return vobj.TeamCapacityDefault
 	}
-	return o.team.GetCapacity()
+	return o.Team.GetCapacity()
 }
 
 func (o *SaveOneTeamRequest) GetDBName() string {
-	if o == nil || o.team == nil {
+	if o == nil || o.Team == nil {
 		return ""
 	}
-	return o.team.GetDBName()
+	return o.Team.GetDBName()
 }
 
 type TeamListRequest struct {

@@ -3,7 +3,6 @@ package impl
 import (
 	"context"
 	"fmt"
-	"time"
 
 	"github.com/go-kratos/kratos/v2/errors"
 	"github.com/go-kratos/kratos/v2/log"
@@ -28,19 +27,17 @@ import (
 func NewTeamRepo(d *data.Data, logger log.Logger) repository.Team {
 	return &teamRepoImpl{
 		Data:   d,
-		Query:  systemgen.Use(d.GetMainDB().GetDB()),
 		helper: log.NewHelper(log.With(logger, "module", "data.repo.team")),
 	}
 }
 
 type teamRepoImpl struct {
 	*data.Data
-	*systemgen.Query
 	helper *log.Helper
 }
 
-func (r *teamRepoImpl) Create(ctx context.Context, team bo.Team) error {
-	teamMutation := r.Team
+func (r *teamRepoImpl) Create(ctx context.Context, team do.Team) (do.Team, error) {
+	teamMutation := systemgen.Use(GetMainDB(ctx, r.Data)).Team
 	teamDo := &system.Team{
 		Name:      team.GetName(),
 		Status:    team.GetStatus(),
@@ -52,14 +49,17 @@ func (r *teamRepoImpl) Create(ctx context.Context, team bo.Team) error {
 		Leader:    nil,
 		Admins:    nil,
 		Resources: nil,
-		DBName:    "",
+		DBName:    team.GetDBName(),
 	}
 	teamDo.WithContext(ctx)
-	return teamMutation.WithContext(ctx).Create(teamDo)
+	if err := teamMutation.WithContext(ctx).Create(teamDo); err != nil {
+		return nil, err
+	}
+	return teamDo, nil
 }
 
-func (r *teamRepoImpl) Update(ctx context.Context, team bo.Team) error {
-	teamMutation := r.Team
+func (r *teamRepoImpl) Update(ctx context.Context, team do.Team) (do.Team, error) {
+	teamMutation := systemgen.Use(GetMainDB(ctx, r.Data)).Team
 	wrappers := []gen.Condition{
 		teamMutation.ID.Eq(team.GetID()),
 	}
@@ -69,11 +69,14 @@ func (r *teamRepoImpl) Update(ctx context.Context, team bo.Team) error {
 		teamMutation.Logo.Value(team.GetLogo()),
 	}
 	_, err := teamMutation.WithContext(ctx).Where(wrappers...).UpdateColumnSimple(mutations...)
-	return err
+	if err != nil {
+		return nil, err
+	}
+	return r.FindByID(ctx, team.GetID())
 }
 
 func (r *teamRepoImpl) Delete(ctx context.Context, id uint32) error {
-	teamMutation := r.Team
+	teamMutation := systemgen.Use(GetMainDB(ctx, r.Data)).Team
 	wrappers := []gen.Condition{
 		teamMutation.ID.Eq(id),
 	}
@@ -82,7 +85,7 @@ func (r *teamRepoImpl) Delete(ctx context.Context, id uint32) error {
 }
 
 func (r *teamRepoImpl) FindByID(ctx context.Context, id uint32) (do.Team, error) {
-	systemQuery := r.Team
+	systemQuery := systemgen.Use(GetMainDB(ctx, r.Data)).Team
 	teamDo, err := systemQuery.WithContext(ctx).Where(systemQuery.ID.Eq(id)).First()
 	if err != nil {
 		return nil, teamNotFound(err)
@@ -91,7 +94,8 @@ func (r *teamRepoImpl) FindByID(ctx context.Context, id uint32) (do.Team, error)
 }
 
 func (r *teamRepoImpl) List(ctx context.Context, req *bo.TeamListRequest) (*bo.TeamListReply, error) {
-	teamQuery := r.Team
+	query := systemgen.Use(GetMainDB(ctx, r.Data))
+	teamQuery := query.Team
 	wrapper := teamQuery.WithContext(ctx)
 	if !validate.TextIsNull(req.Keyword) {
 		wrapper = wrapper.Where(teamQuery.Name.Like(req.Keyword))
@@ -101,14 +105,19 @@ func (r *teamRepoImpl) List(ctx context.Context, req *bo.TeamListRequest) (*bo.T
 		wrapper = wrapper.Where(teamQuery.Status.In(status...))
 	}
 	if len(req.UserIds) > 0 {
-		var teamIDs []uint32
-		userTeamQuery := r.UserTeam
-		err := userTeamQuery.WithContext(ctx).Select(userTeamQuery.TeamID).Where(userTeamQuery.UserID.In(req.UserIds...)).Scan(&teamIDs)
+		userQuery := query.User
+		users, err := userQuery.WithContext(ctx).Where(userQuery.ID.In(req.UserIds...)).Preload(userQuery.Teams).Find()
 		if err != nil {
 			return nil, err
 		}
-		if len(teamIDs) > 0 {
-			wrapper = wrapper.Where(teamQuery.ID.In(teamIDs...))
+		if len(users) > 0 {
+			var teamIds []uint32
+			for _, user := range users {
+				teamIds = append(teamIds, slices.Map(user.GetTeams(), func(team do.Team) uint32 { return team.GetID() })...)
+			}
+			if len(teamIds) > 0 {
+				wrapper = wrapper.Where(teamQuery.ID.In(teamIds...))
+			}
 		}
 		wrapper = wrapper.Where(teamQuery.LeaderID.In(req.UserIds...))
 	}
@@ -128,10 +137,8 @@ func (r *teamRepoImpl) List(ctx context.Context, req *bo.TeamListRequest) (*bo.T
 	return req.ToTeamListReply(teamDos), nil
 }
 
-func (r *teamRepoImpl) createDatabase(c *config.Database, teamID uint32) (gorm.DB, error) {
-	teamQuery := r.Team
-	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
-	defer cancel()
+func (r *teamRepoImpl) createDatabase(ctx context.Context, c *config.Database, teamID uint32) (gorm.DB, error) {
+	teamQuery := systemgen.Use(GetMainDB(ctx, r.Data)).Team
 	teamDo, err := teamQuery.WithContext(ctx).Where(teamQuery.ID.Eq(teamID)).First()
 	if err != nil {
 		if errors.Is(err, ggorm.ErrRecordNotFound) {
