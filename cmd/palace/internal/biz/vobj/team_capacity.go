@@ -6,7 +6,8 @@ package vobj
 type TeamCapacity int8
 
 const (
-	TeamCapacityDefault TeamCapacity = iota // 10
+	TeamCapacityUnknown TeamCapacity = iota // 0
+	TeamCapacityDefault                     // 10
 	TeamCapacityMini                        // 20
 	TeamCapacitySmall                       // 50
 	TeamCapacityMedium                      // 100

@@ -6,7 +6,8 @@ package vobj
 type ResourceAllow int8
 
 const (
-	ResourceAllowNone       ResourceAllow = iota // none
+	ResourceAllowUnknown    ResourceAllow = iota // unknown
+	ResourceAllowNone                            // none
 	ResourceAllowSystem                          // system
 	ResourceAllowSystemRBAC                      // system-rbac
 	ResourceAllowTeam                            // team

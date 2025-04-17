@@ -6,7 +6,8 @@ package vobj
 type HookApp int8
 
 const (
-	HookAppOther    HookApp = iota // other
+	HookAppUnknown  HookApp = iota // unknown
+	HookAppOther                   // other
 	HookAppDingTalk                // dingtalk
 	HookAppWechat                  // wechat
 	HookAppFeiShu                  // feishu

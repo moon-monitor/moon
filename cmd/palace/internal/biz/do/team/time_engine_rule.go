@@ -7,8 +7,11 @@ import (
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/vobj"
 	"github.com/moon-monitor/moon/pkg/merr"
+	"github.com/moon-monitor/moon/pkg/util/slices"
 	"github.com/moon-monitor/moon/pkg/util/timer"
 )
+
+var _ do.TimeEngineRule = (*TimeEngineRule)(nil)
 
 const tableNameTimeEngineRule = "team_time_engine_rules"
 
@@ -20,6 +23,48 @@ type TimeEngineRule struct {
 	Rule    Rules                   `gorm:"column:rule;type:text;not null;comment:规则" json:"rule"`
 	Type    vobj.TimeEngineRuleType `gorm:"column:type;type:tinyint(2);not null;comment:类型" json:"type"`
 	Engines []*TimeEngine           `gorm:"many2many:team_time_engine__time_rules" json:"engines"`
+}
+
+func (t *TimeEngineRule) GetName() string {
+	if t == nil {
+		return ""
+	}
+	return t.Name
+}
+
+func (t *TimeEngineRule) GetRemark() string {
+	if t == nil {
+		return ""
+	}
+	return t.Remark
+}
+
+func (t *TimeEngineRule) GetStatus() vobj.GlobalStatus {
+	if t == nil {
+		return vobj.GlobalStatusUnknown
+	}
+	return t.Status
+}
+
+func (t *TimeEngineRule) GetTimeEngines() []do.TimeEngine {
+	if t == nil {
+		return nil
+	}
+	return slices.Map(t.Engines, func(e *TimeEngine) do.TimeEngine { return e })
+}
+
+func (t *TimeEngineRule) GetType() vobj.TimeEngineRuleType {
+	if t == nil {
+		return vobj.TimeEngineRuleTypeUnknown
+	}
+	return t.Type
+}
+
+func (t *TimeEngineRule) GetRules() []int {
+	if t == nil {
+		return nil
+	}
+	return t.Rule
 }
 
 func (t *TimeEngineRule) TableName() string {

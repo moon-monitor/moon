@@ -6,7 +6,10 @@ import (
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/vobj"
 	"github.com/moon-monitor/moon/pkg/util/kv"
+	"github.com/moon-monitor/moon/pkg/util/slices"
 )
+
+var _ do.DatasourceMetric = (*DatasourceMetric)(nil)
 
 const tableNameDatasourceMetric = "team_datasource_metrics"
 
@@ -25,6 +28,97 @@ type DatasourceMetric struct {
 	BasicAuth      *do.BasicAuth               `gorm:"column:basic_auth;type:text;not null;comment:basic_auth" json:"basicAuth"`
 	Extra          kv.StringMap                `gorm:"column:extra;type:text;not null;comment:额外信息" json:"extra"`
 	Metrics        []*StrategyMetric           `gorm:"many2many:strategy_metric_datasource" json:"metrics"`
+}
+
+func (d *DatasourceMetric) GetName() string {
+	if d == nil {
+		return ""
+	}
+	return d.Name
+}
+
+func (d *DatasourceMetric) GetStatus() vobj.GlobalStatus {
+	if d == nil {
+		return vobj.GlobalStatusUnknown
+	}
+	return d.Status
+}
+
+func (d *DatasourceMetric) GetRemark() string {
+	if d == nil {
+		return ""
+	}
+	return d.Remark
+}
+
+func (d *DatasourceMetric) GetDriver() vobj.DatasourceDriverMetric {
+	if d == nil {
+		return vobj.DatasourceDriverMetricUnknown
+	}
+	return d.Driver
+}
+
+func (d *DatasourceMetric) GetEndpoint() string {
+	if d == nil {
+		return ""
+	}
+	return d.Endpoint
+}
+
+func (d *DatasourceMetric) GetScrapeInterval() time.Duration {
+	if d == nil {
+		return 0
+	}
+	return d.ScrapeInterval
+}
+
+func (d *DatasourceMetric) GetHeaders() kv.StringMap {
+	if d == nil {
+		return nil
+	}
+	return d.Headers
+}
+
+func (d *DatasourceMetric) GetQueryMethod() vobj.HTTPMethod {
+	if d == nil {
+		return vobj.HTTPMethodGet
+	}
+	return d.QueryMethod
+}
+
+func (d *DatasourceMetric) GetCA() string {
+	if d == nil {
+		return ""
+	}
+	return d.CA
+}
+
+func (d *DatasourceMetric) GetTLS() *do.TLS {
+	if d == nil {
+		return nil
+	}
+	return d.TLS
+}
+
+func (d *DatasourceMetric) GetBasicAuth() *do.BasicAuth {
+	if d == nil {
+		return nil
+	}
+	return d.BasicAuth
+}
+
+func (d *DatasourceMetric) GetExtra() kv.StringMap {
+	if d == nil {
+		return nil
+	}
+	return d.Extra
+}
+
+func (d *DatasourceMetric) GetStrategies() []do.StrategyMetric {
+	if d == nil {
+		return nil
+	}
+	return slices.Map(d.Metrics, func(m *StrategyMetric) do.StrategyMetric { return m })
 }
 
 func (d *DatasourceMetric) TableName() string {

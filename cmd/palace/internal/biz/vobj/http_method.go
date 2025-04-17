@@ -6,7 +6,8 @@ package vobj
 type HTTPMethod int8
 
 const (
-	HTTPMethodGet     HTTPMethod = iota // GET
+	HTTPMethodUnknown HTTPMethod = iota // Unknown
+	HTTPMethodGet                       // GET
 	HTTPMethodPost                      // POST
 	HTTPMethodPut                       // PUT
 	HTTPMethodDelete                    // DELETE

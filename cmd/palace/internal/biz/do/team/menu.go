@@ -11,7 +11,7 @@ var _ do.Menu = (*Menu)(nil)
 const tableNameMenu = "team_menus"
 
 type Menu struct {
-	do.BaseModel
+	do.TeamModel
 	Name      string            `gorm:"column:name;type:varchar(64);not null;uniqueIndex:idx__menu__name,priority:1;comment:菜单名称" json:"name"`
 	Path      string            `gorm:"column:path;type:varchar(255);not null;uniqueIndex:idx__menu__path,priority:1;comment:菜单路径" json:"path"`
 	Status    vobj.GlobalStatus `gorm:"column:status;type:tinyint(2);not null;comment:状态" json:"status"`

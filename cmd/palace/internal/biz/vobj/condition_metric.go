@@ -6,12 +6,13 @@ package vobj
 type ConditionMetric int8
 
 const (
-	ConditionMetricEQ    ConditionMetric = iota // EQ
-	ConditionMetricNE                           // NE
-	ConditionMetricGT                           // GT
-	ConditionMetricGTE                          // GTE
-	ConditionMetricLT                           // LT
-	ConditionMetricLTE                          // LTE
-	ConditionMetricIn                           // In
-	ConditionMetricNotIn                        // NotIn
+	ConditionMetricUnknown ConditionMetric = iota // unknown
+	ConditionMetricEQ                             // EQ
+	ConditionMetricNE                             // NE
+	ConditionMetricGT                             // GT
+	ConditionMetricGTE                            // GTE
+	ConditionMetricLT                             // LT
+	ConditionMetricLTE                            // LTE
+	ConditionMetricIn                             // In
+	ConditionMetricNotIn                          // NotIn
 )

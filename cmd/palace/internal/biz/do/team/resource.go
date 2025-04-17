@@ -1,10 +1,6 @@
 package team
 
 import (
-	"time"
-
-	"gorm.io/plugin/soft_delete"
-
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/vobj"
 	"github.com/moon-monitor/moon/pkg/util/slices"
@@ -15,7 +11,7 @@ var _ do.Resource = (*Resource)(nil)
 const tableNameResource = "team_resources"
 
 type Resource struct {
-	do.BaseModel
+	do.TeamModel
 	Name   string             `gorm:"column:name;type:varchar(64);not null;uniqueIndex:idx__api__name,priority:1;comment:api名称" json:"name"`
 	Path   string             `gorm:"column:path;type:varchar(255);not null;uniqueIndex:idx__api__path,priority:1;comment:api路径" json:"path"`
 	Status vobj.GlobalStatus  `gorm:"column:status;type:tinyint(2);not null;comment:状态" json:"status"`
@@ -23,13 +19,6 @@ type Resource struct {
 	Remark string             `gorm:"column:remark;type:varchar(255);not null;comment:备注" json:"remark"`
 	MenuID uint32             `gorm:"column:menu_id;type:int unsigned;not null;comment:菜单id" json:"menuID"`
 	Menus  []*Menu            `gorm:"many2many:team_menu_resources" json:"menus"`
-}
-
-func (u *Resource) GetID() uint32 {
-	if u == nil {
-		return 0
-	}
-	return u.ID
 }
 
 func (u *Resource) GetName() string {
@@ -72,27 +61,6 @@ func (u *Resource) GetMenus() []do.Menu {
 		return nil
 	}
 	return slices.Map(u.Menus, func(m *Menu) do.Menu { return m })
-}
-
-func (u *Resource) GetCreatedAt() time.Time {
-	if u == nil {
-		return time.Time{}
-	}
-	return u.CreatedAt
-}
-
-func (u *Resource) GetUpdatedAt() time.Time {
-	if u == nil {
-		return time.Time{}
-	}
-	return u.UpdatedAt
-}
-
-func (u *Resource) GetDeletedAt() soft_delete.DeletedAt {
-	if u == nil {
-		return 0
-	}
-	return u.DeletedAt
 }
 
 func (u *Resource) TableName() string {
