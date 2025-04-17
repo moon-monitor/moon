@@ -19,6 +19,7 @@ func ToDictProto(dictItem do.Dict) *common.TeamDictItem {
 		Lang:      dictItem.GetLang(),
 		Color:     dictItem.GetColor(),
 		DictType:  common.DictType(dictItem.GetType()),
+		Status:    common.GlobalStatus(dictItem.GetStatus()),
 	}
 }
 

@@ -16,4 +16,5 @@ message TeamDictItem {
   string lang = 7;
   string color = 8;
   api.palace.common.DictType dictType = 9;
+  api.palace.common.GlobalStatus status = 10;
 }

@@ -3588,6 +3588,9 @@ components:
                 dictType:
                     type: integer
                     format: enum
+                status:
+                    type: integer
+                    format: enum
         api.palace.common.TeamItem:
             type: object
             properties:
