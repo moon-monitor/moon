@@ -1,8 +1,6 @@
 package system
 
 import (
-	"time"
-
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/vobj"
 	"github.com/moon-monitor/moon/pkg/util/crypto"
@@ -31,27 +29,6 @@ type User struct {
 	Teams    []*Team         `gorm:"many2many:sys_user_teams" json:"teams"`
 }
 
-func (u *User) GetCreatedAt() time.Time {
-	if u == nil {
-		return time.Time{}
-	}
-	return u.CreatedAt
-}
-
-func (u *User) GetUpdatedAt() time.Time {
-	if u == nil {
-		return time.Time{}
-	}
-	return u.UpdatedAt
-}
-
-func (u *User) GetUserID() uint32 {
-	if u == nil {
-		return 0
-	}
-	return u.ID
-}
-
 func (u *User) GetUsername() string {
 	if u == nil {
 		return ""
@@ -78,6 +55,13 @@ func (u *User) GetPhone() crypto.String {
 		return ""
 	}
 	return u.Phone
+}
+
+func (u *User) GetRemark() string {
+	if u == nil {
+		return ""
+	}
+	return u.Remark
 }
 
 func (u *User) GetPassword() string {

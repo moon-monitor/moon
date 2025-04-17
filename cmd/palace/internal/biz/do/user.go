@@ -11,6 +11,7 @@ type User interface {
 	GetNickname() string
 	GetEmail() crypto.String
 	GetPhone() crypto.String
+	GetRemark() string
 	GetPassword() string
 	GetSalt() string
 	GetGender() vobj.Gender

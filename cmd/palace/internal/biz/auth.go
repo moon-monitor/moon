@@ -6,6 +6,7 @@ import (
 	"fmt"
 
 	"github.com/go-kratos/kratos/v2/log"
+	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do"
 	"golang.org/x/oauth2"
 
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/bo"
@@ -125,7 +126,7 @@ func (a *AuthBiz) VerifyToken(ctx context.Context, token string) error {
 	if err != nil {
 		return err
 	}
-	if !userDo.Status.IsNormal() {
+	if !userDo.GetStatus().IsNormal() {
 		return merr.ErrorUserForbidden("user forbidden")
 	}
 	return nil
@@ -160,13 +161,13 @@ func (a *AuthBiz) RefreshToken(ctx context.Context, req *bo.RefreshToken) (*bo.L
 	return a.login(userDo)
 }
 
-func (a *AuthBiz) login(userDo *system.User) (*bo.LoginSign, error) {
+func (a *AuthBiz) login(userDo do.User) (*bo.LoginSign, error) {
 	base := &middleware.JwtBaseInfo{
-		UserID:   userDo.ID,
-		Username: userDo.Username,
-		Nickname: userDo.Nickname,
-		Avatar:   userDo.Avatar,
-		Gender:   userDo.Gender,
+		UserID:   userDo.GetID(),
+		Username: userDo.GetUsername(),
+		Nickname: userDo.GetNickname(),
+		Avatar:   userDo.GetAvatar(),
+		Gender:   userDo.GetGender(),
 	}
 	token, err := middleware.NewJwtClaims(a.bc.GetAuth().GetJwt(), base).GetToken()
 	if err != nil {
@@ -276,7 +277,7 @@ func (a *AuthBiz) oauthUserFirstOrCreate(ctx context.Context, userInfo bo.IOAuth
 			}
 		}
 		if userDo != nil {
-			userInfo.WithUserID(userDo.ID)
+			userInfo.WithUserID(userDo.GetID())
 		}
 	}
 
@@ -293,8 +294,7 @@ func (a *AuthBiz) oauthUserFirstOrCreate(ctx context.Context, userInfo bo.IOAuth
 			if err != nil {
 				return err
 			}
-			oauthUserDo.UserID = userDo.ID
-			oauthUserDo.User = userDo
+			oauthUserDo.UserID = userDo.GetID()
 			oauthUserDo, err = a.oauthRepo.SetUser(ctx, oauthUserDo)
 			if err != nil {
 				return err
@@ -355,16 +355,16 @@ func (a *AuthBiz) OAuthLoginWithEmail(ctx context.Context, oauthParams *bo.OAuth
 			"exist": "false",
 		})
 	}
-	if userDo.Email.EQ(crypto.String(oauthParams.Email)) {
+	if userDo.GetEmail().EQ(crypto.String(oauthParams.Email)) {
 		return a.login(oauthUserDo.User)
 	}
 
 	userDo.Email = crypto.String(oauthParams.Email)
-	userDo, err = a.userRepo.SetEmail(ctx, userDo, a.sendEmail)
+	user, err := a.userRepo.SetEmail(ctx, userDo, a.sendEmail)
 	if err != nil {
 		return nil, err
 	}
-	return a.login(userDo)
+	return a.login(user)
 }
 
 // VerifyEmail verify email

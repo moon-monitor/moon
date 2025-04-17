@@ -12,6 +12,7 @@ import (
 	ggorm "gorm.io/gorm"
 
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/bo"
+	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do/system"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/repository"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/vobj"
@@ -80,7 +81,7 @@ func (r *teamRepoImpl) Delete(ctx context.Context, id uint32) error {
 	return err
 }
 
-func (r *teamRepoImpl) FindByID(ctx context.Context, id uint32) (*system.Team, error) {
+func (r *teamRepoImpl) FindByID(ctx context.Context, id uint32) (do.Team, error) {
 	systemQuery := r.Team
 	teamDo, err := systemQuery.WithContext(ctx).Where(systemQuery.ID.Eq(id)).First()
 	if err != nil {

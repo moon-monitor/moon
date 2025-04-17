@@ -6,7 +6,7 @@ import (
 	"github.com/go-kratos/kratos/v2/log"
 	"gorm.io/gen"
 
-	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do/team"
+	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/repository"
 	"github.com/moon-monitor/moon/cmd/palace/internal/data"
 	"github.com/moon-monitor/moon/cmd/palace/internal/data/query/systemgen"
@@ -26,7 +26,7 @@ type memberImpl struct {
 	helper *log.Helper
 }
 
-func (m *memberImpl) FindByUserID(ctx context.Context, userID uint32) (*team.Member, error) {
+func (m *memberImpl) FindByUserID(ctx context.Context, userID uint32) (do.TeamMember, error) {
 	query, teamID, err := getTeamBizQuery(ctx, m)
 	if err != nil {
 		return nil, err
