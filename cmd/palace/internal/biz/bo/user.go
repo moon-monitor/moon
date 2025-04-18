@@ -1,8 +1,6 @@
 package bo
 
 import (
-	"context"
-
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/vobj"
 )
@@ -52,14 +50,17 @@ func (u *UserUpdateInfo) GetGender() vobj.Gender {
 }
 
 type PasswordUpdateInfo struct {
-	OldPassword string
-	NewPassword string
+	OldPassword  string
+	NewPassword  string
+	SendEmailFun SendEmailFun
 }
 
 type UpdateUserPasswordInfo struct {
-	UserID   uint32
-	Password string
-	Salt     string
+	UserID         uint32
+	Password       string
+	Salt           string
+	OriginPassword string
+	SendEmailFun   SendEmailFun
 }
 
 type UpdateUserStatusRequest struct {
@@ -69,5 +70,5 @@ type UpdateUserStatusRequest struct {
 
 type ResetUserPasswordRequest struct {
 	UserId       uint32
-	SendEmailFun func(ctx context.Context, params *SendEmailParams) error
+	SendEmailFun SendEmailFun
 }

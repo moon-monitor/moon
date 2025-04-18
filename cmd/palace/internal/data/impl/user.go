@@ -261,16 +261,54 @@ func (u *userRepoImpl) UpdateUserInfo(ctx context.Context, user do.User) error {
 	return nil
 }
 
+//go:embed template/password_changed.html
+var passwordChangedEmailBody string
+
 // UpdatePassword updates the user's password in the database
 func (u *userRepoImpl) UpdatePassword(ctx context.Context, updateUserPasswordInfo *bo.UpdateUserPasswordInfo) error {
+	userDo, err := u.FindByID(ctx, updateUserPasswordInfo.UserID)
+	if err != nil {
+		return err
+	}
+	if err := validate.CheckEmail(string(userDo.GetEmail())); err != nil {
+		return err
+	}
+	defer func() {
+		if updateUserPasswordInfo.SendEmailFun == nil {
+			return
+		}
+		bodyParams := map[string]string{
+			"Email":       string(userDo.GetEmail()),
+			"Password":    updateUserPasswordInfo.OriginPassword,
+			"RedirectURI": u.bc.GetAuth().GetOauth2().GetRedirectUri(),
+		}
+		body, err := template.HtmlFormatter(passwordChangedEmailBody, bodyParams)
+		if err != nil {
+			u.helper.Errorw("msg", "format email body error", "error", err)
+			return
+		}
+
+		sendEmailParams := &bo.SendEmailParams{
+			Email:       string(userDo.GetEmail()),
+			Body:        body,
+			Subject:     "Password reset.",
+			ContentType: "text/html",
+		}
+		if err := updateUserPasswordInfo.SendEmailFun(ctx, sendEmailParams); err != nil {
+			u.helper.Errorw("msg", "send email error", "error", err)
+			return
+		}
+	}()
 	userMutation := getMainQuery(ctx, u).User
+	mutations := []field.AssignExpr{
+		userMutation.Password.Value(updateUserPasswordInfo.Password),
+		userMutation.Salt.Value(updateUserPasswordInfo.Salt),
+	}
+
 	// Update password and salt fields
-	_, err := userMutation.WithContext(ctx).
+	_, err = userMutation.WithContext(ctx).
 		Where(userMutation.ID.Eq(updateUserPasswordInfo.UserID)).
-		UpdateSimple(
-			userMutation.Password.Value(updateUserPasswordInfo.Password),
-			userMutation.Salt.Value(updateUserPasswordInfo.Salt),
-		)
+		UpdateSimple(mutations...)
 
 	return err
 }

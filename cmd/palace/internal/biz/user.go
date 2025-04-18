@@ -109,9 +109,11 @@ func (b *UserBiz) UpdateSelfPassword(ctx context.Context, passwordUpdateInfo *bo
 	}
 
 	updateUserPasswordInfo := &bo.UpdateUserPasswordInfo{
-		UserID:   userID,
-		Password: encryptedPassword,
-		Salt:     pass.Salt(),
+		UserID:         userID,
+		Password:       encryptedPassword,
+		Salt:           pass.Salt(),
+		OriginPassword: passwordUpdateInfo.NewPassword,
+		SendEmailFun:   passwordUpdateInfo.SendEmailFun,
 	}
 	// Update password through repository
 	if err = b.userRepo.UpdatePassword(ctx, updateUserPasswordInfo); err != nil {
@@ -152,17 +154,11 @@ func (b *UserBiz) ResetUserPassword(ctx context.Context, req *bo.ResetUserPasswo
 		return err
 	}
 	updateUserPasswordInfo := &bo.UpdateUserPasswordInfo{
-		UserID:   user.GetID(),
-		Password: enValue,
-		Salt:     pass.Salt(),
+		UserID:         user.GetID(),
+		Password:       enValue,
+		Salt:           pass.Salt(),
+		OriginPassword: newPass,
+		SendEmailFun:   req.SendEmailFun,
 	}
-	defer func() {
-		req.SendEmailFun(ctx, &bo.SendEmailParams{
-			Email:       string(user.GetEmail()),
-			Body:        newPass,
-			Subject:     "Moon Monitoring System Password Reset",
-			ContentType: "text/html",
-		})
-	}()
 	return b.userRepo.UpdatePassword(ctx, updateUserPasswordInfo)
 }

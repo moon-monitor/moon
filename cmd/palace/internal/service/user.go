@@ -16,21 +16,24 @@ import (
 type UserService struct {
 	palace.UnimplementedUserServer
 
-	userBiz *biz.UserBiz
-	teamBiz *biz.Team
-	log     *log.Helper
+	userBiz    *biz.UserBiz
+	teamBiz    *biz.Team
+	messageBiz *biz.Message
+	log        *log.Helper
 }
 
 // NewUserService creates a new user service.
 func NewUserService(
 	userBiz *biz.UserBiz,
 	teamBiz *biz.Team,
+	messageBiz *biz.Message,
 	logger log.Logger,
 ) *UserService {
 	return &UserService{
-		userBiz: userBiz,
-		teamBiz: teamBiz,
-		log:     log.NewHelper(log.With(logger, "module", "service.user")),
+		userBiz:    userBiz,
+		teamBiz:    teamBiz,
+		messageBiz: messageBiz,
+		log:        log.NewHelper(log.With(logger, "module", "service.user")),
 	}
 }
 
@@ -59,7 +62,7 @@ func (s *UserService) UpdateSelfInfo(ctx context.Context, req *palace.UpdateSelf
 // UpdateSelfPassword updates the current user's password.
 func (s *UserService) UpdateSelfPassword(ctx context.Context, req *palace.UpdateSelfPasswordRequest) (*common.EmptyReply, error) {
 	// Call business logic to update password
-	if err := s.userBiz.UpdateSelfPassword(ctx, build.ToPasswordUpdateInfo(req)); err != nil {
+	if err := s.userBiz.UpdateSelfPassword(ctx, build.ToPasswordUpdateInfo(req, s.messageBiz.SendEmail)); err != nil {
 		return nil, err
 	}
 

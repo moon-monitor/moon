@@ -84,13 +84,14 @@ func ToUserUpdateInfo(req *palacev1.UpdateUserRequest) *bo.UserUpdateInfo {
 }
 
 // ToPasswordUpdateInfo converts an API password update request to a business object
-func ToPasswordUpdateInfo(req *palacev1.UpdateSelfPasswordRequest) *bo.PasswordUpdateInfo {
+func ToPasswordUpdateInfo(req *palacev1.UpdateSelfPasswordRequest, sendEmailFun bo.SendEmailFun) *bo.PasswordUpdateInfo {
 	if req == nil {
 		return nil
 	}
 
 	return &bo.PasswordUpdateInfo{
-		OldPassword: req.OldPassword,
-		NewPassword: req.NewPassword,
+		OldPassword:  req.OldPassword,
+		NewPassword:  req.NewPassword,
+		SendEmailFun: sendEmailFun,
 	}
 }
