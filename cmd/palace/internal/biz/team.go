@@ -4,30 +4,35 @@ import (
 	"context"
 
 	"github.com/go-kratos/kratos/v2/log"
+
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/bo"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/repository"
+	"github.com/moon-monitor/moon/pkg/merr"
 )
 
 func NewTeam(
 	userRepo repository.User,
 	teamRepo repository.Team,
+	teamEmailConfigRepo repository.TeamEmailConfig,
 	transaction repository.Transaction,
 	logger log.Logger,
 ) *Team {
 	return &Team{
-		helper:      log.NewHelper(log.With(logger, "module", "biz.team")),
-		userRepo:    userRepo,
-		teamRepo:    teamRepo,
-		transaction: transaction,
+		helper:              log.NewHelper(log.With(logger, "module", "biz.team")),
+		userRepo:            userRepo,
+		teamRepo:            teamRepo,
+		teamEmailConfigRepo: teamEmailConfigRepo,
+		transaction:         transaction,
 	}
 }
 
 type Team struct {
-	helper      *log.Helper
-	userRepo    repository.User
-	teamRepo    repository.Team
-	transaction repository.Transaction
+	helper              *log.Helper
+	userRepo            repository.User
+	teamRepo            repository.Team
+	teamEmailConfigRepo repository.TeamEmailConfig
+	transaction         repository.Transaction
 }
 
 func (t *Team) SaveTeam(ctx context.Context, req *bo.SaveOneTeamRequest) error {
@@ -62,4 +67,26 @@ func (t *Team) SaveTeam(ctx context.Context, req *bo.SaveOneTeamRequest) error {
 		teamDo, err = t.teamRepo.Update(ctx, updateTeamParams)
 		return err
 	})
+}
+
+// SaveEmailConfig saves the email configuration for a team
+func (t *Team) SaveEmailConfig(ctx context.Context, req *bo.SaveEmailConfigRequest) error {
+	if req.ID <= 0 {
+		return t.teamEmailConfigRepo.Create(ctx, req)
+	}
+	emailConfig, err := t.teamEmailConfigRepo.Get(ctx, req.ID)
+	if err != nil {
+		return err
+	}
+	return t.teamEmailConfigRepo.Update(ctx, req.WithEmailConfig(emailConfig))
+}
+
+// GetEmailConfigs retrieves the email configuration for a team
+func (t *Team) GetEmailConfigs(ctx context.Context, req *bo.ListEmailConfigRequest) (*bo.ListEmailConfigListReply, error) {
+	configListReply, err := t.teamEmailConfigRepo.List(ctx, req)
+	if err != nil {
+		return nil, merr.ErrorInternalServerError("failed to get email config").WithCause(err)
+	}
+
+	return configListReply, nil
 }

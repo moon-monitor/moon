@@ -5,6 +5,7 @@ import (
 
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/bo"
+	"github.com/moon-monitor/moon/cmd/palace/internal/service/build"
 	palacev1 "github.com/moon-monitor/moon/pkg/api/palace"
 	"github.com/moon-monitor/moon/pkg/api/palace/common"
 )
@@ -78,9 +79,17 @@ func (s *TeamService) DeleteTeamRole(ctx context.Context, req *palacev1.DeleteTe
 }
 
 func (s *TeamService) SaveEmailConfig(ctx context.Context, req *palacev1.SaveEmailConfigRequest) (*common.EmptyReply, error) {
-	return &common.EmptyReply{}, nil
+	if err := s.teamBiz.SaveEmailConfig(ctx, build.ToSaveEmailConfigRequest(req)); err != nil {
+		return nil, err
+	}
+	return &common.EmptyReply{Message: "保存邮件配置成功"}, nil
 }
 
-func (s *TeamService) GetEmailConfig(ctx context.Context, req *common.EmptyRequest) (*palacev1.GetEmailConfigReply, error) {
-	return &palacev1.GetEmailConfigReply{}, nil
+func (s *TeamService) GetEmailConfigs(ctx context.Context, req *palacev1.GetEmailConfigsRequest) (*palacev1.GetEmailConfigsReply, error) {
+	params := build.ToListEmailConfigRequest(req)
+	config, err := s.teamBiz.GetEmailConfigs(ctx, params)
+	if err != nil {
+		return nil, err
+	}
+	return build.ToEmailConfigReply(config), nil
 }

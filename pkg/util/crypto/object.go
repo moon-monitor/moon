@@ -12,6 +12,12 @@ import (
 var _ sql.Scanner = (*Object[any])(nil)
 var _ driver.Valuer = (*Object[any])(nil)
 
+func NewObject[T any](data T) *Object[T] {
+	return &Object[T]{
+		Data: data,
+	}
+}
+
 type Object[T any] struct {
 	Data T `json:"data"`
 }

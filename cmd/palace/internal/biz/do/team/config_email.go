@@ -3,7 +3,6 @@ package team
 import (
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/vobj"
-	"github.com/moon-monitor/moon/pkg/plugin/email"
 	"github.com/moon-monitor/moon/pkg/util/crypto"
 )
 
@@ -18,6 +17,64 @@ type EmailConfig struct {
 	Remark string                    `gorm:"column:remark;type:varchar(200);not null;comment:配置备注" json:"remark"`
 	Status vobj.GlobalStatus         `gorm:"column:status;type:tinyint(2);not null;default:0;comment:状态" json:"status"`
 	Email  *crypto.Object[*do.Email] `gorm:"column:email;type:text;not null;comment:邮件配置" json:"email"`
+}
+
+func (c *EmailConfig) GetEmailConfig() *do.Email {
+	if c == nil || c.Email == nil {
+		return nil
+	}
+	return c.Email.Get()
+}
+
+func (c *EmailConfig) GetUser() string {
+	if c == nil {
+		return ""
+	}
+	emailConfig := c.GetEmailConfig()
+	if emailConfig == nil {
+		return ""
+	}
+	return emailConfig.User
+}
+
+func (c *EmailConfig) GetPass() string {
+	if c == nil {
+		return ""
+	}
+	emailConfig := c.GetEmailConfig()
+	if emailConfig == nil {
+		return ""
+	}
+	return emailConfig.Pass
+}
+
+func (c *EmailConfig) GetHost() string {
+	if c == nil {
+		return ""
+	}
+	emailConfig := c.GetEmailConfig()
+	if emailConfig == nil {
+		return ""
+	}
+	return emailConfig.Host
+}
+
+func (c *EmailConfig) GetPort() uint32 {
+	if c == nil {
+		return 0
+	}
+	emailConfig := c.GetEmailConfig()
+	if emailConfig == nil {
+		return 0
+	}
+	return emailConfig.Port
+}
+
+func (c *EmailConfig) GetEnable() bool {
+	if c == nil {
+		return false
+	}
+	return c.Status.IsEnable()
 }
 
 func (c *EmailConfig) GetName() string {
@@ -39,13 +96,6 @@ func (c *EmailConfig) GetStatus() vobj.GlobalStatus {
 		return vobj.GlobalStatusUnknown
 	}
 	return c.Status
-}
-
-func (c *EmailConfig) GetEmailConfig() email.Config {
-	if c == nil || c.Email == nil {
-		return nil
-	}
-	return c.Email.Get()
 }
 
 func (c *EmailConfig) TableName() string {

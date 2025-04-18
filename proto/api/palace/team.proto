@@ -124,9 +124,10 @@ service Team {
   }
 
   // GetEmailConfig retrieves the email configuration for the team
-  rpc GetEmailConfig (api.palace.common.EmptyRequest) returns (GetEmailConfigReply) {
+  rpc GetEmailConfigs (GetEmailConfigsRequest) returns (GetEmailConfigsReply) {
     option (google.api.http) = {
-      get: "/api/team/email/configs"
+      post: "/api/team/email/configs"
+      body: "*"
     };
   }
 }
@@ -309,8 +310,19 @@ message EmailConfigItem {
   uint32 id = 8;
 }
 
+// GetEmailConfigsRequest represents the request data for retrieving the email configuration
+message GetEmailConfigsRequest {
+  // Pagination request details
+  api.palace.common.PaginationRequest pagination = 1;
+  // Keyword to search email configurations by
+  string keyword = 2 [(buf.validate.field).string.max_len = 20];
+  // Status to filter email configurations by
+  api.palace.common.GlobalStatus status = 3;
+}
+
 // GetEmailConfigReply contains the response data for retrieving the email configuration
-message GetEmailConfigReply {
+message GetEmailConfigsReply {
   // List of email configuration items
   repeated EmailConfigItem items = 1;
+  api.palace.common.PaginationReply pagination = 2;
 }

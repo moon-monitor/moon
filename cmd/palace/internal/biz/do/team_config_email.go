@@ -5,39 +5,12 @@ import (
 	"github.com/moon-monitor/moon/pkg/plugin/email"
 )
 
-var _ email.Config = (*Email)(nil)
-
 type Email struct {
-	User   string `json:"user"`
-	Pass   string `json:"pass"`
-	Host   string `json:"host"`
-	Port   uint32 `json:"port"`
-	Enable bool   `json:"enable"`
-	Name   string `json:"name"`
-}
-
-func (e *Email) GetName() string {
-	return e.Name
-}
-
-func (e *Email) GetUser() string {
-	return e.User
-}
-
-func (e *Email) GetPass() string {
-	return e.Pass
-}
-
-func (e *Email) GetHost() string {
-	return e.Host
-}
-
-func (e *Email) GetPort() uint32 {
-	return e.Port
-}
-
-func (e *Email) GetEnable() bool {
-	return e.Enable
+	User string `json:"user"`
+	Pass string `json:"pass"`
+	Host string `json:"host"`
+	Port uint32 `json:"port"`
+	Name string `json:"name"`
 }
 
 type TeamEmailConfig interface {
@@ -45,5 +18,6 @@ type TeamEmailConfig interface {
 	GetName() string
 	GetRemark() string
 	GetStatus() vobj.GlobalStatus
-	GetEmailConfig() email.Config
+	GetEmailConfig() *Email
+	email.Config
 }

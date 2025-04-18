@@ -907,18 +907,24 @@ paths:
                             schema:
                                 $ref: '#/components/schemas/api.palace.common.EmptyReply'
     /api/team/email/configs:
-        get:
+        post:
             tags:
                 - Team
             description: GetEmailConfig retrieves the email configuration for the team
-            operationId: Team_GetEmailConfig
+            operationId: Team_GetEmailConfigs
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/api.palace.GetEmailConfigsRequest'
+                required: true
             responses:
                 "200":
                     description: OK
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/api.palace.GetEmailConfigReply'
+                                $ref: '#/components/schemas/api.palace.GetEmailConfigsReply'
     /api/team/invite/member:
         post:
             tags:
@@ -1903,7 +1909,7 @@ components:
                     description: Captcha expiration time in seconds
                     format: int32
             description: GetCaptchaReply contains the response data for the GetCaptcha method
-        api.palace.GetEmailConfigReply:
+        api.palace.GetEmailConfigsReply:
             type: object
             properties:
                 items:
@@ -1911,7 +1917,24 @@ components:
                     items:
                         $ref: '#/components/schemas/api.palace.EmailConfigItem'
                     description: List of email configuration items
+                pagination:
+                    $ref: '#/components/schemas/api.palace.common.PaginationReply'
             description: GetEmailConfigReply contains the response data for retrieving the email configuration
+        api.palace.GetEmailConfigsRequest:
+            type: object
+            properties:
+                pagination:
+                    allOf:
+                        - $ref: '#/components/schemas/api.palace.common.PaginationRequest'
+                    description: Pagination request details
+                keyword:
+                    type: string
+                    description: Keyword to search email configurations by
+                status:
+                    type: integer
+                    description: Status to filter email configurations by
+                    format: enum
+            description: GetEmailConfigsRequest represents the request data for retrieving the email configuration
         api.palace.GetFilingInformationReply:
             type: object
             properties:
