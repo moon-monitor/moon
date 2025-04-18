@@ -6,20 +6,17 @@ import (
 	"fmt"
 
 	"github.com/go-kratos/kratos/v2/log"
-	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do"
 	"golang.org/x/oauth2"
 
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/bo"
+	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do/system"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/repository"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/vobj"
 	"github.com/moon-monitor/moon/cmd/palace/internal/conf"
 	"github.com/moon-monitor/moon/cmd/palace/internal/helper/middleware"
 	"github.com/moon-monitor/moon/cmd/palace/internal/helper/permission"
-	"github.com/moon-monitor/moon/pkg/api/rabbit/common"
-	rabbitv1 "github.com/moon-monitor/moon/pkg/api/rabbit/v1"
 	"github.com/moon-monitor/moon/pkg/merr"
-	"github.com/moon-monitor/moon/pkg/plugin/email"
 	"github.com/moon-monitor/moon/pkg/util/crypto"
 	"github.com/moon-monitor/moon/pkg/util/hash"
 	"github.com/moon-monitor/moon/pkg/util/password"
@@ -51,29 +48,18 @@ func NewAuthBiz(
 	cacheRepo repository.Cache,
 	oauthRepo repository.OAuth,
 	transaction repository.Transaction,
-	rabbitRepo repository.Rabbit,
 	logger log.Logger,
 ) *AuthBiz {
-	emailConfig := bc.GetEmail()
 	return &AuthBiz{
 		bc:           bc,
 		redirectURL:  bc.GetAuth().GetOauth2().GetRedirectUri(),
 		oauthConfigs: buildOAuthConf(bc.GetAuth().GetOauth2()),
-		emailConfig: &common.EmailConfig{
-			User:   emailConfig.GetUser(),
-			Pass:   emailConfig.GetPass(),
-			Host:   emailConfig.GetHost(),
-			Port:   emailConfig.GetPort(),
-			Enable: true,
-			Name:   emailConfig.GetName(),
-		},
-		userRepo:    userRepo,
-		captchaRepo: captchaRepo,
-		cacheRepo:   cacheRepo,
-		oauthRepo:   oauthRepo,
-		transaction: transaction,
-		rabbitRepo:  rabbitRepo,
-		helper:      log.NewHelper(log.With(logger, "module", "biz.auth")),
+		userRepo:     userRepo,
+		captchaRepo:  captchaRepo,
+		cacheRepo:    cacheRepo,
+		oauthRepo:    oauthRepo,
+		transaction:  transaction,
+		helper:       log.NewHelper(log.With(logger, "module", "biz.auth")),
 	}
 }
 
@@ -81,14 +67,12 @@ type AuthBiz struct {
 	bc           *conf.Bootstrap
 	redirectURL  string
 	oauthConfigs *safety.Map[vobj.OAuthAPP, *oauth2.Config]
-	emailConfig  *common.EmailConfig
 
 	userRepo    repository.User
 	captchaRepo repository.Captcha
 	cacheRepo   repository.Cache
 	oauthRepo   repository.OAuth
 	transaction repository.Transaction
-	rabbitRepo  repository.Rabbit
 	helper      *log.Helper
 }
 
@@ -189,18 +173,18 @@ func (a *AuthBiz) GetOAuthConf(provider vobj.OAuthAPP) (*oauth2.Config, error) {
 	return config, nil
 }
 
-func (a *AuthBiz) OAuthLogin(ctx context.Context, provider vobj.OAuthAPP, code string) (string, error) {
-	switch provider {
+func (a *AuthBiz) OAuthLogin(ctx context.Context, req *bo.OAuthLoginParams) (string, error) {
+	switch req.APP {
 	case vobj.OAuthAPPGithub:
-		return a.githubLogin(ctx, code)
+		return a.githubLogin(ctx, req.Code, req.SendEmailFun)
 	case vobj.OAuthAPPGitee:
-		return a.giteeLogin(ctx, code)
+		return a.giteeLogin(ctx, req.Code, req.SendEmailFun)
 	default:
 		return "", merr.ErrorInternalServerError("not support oauth provider")
 	}
 }
 
-func (a *AuthBiz) githubLogin(ctx context.Context, code string) (string, error) {
+func (a *AuthBiz) githubLogin(ctx context.Context, code string, sendEmailFunc bo.SendEmailFun) (string, error) {
 	githubOAuthConf, err := a.GetOAuthConf(vobj.OAuthAPPGithub)
 	if err != nil {
 		return "", err
@@ -223,10 +207,10 @@ func (a *AuthBiz) githubLogin(ctx context.Context, code string) (string, error) 
 		return "", err
 	}
 
-	return a.oauthLogin(ctx, &userInfo)
+	return a.oauthLogin(ctx, &userInfo, sendEmailFunc)
 }
 
-func (a *AuthBiz) giteeLogin(ctx context.Context, code string) (string, error) {
+func (a *AuthBiz) giteeLogin(ctx context.Context, code string, sendEmailFunc bo.SendEmailFun) (string, error) {
 	giteeOAuthConf, err := a.GetOAuthConf(vobj.OAuthAPPGitee)
 	if err != nil {
 		return "", err
@@ -257,10 +241,10 @@ func (a *AuthBiz) giteeLogin(ctx context.Context, code string) (string, error) {
 		return "", err
 	}
 
-	return a.oauthLogin(ctx, &userInfo)
+	return a.oauthLogin(ctx, &userInfo, sendEmailFunc)
 }
 
-func (a *AuthBiz) oauthUserFirstOrCreate(ctx context.Context, userInfo bo.IOAuthUser) (*system.UserOAuth, error) {
+func (a *AuthBiz) oauthUserFirstOrCreate(ctx context.Context, userInfo bo.IOAuthUser, sendEmail bo.SendEmailFun) (*system.UserOAuth, error) {
 	oauthUserDoExist := true
 	oauthUserDo, err := a.oauthRepo.FindByOAuthID(ctx, userInfo.GetOAuthID(), userInfo.GetAPP())
 	if err != nil {
@@ -290,7 +274,7 @@ func (a *AuthBiz) oauthUserFirstOrCreate(ctx context.Context, userInfo bo.IOAuth
 		}
 		if oauthUserDo.User == nil {
 			// 创建用户
-			userDo, err := a.userRepo.CreateUserWithOAuthUser(ctx, userInfo, a.sendEmail)
+			userDo, err := a.userRepo.CreateUserWithOAuthUser(ctx, userInfo, sendEmail)
 			if err != nil {
 				return err
 			}
@@ -309,8 +293,8 @@ func (a *AuthBiz) oauthUserFirstOrCreate(ctx context.Context, userInfo bo.IOAuth
 	return oauthUserDo, nil
 }
 
-func (a *AuthBiz) oauthLogin(ctx context.Context, userInfo bo.IOAuthUser) (string, error) {
-	oauthUserDo, err := a.oauthUserFirstOrCreate(ctx, userInfo)
+func (a *AuthBiz) oauthLogin(ctx context.Context, userInfo bo.IOAuthUser, sendEmail bo.SendEmailFun) (string, error) {
+	oauthUserDo, err := a.oauthUserFirstOrCreate(ctx, userInfo, sendEmail)
 	if err != nil {
 		return "", err
 	}
@@ -360,7 +344,7 @@ func (a *AuthBiz) OAuthLoginWithEmail(ctx context.Context, oauthParams *bo.OAuth
 	}
 
 	userDo.Email = crypto.String(oauthParams.Email)
-	user, err := a.userRepo.SetEmail(ctx, userDo, a.sendEmail)
+	user, err := a.userRepo.SetEmail(ctx, userDo, oauthParams.SendEmailFun)
 	if err != nil {
 		return nil, err
 	}
@@ -368,67 +352,29 @@ func (a *AuthBiz) OAuthLoginWithEmail(ctx context.Context, oauthParams *bo.OAuth
 }
 
 // VerifyEmail verify email
-func (a *AuthBiz) VerifyEmail(ctx context.Context, email string) error {
-	sendEmailParams, err := a.cacheRepo.SendVerifyEmailCode(ctx, email)
+func (a *AuthBiz) VerifyEmail(ctx context.Context, req *bo.VerifyEmailParams) error {
+	sendEmailParams, err := a.cacheRepo.SendVerifyEmailCode(ctx, req.Email)
 	if err != nil {
 		return err
 	}
-	return a.sendEmail(ctx, sendEmailParams)
+	return req.SendEmailFun(ctx, sendEmailParams)
 }
 
 // LoginWithEmail 邮箱登录
-func (a *AuthBiz) LoginWithEmail(ctx context.Context, code string, user *system.User) (*bo.LoginSign, error) {
-	if err := a.cacheRepo.VerifyEmailCode(ctx, string(user.Email), code); err != nil {
+func (a *AuthBiz) LoginWithEmail(ctx context.Context, req *bo.LoginWithEmailParams) (*bo.LoginSign, error) {
+	if err := a.cacheRepo.VerifyEmailCode(ctx, string(req.User.Email), req.Code); err != nil {
 		return nil, err
 	}
-	userDo, err := a.userRepo.FindByEmail(ctx, user.Email)
+	userDo, err := a.userRepo.FindByEmail(ctx, req.User.Email)
 	if err == nil {
 		return a.login(userDo)
 	}
-	userDo = user
-	userDo, err = a.userRepo.Create(ctx, userDo, a.sendEmail)
+	userDo = req.User
+	userDo, err = a.userRepo.Create(ctx, userDo, req.SendEmailFun)
 	if err != nil {
 		return nil, err
 	}
 	return a.login(userDo)
-}
-
-func (a *AuthBiz) sendEmail(ctx context.Context, sendEmailParams *bo.SendEmailParams) error {
-	sendClient, ok := a.rabbitRepo.Send()
-	if !ok {
-		// call local send email
-		return a.localSendEmail(ctx, sendEmailParams)
-	}
-	// call rabbit server send email
-	return a.rabbitSendEmail(ctx, sendClient, sendEmailParams)
-}
-
-func (a *AuthBiz) localSendEmail(_ context.Context, params *bo.SendEmailParams) error {
-	emailInstance := email.New(a.emailConfig)
-	emailInstance.SetTo(params.Email).
-		SetSubject(params.Subject).
-		SetBody(params.Body, params.ContentType)
-	if err := emailInstance.Send(); err != nil {
-		a.helper.Warnw("method", "local send email error", "params", params, "error", err)
-		return err
-	}
-	return nil
-}
-
-func (a *AuthBiz) rabbitSendEmail(ctx context.Context, client repository.SendClient, params *bo.SendEmailParams) error {
-	reply, err := client.Email(ctx, &rabbitv1.SendEmailRequest{
-		Emails:      []string{params.Email},
-		Body:        params.Body,
-		Subject:     params.Subject,
-		ContentType: params.ContentType,
-		EmailConfig: a.emailConfig,
-	})
-	if err != nil {
-		a.helper.Warnw("method", "rabbit send email error", "params", params, "error", err)
-		return err
-	}
-	a.helper.Debugf("send email reply: %v", reply)
-	return nil
 }
 
 // GetFilingInformation get filing information

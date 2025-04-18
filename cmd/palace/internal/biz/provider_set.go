@@ -15,4 +15,5 @@ var ProviderSetBiz = wire.NewSet(
 	NewDict,
 	NewTeam,
 	NewTeamHook,
+	NewMessage,
 )

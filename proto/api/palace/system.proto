@@ -49,7 +49,7 @@ service System {
   // GetUser retrieves a user by ID
   rpc GetUser (GetUserRequest) returns (GetUserReply) {
     option (google.api.http) = {
-      get: "/api/system/user/{userID}"
+      get: "/api/system/user/detail"
     };
   }
 
@@ -136,7 +136,7 @@ service System {
 // UpdateUserRequest represents the request data for updating user information
 message UpdateUserRequest {
   // User ID
-  uint32 userID = 1 [(buf.validate.field).required = true];
+  uint32 userId = 1 [(buf.validate.field).required = true];
   // User nickname
   string nickname = 2 [(buf.validate.field).required = true];
   // User avatar URL
@@ -148,11 +148,11 @@ message UpdateUserRequest {
 // UpdateUserStatusRequest represents the request data for updating user status
 message UpdateUserStatusRequest {
   // List of user IDs to update
-  repeated uint32 userIDs = 1 [(buf.validate.field).cel = {
-    message: "userIDs is required"
+  repeated uint32 userIds = 1 [(buf.validate.field).cel = {
+    message: "please select user"
     expression: "this.size() > 0"
   }, (buf.validate.field).cel = {
-    message: "userIDs max size is 100"
+    message: "select user max size is 100"
     expression: "this.size() <= 100"
   }];
   // New status for the users
@@ -161,20 +161,13 @@ message UpdateUserStatusRequest {
 
 // ResetUserPasswordRequest represents the request data for resetting user passwords
 message ResetUserPasswordRequest {
-  // List of user IDs to reset passwords for
-  repeated uint32 userIDs = 1 [(buf.validate.field).cel = {
-    message: "userIDs is required"
-    expression: "this.size() > 0"
-  }, (buf.validate.field).cel = {
-    message: "userIDs max size is 100"
-    expression: "this.size() <= 100"
-  }];
+  uint32 userId = 1 [(buf.validate.field).required = true];
 }
 
 // UpdateUserPositionRequest represents the request data for updating user position
 message UpdateUserPositionRequest {
   // User ID
-  uint32 userID = 1 [(buf.validate.field).required = true];
+  uint32 userId = 1 [(buf.validate.field).required = true];
   // New position for the user
   api.palace.common.UserPosition position = 2 [(buf.validate.field).required = true];
 }
@@ -182,7 +175,7 @@ message UpdateUserPositionRequest {
 // GetUserRequest represents the request data for retrieving a user
 message GetUserRequest {
   // User ID
-  uint32 userID = 1 [(buf.validate.field).required = true];
+  uint32 userId = 1 [(buf.validate.field).required = true];
 }
 
 // GetUserReply contains the response data for retrieving a user
@@ -204,7 +197,7 @@ message GetUserListRequest {
 // GetUserListReply contains the response data for listing users
 message GetUserListReply {
   // List of user items
-  repeated api.palace.common.UserItem users = 1;
+  repeated api.palace.common.UserItem items = 1;
   // Pagination response details
   api.palace.common.PaginationReply pagination = 2;
 }
@@ -230,7 +223,7 @@ message GetTeamListReply {
 // SaveRoleRequest represents the request data for saving or updating a role
 message SaveRoleRequest {
   // Role ID, optional for new roles
-  uint32 roleID = 1;
+  uint32 roleId = 1;
   // Role name
   string name = 2 [(buf.validate.field).cel = {
     message: "name max length is 32"
@@ -242,13 +235,13 @@ message SaveRoleRequest {
     expression: "this.size() <= 200"
   }];
   // List of resource IDs associated with the role
-  repeated uint32 resourceIDs = 4 [(buf.validate.field).required = true];
+  repeated uint32 resourceIds = 4 [(buf.validate.field).required = true];
 }
 
 // UpdateRoleStatusRequest represents the request data for updating role status
 message UpdateRoleStatusRequest {
   // Role ID
-  uint32 roleID = 1 [(buf.validate.field).required = true];
+  uint32 roleId = 1 [(buf.validate.field).required = true];
   // New status for the role
   api.palace.common.RoleStatus status = 2 [(buf.validate.field).required = true];
 }
@@ -256,23 +249,23 @@ message UpdateRoleStatusRequest {
 // UpdateUserRolesRequest represents the request data for updating user roles
 message UpdateUserRolesRequest {
   // User ID
-  uint32 userID = 1 [(buf.validate.field).required = true];
+  uint32 userId = 1 [(buf.validate.field).required = true];
   // List of role IDs to assign to the user
-  repeated uint32 roleIDs = 2 [(buf.validate.field).required = true];
+  repeated uint32 roleIds = 2 [(buf.validate.field).required = true];
 }
 
 // UpdateRoleUsersRequest represents the request data for updating role users
 message UpdateRoleUsersRequest {
   // Role ID
-  uint32 roleID = 1 [(buf.validate.field).required = true];
+  uint32 roleId = 1 [(buf.validate.field).required = true];
   // List of user IDs to assign to the role
-  repeated uint32 userIDs = 2 [(buf.validate.field).required = true];
+  repeated uint32 userIds = 2 [(buf.validate.field).required = true];
 }
 
 // GetSystemRoleRequest represents the request data for retrieving a system role
 message GetSystemRoleRequest {
   // Role ID
-  uint32 roleID = 1 [(buf.validate.field).required = true];
+  uint32 roleId = 1 [(buf.validate.field).required = true];
 }
 
 // GetSystemRoleReply contains the response data for retrieving a system role
@@ -290,7 +283,7 @@ message GetTeamAuditListRequest {
   // Keyword to search team audit records by
   string keyword = 3;
   // User ID, optional for filtering audits by user
-  uint32 userID = 4;
+  uint32 userId = 4;
 }
 
 // GetTeamAuditListReply contains the response data for listing team audit records
@@ -304,7 +297,7 @@ message GetTeamAuditListReply {
 // UpdateTeamAuditStatusRequest represents the request data for updating team audit status
 message UpdateTeamAuditStatusRequest {
   // Audit ID
-  uint32 auditID = 1 [(buf.validate.field).required = true];
+  uint32 auditId = 1 [(buf.validate.field).required = true];
   // New status for the team audit record
   api.palace.common.TeamAuditStatus status = 2 [(buf.validate.field).required = true];
   // Reason for the status update
@@ -319,11 +312,11 @@ message OperateLogListRequest {
   // Pagination request details
   api.palace.common.PaginationRequest pagination = 1;
   // List of types to filter operation logs by
-  repeated api.palace.common.OperateType type = 2;
+  repeated api.palace.common.OperateType operateTypes = 2;
   // Keyword to search operation logs by
   string keyword = 3;
   // User ID, optional for filtering logs by user
-  uint32 userID = 4;
+  uint32 userId = 4;
 }
 
 // OperateLogListReply contains the response data for listing operation logs

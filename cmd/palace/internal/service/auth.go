@@ -29,12 +29,14 @@ func NewAuthService(
 	authBiz *biz.AuthBiz,
 	permissionBiz *biz.PermissionBiz,
 	resourceBiz *biz.ResourceBiz,
+	messageBiz *biz.Message,
 	logger log.Logger,
 ) *AuthService {
 	return &AuthService{
 		authBiz:       authBiz,
 		permissionBiz: permissionBiz,
 		resourceBiz:   resourceBiz,
+		messageBiz:    messageBiz,
 		oauth2List:    builderOAuth2List(bc.GetAuth().GetOauth2()),
 		helper:        log.NewHelper(log.With(logger, "module", "service.auth")),
 	}
@@ -45,6 +47,7 @@ type AuthService struct {
 	authBiz       *biz.AuthBiz
 	permissionBiz *biz.PermissionBiz
 	resourceBiz   *biz.ResourceBiz
+	messageBiz    *biz.Message
 	oauth2List    []*palacev1.OAuth2ListReply_OAuthItem
 	helper        *log.Helper
 }
@@ -124,7 +127,11 @@ func (s *AuthService) VerifyEmail(ctx context.Context, req *palacev1.VerifyEmail
 	if err := s.authBiz.VerifyCaptcha(ctx, captchaVerify); err != nil {
 		return nil, err
 	}
-	if err := s.authBiz.VerifyEmail(ctx, req.GetEmail()); err != nil {
+	params := &bo.VerifyEmailParams{
+		Email:        req.GetEmail(),
+		SendEmailFun: s.messageBiz.SendEmail,
+	}
+	if err := s.authBiz.VerifyEmail(ctx, params); err != nil {
 		return nil, err
 	}
 	return &palacev1.VerifyEmailReply{ExpiredSeconds: int32(5 * time.Minute.Seconds())}, nil
@@ -141,7 +148,12 @@ func (s *AuthService) LoginByEmail(ctx context.Context, req *palacev1.LoginByEma
 		Position:  vobj.RoleUser,
 		Status:    vobj.UserStatusNormal,
 	}
-	return login(s.authBiz.LoginWithEmail(ctx, req.GetCode(), userDo))
+	params := &bo.LoginWithEmailParams{
+		Code:         req.GetCode(),
+		User:         userDo,
+		SendEmailFun: s.messageBiz.SendEmail,
+	}
+	return login(s.authBiz.LoginWithEmail(ctx, params))
 }
 
 func (s *AuthService) OAuthLoginByEmail(ctx context.Context, req *palacev1.OAuthLoginByEmailRequest) (*palacev1.LoginReply, error) {
@@ -252,7 +264,15 @@ func (s *AuthService) OAuthLogin(app vobj.OAuthAPP) http.HandlerFunc {
 func (s *AuthService) OAuthLoginCallback(app vobj.OAuthAPP) http.HandlerFunc {
 	return func(ctx http.Context) error {
 		code := ctx.Query().Get("code")
-		loginRedirect, err := s.authBiz.OAuthLogin(ctx, app, code)
+		if code == "" {
+			return merr.ErrorBadRequest("code is empty")
+		}
+		params := &bo.OAuthLoginParams{
+			APP:          app,
+			Code:         code,
+			SendEmailFun: s.messageBiz.SendEmail,
+		}
+		loginRedirect, err := s.authBiz.OAuthLogin(ctx, params)
 		if err != nil {
 			return err
 		}

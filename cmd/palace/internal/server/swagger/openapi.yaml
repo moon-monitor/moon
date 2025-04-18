@@ -339,7 +339,7 @@ paths:
             description: GetSystemRole retrieves a system role by ID
             operationId: System_GetSystemRole
             parameters:
-                - name: roleID
+                - name: roleId
                   in: query
                   description: Role ID
                   schema:
@@ -484,6 +484,26 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/api.palace.common.EmptyReply'
+    /api/system/user/detail:
+        get:
+            tags:
+                - System
+            description: GetUser retrieves a user by ID
+            operationId: System_GetUser
+            parameters:
+                - name: userId
+                  in: query
+                  description: User ID
+                  schema:
+                    type: integer
+                    format: uint32
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.palace.GetUserReply'
     /api/system/user/list:
         post:
             tags:
@@ -579,27 +599,6 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/api.palace.common.EmptyReply'
-    /api/system/user/{userID}:
-        get:
-            tags:
-                - System
-            description: GetUser retrieves a user by ID
-            operationId: System_GetUser
-            parameters:
-                - name: userID
-                  in: path
-                  description: User ID
-                  required: true
-                  schema:
-                    type: integer
-                    format: uint32
-            responses:
-                "200":
-                    description: OK
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/api.palace.GetUserReply'
     /api/team/dashboard:
         get:
             tags:
@@ -2096,7 +2095,7 @@ components:
                 keyword:
                     type: string
                     description: Keyword to search team audit records by
-                userID:
+                userId:
                     type: integer
                     description: User ID, optional for filtering audits by user
                     format: uint32
@@ -2233,7 +2232,7 @@ components:
         api.palace.GetUserListReply:
             type: object
             properties:
-                users:
+                items:
                     type: array
                     items:
                         $ref: '#/components/schemas/api.palace.common.UserItem'
@@ -2655,7 +2654,7 @@ components:
                     allOf:
                         - $ref: '#/components/schemas/api.palace.common.PaginationRequest'
                     description: Pagination request details
-                type:
+                operateTypes:
                     type: array
                     items:
                         type: integer
@@ -2664,7 +2663,7 @@ components:
                 keyword:
                     type: string
                     description: Keyword to search operation logs by
-                userID:
+                userId:
                     type: integer
                     description: User ID, optional for filtering logs by user
                     format: uint32
@@ -2703,12 +2702,9 @@ components:
         api.palace.ResetUserPasswordRequest:
             type: object
             properties:
-                userIDs:
-                    type: array
-                    items:
-                        type: integer
-                        format: uint32
-                    description: List of user IDs to reset passwords for
+                userId:
+                    type: integer
+                    format: uint32
             description: ResetUserPasswordRequest represents the request data for resetting user passwords
         api.palace.SMSConfigItem:
             type: object
@@ -2778,7 +2774,7 @@ components:
         api.palace.SaveRoleRequest:
             type: object
             properties:
-                roleID:
+                roleId:
                     type: integer
                     description: Role ID, optional for new roles
                     format: uint32
@@ -2788,7 +2784,7 @@ components:
                 remark:
                     type: string
                     description: Role remark or description
-                resourceIDs:
+                resourceIds:
                     type: array
                     items:
                         type: integer
@@ -3187,7 +3183,7 @@ components:
         api.palace.UpdateRoleStatusRequest:
             type: object
             properties:
-                roleID:
+                roleId:
                     type: integer
                     description: Role ID
                     format: uint32
@@ -3199,11 +3195,11 @@ components:
         api.palace.UpdateRoleUsersRequest:
             type: object
             properties:
-                roleID:
+                roleId:
                     type: integer
                     description: Role ID
                     format: uint32
-                userIDs:
+                userIds:
                     type: array
                     items:
                         type: integer
@@ -3237,7 +3233,7 @@ components:
         api.palace.UpdateTeamAuditStatusRequest:
             type: object
             properties:
-                auditID:
+                auditId:
                     type: integer
                     description: Audit ID
                     format: uint32
@@ -3356,7 +3352,7 @@ components:
         api.palace.UpdateUserPositionRequest:
             type: object
             properties:
-                userID:
+                userId:
                     type: integer
                     description: User ID
                     format: uint32
@@ -3368,7 +3364,7 @@ components:
         api.palace.UpdateUserRequest:
             type: object
             properties:
-                userID:
+                userId:
                     type: integer
                     description: User ID
                     format: uint32
@@ -3386,11 +3382,11 @@ components:
         api.palace.UpdateUserRolesRequest:
             type: object
             properties:
-                userID:
+                userId:
                     type: integer
                     description: User ID
                     format: uint32
-                roleIDs:
+                roleIds:
                     type: array
                     items:
                         type: integer
@@ -3400,7 +3396,7 @@ components:
         api.palace.UpdateUserStatusRequest:
             type: object
             properties:
-                userIDs:
+                userIds:
                     type: array
                     items:
                         type: integer

@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 
+	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do/system"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/vobj"
 	"github.com/moon-monitor/moon/pkg/merr"
 	"github.com/moon-monitor/moon/pkg/util/validate"
@@ -18,17 +19,28 @@ type IOAuthUser interface {
 	GetNickname() string
 	GetAvatar() string
 	GetAPP() vobj.OAuthAPP
-
 	WithUserID(userID uint32) IOAuthUser
 	GetUserID() uint32
 }
 
+type LoginWithEmailParams struct {
+	Code         string
+	User         *system.User
+	SendEmailFun SendEmailFun
+}
+
+type VerifyEmailParams struct {
+	Email        string
+	SendEmailFun SendEmailFun
+}
+
 type OAuthLoginParams struct {
-	APP     vobj.OAuthAPP `json:"app"`
-	Code    string        `json:"code"`
-	Email   string        `json:"email"`
-	OAuthID uint32        `json:"oAuthID"`
-	Token   string        `json:"token"`
+	APP          vobj.OAuthAPP `json:"app"`
+	Code         string        `json:"code"`
+	Email        string        `json:"email"`
+	OAuthID      uint32        `json:"oAuthID"`
+	Token        string        `json:"token"`
+	SendEmailFun SendEmailFun
 }
 
 func NewOAuthRowData(app vobj.OAuthAPP, row string) (IOAuthUser, error) {

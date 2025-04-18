@@ -59,7 +59,7 @@ func (u *userRepoImpl) AppendTeam(ctx context.Context, team do.Team) error {
 	return userMutation.Teams.WithContext(ctx).Model(userDo).Append(teamDo)
 }
 
-func (u *userRepoImpl) CreateUserWithOAuthUser(ctx context.Context, user bo.IOAuthUser, sendEmailFunc repository.SendEmailFunc) (userDo do.User, err error) {
+func (u *userRepoImpl) CreateUserWithOAuthUser(ctx context.Context, user bo.IOAuthUser, sendEmailFunc bo.SendEmailFun) (userDo do.User, err error) {
 	userDo, err = u.FindByEmail(ctx, crypto.String(user.GetEmail()))
 	if err == nil {
 		return userDo, nil
@@ -86,7 +86,7 @@ func (u *userRepoImpl) CreateUserWithOAuthUser(ctx context.Context, user bo.IOAu
 	return u.Create(ctx, userDo, sendEmailFunc)
 }
 
-func (u *userRepoImpl) Create(ctx context.Context, user do.User, sendEmailFunc repository.SendEmailFunc) (do.User, error) {
+func (u *userRepoImpl) Create(ctx context.Context, user do.User, sendEmailFunc bo.SendEmailFun) (do.User, error) {
 	pass := password.New(password.GenerateRandomPassword(8))
 	enValue, err := pass.EnValue()
 	if err != nil {
@@ -137,7 +137,7 @@ func (u *userRepoImpl) FindByEmail(ctx context.Context, email crypto.String) (do
 	return user, nil
 }
 
-func (u *userRepoImpl) SetEmail(ctx context.Context, user do.User, sendEmailFunc repository.SendEmailFunc) (do.User, error) {
+func (u *userRepoImpl) SetEmail(ctx context.Context, user do.User, sendEmailFunc bo.SendEmailFun) (do.User, error) {
 	userMutation := getMainQuery(ctx, u).User
 	wrapper := []gen.Condition{
 		userMutation.ID.Eq(user.GetID()),
@@ -175,7 +175,7 @@ func (u *userRepoImpl) SetEmail(ctx context.Context, user do.User, sendEmailFunc
 //go:embed template/welcome.html
 var welcomeEmailBody string
 
-func (u *userRepoImpl) sendUserPassword(ctx context.Context, user do.User, pass string, sendEmailFunc repository.SendEmailFunc) error {
+func (u *userRepoImpl) sendUserPassword(ctx context.Context, user do.User, pass string, sendEmailFunc bo.SendEmailFun) error {
 	if err := validate.CheckEmail(string(user.GetEmail())); err != nil {
 		return nil
 	}
@@ -245,10 +245,8 @@ func (u *userRepoImpl) GetMemberByUserIDAndTeamID(ctx context.Context, userID ui
 	return member, nil
 }
 
-// UpdateSelfInfo updates the user's profile information
-func (u *userRepoImpl) UpdateSelfInfo(ctx context.Context, user do.User) error {
+func (u *userRepoImpl) UpdateUserInfo(ctx context.Context, user do.User) error {
 	userMutation := getMainQuery(ctx, u).User
-	// Only update the relevant fields
 	_, err := userMutation.WithContext(ctx).
 		Where(userMutation.ID.Eq(user.GetID())).
 		UpdateSimple(
@@ -256,7 +254,6 @@ func (u *userRepoImpl) UpdateSelfInfo(ctx context.Context, user do.User) error {
 			userMutation.Avatar.Value(user.GetAvatar()),
 			userMutation.Gender.Value(int8(user.GetGender())),
 		)
-
 	if err != nil {
 		return err
 	}
@@ -275,5 +272,16 @@ func (u *userRepoImpl) UpdatePassword(ctx context.Context, updateUserPasswordInf
 			userMutation.Salt.Value(updateUserPasswordInfo.Salt),
 		)
 
+	return err
+}
+
+func (u *userRepoImpl) UpdateUserStatus(ctx context.Context, req *bo.UpdateUserStatusRequest) error {
+	if len(req.UserIds) == 0 {
+		return nil
+	}
+	userMutation := getMainQuery(ctx, u).User
+	_, err := userMutation.WithContext(ctx).
+		Where(userMutation.ID.In(req.UserIds...)).
+		UpdateSimple(userMutation.Status.Value(req.Status.GetValue()))
 	return err
 }

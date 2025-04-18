@@ -49,7 +49,7 @@ func (s *UserService) SelfInfo(ctx context.Context, _ *common.EmptyRequest) (*pa
 // UpdateSelfInfo updates the current user's information.
 func (s *UserService) UpdateSelfInfo(ctx context.Context, req *palace.UpdateSelfInfoRequest) (*common.EmptyReply, error) {
 	// Call business logic
-	if err := s.userBiz.UpdateSelfInfo(ctx, build.ToUserUpdateInfo(req)); err != nil {
+	if err := s.userBiz.UpdateSelfInfo(ctx, build.ToSelfUpdateInfo(req)); err != nil {
 		return nil, err
 	}
 

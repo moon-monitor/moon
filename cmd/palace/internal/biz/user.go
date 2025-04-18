@@ -62,10 +62,21 @@ func (b *UserBiz) UpdateSelfInfo(ctx context.Context, userUpdateInfo *bo.UserUpd
 		return merr.ErrorUserNotFound("user not found")
 	}
 
-	if err = b.userRepo.UpdateSelfInfo(ctx, userUpdateInfo.WithUser(user)); err != nil {
+	if err = b.userRepo.UpdateUserInfo(ctx, userUpdateInfo.WithUser(user)); err != nil {
 		return merr.ErrorInternalServerError("failed to update user info").WithCause(err)
 	}
 
+	return nil
+}
+
+func (b *UserBiz) UpdateUserBaseInfo(ctx context.Context, userUpdateInfo *bo.UserUpdateInfo) error {
+	user, err := b.userRepo.FindByID(ctx, userUpdateInfo.GetUserID())
+	if err != nil {
+		return err
+	}
+	if err = b.userRepo.UpdateUserInfo(ctx, userUpdateInfo.WithUser(user)); err != nil {
+		return merr.ErrorInternalServerError("failed to update user info").WithCause(err)
+	}
 	return nil
 }
 
@@ -123,4 +134,35 @@ func (b *UserBiz) GetUserTeams(ctx context.Context) ([]do.Team, error) {
 	}
 
 	return teams, nil
+}
+
+func (b *UserBiz) UpdateUserStatus(ctx context.Context, req *bo.UpdateUserStatusRequest) error {
+	return b.userRepo.UpdateUserStatus(ctx, req)
+}
+
+func (b *UserBiz) ResetUserPassword(ctx context.Context, req *bo.ResetUserPasswordRequest) error {
+	user, err := b.userRepo.FindByID(ctx, req.UserId)
+	if err != nil {
+		return err
+	}
+	newPass := password.GenerateRandomPassword(8)
+	pass := password.New(newPass)
+	enValue, err := pass.EnValue()
+	if err != nil {
+		return err
+	}
+	updateUserPasswordInfo := &bo.UpdateUserPasswordInfo{
+		UserID:   user.GetID(),
+		Password: enValue,
+		Salt:     pass.Salt(),
+	}
+	defer func() {
+		req.SendEmailFun(ctx, &bo.SendEmailParams{
+			Email:       string(user.GetEmail()),
+			Body:        newPass,
+			Subject:     "Moon Monitoring System Password Reset",
+			ContentType: "text/html",
+		})
+	}()
+	return b.userRepo.UpdatePassword(ctx, updateUserPasswordInfo)
 }

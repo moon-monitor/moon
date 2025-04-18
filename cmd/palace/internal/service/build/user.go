@@ -58,7 +58,7 @@ func UsersToUserBaseItemsProto(users []do.User) []*common.UserBaseItem {
 	return slices.Map(users, UserToUserBaseItemProto)
 }
 
-func ToUserUpdateInfo(req *palacev1.UpdateSelfInfoRequest) *bo.UserUpdateInfo {
+func ToSelfUpdateInfo(req *palacev1.UpdateSelfInfoRequest) *bo.UserUpdateInfo {
 	if req == nil {
 		return nil
 	}
@@ -67,6 +67,19 @@ func ToUserUpdateInfo(req *palacev1.UpdateSelfInfoRequest) *bo.UserUpdateInfo {
 		Nickname: req.Nickname,
 		Avatar:   req.Avatar,
 		Gender:   vobj.Gender(req.Gender),
+	}
+}
+
+func ToUserUpdateInfo(req *palacev1.UpdateUserRequest) *bo.UserUpdateInfo {
+	if req == nil {
+		return nil
+	}
+
+	return &bo.UserUpdateInfo{
+		UserID:   req.GetUserId(),
+		Nickname: req.GetNickname(),
+		Avatar:   req.GetAvatar(),
+		Gender:   vobj.Gender(req.GetGender()),
 	}
 }
 
