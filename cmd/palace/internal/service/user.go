@@ -4,9 +4,9 @@ import (
 	"context"
 
 	"github.com/go-kratos/kratos/v2/log"
-	"github.com/moon-monitor/moon/cmd/palace/internal/biz/bo"
 
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz"
+	"github.com/moon-monitor/moon/cmd/palace/internal/biz/bo"
 	"github.com/moon-monitor/moon/cmd/palace/internal/service/build"
 	"github.com/moon-monitor/moon/pkg/api/palace"
 	"github.com/moon-monitor/moon/pkg/api/palace/common"

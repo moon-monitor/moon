@@ -362,10 +362,10 @@ func (a *AuthBiz) VerifyEmail(ctx context.Context, req *bo.VerifyEmailParams) er
 
 // LoginWithEmail 邮箱登录
 func (a *AuthBiz) LoginWithEmail(ctx context.Context, req *bo.LoginWithEmailParams) (*bo.LoginSign, error) {
-	if err := a.cacheRepo.VerifyEmailCode(ctx, string(req.User.Email), req.Code); err != nil {
+	if err := a.cacheRepo.VerifyEmailCode(ctx, string(req.GetEmail()), req.Code); err != nil {
 		return nil, err
 	}
-	userDo, err := a.userRepo.FindByEmail(ctx, req.User.Email)
+	userDo, err := a.userRepo.FindByEmail(ctx, req.GetEmail())
 	if err == nil {
 		return a.login(userDo)
 	}

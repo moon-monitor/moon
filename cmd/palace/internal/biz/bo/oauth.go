@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do/system"
+	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/vobj"
 	"github.com/moon-monitor/moon/pkg/merr"
 	"github.com/moon-monitor/moon/pkg/util/validate"
@@ -24,8 +24,8 @@ type IOAuthUser interface {
 }
 
 type LoginWithEmailParams struct {
-	Code         string
-	User         *system.User
+	Code string
+	do.User
 	SendEmailFun SendEmailFun
 }
 
