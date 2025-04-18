@@ -5,6 +5,7 @@ import (
 
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/bo"
+	"github.com/moon-monitor/moon/cmd/palace/internal/biz/vobj"
 	"github.com/moon-monitor/moon/cmd/palace/internal/service/build"
 	palacev1 "github.com/moon-monitor/moon/pkg/api/palace"
 	"github.com/moon-monitor/moon/pkg/api/palace/common"
@@ -66,16 +67,39 @@ func (s *TeamService) UpdateMemberRoles(ctx context.Context, req *palacev1.Updat
 	return &common.EmptyReply{}, nil
 }
 
-func (s *TeamService) GetTeamRoles(ctx context.Context, req *common.EmptyRequest) (*palacev1.GetTeamRolesReply, error) {
-	return &palacev1.GetTeamRolesReply{}, nil
+func (s *TeamService) GetTeamRoles(ctx context.Context, req *palacev1.GetTeamRolesRequest) (*palacev1.GetTeamRolesReply, error) {
+	params := build.ToListRoleRequest(req)
+	roleReply, err := s.teamBiz.GetTeamRoles(ctx, params)
+	if err != nil {
+		return nil, err
+	}
+	return build.ToListTeamRoleReply(roleReply), nil
 }
 
 func (s *TeamService) SaveTeamRole(ctx context.Context, req *palacev1.SaveTeamRoleRequest) (*common.EmptyReply, error) {
-	return &common.EmptyReply{}, nil
+	params := build.ToSaveTeamRoleRequest(req)
+	if err := s.teamBiz.SaveTeamRole(ctx, params); err != nil {
+		return nil, err
+	}
+	return &common.EmptyReply{Message: "保存团队角色成功"}, nil
 }
 
 func (s *TeamService) DeleteTeamRole(ctx context.Context, req *palacev1.DeleteTeamRoleRequest) (*common.EmptyReply, error) {
-	return &common.EmptyReply{}, nil
+	if err := s.teamBiz.DeleteTeamRole(ctx, req.GetRoleID()); err != nil {
+		return nil, err
+	}
+	return &common.EmptyReply{Message: "删除团队角色成功"}, nil
+}
+
+func (s *TeamService) UpdateTeamRoleStatus(ctx context.Context, req *palacev1.UpdateTeamRoleStatusRequest) (*common.EmptyReply, error) {
+	params := &bo.UpdateTeamRoleStatusReq{
+		RoleID: req.GetRoleID(),
+		Status: vobj.GlobalStatus(req.GetStatus()),
+	}
+	if err := s.teamBiz.UpdateTeamRoleStatus(ctx, params); err != nil {
+		return nil, err
+	}
+	return &common.EmptyReply{Message: "更新团队角色状态成功"}, nil
 }
 
 func (s *TeamService) SaveEmailConfig(ctx context.Context, req *palacev1.SaveEmailConfigRequest) (*common.EmptyReply, error) {

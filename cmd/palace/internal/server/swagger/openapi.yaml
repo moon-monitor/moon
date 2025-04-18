@@ -1235,6 +1235,25 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/api.palace.GetTeamResourcesReply'
+    /api/team/role/status:
+        put:
+            tags:
+                - Team
+            description: UpdateTeamRoleStatus updates the status of a team role
+            operationId: Team_UpdateTeamRoleStatus
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/api.palace.UpdateTeamRoleStatusRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.palace.common.EmptyReply'
     /api/team/roles:
         put:
             tags:
@@ -1263,7 +1282,7 @@ paths:
                 content:
                     application/json:
                         schema:
-                            $ref: '#/components/schemas/api.palace.common.EmptyRequest'
+                            $ref: '#/components/schemas/api.palace.GetTeamRolesRequest'
                 required: true
             responses:
                 "200":
@@ -2175,7 +2194,26 @@ components:
                     items:
                         $ref: '#/components/schemas/api.palace.common.TeamRoleItem'
                     description: List of team role items
+                pagination:
+                    allOf:
+                        - $ref: '#/components/schemas/api.palace.common.PaginationReply'
+                    description: Pagination response details
             description: GetTeamRolesReply contains the response data for retrieving team roles
+        api.palace.GetTeamRolesRequest:
+            type: object
+            properties:
+                pagination:
+                    allOf:
+                        - $ref: '#/components/schemas/api.palace.common.PaginationRequest'
+                    description: Pagination request details
+                keyword:
+                    type: string
+                    description: Keyword to search roles by
+                status:
+                    type: integer
+                    description: Status to filter roles by
+                    format: enum
+            description: GetTeamRolesRequest represents the request data for retrieving team roles
         api.palace.GetTeamStrategyGroupReply:
             type: object
             properties:
@@ -3277,6 +3315,18 @@ components:
                 status:
                     type: integer
                     format: enum
+        api.palace.UpdateTeamRoleStatusRequest:
+            type: object
+            properties:
+                roleID:
+                    type: integer
+                    description: Role ID
+                    format: uint32
+                status:
+                    type: integer
+                    description: New status for the role
+                    format: enum
+            description: UpdateTeamRoleStatusRequest represents the request data for updating role status
         api.palace.UpdateTeamStrategiesStatusRequest:
             type: object
             properties:

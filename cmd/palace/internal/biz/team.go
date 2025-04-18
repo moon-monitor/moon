@@ -16,6 +16,8 @@ func NewTeam(
 	teamRepo repository.Team,
 	teamEmailConfigRepo repository.TeamEmailConfig,
 	teamSMSConfigRepo repository.TeamSMSConfig,
+	teamRoleRepo repository.TeamRole,
+	menuRepo repository.Menu,
 	transaction repository.Transaction,
 	logger log.Logger,
 ) *Team {
@@ -25,6 +27,8 @@ func NewTeam(
 		teamRepo:            teamRepo,
 		teamEmailConfigRepo: teamEmailConfigRepo,
 		teamSMSConfigRepo:   teamSMSConfigRepo,
+		teamRoleRepo:        teamRoleRepo,
+		menuRepo:            menuRepo,
 		transaction:         transaction,
 	}
 }
@@ -35,6 +39,8 @@ type Team struct {
 	teamRepo            repository.Team
 	teamEmailConfigRepo repository.TeamEmailConfig
 	teamSMSConfigRepo   repository.TeamSMSConfig
+	teamRoleRepo        repository.TeamRole
+	menuRepo            repository.Menu
 	transaction         repository.Transaction
 }
 
@@ -74,14 +80,16 @@ func (t *Team) SaveTeam(ctx context.Context, req *bo.SaveOneTeamRequest) error {
 
 // SaveEmailConfig saves the email configuration for a team
 func (t *Team) SaveEmailConfig(ctx context.Context, req *bo.SaveEmailConfigRequest) error {
-	if req.ID <= 0 {
-		return t.teamEmailConfigRepo.Create(ctx, req)
-	}
-	emailConfig, err := t.teamEmailConfigRepo.Get(ctx, req.ID)
-	if err != nil {
-		return err
-	}
-	return t.teamEmailConfigRepo.Update(ctx, req.WithEmailConfig(emailConfig))
+	return t.transaction.BizExec(ctx, func(ctx context.Context) error {
+		if req.ID <= 0 {
+			return t.teamEmailConfigRepo.Create(ctx, req)
+		}
+		emailConfig, err := t.teamEmailConfigRepo.Get(ctx, req.ID)
+		if err != nil {
+			return err
+		}
+		return t.teamEmailConfigRepo.Update(ctx, req.WithEmailConfig(emailConfig))
+	})
 }
 
 // GetEmailConfigs retrieves the email configuration for a team
@@ -96,17 +104,52 @@ func (t *Team) GetEmailConfigs(ctx context.Context, req *bo.ListEmailConfigReque
 
 // SaveSMSConfig saves the SMS configuration for a team
 func (t *Team) SaveSMSConfig(ctx context.Context, req *bo.SaveSMSConfigRequest) error {
-	if req.ID <= 0 {
-		return t.teamSMSConfigRepo.Create(ctx, req)
-	}
-	smsConfig, err := t.teamSMSConfigRepo.Get(ctx, req.ID)
-	if err != nil {
-		return err
-	}
-	return t.teamSMSConfigRepo.Update(ctx, req.WithSMSConfig(smsConfig))
+	return t.transaction.BizExec(ctx, func(ctx context.Context) error {
+		if req.ID <= 0 {
+			return t.teamSMSConfigRepo.Create(ctx, req)
+		}
+		smsConfig, err := t.teamSMSConfigRepo.Get(ctx, req.ID)
+		if err != nil {
+			return err
+		}
+		return t.teamSMSConfigRepo.Update(ctx, req.WithSMSConfig(smsConfig))
+	})
 }
 
 // GetSMSConfigs retrieves SMS configurations for a team
 func (t *Team) GetSMSConfigs(ctx context.Context, req *bo.ListSMSConfigRequest) (*bo.ListSMSConfigListReply, error) {
 	return t.teamSMSConfigRepo.List(ctx, req)
+}
+
+func (t *Team) SaveTeamRole(ctx context.Context, req *bo.SaveTeamRoleReq) error {
+	return t.transaction.BizExec(ctx, func(ctx context.Context) error {
+		if req.GetID() <= 0 {
+			return t.teamRoleRepo.Create(ctx, req)
+		}
+		teamRoleDo, err := t.teamRoleRepo.Get(ctx, req.GetID())
+		if err != nil {
+			return err
+		}
+		if len(req.GetMenuIds()) > 0 {
+			menuDos, err := t.menuRepo.Find(ctx, req.GetMenuIds())
+			if err != nil {
+				return err
+			}
+			req.WithMenus(menuDos)
+		}
+
+		return t.teamRoleRepo.Update(ctx, req.WithRole(teamRoleDo))
+	})
+}
+
+func (t *Team) GetTeamRoles(ctx context.Context, req *bo.ListRoleReq) (*bo.ListRoleReply, error) {
+	return t.teamRoleRepo.List(ctx, req)
+}
+
+func (t *Team) DeleteTeamRole(ctx context.Context, roleID uint32) error {
+	return t.teamRoleRepo.Delete(ctx, roleID)
+}
+
+func (t *Team) UpdateTeamRoleStatus(ctx context.Context, req *bo.UpdateTeamRoleStatusReq) error {
+	return t.teamRoleRepo.UpdateStatus(ctx, req)
 }
