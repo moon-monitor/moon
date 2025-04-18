@@ -12,12 +12,3 @@ type Role interface {
 	GetUsers() []User
 	GetMenus() []Menu
 }
-
-type TeamRole interface {
-	TeamBase
-	GetName() string
-	GetRemark() string
-	GetStatus() vobj.GlobalStatus
-	GetMembers() []TeamMember
-	GetMenus() []Menu
-}

@@ -52,7 +52,7 @@ func (r *StrategyMetricRule) GetLevelID() uint32 {
 	return r.LevelID
 }
 
-func (r *StrategyMetricRule) GetLevel() do.Dict {
+func (r *StrategyMetricRule) GetLevel() do.TeamDict {
 	if r == nil {
 		return nil
 	}
@@ -115,11 +115,11 @@ func (r *StrategyMetricRule) GetLabelNotices() []do.StrategyMetricRuleLabelNotic
 	return slices.Map(r.LabelNotices, func(v *StrategyMetricRuleLabelNotice) do.StrategyMetricRuleLabelNotice { return v })
 }
 
-func (r *StrategyMetricRule) GetAlarmPages() []do.Dict {
+func (r *StrategyMetricRule) GetAlarmPages() []do.TeamDict {
 	if r == nil {
 		return nil
 	}
-	return slices.Map(r.AlarmPages, func(v *Dict) do.Dict { return v })
+	return slices.Map(r.AlarmPages, func(v *Dict) do.TeamDict { return v })
 }
 
 func (r *StrategyMetricRule) TableName() string {

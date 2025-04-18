@@ -5,7 +5,7 @@ import (
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/vobj"
 )
 
-var _ do.Dict = (*Dict)(nil)
+var _ do.TeamDict = (*Dict)(nil)
 
 const tableNameDict = "team_dictionaries"
 

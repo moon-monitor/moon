@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/go-kratos/kratos/v2/log"
-	
+
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/bo"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/repository"
@@ -37,7 +37,7 @@ func (d *Dict) SaveDict(ctx context.Context, req *bo.SaveDictReq) error {
 	return d.teamDictRepo.Update(ctx, req.WithUpdateParams(dictItem))
 }
 
-func (d *Dict) GetDict(ctx context.Context, req *bo.OperateOneDictReq) (do.Dict, error) {
+func (d *Dict) GetDict(ctx context.Context, req *bo.OperateOneDictReq) (do.TeamDict, error) {
 	return d.teamDictRepo.Get(ctx, req.DictID)
 }
 

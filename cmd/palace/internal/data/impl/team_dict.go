@@ -29,7 +29,7 @@ type teamDictImpl struct {
 	helper *log.Helper
 }
 
-func (t *teamDictImpl) Get(ctx context.Context, dictID uint32) (do.Dict, error) {
+func (t *teamDictImpl) Get(ctx context.Context, dictID uint32) (do.TeamDict, error) {
 	query, teamID, err := getTeamBizQuery(ctx, t)
 	if err != nil {
 		return nil, err

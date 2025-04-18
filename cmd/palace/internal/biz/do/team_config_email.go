@@ -40,8 +40,8 @@ func (e *Email) GetEnable() bool {
 	return e.Enable
 }
 
-type EmailConfig interface {
-	Creator
+type TeamEmailConfig interface {
+	TeamBase
 	GetName() string
 	GetRemark() string
 	GetStatus() vobj.GlobalStatus

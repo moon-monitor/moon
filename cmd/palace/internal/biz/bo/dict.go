@@ -88,8 +88,8 @@ type ListDictReq struct {
 func (r *ListDictReq) ToListDictReply(dictItems []*team.Dict) *ListDictReply {
 	return &ListDictReply{
 		PaginationReply: r.ToReply(),
-		Items:           slices.Map(dictItems, func(item *team.Dict) do.Dict { return item }),
+		Items:           slices.Map(dictItems, func(item *team.Dict) do.TeamDict { return item }),
 	}
 }
 
-type ListDictReply = ListReply[do.Dict]
+type ListDictReply = ListReply[do.TeamDict]

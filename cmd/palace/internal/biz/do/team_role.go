@@ -4,12 +4,11 @@ import (
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/vobj"
 )
 
-type Dict interface {
+type TeamRole interface {
 	TeamBase
-	GetKey() string
-	GetValue() string
+	GetName() string
+	GetRemark() string
 	GetStatus() vobj.GlobalStatus
-	GetType() vobj.DictType
-	GetColor() string
-	GetLang() string
+	GetMembers() []TeamMember
+	GetMenus() []Menu
 }

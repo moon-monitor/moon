@@ -41,7 +41,7 @@ type StrategyMetricRule interface {
 	GetStrategyMetricID() uint32
 	GetStrategyMetric() StrategyMetric
 	GetLevelID() uint32
-	GetLevel() Dict
+	GetLevel() TeamDict
 	GetSampleMode() vobj.SampleMode
 	GetCondition() vobj.ConditionMetric
 	GetCount() int64
@@ -50,7 +50,7 @@ type StrategyMetricRule interface {
 	GetStatus() vobj.GlobalStatus
 	GetNotices() []NoticeGroup
 	GetLabelNotices() []StrategyMetricRuleLabelNotice
-	GetAlarmPages() []Dict
+	GetAlarmPages() []TeamDict
 }
 
 type StrategyMetricRuleLabelNotice interface {

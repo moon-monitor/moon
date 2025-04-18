@@ -21,8 +21,3 @@ type Resource interface {
 	GetUpdatedAt() time.Time
 	GetDeletedAt() soft_delete.DeletedAt
 }
-
-type TeamResource interface {
-	TeamBase
-	Resource
-}

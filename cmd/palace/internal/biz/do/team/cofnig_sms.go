@@ -6,7 +6,7 @@ import (
 	"github.com/moon-monitor/moon/pkg/util/crypto"
 )
 
-var _ do.SMSConfig = (*SmsConfig)(nil)
+var _ do.TeamSMSConfig = (*SmsConfig)(nil)
 
 const tableNameConfigSMS = "team_config_sms"
 

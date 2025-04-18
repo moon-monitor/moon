@@ -7,7 +7,7 @@ import (
 	"github.com/moon-monitor/moon/pkg/util/crypto"
 )
 
-var _ do.EmailConfig = (*EmailConfig)(nil)
+var _ do.TeamEmailConfig = (*EmailConfig)(nil)
 
 const tableNameConfigEmail = "team_config_emails"
 

@@ -23,14 +23,14 @@ type NoticeGroup struct {
 	SMSConfig     *SmsConfig        `gorm:"foreignKey:SMSConfigID;references:ID" json:"smsConfig"`
 }
 
-func (n *NoticeGroup) GetEmailConfig() do.EmailConfig {
+func (n *NoticeGroup) GetEmailConfig() do.TeamEmailConfig {
 	if n == nil {
 		return nil
 	}
 	return n.EmailConfig
 }
 
-func (n *NoticeGroup) GetSMSConfig() do.SMSConfig {
+func (n *NoticeGroup) GetSMSConfig() do.TeamSMSConfig {
 	if n == nil {
 		return nil
 	}
