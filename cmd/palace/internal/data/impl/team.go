@@ -16,7 +16,6 @@ import (
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/repository"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/vobj"
 	"github.com/moon-monitor/moon/cmd/palace/internal/data"
-	"github.com/moon-monitor/moon/cmd/palace/internal/data/query/systemgen"
 	"github.com/moon-monitor/moon/pkg/config"
 	"github.com/moon-monitor/moon/pkg/merr"
 	"github.com/moon-monitor/moon/pkg/plugin/gorm"
@@ -37,7 +36,7 @@ type teamRepoImpl struct {
 }
 
 func (r *teamRepoImpl) Create(ctx context.Context, team do.Team) (do.Team, error) {
-	teamMutation := systemgen.Use(GetMainDB(ctx, r.Data)).Team
+	teamMutation := getMainQuery(ctx, r).Team
 	teamDo := &system.Team{
 		Name:      team.GetName(),
 		Status:    team.GetStatus(),
@@ -58,7 +57,7 @@ func (r *teamRepoImpl) Create(ctx context.Context, team do.Team) (do.Team, error
 }
 
 func (r *teamRepoImpl) Update(ctx context.Context, team do.Team) (do.Team, error) {
-	teamMutation := systemgen.Use(GetMainDB(ctx, r.Data)).Team
+	teamMutation := getMainQuery(ctx, r).Team
 	wrappers := []gen.Condition{
 		teamMutation.ID.Eq(team.GetID()),
 	}
@@ -75,7 +74,7 @@ func (r *teamRepoImpl) Update(ctx context.Context, team do.Team) (do.Team, error
 }
 
 func (r *teamRepoImpl) Delete(ctx context.Context, id uint32) error {
-	teamMutation := systemgen.Use(GetMainDB(ctx, r.Data)).Team
+	teamMutation := getMainQuery(ctx, r).Team
 	wrappers := []gen.Condition{
 		teamMutation.ID.Eq(id),
 	}
@@ -84,7 +83,7 @@ func (r *teamRepoImpl) Delete(ctx context.Context, id uint32) error {
 }
 
 func (r *teamRepoImpl) FindByID(ctx context.Context, id uint32) (do.Team, error) {
-	systemQuery := systemgen.Use(GetMainDB(ctx, r.Data)).Team
+	systemQuery := getMainQuery(ctx, r).Team
 	teamDo, err := systemQuery.WithContext(ctx).Where(systemQuery.ID.Eq(id)).First()
 	if err != nil {
 		return nil, teamNotFound(err)
@@ -93,7 +92,7 @@ func (r *teamRepoImpl) FindByID(ctx context.Context, id uint32) (do.Team, error)
 }
 
 func (r *teamRepoImpl) List(ctx context.Context, req *bo.TeamListRequest) (*bo.TeamListReply, error) {
-	query := systemgen.Use(GetMainDB(ctx, r.Data))
+	query := getMainQuery(ctx, r)
 	teamQuery := query.Team
 	wrapper := teamQuery.WithContext(ctx)
 	if !validate.TextIsNull(req.Keyword) {
@@ -137,7 +136,7 @@ func (r *teamRepoImpl) List(ctx context.Context, req *bo.TeamListRequest) (*bo.T
 }
 
 func (r *teamRepoImpl) createDatabase(ctx context.Context, c *config.Database, teamID uint32) (gorm.DB, error) {
-	teamQuery := systemgen.Use(GetMainDB(ctx, r.Data)).Team
+	teamQuery := getMainQuery(ctx, r).Team
 	teamDo, err := teamQuery.WithContext(ctx).Where(teamQuery.ID.Eq(teamID)).First()
 	if err != nil {
 		if errors.Is(err, ggorm.ErrRecordNotFound) {

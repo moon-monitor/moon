@@ -109,6 +109,7 @@ i18n:
 .PHONY: gen-palace
 # generate gorm gen
 gen-palace:
+	rm -rf ./cmd/palace/internal/data/query
 	go run cmd/palace/migrate/gen/gen.go
 
 .PHONY: conf-palace

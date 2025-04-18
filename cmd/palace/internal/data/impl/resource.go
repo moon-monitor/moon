@@ -12,9 +12,6 @@ import (
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/repository"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/vobj"
 	"github.com/moon-monitor/moon/cmd/palace/internal/data"
-	"github.com/moon-monitor/moon/cmd/palace/internal/data/query/systemgen"
-	"github.com/moon-monitor/moon/cmd/palace/internal/data/query/teamgen"
-	"github.com/moon-monitor/moon/cmd/palace/internal/helper/permission"
 	"github.com/moon-monitor/moon/pkg/util/slices"
 	"github.com/moon-monitor/moon/pkg/util/validate"
 )
@@ -22,19 +19,18 @@ import (
 func NewResourceRepo(d *data.Data, logger log.Logger) repository.Resource {
 	return &resourceImpl{
 		Data:   d,
-		Query:  systemgen.Use(d.GetMainDB().GetDB()),
 		helper: log.NewHelper(log.With(logger, "module", "data.repo.resource")),
 	}
 }
 
 type resourceImpl struct {
 	*data.Data
-	*systemgen.Query
 	helper *log.Helper
 }
 
 func (r *resourceImpl) GetResources(ctx context.Context) ([]do.Resource, error) {
-	resources, err := r.Resource.WithContext(ctx).Find()
+	mainQuery := getMainQuery(ctx, r)
+	resources, err := mainQuery.Resource.WithContext(ctx).Find()
 	if err != nil {
 		return nil, err
 	}
@@ -42,7 +38,9 @@ func (r *resourceImpl) GetResources(ctx context.Context) ([]do.Resource, error) 
 }
 
 func (r *resourceImpl) GetResourceByID(ctx context.Context, id uint32) (do.Resource, error) {
-	resourceDo, err := r.Resource.WithContext(ctx).Where(r.Resource.ID.Eq(id)).First()
+	mainQuery := getMainQuery(ctx, r)
+	resource := mainQuery.Resource
+	resourceDo, err := resource.WithContext(ctx).Where(resource.ID.Eq(id)).First()
 	if err != nil {
 		return nil, resourceNotFound(err)
 	}
@@ -50,7 +48,9 @@ func (r *resourceImpl) GetResourceByID(ctx context.Context, id uint32) (do.Resou
 }
 
 func (r *resourceImpl) GetResourceByOperation(ctx context.Context, operation string) (do.Resource, error) {
-	resourceDo, err := r.Resource.WithContext(ctx).Where(r.Resource.Path.Eq(operation)).First()
+	mainQuery := getMainQuery(ctx, r)
+	resource := mainQuery.Resource
+	resourceDo, err := resource.WithContext(ctx).Where(resource.Path.Eq(operation)).First()
 	if err != nil {
 		return nil, resourceNotFound(err)
 	}
@@ -61,14 +61,17 @@ func (r *resourceImpl) BatchUpdateResourceStatus(ctx context.Context, ids []uint
 	if len(ids) == 0 {
 		return nil
 	}
-	_, err := r.Resource.WithContext(ctx).
-		Where(r.Resource.ID.In(ids...)).
-		Update(r.Resource.Status, int8(status))
+	mainQuery := getMainQuery(ctx, r)
+	resource := mainQuery.Resource
+	_, err := resource.WithContext(ctx).
+		Where(resource.ID.In(ids...)).
+		Update(resource.Status, int8(status))
 	return err
 }
 
 func (r *resourceImpl) ListResources(ctx context.Context, req *bo.ListResourceReq) (*bo.ListResourceReply, error) {
-	resource := r.Resource
+	mainQuery := getMainQuery(ctx, r)
+	resource := mainQuery.Resource
 	resourceQuery := resource.WithContext(ctx)
 	if len(req.Statuses) > 0 {
 		resourceQuery = resourceQuery.Where(resource.Status.In(slices.Map(req.Statuses, func(status vobj.GlobalStatus) int8 { return status.GetValue() })...))
@@ -92,7 +95,8 @@ func (r *resourceImpl) ListResources(ctx context.Context, req *bo.ListResourceRe
 }
 
 func (r *resourceImpl) GetMenusByUserID(ctx context.Context, userID uint32) ([]do.Menu, error) {
-	user := r.User
+	mainQuery := getMainQuery(ctx, r)
+	user := mainQuery.User
 	userQuery := user.WithContext(ctx).Where(user.ID.Eq(userID)).Preload(user.Roles.Menus)
 	userDo, err := userQuery.First()
 	if err != nil {
@@ -102,15 +106,11 @@ func (r *resourceImpl) GetMenusByUserID(ctx context.Context, userID uint32) ([]d
 	for _, role := range userDo.Roles {
 		menus = append(menus, slices.Map(role.Menus, func(menu *system.Menu) do.Menu { return menu })...)
 	}
-	teamID, ok := permission.GetTeamIDByContext(ctx)
-	if !ok || teamID <= 0 {
-		return menus, nil
-	}
-	bizDB, err := r.GetBizDB(teamID)
+	teamBizQuery, teamID, err := getTeamBizQuery(ctx, r)
 	if err != nil {
 		return nil, err
 	}
-	teamMember := teamgen.Use(bizDB.GetDB()).Member
+	teamMember := teamBizQuery.Member
 	teamQuery := teamMember.WithContext(ctx).Where(teamMember.TeamID.Eq(teamID)).Preload(teamMember.Roles.Menus)
 	teamMemberDo, err := teamQuery.First()
 	if err != nil {
@@ -123,7 +123,9 @@ func (r *resourceImpl) GetMenusByUserID(ctx context.Context, userID uint32) ([]d
 }
 
 func (r *resourceImpl) GetMenus(ctx context.Context, t vobj.MenuType) ([]do.Menu, error) {
-	menus, err := r.Menu.WithContext(ctx).Where(r.Menu.Type.Eq(t.GetValue())).Find()
+	mainQuery := getMainQuery(ctx, r)
+	menu := mainQuery.Menu
+	menus, err := menu.WithContext(ctx).Where(menu.Type.Eq(t.GetValue())).Find()
 	if err != nil {
 		return nil, err
 	}

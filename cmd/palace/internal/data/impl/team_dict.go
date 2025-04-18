@@ -13,7 +13,6 @@ import (
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/repository"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/vobj"
 	"github.com/moon-monitor/moon/cmd/palace/internal/data"
-	"github.com/moon-monitor/moon/cmd/palace/internal/data/query/teamgen"
 	"github.com/moon-monitor/moon/pkg/util/slices"
 	"github.com/moon-monitor/moon/pkg/util/validate"
 )
@@ -30,21 +29,13 @@ type teamDictImpl struct {
 	helper *log.Helper
 }
 
-func (t *teamDictImpl) bizQuery(teamID uint32) (*teamgen.Query, error) {
-	bizDB, err := t.GetBizDB(teamID)
-	if err != nil {
-		return nil, err
-	}
-	return teamgen.Use(bizDB.GetDB()), nil
-}
-
-func (t *teamDictImpl) Get(ctx context.Context, teamID, dictID uint32) (do.Dict, error) {
-	bizQuery, err := t.bizQuery(teamID)
+func (t *teamDictImpl) Get(ctx context.Context, dictID uint32) (do.Dict, error) {
+	query, teamID, err := getTeamBizQuery(ctx, t)
 	if err != nil {
 		return nil, err
 	}
 
-	bizDictQuery := bizQuery.Dict
+	bizDictQuery := query.Dict
 	wrappers := []gen.Condition{
 		bizDictQuery.TeamID.Eq(teamID),
 		bizDictQuery.ID.Eq(dictID),
@@ -52,12 +43,12 @@ func (t *teamDictImpl) Get(ctx context.Context, teamID, dictID uint32) (do.Dict,
 	return bizDictQuery.WithContext(ctx).Where(wrappers...).First()
 }
 
-func (t *teamDictImpl) Delete(ctx context.Context, teamID, dictID uint32) error {
-	bizQuery, err := t.bizQuery(teamID)
+func (t *teamDictImpl) Delete(ctx context.Context, dictID uint32) error {
+	query, teamID, err := getTeamBizQuery(ctx, t)
 	if err != nil {
 		return err
 	}
-	bizDictQuery := bizQuery.Dict
+	bizDictQuery := query.Dict
 	wrappers := []gen.Condition{
 		bizDictQuery.TeamID.Eq(teamID),
 		bizDictQuery.ID.Eq(dictID),
@@ -66,8 +57,8 @@ func (t *teamDictImpl) Delete(ctx context.Context, teamID, dictID uint32) error 
 	return err
 }
 
-func (t *teamDictImpl) Create(ctx context.Context, teamID uint32, dict bo.Dict) error {
-	bizQuery, err := t.bizQuery(teamID)
+func (t *teamDictImpl) Create(ctx context.Context, dict bo.Dict) error {
+	query, _, err := getTeamBizQuery(ctx, t)
 	if err != nil {
 		return err
 	}
@@ -80,16 +71,16 @@ func (t *teamDictImpl) Create(ctx context.Context, teamID uint32, dict bo.Dict) 
 		Status:   dict.GetStatus(),
 	}
 	dictDo.WithContext(ctx)
-	bizDictQuery := bizQuery.Dict
+	bizDictQuery := query.Dict
 	return bizDictQuery.WithContext(ctx).Create(dictDo)
 }
 
-func (t *teamDictImpl) Update(ctx context.Context, teamID uint32, dict bo.Dict) error {
-	bizQuery, err := t.bizQuery(teamID)
+func (t *teamDictImpl) Update(ctx context.Context, dict bo.Dict) error {
+	query, teamID, err := getTeamBizQuery(ctx, t)
 	if err != nil {
 		return err
 	}
-	bizDictQuery := bizQuery.Dict
+	bizDictQuery := query.Dict
 	mutations := []field.AssignExpr{
 		bizDictQuery.Key.Value(dict.GetKey()),
 		bizDictQuery.Value.Value(dict.GetValue()),
@@ -106,15 +97,15 @@ func (t *teamDictImpl) Update(ctx context.Context, teamID uint32, dict bo.Dict) 
 	return err
 }
 
-func (t *teamDictImpl) UpdateStatus(ctx context.Context, teamID uint32, req *bo.UpdateDictStatusReq) error {
+func (t *teamDictImpl) UpdateStatus(ctx context.Context, req *bo.UpdateDictStatusReq) error {
 	if len(req.DictIds) == 0 {
 		return nil
 	}
-	bizQuery, err := t.bizQuery(teamID)
+	query, teamID, err := getTeamBizQuery(ctx, t)
 	if err != nil {
 		return err
 	}
-	bizDictQuery := bizQuery.Dict
+	bizDictQuery := query.Dict
 	wrappers := []gen.Condition{
 		bizDictQuery.TeamID.Eq(teamID),
 		bizDictQuery.ID.In(req.DictIds...),
@@ -124,13 +115,13 @@ func (t *teamDictImpl) UpdateStatus(ctx context.Context, teamID uint32, req *bo.
 	return err
 }
 
-func (t *teamDictImpl) List(ctx context.Context, teamID uint32, req *bo.ListDictReq) (*bo.ListDictReply, error) {
-	bizQuery, err := t.bizQuery(teamID)
+func (t *teamDictImpl) List(ctx context.Context, req *bo.ListDictReq) (*bo.ListDictReply, error) {
+	query, teamID, err := getTeamBizQuery(ctx, t)
 	if err != nil {
 		return nil, err
 	}
-	bizDictQuery := bizQuery.Dict
-	wrapper := bizDictQuery.WithContext(ctx)
+	bizDictQuery := query.Dict
+	wrapper := bizDictQuery.WithContext(ctx).Where(bizDictQuery.TeamID.Eq(teamID))
 	if len(req.Langs) > 0 {
 		wrapper = wrapper.Where(bizDictQuery.Lang.In(req.Langs...))
 	}

@@ -62,7 +62,7 @@ func NewTransaction(d *data.Data, logger log.Logger) repository.Transaction {
 	}
 }
 
-func GetMainDB(ctx context.Context, d *data.Data) *gorm.DB {
+func GetMainDBTransaction(ctx context.Context, d MainDB) *gorm.DB {
 	tx, ok := GetMainTXByContext(ctx)
 	if ok {
 		return tx
@@ -70,7 +70,7 @@ func GetMainDB(ctx context.Context, d *data.Data) *gorm.DB {
 	return d.GetMainDB().GetDB()
 }
 
-func GetBizDB(ctx context.Context, d *data.Data) (*gorm.DB, error) {
+func GetBizTransactionDB(ctx context.Context, d BizDB) (*gorm.DB, error) {
 	tx, ok := GetBizTXByContext(ctx)
 	if ok {
 		return tx, nil
@@ -86,7 +86,7 @@ func GetBizDB(ctx context.Context, d *data.Data) (*gorm.DB, error) {
 	return bizDB.GetDB(), nil
 }
 
-func GetEventDB(ctx context.Context, d *data.Data) (*gorm.DB, error) {
+func GetEventDBTransaction(ctx context.Context, d EventDB) (*gorm.DB, error) {
 	tx, ok := GetEventTXByContext(ctx)
 	if ok {
 		return tx, nil

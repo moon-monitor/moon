@@ -4,11 +4,9 @@ import (
 	"context"
 
 	"github.com/go-kratos/kratos/v2/log"
-	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do"
-	"github.com/moon-monitor/moon/cmd/palace/internal/helper/permission"
-	"github.com/moon-monitor/moon/pkg/merr"
-
+	
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/bo"
+	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/repository"
 )
 
@@ -28,57 +26,29 @@ type Dict struct {
 	teamDictRepo repository.TeamDict
 }
 
-func (d *Dict) getTeamID(ctx context.Context) (uint32, error) {
-	teamID, ok := permission.GetTeamIDByContext(ctx)
-	if !ok {
-		return 0, merr.ErrorPermissionDenied("team id is invalid")
-	}
-	return teamID, nil
-}
-
 func (d *Dict) SaveDict(ctx context.Context, req *bo.SaveDictReq) error {
-	teamID, err := d.getTeamID(ctx)
-	if err != nil {
-		return err
-	}
 	if req.DictID == 0 {
-		return d.teamDictRepo.Create(ctx, teamID, req)
+		return d.teamDictRepo.Create(ctx, req)
 	}
-	dictItem, err := d.teamDictRepo.Get(ctx, teamID, req.DictID)
+	dictItem, err := d.teamDictRepo.Get(ctx, req.DictID)
 	if err != nil {
 		return err
 	}
-	return d.teamDictRepo.Update(ctx, teamID, req.WithUpdateParams(dictItem))
+	return d.teamDictRepo.Update(ctx, req.WithUpdateParams(dictItem))
 }
 
 func (d *Dict) GetDict(ctx context.Context, req *bo.OperateOneDictReq) (do.Dict, error) {
-	teamID, err := d.getTeamID(ctx)
-	if err != nil {
-		return nil, err
-	}
-	return d.teamDictRepo.Get(ctx, teamID, req.DictID)
+	return d.teamDictRepo.Get(ctx, req.DictID)
 }
 
 func (d *Dict) UpdateDictStatus(ctx context.Context, req *bo.UpdateDictStatusReq) error {
-	teamID, err := d.getTeamID(ctx)
-	if err != nil {
-		return err
-	}
-	return d.teamDictRepo.UpdateStatus(ctx, teamID, req)
+	return d.teamDictRepo.UpdateStatus(ctx, req)
 }
 
 func (d *Dict) DeleteDict(ctx context.Context, req *bo.OperateOneDictReq) error {
-	teamID, err := d.getTeamID(ctx)
-	if err != nil {
-		return err
-	}
-	return d.teamDictRepo.Delete(ctx, teamID, req.DictID)
+	return d.teamDictRepo.Delete(ctx, req.DictID)
 }
 
 func (d *Dict) ListDict(ctx context.Context, req *bo.ListDictReq) (*bo.ListDictReply, error) {
-	teamID, err := d.getTeamID(ctx)
-	if err != nil {
-		return nil, err
-	}
-	return d.teamDictRepo.List(ctx, teamID, req)
+	return d.teamDictRepo.List(ctx, req)
 }

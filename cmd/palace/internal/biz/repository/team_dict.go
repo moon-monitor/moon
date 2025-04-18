@@ -8,10 +8,10 @@ import (
 )
 
 type TeamDict interface {
-	Get(ctx context.Context, teamID uint32, dictID uint32) (do.Dict, error)
-	Delete(ctx context.Context, teamID, dictID uint32) error
-	Create(ctx context.Context, teamID uint32, dict bo.Dict) error
-	Update(ctx context.Context, teamID uint32, dict bo.Dict) error
-	UpdateStatus(ctx context.Context, teamID uint32, req *bo.UpdateDictStatusReq) error
-	List(ctx context.Context, teamID uint32, req *bo.ListDictReq) (*bo.ListDictReply, error)
+	Get(ctx context.Context, dictID uint32) (do.Dict, error)
+	Delete(ctx context.Context, dictID uint32) error
+	Create(ctx context.Context, dict bo.Dict) error
+	Update(ctx context.Context, dict bo.Dict) error
+	UpdateStatus(ctx context.Context, req *bo.UpdateDictStatusReq) error
+	List(ctx context.Context, req *bo.ListDictReq) (*bo.ListDictReply, error)
 }
