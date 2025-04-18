@@ -20,4 +20,5 @@ type User interface {
 	GetMemberByUserIDAndTeamID(ctx context.Context, userID uint32) (do.TeamMember, error)
 	AppendTeam(ctx context.Context, team do.Team) error
 	UpdateUserStatus(ctx context.Context, req *bo.UpdateUserStatusRequest) error
+	UpdateUserPosition(ctx context.Context, req *bo.UpdateUserPositionRequest) error
 }

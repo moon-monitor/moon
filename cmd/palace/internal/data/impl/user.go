@@ -323,3 +323,11 @@ func (u *userRepoImpl) UpdateUserStatus(ctx context.Context, req *bo.UpdateUserS
 		UpdateSimple(userMutation.Status.Value(req.Status.GetValue()))
 	return err
 }
+
+func (u *userRepoImpl) UpdateUserPosition(ctx context.Context, req *bo.UpdateUserPositionRequest) error {
+	userMutation := getMainQuery(ctx, u).User
+	_, err := userMutation.WithContext(ctx).
+		Where(userMutation.ID.Eq(req.UserId)).
+		UpdateSimple(userMutation.Position.Value(req.Position.GetValue()))
+	return err
+}

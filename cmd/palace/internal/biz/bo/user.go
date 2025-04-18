@@ -72,3 +72,8 @@ type ResetUserPasswordRequest struct {
 	UserId       uint32
 	SendEmailFun SendEmailFun
 }
+
+type UpdateUserPositionRequest struct {
+	UserId   uint32
+	Position vobj.Role
+}

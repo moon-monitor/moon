@@ -66,7 +66,7 @@ func (s *UserService) UpdateSelfPassword(ctx context.Context, req *palace.Update
 		return nil, err
 	}
 
-	return &common.EmptyReply{Message: "密码修改成功"}, nil
+	return &common.EmptyReply{Message: "修改密码成功"}, nil
 }
 
 // LeaveTeam allows the current user to leave a team.
@@ -90,7 +90,7 @@ func (s *UserService) CreateTeam(ctx context.Context, req *palace.CreateTeamRequ
 }
 
 // SelfTeamList retrieves the list of teams the current user is a member of.
-func (s *UserService) SelfTeamList(ctx context.Context, req *common.EmptyRequest) (*palace.SelfTeamListReply, error) {
+func (s *UserService) SelfTeamList(ctx context.Context, _ *common.EmptyRequest) (*palace.SelfTeamListReply, error) {
 	// Call business logic to get user's teams
 	teams, err := s.userBiz.GetUserTeams(ctx)
 	if err != nil {

@@ -55,11 +55,25 @@ func (s *SystemService) ResetUserPassword(ctx context.Context, req *palacev1.Res
 }
 
 func (s *SystemService) UpdateUserPosition(ctx context.Context, req *palacev1.UpdateUserPositionRequest) (*common.EmptyReply, error) {
-	return &common.EmptyReply{}, nil
+	params := &bo.UpdateUserPositionRequest{
+		UserId:   req.GetUserId(),
+		Position: vobj.Role(req.GetPosition()),
+	}
+	if err := s.userBiz.UpdateUserPosition(ctx, params); err != nil {
+		return nil, err
+	}
+	return &common.EmptyReply{Message: "更新用户职位成功"}, nil
 }
 
 func (s *SystemService) GetUser(ctx context.Context, req *palacev1.GetUserRequest) (*palacev1.GetUserReply, error) {
-	return &palacev1.GetUserReply{}, nil
+	userDo, err := s.userBiz.GetUser(ctx, req.GetUserId())
+	if err != nil {
+		return nil, err
+	}
+
+	return &palacev1.GetUserReply{
+		User: build.UserToUserItemProto(userDo),
+	}, nil
 }
 
 func (s *SystemService) GetUserList(ctx context.Context, req *palacev1.GetUserListRequest) (*palacev1.GetUserListReply, error) {

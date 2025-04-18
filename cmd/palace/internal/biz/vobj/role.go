@@ -18,7 +18,7 @@ func (i Role) IsAdminOrSuperAdmin() bool {
 	return i == RoleAdmin || i == RoleSuperAdmin
 }
 
-// GTE Determine if it is greater than or equal to.
-func (i Role) GTE(j Role) bool {
+// GT Determine if it is greater than or equal to.
+func (i Role) GT(j Role) bool {
 	return !i.IsUnknown() && i < j
 }

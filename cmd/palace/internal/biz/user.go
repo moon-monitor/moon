@@ -162,3 +162,24 @@ func (b *UserBiz) ResetUserPassword(ctx context.Context, req *bo.ResetUserPasswo
 	}
 	return b.userRepo.UpdatePassword(ctx, updateUserPasswordInfo)
 }
+
+func (b *UserBiz) UpdateUserPosition(ctx context.Context, req *bo.UpdateUserPositionRequest) error {
+	operatorID, ok := permission.GetUserIDByContext(ctx)
+	if !ok {
+		return merr.ErrorUnauthorized("user not found in context")
+	}
+	operator, err := b.userRepo.FindByID(ctx, operatorID)
+	if err != nil {
+		return err
+	}
+
+	if !(operator.GetPosition().IsAdminOrSuperAdmin() && operator.GetPosition().GT(req.Position)) {
+		return merr.ErrorPermissionDenied("user position is invalid")
+	}
+
+	return b.userRepo.UpdateUserPosition(ctx, req)
+}
+
+func (b *UserBiz) GetUser(ctx context.Context, userID uint32) (do.User, error) {
+	return b.userRepo.FindByID(ctx, userID)
+}
