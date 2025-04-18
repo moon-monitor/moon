@@ -35,8 +35,8 @@ func CronSpecEvery(duration time.Duration) CronSpec {
 	return CronSpec("@every " + duration.String())
 }
 
-func CronSpecCustom(s, m, h, d, M, y string) CronSpec {
-	return CronSpec(s + " " + m + " " + h + " " + d + " " + M + " " + y)
+func CronSpecCustom(s, m, h, d, M, w string) CronSpec {
+	return CronSpec(s + " " + m + " " + h + " " + d + " " + M + " " + w)
 }
 
 type CronJob interface {
@@ -58,7 +58,7 @@ type CronJobServer struct {
 func NewCronJobServer(name string, logger log.Logger, jobs ...CronJob) *CronJobServer {
 	c := &CronJobServer{
 		name:   name,
-		cron:   cron.New(),
+		cron:   cron.New(cron.WithSeconds()),
 		tasks:  safety.NewMap[string, CronJob](),
 		helper: log.NewHelper(logger),
 	}
