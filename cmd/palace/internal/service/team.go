@@ -93,3 +93,19 @@ func (s *TeamService) GetEmailConfigs(ctx context.Context, req *palacev1.GetEmai
 	}
 	return build.ToEmailConfigReply(config), nil
 }
+
+func (s *TeamService) SaveSMSConfig(ctx context.Context, req *palacev1.SaveSMSConfigRequest) (*common.EmptyReply, error) {
+	if err := s.teamBiz.SaveSMSConfig(ctx, build.ToSaveSMSConfigRequest(req)); err != nil {
+		return nil, err
+	}
+	return &common.EmptyReply{Message: "保存短信配置成功"}, nil
+}
+
+func (s *TeamService) GetSMSConfigs(ctx context.Context, req *palacev1.GetSMSConfigsRequest) (*palacev1.GetSMSConfigsReply, error) {
+	params := build.ToListSMSConfigRequest(req)
+	config, err := s.teamBiz.GetSMSConfigs(ctx, params)
+	if err != nil {
+		return nil, err
+	}
+	return build.ToSMSConfigReply(config), nil
+}

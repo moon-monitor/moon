@@ -29,6 +29,7 @@ var ProviderSetImpl = wire.NewSet(
 	NewTeamDictRepo,
 	NewTeamHook,
 	NewTeamConfigEmailRepo,
+	NewTeamConfigSMSRepo,
 )
 
 type MainDB interface {

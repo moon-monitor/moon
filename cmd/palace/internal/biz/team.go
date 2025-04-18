@@ -15,6 +15,7 @@ func NewTeam(
 	userRepo repository.User,
 	teamRepo repository.Team,
 	teamEmailConfigRepo repository.TeamEmailConfig,
+	teamSMSConfigRepo repository.TeamSMSConfig,
 	transaction repository.Transaction,
 	logger log.Logger,
 ) *Team {
@@ -23,6 +24,7 @@ func NewTeam(
 		userRepo:            userRepo,
 		teamRepo:            teamRepo,
 		teamEmailConfigRepo: teamEmailConfigRepo,
+		teamSMSConfigRepo:   teamSMSConfigRepo,
 		transaction:         transaction,
 	}
 }
@@ -32,6 +34,7 @@ type Team struct {
 	userRepo            repository.User
 	teamRepo            repository.Team
 	teamEmailConfigRepo repository.TeamEmailConfig
+	teamSMSConfigRepo   repository.TeamSMSConfig
 	transaction         repository.Transaction
 }
 
@@ -89,4 +92,21 @@ func (t *Team) GetEmailConfigs(ctx context.Context, req *bo.ListEmailConfigReque
 	}
 
 	return configListReply, nil
+}
+
+// SaveSMSConfig saves the SMS configuration for a team
+func (t *Team) SaveSMSConfig(ctx context.Context, req *bo.SaveSMSConfigRequest) error {
+	if req.ID <= 0 {
+		return t.teamSMSConfigRepo.Create(ctx, req)
+	}
+	smsConfig, err := t.teamSMSConfigRepo.Get(ctx, req.ID)
+	if err != nil {
+		return err
+	}
+	return t.teamSMSConfigRepo.Update(ctx, req.WithSMSConfig(smsConfig))
+}
+
+// GetSMSConfigs retrieves SMS configurations for a team
+func (t *Team) GetSMSConfigs(ctx context.Context, req *bo.ListSMSConfigRequest) (*bo.ListSMSConfigListReply, error) {
+	return t.teamSMSConfigRepo.List(ctx, req)
 }

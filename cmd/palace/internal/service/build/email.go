@@ -5,6 +5,7 @@ import (
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/vobj"
 	palacev1 "github.com/moon-monitor/moon/pkg/api/palace"
+	"github.com/moon-monitor/moon/pkg/api/palace/common"
 	"github.com/moon-monitor/moon/pkg/util/validate"
 )
 
@@ -42,7 +43,7 @@ func ToEmailConfigReply(configs *bo.ListEmailConfigListReply) *palacev1.GetEmail
 			Pass:   config.GetPass(),
 			Host:   config.GetHost(),
 			Port:   config.GetPort(),
-			Enable: config.GetStatus().IsEnable(),
+			Status: common.GlobalStatus(config.GetStatus()),
 			Name:   config.GetName(),
 			Remark: config.GetRemark(),
 			Id:     config.GetID(),

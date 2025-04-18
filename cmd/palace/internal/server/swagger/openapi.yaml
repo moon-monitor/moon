@@ -910,7 +910,7 @@ paths:
         post:
             tags:
                 - Team
-            description: GetEmailConfig retrieves the email configuration for the team
+            description: GetEmailConfigs retrieves the email configuration for the team
             operationId: Team_GetEmailConfigs
             requestBody:
                 content:
@@ -1310,6 +1310,44 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/api.palace.common.EmptyReply'
+    /api/team/sms/config:
+        put:
+            tags:
+                - Team
+            description: SaveSMSConfig saves or updates the SMS configuration for the team
+            operationId: Team_SaveSMSConfig
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/api.palace.SaveSMSConfigRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.palace.common.EmptyReply'
+    /api/team/sms/configs:
+        post:
+            tags:
+                - Team
+            description: GetSMSConfigs retrieves the SMS configuration for the team
+            operationId: Team_GetSMSConfigs
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/api.palace.GetSMSConfigsRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.palace.GetSMSConfigsReply'
     /api/team/strategy:
         get:
             tags:
@@ -1881,9 +1919,10 @@ components:
                     type: integer
                     description: Email server port
                     format: uint32
-                enable:
-                    type: boolean
+                status:
+                    type: integer
                     description: Enable email configuration
+                    format: enum
                 name:
                     type: string
                     description: Name of the email configuration
@@ -1962,6 +2001,36 @@ components:
                         - $ref: '#/components/schemas/api.palace.common.ResourceItem'
                     description: Detailed information about the resource
             description: GetResourceReply contains the response data for retrieving a resource
+        api.palace.GetSMSConfigsReply:
+            type: object
+            properties:
+                items:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/api.palace.SMSConfigItem'
+                    description: List of SMS configuration items
+                pagination:
+                    $ref: '#/components/schemas/api.palace.common.PaginationReply'
+            description: GetSMSConfigsReply contains the response data for retrieving the SMS configuration
+        api.palace.GetSMSConfigsRequest:
+            type: object
+            properties:
+                pagination:
+                    allOf:
+                        - $ref: '#/components/schemas/api.palace.common.PaginationRequest'
+                    description: Pagination request details
+                keyword:
+                    type: string
+                    description: Keyword to search SMS configurations by
+                status:
+                    type: integer
+                    description: Status to filter SMS configurations by
+                    format: enum
+                provider:
+                    type: integer
+                    description: Provider to filter SMS configurations by
+                    format: enum
+            description: GetSMSConfigsRequest represents the request data for retrieving the SMS configuration
         api.palace.GetSelfMenuTreeReply:
             type: object
             properties:
@@ -2603,6 +2672,40 @@ components:
                         format: uint32
                     description: List of user IDs to reset passwords for
             description: ResetUserPasswordRequest represents the request data for resetting user passwords
+        api.palace.SMSConfigItem:
+            type: object
+            properties:
+                providerType:
+                    type: integer
+                    description: SMS provider type
+                    format: enum
+                accessKeyID:
+                    type: string
+                    description: Access Key ID for the SMS provider
+                accessKeySecret:
+                    type: string
+                    description: Access Key Secret for the SMS provider
+                signName:
+                    type: string
+                    description: Sign name for the SMS provider
+                endpoint:
+                    type: string
+                    description: Endpoint for the SMS provider
+                name:
+                    type: string
+                    description: Name of the SMS configuration
+                remark:
+                    type: string
+                    description: Remark of the SMS configuration
+                id:
+                    type: integer
+                    description: id of the SMS configuration
+                    format: uint32
+                status:
+                    type: integer
+                    description: Enable SMS configuration
+                    format: enum
+            description: SMSConfigItem represents the structure of an SMS configuration
         api.palace.SaveEmailConfigRequest:
             type: object
             properties:
@@ -2654,6 +2757,40 @@ components:
                         format: uint32
                     description: List of resource IDs associated with the role
             description: SaveRoleRequest represents the request data for saving or updating a role
+        api.palace.SaveSMSConfigRequest:
+            type: object
+            properties:
+                provider:
+                    type: integer
+                    description: SMS provider type
+                    format: enum
+                accessKeyID:
+                    type: string
+                    description: Access Key ID for the SMS provider
+                accessKeySecret:
+                    type: string
+                    description: Access Key Secret for the SMS provider
+                signName:
+                    type: string
+                    description: Sign name for the SMS provider
+                endpoint:
+                    type: string
+                    description: Endpoint for the SMS provider
+                name:
+                    type: string
+                    description: Name of the SMS configuration
+                remark:
+                    type: string
+                    description: Remark of the SMS configuration
+                status:
+                    type: integer
+                    description: Enable SMS configuration
+                    format: enum
+                id:
+                    type: integer
+                    description: id of the SMS configuration
+                    format: uint32
+            description: SaveSMSConfigRequest represents the request data for saving or updating the SMS configuration
         api.palace.SaveTeamDashboardChartRequest:
             type: object
             properties:

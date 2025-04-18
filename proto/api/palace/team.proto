@@ -123,10 +123,26 @@ service Team {
     };
   }
 
-  // GetEmailConfig retrieves the email configuration for the team
+  // GetEmailConfigs retrieves the email configuration for the team
   rpc GetEmailConfigs (GetEmailConfigsRequest) returns (GetEmailConfigsReply) {
     option (google.api.http) = {
       post: "/api/team/email/configs"
+      body: "*"
+    };
+  }
+
+  // SaveSMSConfig saves or updates the SMS configuration for the team
+  rpc SaveSMSConfig (SaveSMSConfigRequest) returns (api.palace.common.EmptyReply) {
+    option (google.api.http) = {
+      put: "/api/team/sms/config"
+      body: "*"
+    };
+  }
+
+  // GetSMSConfigs retrieves the SMS configuration for the team
+  rpc GetSMSConfigs (GetSMSConfigsRequest) returns (GetSMSConfigsReply) {
+    option (google.api.http) = {
+      post: "/api/team/sms/configs"
       body: "*"
     };
   }
@@ -301,7 +317,7 @@ message EmailConfigItem {
   // Email server port
   uint32 port = 4;
   // Enable email configuration
-  bool enable = 5;
+  api.palace.common.GlobalStatus status = 5;
   // Name of the email configuration
   string name = 6;
   // Remark of the email configuration
@@ -324,5 +340,74 @@ message GetEmailConfigsRequest {
 message GetEmailConfigsReply {
   // List of email configuration items
   repeated EmailConfigItem items = 1;
+  api.palace.common.PaginationReply pagination = 2;
+}
+
+// SaveSMSConfigRequest represents the request data for saving or updating the SMS configuration
+message SaveSMSConfigRequest {
+  // SMS provider type
+  api.palace.common.SMSProviderType provider = 1 [(buf.validate.field).required = true];
+  // Access Key ID for the SMS provider
+  string accessKeyID = 2 [(buf.validate.field).required = true];
+  // Access Key Secret for the SMS provider
+  string accessKeySecret = 3 [(buf.validate.field).required = true];
+  // Sign name for the SMS provider
+  string signName = 4 [(buf.validate.field).required = true];
+  // Endpoint for the SMS provider
+  string endpoint = 5 [(buf.validate.field).required = true];
+  // Name of the SMS configuration
+  string name = 6 [(buf.validate.field).cel = {
+    message: "name max length is 32"
+    expression: "this.size() <= 32"
+  }, (buf.validate.field).required = true];
+  // Remark of the SMS configuration
+  string remark = 7 [(buf.validate.field).cel = {
+    message: "remark max length is 200"
+    expression: "this.size() <= 200"
+  }];
+  // Enable SMS configuration
+  api.palace.common.GlobalStatus status = 8;
+  // id of the SMS configuration
+  uint32 id = 9;
+}
+
+// SMSConfigItem represents the structure of an SMS configuration
+message SMSConfigItem {
+  // SMS provider type
+  api.palace.common.SMSProviderType providerType = 1;
+  // Access Key ID for the SMS provider
+  string accessKeyID = 2;
+  // Access Key Secret for the SMS provider
+  string accessKeySecret = 3;
+  // Sign name for the SMS provider
+  string signName = 4;
+  // Endpoint for the SMS provider
+  string endpoint = 5;
+  // Name of the SMS configuration
+  string name = 6;
+  // Remark of the SMS configuration
+  string remark = 7;
+  // id of the SMS configuration
+  uint32 id = 8;
+  // Enable SMS configuration
+  api.palace.common.GlobalStatus status = 9;
+}
+
+// GetSMSConfigsRequest represents the request data for retrieving the SMS configuration
+message GetSMSConfigsRequest {
+  // Pagination request details
+  api.palace.common.PaginationRequest pagination = 1;
+  // Keyword to search SMS configurations by
+  string keyword = 2 [(buf.validate.field).string.max_len = 20];
+  // Status to filter SMS configurations by
+  api.palace.common.GlobalStatus status = 3;
+  // Provider to filter SMS configurations by
+  api.palace.common.SMSProviderType provider = 4;
+}
+
+// GetSMSConfigsReply contains the response data for retrieving the SMS configuration
+message GetSMSConfigsReply {
+  // List of SMS configuration items
+  repeated SMSConfigItem items = 1;
   api.palace.common.PaginationReply pagination = 2;
 }
