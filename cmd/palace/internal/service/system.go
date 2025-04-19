@@ -152,11 +152,25 @@ func (s *SystemService) UpdateRoleStatus(ctx context.Context, req *palacev1.Upda
 }
 
 func (s *SystemService) UpdateUserRoles(ctx context.Context, req *palacev1.UpdateUserRolesRequest) (*common.EmptyReply, error) {
-	return &common.EmptyReply{}, nil
+	params := &bo.UpdateUserRolesReq{
+		RoleIDs: req.GetRoleIds(),
+		UserID:  req.GetUserId(),
+	}
+	if err := s.systemBiz.UpdateUserRoles(ctx, params); err != nil {
+		return nil, err
+	}
+	return &common.EmptyReply{Message: "更新用户角色成功"}, nil
 }
 
 func (s *SystemService) UpdateRoleUsers(ctx context.Context, req *palacev1.UpdateRoleUsersRequest) (*common.EmptyReply, error) {
-	return &common.EmptyReply{}, nil
+	params := &bo.UpdateRoleUsersReq{
+		RoleID:  req.GetRoleId(),
+		UserIDs: req.GetUserIds(),
+	}
+	if err := s.systemBiz.UpdateRoleUsers(ctx, params); err != nil {
+		return nil, err
+	}
+	return &common.EmptyReply{Message: "更新角色用户成功"}, nil
 }
 
 func (s *SystemService) GetTeamAuditList(ctx context.Context, req *palacev1.GetTeamAuditListRequest) (*palacev1.GetTeamAuditListReply, error) {

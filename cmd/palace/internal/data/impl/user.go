@@ -37,6 +37,47 @@ type userRepoImpl struct {
 	helper *log.Helper
 }
 
+func (u *userRepoImpl) UpdateUserRoles(ctx context.Context, req bo.UpdateUserRoles) error {
+	userMutation := getMainQuery(ctx, u).User
+	userDo := &system.User{
+		BaseModel: do.BaseModel{
+			ID: req.GetUserID(),
+		},
+	}
+	roles := slices.MapFilter(req.GetRoles(), func(role do.Role) (*system.Role, bool) {
+		if validate.IsNil(role) || role.GetID() <= 0 {
+			return nil, false
+		}
+		return &system.Role{
+			CreatorModel: do.CreatorModel{
+				BaseModel: do.BaseModel{
+					ID: role.GetID(),
+				},
+			},
+		}, true
+	})
+	userMutation.WithContext(ctx)
+	rolesAssociation := userMutation.Roles.WithContext(ctx).Model(userDo)
+	if len(roles) == 0 {
+		return rolesAssociation.Clear()
+	}
+	return rolesAssociation.Replace(roles...)
+}
+
+func (u *userRepoImpl) Find(ctx context.Context, ids []uint32) ([]do.User, error) {
+	if len(ids) == 0 {
+		return nil, nil
+	}
+	mutation := getMainQuery(ctx, u)
+	user := mutation.User
+	userDo, err := user.WithContext(ctx).Where(user.ID.In(ids...)).Find()
+	if err != nil {
+		return nil, err
+	}
+	users := slices.Map(userDo, func(user *system.User) do.User { return user })
+	return users, nil
+}
+
 func (u *userRepoImpl) AppendTeam(ctx context.Context, team do.Team) error {
 	mutation := getMainQuery(ctx, u)
 	userMutation := mutation.User

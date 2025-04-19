@@ -6,7 +6,7 @@ import (
 	"github.com/go-kratos/kratos/v2/log"
 	"gorm.io/gen"
 	"gorm.io/gen/field"
-	
+
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/bo"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do/system"
@@ -26,6 +26,18 @@ func NewRoleRepo(d *data.Data, logger log.Logger) repository.Role {
 type roleImpl struct {
 	*data.Data
 	helper *log.Helper
+}
+
+func (r *roleImpl) Find(ctx context.Context, ids []uint32) ([]do.Role, error) {
+	if len(ids) == 0 {
+		return nil, nil
+	}
+	roleQuery := getMainQuery(ctx, r).Role
+	roles, err := roleQuery.WithContext(ctx).Where(roleQuery.ID.In(ids...)).Find()
+	if err != nil {
+		return nil, err
+	}
+	return slices.Map(roles, func(role *system.Role) do.Role { return role }), nil
 }
 
 func (r *roleImpl) Get(ctx context.Context, id uint32) (do.Role, error) {
@@ -136,4 +148,32 @@ func (r *roleImpl) UpdateStatus(ctx context.Context, req *bo.UpdateRoleStatusReq
 	}
 	_, err := roleMutation.WithContext(ctx).Where(wrapper...).UpdateColumnSimple(roleMutation.Status.Value(req.Status.GetValue()))
 	return err
+}
+
+func (r *roleImpl) UpdateUsers(ctx context.Context, req bo.UpdateRoleUsers) error {
+	roleMutation := getMainQuery(ctx, r).Role
+	roleDo := &system.Role{
+		CreatorModel: do.CreatorModel{
+			BaseModel: do.BaseModel{
+				ID: req.GetRoleID(),
+			},
+		},
+	}
+	roleMutation.WithContext(ctx)
+	users := slices.MapFilter(req.GetUsers(), func(user do.User) (*system.User, bool) {
+		if validate.IsNil(user) || user.GetID() <= 0 {
+			return nil, false
+		}
+		return &system.User{
+			BaseModel: do.BaseModel{
+				ID: user.GetID(),
+			},
+		}, true
+	})
+
+	usersAssociation := roleMutation.Users.WithContext(ctx).Model(roleDo)
+	if len(users) == 0 {
+		return usersAssociation.Clear()
+	}
+	return usersAssociation.Replace(users...)
 }

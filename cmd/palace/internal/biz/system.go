@@ -12,11 +12,13 @@ import (
 
 func NewSystem(
 	roleRepo repository.Role,
+	userRepo repository.User,
 	transactionRepo repository.Transaction,
 	logger log.Logger,
 ) *System {
 	return &System{
 		roleRepo:        roleRepo,
+		userRepo:        userRepo,
 		transactionRepo: transactionRepo,
 		helper:          log.NewHelper(log.With(logger, "module", "biz.system")),
 	}
@@ -24,6 +26,7 @@ func NewSystem(
 
 type System struct {
 	roleRepo        repository.Role
+	userRepo        repository.User
 	transactionRepo repository.Transaction
 	helper          *log.Helper
 }
@@ -52,4 +55,22 @@ func (s *System) SaveRole(ctx context.Context, req *bo.SaveRoleReq) error {
 
 func (s *System) UpdateRoleStatus(ctx context.Context, req *bo.UpdateRoleStatusReq) error {
 	return s.roleRepo.UpdateStatus(ctx, req)
+}
+
+func (s *System) UpdateRoleUsers(ctx context.Context, req *bo.UpdateRoleUsersReq) error {
+	userDos, err := s.userRepo.Find(ctx, req.GetUserIds())
+	if err != nil {
+		return err
+	}
+	req.WithUsers(userDos)
+	return s.roleRepo.UpdateUsers(ctx, req)
+}
+
+func (s *System) UpdateUserRoles(ctx context.Context, req *bo.UpdateUserRolesReq) error {
+	roleDos, err := s.roleRepo.Find(ctx, req.GetRoleIds())
+	if err != nil {
+		return err
+	}
+	req.WithRoles(roleDos)
+	return s.userRepo.UpdateUserRoles(ctx, req)
 }

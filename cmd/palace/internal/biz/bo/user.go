@@ -95,3 +95,41 @@ func (r *UserListRequest) ToListUserReply(users []*system.User) *UserListReply {
 }
 
 type UserListReply = ListReply[do.User]
+
+type UpdateUserRoles interface {
+	GetUserID() uint32
+	GetRoleIds() []uint32
+	GetRoles() []do.Role
+}
+
+type UpdateUserRolesReq struct {
+	UserID  uint32
+	RoleIDs []uint32
+	roles   []do.Role
+}
+
+func (r *UpdateUserRolesReq) GetUserID() uint32 {
+	if r == nil {
+		return 0
+	}
+	return r.UserID
+}
+
+func (r *UpdateUserRolesReq) GetRoleIds() []uint32 {
+	if r == nil {
+		return nil
+	}
+	return r.RoleIDs
+}
+
+func (r *UpdateUserRolesReq) GetRoles() []do.Role {
+	if r == nil {
+		return nil
+	}
+	return nil
+}
+
+func (r *UpdateUserRolesReq) WithRoles(roles []do.Role) UpdateUserRoles {
+	r.roles = roles
+	return r
+}

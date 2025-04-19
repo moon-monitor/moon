@@ -23,4 +23,6 @@ type Role interface {
 	Update(ctx context.Context, role bo.Role) error
 	Delete(ctx context.Context, id uint32) error
 	UpdateStatus(ctx context.Context, req *bo.UpdateRoleStatusReq) error
+	UpdateUsers(ctx context.Context, req bo.UpdateRoleUsers) error
+	Find(ctx context.Context, ids []uint32) ([]do.Role, error)
 }

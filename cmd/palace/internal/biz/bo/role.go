@@ -180,3 +180,41 @@ type UpdateRoleStatusReq struct {
 	RoleID uint32            `json:"roleId"`
 	Status vobj.GlobalStatus `json:"status"`
 }
+
+type UpdateRoleUsers interface {
+	GetRoleID() uint32
+	GetUserIds() []uint32
+	GetUsers() []do.User
+}
+
+type UpdateRoleUsersReq struct {
+	RoleID  uint32   `json:"roleId"`
+	UserIDs []uint32 `json:"userIds"`
+	users   []do.User
+}
+
+func (r *UpdateRoleUsersReq) GetRoleID() uint32 {
+	if r == nil {
+		return 0
+	}
+	return r.RoleID
+}
+
+func (r *UpdateRoleUsersReq) GetUserIds() []uint32 {
+	if r == nil {
+		return nil
+	}
+	return r.UserIDs
+}
+
+func (r *UpdateRoleUsersReq) GetUsers() []do.User {
+	if r == nil {
+		return nil
+	}
+	return r.users
+}
+
+func (r *UpdateRoleUsersReq) WithUsers(users []do.User) UpdateRoleUsers {
+	r.users = users
+	return r
+}
