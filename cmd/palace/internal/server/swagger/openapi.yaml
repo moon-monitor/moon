@@ -1221,6 +1221,25 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/api.palace.common.EmptyReply'
+    /api/team/operate/log/list:
+        post:
+            tags:
+                - Team
+            description: OperateLogList lists operation logs based on specified filters
+            operationId: Team_OperateLogList
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/api.palace.TeamOperateLogListRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.palace.TeamOperateLogListReply'
     /api/team/remove/member:
         post:
             tags:
@@ -3192,6 +3211,40 @@ components:
                     type: boolean
                     description: Subscription status (true to subscribe, false to unsubscribe)
             description: SubscribeTeamStrategyRequest represents the request data for subscribing or unsubscribing from a team strategy
+        api.palace.TeamOperateLogListReply:
+            type: object
+            properties:
+                items:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/api.palace.common.OperateLogItem'
+                    description: List of operation log items
+                pagination:
+                    allOf:
+                        - $ref: '#/components/schemas/api.palace.common.PaginationReply'
+                    description: Pagination response details
+            description: OperateLogListReply contains the response data for listing operation logs
+        api.palace.TeamOperateLogListRequest:
+            type: object
+            properties:
+                pagination:
+                    allOf:
+                        - $ref: '#/components/schemas/api.palace.common.PaginationRequest'
+                    description: Pagination request details
+                operateTypes:
+                    type: array
+                    items:
+                        type: integer
+                        format: enum
+                    description: List of types to filter operation logs by
+                keyword:
+                    type: string
+                    description: Keyword to search operation logs by
+                userId:
+                    type: integer
+                    description: User ID, optional for filtering logs by user
+                    format: uint32
+            description: OperateLogListRequest represents the request data for listing operation logs
         api.palace.TransferTeamRequest:
             type: object
             properties:

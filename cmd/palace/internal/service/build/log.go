@@ -6,13 +6,19 @@ import (
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/bo"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/vobj"
-	palacev1 "github.com/moon-monitor/moon/pkg/api/palace"
 	"github.com/moon-monitor/moon/pkg/api/palace/common"
 	"github.com/moon-monitor/moon/pkg/util/slices"
 	"github.com/moon-monitor/moon/pkg/util/validate"
 )
 
-func ToOperateLogListRequest(req *palacev1.OperateLogListRequest) *bo.OperateLogListRequest {
+type OperateLogListRequest interface {
+	GetPagination() *common.PaginationRequest
+	GetOperateTypes() []common.OperateType
+	GetKeyword() string
+	GetUserId() uint32
+}
+
+func ToOperateLogListRequest(req OperateLogListRequest) *bo.OperateLogListRequest {
 	if validate.IsNil(req) {
 		return nil
 	}

@@ -5,9 +5,10 @@ import (
 
 	"github.com/go-kratos/kratos/v2/log"
 	"gorm.io/gen"
-	
+
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/bo"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do/system"
+	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do/team"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/repository"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/vobj"
 	"github.com/moon-monitor/moon/cmd/palace/internal/data"
@@ -79,4 +80,66 @@ func (o *operateLogImpl) List(ctx context.Context, req *bo.OperateLogListRequest
 		return nil, err
 	}
 	return req.ToOperateLogListReply(operateLogs), nil
+}
+
+func (o *operateLogImpl) TeamOperateLog(ctx context.Context, log *bo.AddOperateLog) error {
+	operateLog := &team.OperateLog{
+		OperateType:     log.OperateType,
+		OperateModule:   log.OperateModule,
+		OperateDataID:   log.OperateDataID,
+		OperateDataName: log.OperateDataName,
+		Title:           log.Title,
+		Before:          log.Before,
+		After:           log.After,
+		IP:              log.IP,
+	}
+	operateLog.WithContext(ctx)
+	bizMutation, _, err := getTeamBizQuery(ctx, o)
+	if err != nil {
+		return err
+	}
+	operateLogMutation := bizMutation.OperateLog
+	return operateLogMutation.WithContext(ctx).Create(operateLog)
+}
+
+func (o *operateLogImpl) TeamList(ctx context.Context, req *bo.OperateLogListRequest) (*bo.OperateLogListReply, error) {
+	if validate.IsNil(req) {
+		return nil, nil
+	}
+	bizQuery, teamId, err := getTeamBizQuery(ctx, o)
+	if err != nil {
+		return nil, err
+	}
+	operateLogQuery := bizQuery.OperateLog
+	wrapper := operateLogQuery.WithContext(ctx).Where(operateLogQuery.TeamID.Eq(teamId))
+
+	if len(req.OperateTypes) > 0 {
+		wrapper = wrapper.Where(operateLogQuery.OperateType.In(slices.Map(req.OperateTypes, func(operateType vobj.OperateType) int8 { return operateType.GetValue() })...))
+	}
+	if !validate.TextIsNull(req.Keyword) {
+		ors := []gen.Condition{
+			operateLogQuery.Before.Like(req.Keyword),
+			operateLogQuery.After.Like(req.Keyword),
+			operateLogQuery.Title.Like(req.Keyword),
+			operateLogQuery.OperateDataName.Like(req.Keyword),
+			operateLogQuery.IP.Like(req.Keyword),
+		}
+		wrapper = wrapper.Where(operateLogQuery.Or(ors...))
+	}
+	if req.UserID > 0 {
+		wrapper = wrapper.Where(operateLogQuery.CreatorID.Eq(req.UserID))
+	}
+	if validate.IsNotNil(req.PaginationRequest) {
+		total, err := wrapper.Count()
+		if err != nil {
+			return nil, err
+		}
+		wrapper = wrapper.Offset(req.Offset()).Limit(int(req.Limit))
+		req.WithTotal(total)
+	}
+	operateLogs, err := wrapper.Find()
+	if err != nil {
+		return nil, err
+	}
+	return req.ToTeamOperateLogListReply(operateLogs), nil
 }

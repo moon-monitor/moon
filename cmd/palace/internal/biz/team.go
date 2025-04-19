@@ -18,6 +18,7 @@ func NewTeam(
 	teamSMSConfigRepo repository.TeamSMSConfig,
 	teamRoleRepo repository.TeamRole,
 	menuRepo repository.Menu,
+	operateLogRepo repository.OperateLog,
 	transaction repository.Transaction,
 	logger log.Logger,
 ) *Team {
@@ -29,6 +30,7 @@ func NewTeam(
 		teamSMSConfigRepo:   teamSMSConfigRepo,
 		teamRoleRepo:        teamRoleRepo,
 		menuRepo:            menuRepo,
+		operateLogRepo:      operateLogRepo,
 		transaction:         transaction,
 	}
 }
@@ -41,6 +43,7 @@ type Team struct {
 	teamSMSConfigRepo   repository.TeamSMSConfig
 	teamRoleRepo        repository.TeamRole
 	menuRepo            repository.Menu
+	operateLogRepo      repository.OperateLog
 	transaction         repository.Transaction
 }
 
@@ -156,4 +159,8 @@ func (t *Team) UpdateTeamRoleStatus(ctx context.Context, req *bo.UpdateRoleStatu
 
 func (t *Team) ListTeam(ctx context.Context, req *bo.TeamListRequest) (*bo.TeamListReply, error) {
 	return t.teamRepo.List(ctx, req)
+}
+
+func (t *Team) OperateLogList(ctx context.Context, req *bo.OperateLogListRequest) (*bo.OperateLogListReply, error) {
+	return t.operateLogRepo.TeamList(ctx, req)
 }

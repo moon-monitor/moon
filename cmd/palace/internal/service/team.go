@@ -136,3 +136,15 @@ func (s *TeamService) GetSMSConfigs(ctx context.Context, req *palacev1.GetSMSCon
 	}
 	return build.ToSMSConfigReply(config), nil
 }
+
+func (s *TeamService) OperateLogList(ctx context.Context, req *palacev1.TeamOperateLogListRequest) (*palacev1.TeamOperateLogListReply, error) {
+	params := build.ToOperateLogListRequest(req)
+	operateLogReply, err := s.teamBiz.OperateLogList(ctx, params)
+	if err != nil {
+		return nil, err
+	}
+	return &palacev1.TeamOperateLogListReply{
+		Items:      build.ToOperateLogItems(operateLogReply.Items),
+		Pagination: build.ToPaginationReplyProto(operateLogReply.PaginationReply),
+	}, nil
+}

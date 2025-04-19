@@ -8,6 +8,7 @@ func Models() []any {
 		&DashboardChart{},
 		&DatasourceMetric{},
 		&Dict{},
+		&OperateLog{},
 		&Member{},
 		&Menu{},
 		&NoticeGroup{},

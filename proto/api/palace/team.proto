@@ -154,6 +154,14 @@ service Team {
       body: "*"
     };
   }
+
+  // OperateLogList lists operation logs based on specified filters
+  rpc OperateLogList (TeamOperateLogListRequest) returns (TeamOperateLogListReply) {
+    option (google.api.http) = {
+      post: "/api/team/operate/log/list"
+      body: "*"
+    };
+  }
 }
 
 // SaveTeamRequest represents the request data for saving or updating a team
@@ -437,5 +445,25 @@ message GetSMSConfigsRequest {
 message GetSMSConfigsReply {
   // List of SMS configuration items
   repeated SMSConfigItem items = 1;
+  api.palace.common.PaginationReply pagination = 2;
+}
+
+// OperateLogListRequest represents the request data for listing operation logs
+message TeamOperateLogListRequest {
+  // Pagination request details
+  api.palace.common.PaginationRequest pagination = 1;
+  // List of types to filter operation logs by
+  repeated api.palace.common.OperateType operateTypes = 2;
+  // Keyword to search operation logs by
+  string keyword = 3;
+  // User ID, optional for filtering logs by user
+  uint32 userId = 4;
+}
+
+// OperateLogListReply contains the response data for listing operation logs
+message TeamOperateLogListReply {
+  // List of operation log items
+  repeated api.palace.common.OperateLogItem items = 1;
+  // Pagination response details
   api.palace.common.PaginationReply pagination = 2;
 }
