@@ -44,22 +44,28 @@
             text-align: center;
         }
 
-        .info-list {
-            list-style-type: none;
-            padding: 0;
-            margin: 0;
-            text-align: center;
+        .credentials-container {
+            width: 80%;
+            margin: 0 auto;
+            text-align: left;
         }
 
-        .info-list li {
-            font-size: 18px;
+        .credential-item {
             margin: 10px 0;
+            display: flex;
+            align-items: center;
+        }
+
+        .credential-label {
+            min-width: 80px;
             color: #333;
+            font-size: 16px;
         }
 
         .highlight {
             color: #d9534f;
             font-weight: bold;
+            margin-left: 10px;
         }
 
         .button {
@@ -94,19 +100,31 @@
     </div>
     <div class="message">
         <p>You have been invited to join a team in the Moon Monitoring System.</p>
+        <div class="credentials-container">
+            <div class="credential-item">
+                <span class="credential-label">Inviter:</span>
+                <span class="highlight">{{.InviterName}}</span>
+            </div>
+            <div class="credential-item">
+                <span class="credential-label">Team:</span>
+                <span class="highlight">{{.TeamName}}</span>
+            </div>
+            <div class="credential-item">
+                <span class="credential-label">Position:</span>
+                <span class="highlight">{{.Position}}</span>
+            </div>
+            <div class="credential-item">
+                <span class="credential-label">Roles:</span>
+                <span class="highlight">{{.Roles}}</span>
+            </div>
+        </div>
     </div>
-    <ul class="info-list">
-        <li>Inviter: <span class="highlight">{{.InviterName}}</span></li>
-        <li>Team: <span class="highlight">{{.TeamName}}</span></li>
-        <li>Position: <span class="highlight">{{.Position}}</span></li>
-        <li>Roles: <span class="highlight">{{.Roles}}</span></li>
-    </ul>
     <div style="text-align: center;">
         <a href="{{.RedirectURI}}" class="button">Accept Invitation</a>
     </div>
     <div class="footer">
-        <p>If you did not expect this invitation, please contact our <a href="https://github.com/aide-family/moon">support team</a> immediately.</p>
-        <p>For security reasons, please do not share this invitation with others.</p>
+        <p>If you did not expect this invitation, please disregard this email.</p>
+        <p>If you have any questions, please contact our <a href="https://github.com/aide-family/moon">support team</a></p>
     </div>
 </div>
 </body>
