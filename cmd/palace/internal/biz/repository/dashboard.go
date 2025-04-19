@@ -31,14 +31,16 @@ type DashboardChart interface {
 	UpdateDashboardChart(ctx context.Context, chart bo.DashboardChart) error
 
 	// DeleteDashboardChart delete dashboard chart by id
-	DeleteDashboardChart(ctx context.Context, id uint32) error
+	DeleteDashboardChart(ctx context.Context, req *bo.OperateOneDashboardChartReq) error
 
 	// GetDashboardChart get dashboard chart by id
-	GetDashboardChart(ctx context.Context, id uint32) (do.DashboardChart, error)
+	GetDashboardChart(ctx context.Context, req *bo.OperateOneDashboardChartReq) (do.DashboardChart, error)
 
 	// ListDashboardCharts list dashboard charts with filter
 	ListDashboardCharts(ctx context.Context, req *bo.ListDashboardChartReq) (*bo.ListDashboardChartReply, error)
 
 	// BatchUpdateDashboardChartStatus update multiple dashboard charts status
 	BatchUpdateDashboardChartStatus(ctx context.Context, req *bo.BatchUpdateDashboardChartStatusReq) error
+
+	DeleteDashboardChartByDashboardID(ctx context.Context, dashboardID uint32) error
 }

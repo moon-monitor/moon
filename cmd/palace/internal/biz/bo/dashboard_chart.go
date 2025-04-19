@@ -20,35 +20,28 @@ type DashboardChart interface {
 
 // SaveDashboardChartReq represents a request to save a dashboard chart
 type SaveDashboardChartReq struct {
-	dashboardChart DashboardChart
-	ID             uint32
-	DashboardID    uint32
-	Title          string
-	Remark         string
-	Status         vobj.GlobalStatus
-	Url            string
-	Width          string
-	Height         string
+	ID          uint32
+	DashboardID uint32
+	Title       string
+	Remark      string
+	Status      vobj.GlobalStatus
+	Url         string
+	Width       string
+	Height      string
 }
 
 func (d *SaveDashboardChartReq) GetID() uint32 {
 	if d == nil {
 		return 0
 	}
-	if d.dashboardChart == nil {
-		return d.ID
-	}
-	return d.dashboardChart.GetID()
+	return d.ID
 }
 
 func (d *SaveDashboardChartReq) GetDashboardID() uint32 {
 	if d == nil {
 		return 0
 	}
-	if d.dashboardChart == nil {
-		return d.DashboardID
-	}
-	return d.dashboardChart.GetDashboardID()
+	return d.DashboardID
 }
 
 func (d *SaveDashboardChartReq) GetTitle() string {
@@ -93,16 +86,12 @@ func (d *SaveDashboardChartReq) GetHeight() string {
 	return d.Height
 }
 
-func (d *SaveDashboardChartReq) WithDashboardChart(dashboardChart DashboardChart) DashboardChart {
-	d.dashboardChart = dashboardChart
-	return d
-}
-
 // ListDashboardChartReq represents a request to list dashboard charts
 type ListDashboardChartReq struct {
 	*PaginationRequest
 	Status      vobj.GlobalStatus
 	DashboardID uint32
+	Keyword     string
 }
 
 func (r *ListDashboardChartReq) ToListDashboardChartReply(charts []*team.DashboardChart) *ListDashboardChartReply {
@@ -123,6 +112,12 @@ type BatchUpdateDashboardStatusReq struct {
 
 // BatchUpdateDashboardChartStatusReq represents a request to batch update dashboard chart status
 type BatchUpdateDashboardChartStatusReq struct {
-	Ids    []uint32
-	Status vobj.GlobalStatus
+	Ids         []uint32
+	DashboardID uint32
+	Status      vobj.GlobalStatus
+}
+
+type OperateOneDashboardChartReq struct {
+	ID          uint32 `json:"id"`
+	DashboardID uint32 `json:"dashboardID"`
 }

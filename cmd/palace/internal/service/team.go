@@ -95,7 +95,7 @@ func (s *TeamService) GetTeamMembers(ctx context.Context, req *palacev1.GetTeamM
 	}
 	return &palacev1.GetTeamMembersReply{
 		Items:      build.ToTeamMemberItems(membersReply.Items),
-		Pagination: build.ToPaginationReplyProto(membersReply.PaginationReply),
+		Pagination: build.ToPaginationReply(membersReply.PaginationReply),
 	}, nil
 }
 
@@ -140,7 +140,7 @@ func (s *TeamService) GetTeamRoles(ctx context.Context, req *palacev1.GetTeamRol
 	}
 	return &palacev1.GetTeamRolesReply{
 		Items:      build.ToTeamRoleItems(roleReply.Items),
-		Pagination: build.ToPaginationReplyProto(roleReply.PaginationReply),
+		Pagination: build.ToPaginationReply(roleReply.PaginationReply),
 	}, nil
 }
 
@@ -210,6 +210,6 @@ func (s *TeamService) OperateLogList(ctx context.Context, req *palacev1.TeamOper
 	}
 	return &palacev1.TeamOperateLogListReply{
 		Items:      build.ToOperateLogItems(operateLogReply.Items),
-		Pagination: build.ToPaginationReplyProto(operateLogReply.PaginationReply),
+		Pagination: build.ToPaginationReply(operateLogReply.PaginationReply),
 	}, nil
 }

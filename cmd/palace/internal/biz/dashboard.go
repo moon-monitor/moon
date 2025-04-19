@@ -14,6 +14,7 @@ import (
 type DashboardBiz struct {
 	dashboardRepo      repository.Dashboard
 	dashboardChartRepo repository.DashboardChart
+	transaction        repository.Transaction
 	log                *log.Helper
 }
 
@@ -21,11 +22,13 @@ type DashboardBiz struct {
 func NewDashboardBiz(
 	dashboardRepo repository.Dashboard,
 	dashboardChartRepo repository.DashboardChart,
+	transaction repository.Transaction,
 	logger log.Logger,
 ) *DashboardBiz {
 	return &DashboardBiz{
 		dashboardRepo:      dashboardRepo,
 		dashboardChartRepo: dashboardChartRepo,
+		transaction:        transaction,
 		log:                log.NewHelper(log.With(logger, "module", "biz.dashboard")),
 	}
 }
@@ -35,40 +38,27 @@ func (b *DashboardBiz) SaveDashboard(ctx context.Context, req *bo.SaveDashboardR
 	if req.GetID() == 0 {
 		return b.dashboardRepo.CreateDashboard(ctx, req)
 	}
-
-	dashboardDo, err := b.dashboardRepo.GetDashboard(ctx, req.GetID())
-	if err != nil {
-		return err
-	}
-
-	dashboard := req.WithDashboard(dashboardDo)
-
-	return b.dashboardRepo.UpdateDashboard(ctx, dashboard)
+	return b.dashboardRepo.UpdateDashboard(ctx, req)
 }
 
 // DeleteDashboard deletes a dashboard.
 func (b *DashboardBiz) DeleteDashboard(ctx context.Context, id uint32) error {
-	return b.dashboardRepo.DeleteDashboard(ctx, id)
+	return b.transaction.BizExec(ctx, func(ctx context.Context) error {
+		if err := b.dashboardChartRepo.DeleteDashboardChartByDashboardID(ctx, id); err != nil {
+			return err
+		}
+		return b.dashboardRepo.DeleteDashboard(ctx, id)
+	})
 }
 
 // GetDashboard gets a dashboard.
 func (b *DashboardBiz) GetDashboard(ctx context.Context, id uint32) (do.Dashboard, error) {
-	dashboard, err := b.dashboardRepo.GetDashboard(ctx, id)
-	if err != nil {
-		return nil, err
-	}
-
-	return dashboard, nil
+	return b.dashboardRepo.GetDashboard(ctx, id)
 }
 
 // ListDashboard lists dashboards.
 func (b *DashboardBiz) ListDashboard(ctx context.Context, req *bo.ListDashboardReq) (*bo.ListDashboardReply, error) {
-	reply, err := b.dashboardRepo.ListDashboards(ctx, req)
-	if err != nil {
-		return nil, err
-	}
-
-	return reply, nil
+	return b.dashboardRepo.ListDashboards(ctx, req)
 }
 
 // BatchUpdateDashboardStatus updates multiple dashboards' status.
@@ -78,43 +68,31 @@ func (b *DashboardBiz) BatchUpdateDashboardStatus(ctx context.Context, req *bo.B
 
 // SaveDashboardChart saves a dashboard chart.
 func (b *DashboardBiz) SaveDashboardChart(ctx context.Context, req *bo.SaveDashboardChartReq) error {
-	if req.GetID() == 0 {
+	if req.GetID() <= 0 {
 		return b.dashboardChartRepo.CreateDashboardChart(ctx, req)
 	}
 
-	dashboardChartDo, err := b.dashboardChartRepo.GetDashboardChart(ctx, req.GetID())
+	_, err := b.dashboardRepo.GetDashboard(ctx, req.GetDashboardID())
 	if err != nil {
 		return err
 	}
 
-	chart := req.WithDashboardChart(dashboardChartDo)
-
-	return b.dashboardChartRepo.UpdateDashboardChart(ctx, chart)
+	return b.dashboardChartRepo.UpdateDashboardChart(ctx, req)
 }
 
 // DeleteDashboardChart deletes a dashboard chart.
-func (b *DashboardBiz) DeleteDashboardChart(ctx context.Context, id uint32) error {
-	return b.dashboardChartRepo.DeleteDashboardChart(ctx, id)
+func (b *DashboardBiz) DeleteDashboardChart(ctx context.Context, req *bo.OperateOneDashboardChartReq) error {
+	return b.dashboardChartRepo.DeleteDashboardChart(ctx, req)
 }
 
 // GetDashboardChart gets a dashboard chart.
-func (b *DashboardBiz) GetDashboardChart(ctx context.Context, id uint32) (do.DashboardChart, error) {
-	chart, err := b.dashboardChartRepo.GetDashboardChart(ctx, id)
-	if err != nil {
-		return nil, err
-	}
-
-	return chart, nil
+func (b *DashboardBiz) GetDashboardChart(ctx context.Context, req *bo.OperateOneDashboardChartReq) (do.DashboardChart, error) {
+	return b.dashboardChartRepo.GetDashboardChart(ctx, req)
 }
 
-// ListDashboardChart lists dashboard charts.
-func (b *DashboardBiz) ListDashboardChart(ctx context.Context, req *bo.ListDashboardChartReq) (*bo.ListDashboardChartReply, error) {
-	reply, err := b.dashboardChartRepo.ListDashboardCharts(ctx, req)
-	if err != nil {
-		return nil, err
-	}
-
-	return reply, nil
+// ListDashboardCharts lists dashboard charts.
+func (b *DashboardBiz) ListDashboardCharts(ctx context.Context, req *bo.ListDashboardChartReq) (*bo.ListDashboardChartReply, error) {
+	return b.dashboardChartRepo.ListDashboardCharts(ctx, req)
 }
 
 // BatchUpdateDashboardChartStatus updates multiple dashboard charts' status.

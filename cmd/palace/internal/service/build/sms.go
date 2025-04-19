@@ -40,7 +40,7 @@ func ToListSMSConfigRequest(req *palace.GetSMSConfigsRequest) *bo.ListSMSConfigR
 // ToSMSConfigReply converts business object to API response
 func ToSMSConfigReply(reply *bo.ListSMSConfigListReply) *palace.GetSMSConfigsReply {
 	return &palace.GetSMSConfigsReply{
-		Pagination: ToPaginationReplyProto(reply.PaginationReply),
+		Pagination: ToPaginationReply(reply.PaginationReply),
 		Items: slices.MapFilter(reply.Items, func(item do.TeamSMSConfig) (*palace.SMSConfigItem, bool) {
 			config := item.GetSMSConfig()
 			if validate.IsNil(config) {

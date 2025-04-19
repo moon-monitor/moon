@@ -25,7 +25,6 @@ func RegisterService(
 	serverService *service.ServerService,
 	resourceService *service.ResourceService,
 	userService *service.UserService,
-	dashboardService *service.DashboardService,
 	callbackService *service.CallbackService,
 	teamDashboardService *service.TeamDashboardService,
 	datasourceService *service.TeamDatasourceService,
@@ -43,7 +42,6 @@ func RegisterService(
 	palacev1.RegisterAuthHTTPServer(httpSrv, authService)
 	palacev1.RegisterResourceHTTPServer(httpSrv, resourceService)
 	palacev1.RegisterUserHTTPServer(httpSrv, userService)
-	palacev1.RegisterTeamDashboardHTTPServer(httpSrv, dashboardService)
 	palacev1.RegisterCallbackHTTPServer(httpSrv, callbackService)
 	palacev1.RegisterTeamDashboardHTTPServer(httpSrv, teamDashboardService)
 	palacev1.RegisterTeamDatasourceHTTPServer(httpSrv, datasourceService)

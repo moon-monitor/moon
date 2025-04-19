@@ -66,7 +66,7 @@ func (s *ResourceService) ListResource(ctx context.Context, req *palacev1.ListRe
 
 	return &palacev1.ListResourceReply{
 		Items:      build.ToResourceItemProtoList(resourcesReply.Items),
-		Pagination: build.ToPaginationReplyProto(resourcesReply.PaginationReply),
+		Pagination: build.ToPaginationReply(resourcesReply.PaginationReply),
 	}, nil
 }
 

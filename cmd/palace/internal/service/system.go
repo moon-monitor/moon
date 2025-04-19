@@ -93,7 +93,7 @@ func (s *SystemService) GetUserList(ctx context.Context, req *palacev1.GetUserLi
 	}
 	return &palacev1.GetUserListReply{
 		Items:      build.UsersToUserItemsProto(userReply.Items),
-		Pagination: build.ToPaginationReplyProto(userReply.PaginationReply),
+		Pagination: build.ToPaginationReply(userReply.PaginationReply),
 	}, nil
 }
 
@@ -106,7 +106,7 @@ func (s *SystemService) GetTeamList(ctx context.Context, req *palacev1.GetTeamLi
 
 	return &palacev1.GetTeamListReply{
 		Items:      build.ToTeamItems(teamReply.Items),
-		Pagination: build.ToPaginationReplyProto(teamReply.PaginationReply),
+		Pagination: build.ToPaginationReply(teamReply.PaginationReply),
 	}, nil
 }
 
@@ -128,7 +128,7 @@ func (s *SystemService) GetSystemRoles(ctx context.Context, req *palacev1.GetSys
 	}
 	return &palacev1.GetSystemRolesReply{
 		Items:      build.ToSystemRoleItems(roleReply.Items),
-		Pagination: build.ToPaginationReplyProto(roleReply.PaginationReply),
+		Pagination: build.ToPaginationReply(roleReply.PaginationReply),
 	}, nil
 }
 
@@ -181,7 +181,7 @@ func (s *SystemService) GetTeamAuditList(ctx context.Context, req *palacev1.GetT
 	}
 	return &palacev1.GetTeamAuditListReply{
 		Items:      build.ToTeamAuditItems(teamAuditReply.Items),
-		Pagination: build.ToPaginationReplyProto(teamAuditReply.PaginationReply),
+		Pagination: build.ToPaginationReply(teamAuditReply.PaginationReply),
 	}, nil
 }
 
@@ -205,6 +205,6 @@ func (s *SystemService) OperateLogList(ctx context.Context, req *palacev1.Operat
 	}
 	return &palacev1.OperateLogListReply{
 		Items:      build.ToOperateLogItems(operateLogReply.Items),
-		Pagination: build.ToPaginationReplyProto(operateLogReply.PaginationReply),
+		Pagination: build.ToPaginationReply(operateLogReply.PaginationReply),
 	}, nil
 }

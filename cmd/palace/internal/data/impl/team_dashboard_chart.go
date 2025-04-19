@@ -28,6 +28,20 @@ type dashboardChartImpl struct {
 	helper *log.Helper
 }
 
+func (r *dashboardChartImpl) DeleteDashboardChartByDashboardID(ctx context.Context, dashboardID uint32) error {
+	tx, teamID, err := getTeamBizQuery(ctx, r)
+	if err != nil {
+		return err
+	}
+	mutation := tx.DashboardChart
+	wrapper := []gen.Condition{
+		mutation.TeamID.Eq(teamID),
+		mutation.DashboardID.Eq(dashboardID),
+	}
+	_, err = mutation.WithContext(ctx).Where(wrapper...).Delete()
+	return err
+}
+
 func (r *dashboardChartImpl) CreateDashboardChart(ctx context.Context, chart bo.DashboardChart) error {
 	dashboardChartDo := &team.DashboardChart{
 		DashboardID: chart.GetDashboardID(),
@@ -69,7 +83,7 @@ func (r *dashboardChartImpl) UpdateDashboardChart(ctx context.Context, chart bo.
 }
 
 // DeleteDashboardChart delete dashboard chart by id
-func (r *dashboardChartImpl) DeleteDashboardChart(ctx context.Context, id uint32) error {
+func (r *dashboardChartImpl) DeleteDashboardChart(ctx context.Context, req *bo.OperateOneDashboardChartReq) error {
 	tx, teamID, err := getTeamBizQuery(ctx, r)
 	if err != nil {
 		return err
@@ -77,14 +91,15 @@ func (r *dashboardChartImpl) DeleteDashboardChart(ctx context.Context, id uint32
 	mutation := tx.DashboardChart
 	wrapper := []gen.Condition{
 		mutation.TeamID.Eq(teamID),
-		mutation.ID.Eq(id),
+		mutation.ID.Eq(req.ID),
+		mutation.DashboardID.Eq(req.DashboardID),
 	}
 	_, err = mutation.WithContext(ctx).Where(wrapper...).Delete()
 	return err
 }
 
 // GetDashboardChart get dashboard chart by id
-func (r *dashboardChartImpl) GetDashboardChart(ctx context.Context, id uint32) (do.DashboardChart, error) {
+func (r *dashboardChartImpl) GetDashboardChart(ctx context.Context, req *bo.OperateOneDashboardChartReq) (do.DashboardChart, error) {
 	tx, teamID, err := getTeamBizQuery(ctx, r)
 	if err != nil {
 		return nil, err
@@ -92,7 +107,8 @@ func (r *dashboardChartImpl) GetDashboardChart(ctx context.Context, id uint32) (
 	mutation := tx.DashboardChart
 	wrapper := []gen.Condition{
 		mutation.TeamID.Eq(teamID),
-		mutation.ID.Eq(id),
+		mutation.ID.Eq(req.ID),
+		mutation.DashboardID.Eq(req.DashboardID),
 	}
 	dashboardChartDo, err := mutation.WithContext(ctx).Where(wrapper...).First()
 	if err != nil {

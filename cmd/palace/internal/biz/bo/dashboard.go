@@ -17,22 +17,18 @@ type Dashboard interface {
 
 // SaveDashboardReq represents a request to save a dashboard
 type SaveDashboardReq struct {
-	dashboard Dashboard
-	ID        uint32
-	Title     string
-	Remark    string
-	Status    vobj.GlobalStatus
-	ColorHex  string
+	ID       uint32
+	Title    string
+	Remark   string
+	Status   vobj.GlobalStatus
+	ColorHex string
 }
 
 func (d *SaveDashboardReq) GetID() uint32 {
 	if d == nil {
 		return 0
 	}
-	if d.dashboard == nil {
-		return d.ID
-	}
-	return d.dashboard.GetID()
+	return d.ID
 }
 
 func (d *SaveDashboardReq) GetTitle() string {
@@ -51,15 +47,11 @@ func (d *SaveDashboardReq) GetColorHex() string {
 	return d.ColorHex
 }
 
-func (d *SaveDashboardReq) WithDashboard(dashboard Dashboard) Dashboard {
-	d.dashboard = dashboard
-	return d
-}
-
 // ListDashboardReq represents a request to list dashboards
 type ListDashboardReq struct {
 	*PaginationRequest
-	Status vobj.GlobalStatus
+	Status  vobj.GlobalStatus
+	Keyword string
 }
 
 func (r *ListDashboardReq) ToListDashboardReply(dashboards []*team.Dashboard) *ListDashboardReply {

@@ -5,10 +5,11 @@ import (
 
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do"
 	"github.com/moon-monitor/moon/pkg/api/palace/common"
+	"github.com/moon-monitor/moon/pkg/util/slices"
 )
 
-// ToDashboardItemProto converts a business object to a proto object
-func ToDashboardItemProto(dashboard do.Dashboard) *common.TeamDashboardItem {
+// ToDashboardItem converts a business object to a proto object
+func ToDashboardItem(dashboard do.Dashboard) *common.TeamDashboardItem {
 	if dashboard == nil {
 		return nil
 	}
@@ -24,22 +25,13 @@ func ToDashboardItemProto(dashboard do.Dashboard) *common.TeamDashboardItem {
 	}
 }
 
-// ToDashboardItemProtoList converts a list of business objects to proto objects
-func ToDashboardItemProtoList(dashboards []do.Dashboard) []*common.TeamDashboardItem {
-	if dashboards == nil {
-		return nil
-	}
-
-	items := make([]*common.TeamDashboardItem, 0, len(dashboards))
-	for _, dashboard := range dashboards {
-		items = append(items, ToDashboardItemProto(dashboard))
-	}
-
-	return items
+// ToDashboardItems converts multiple business objects to proto objects
+func ToDashboardItems(dashboards []do.Dashboard) []*common.TeamDashboardItem {
+	return slices.Map(dashboards, ToDashboardItem)
 }
 
-// ToDashboardChartItemProto converts a business object to a proto object
-func ToDashboardChartItemProto(chart do.DashboardChart) *common.TeamDashboardChartItem {
+// ToDashboardChartItem converts a business object to a proto object
+func ToDashboardChartItem(chart do.DashboardChart) *common.TeamDashboardChartItem {
 	if chart == nil {
 		return nil
 	}
@@ -58,16 +50,7 @@ func ToDashboardChartItemProto(chart do.DashboardChart) *common.TeamDashboardCha
 	}
 }
 
-// ToDashboardChartItemProtoList converts a list of business objects to proto objects
-func ToDashboardChartItemProtoList(charts []do.DashboardChart) []*common.TeamDashboardChartItem {
-	if charts == nil {
-		return nil
-	}
-
-	items := make([]*common.TeamDashboardChartItem, 0, len(charts))
-	for _, chart := range charts {
-		items = append(items, ToDashboardChartItemProto(chart))
-	}
-
-	return items
+// ToDashboardChartItems converts multiple business objects to proto objects
+func ToDashboardChartItems(charts []do.DashboardChart) []*common.TeamDashboardChartItem {
+	return slices.Map(charts, ToDashboardChartItem)
 }

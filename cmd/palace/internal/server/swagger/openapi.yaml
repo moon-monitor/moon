@@ -668,7 +668,7 @@ paths:
                 - TeamDashboard
             operationId: TeamDashboard_GetTeamDashboard
             parameters:
-                - name: dashboardID
+                - name: dashboardId
                   in: query
                   schema:
                     type: integer
@@ -702,7 +702,7 @@ paths:
                 - TeamDashboard
             operationId: TeamDashboard_DeleteTeamDashboard
             parameters:
-                - name: dashboardID
+                - name: dashboardId
                   in: query
                   schema:
                     type: integer
@@ -720,12 +720,12 @@ paths:
                 - TeamDashboard
             operationId: TeamDashboard_GetTeamDashboardChart
             parameters:
-                - name: chartID
+                - name: chartId
                   in: query
                   schema:
                     type: integer
                     format: uint32
-                - name: dashboardID
+                - name: dashboardId
                   in: query
                   schema:
                     type: integer
@@ -759,12 +759,12 @@ paths:
                 - TeamDashboard
             operationId: TeamDashboard_DeleteTeamDashboardChart
             parameters:
-                - name: chartID
+                - name: chartId
                   in: query
                   schema:
                     type: integer
                     format: uint32
-                - name: dashboardID
+                - name: dashboardId
                   in: query
                   schema:
                     type: integer
@@ -2513,9 +2513,14 @@ components:
             properties:
                 pagination:
                     $ref: '#/components/schemas/api.palace.common.PaginationRequest'
-                dashboardID:
+                dashboardId:
                     type: integer
                     format: uint32
+                status:
+                    type: integer
+                    format: enum
+                keyword:
+                    type: string
         api.palace.ListTeamDashboardReply:
             type: object
             properties:
@@ -2530,6 +2535,11 @@ components:
             properties:
                 pagination:
                     $ref: '#/components/schemas/api.palace.common.PaginationRequest'
+                status:
+                    type: integer
+                    format: enum
+                keyword:
+                    type: string
         api.palace.ListTeamDictReply:
             type: object
             properties:
@@ -3052,10 +3062,10 @@ components:
         api.palace.SaveTeamDashboardChartRequest:
             type: object
             properties:
-                dashboardID:
+                dashboardId:
                     type: integer
                     format: uint32
-                chartID:
+                chartId:
                     type: integer
                     format: uint32
                 title:
@@ -3074,7 +3084,7 @@ components:
         api.palace.SaveTeamDashboardRequest:
             type: object
             properties:
-                dashboardID:
+                dashboardId:
                     type: integer
                     format: uint32
                 title:
@@ -3504,7 +3514,7 @@ components:
         api.palace.UpdateTeamDashboardChartStatusRequest:
             type: object
             properties:
-                dashboardID:
+                dashboardId:
                     type: integer
                     format: uint32
                 chartIds:

@@ -71,7 +71,7 @@ service TeamDashboard {
 
 
 message SaveTeamDashboardRequest {
-	uint32 dashboardID = 1;
+	uint32 dashboardId = 1;
 	string title = 2 [(buf.validate.field).cel = {
 		message: "title is required"
 		expression: "this.size() > 0"
@@ -89,16 +89,16 @@ message SaveTeamDashboardRequest {
 		expression: "this.size() > 0"
 	}, (buf.validate.field).cel = {
 		message: "colorHex max length is 10"
-		expression: "this.size() <= 10"
+		expression: "this.size() <= 50"
 	}];
 }
 
 message DeleteTeamDashboardRequest {
-	uint32 dashboardID = 1;
+	uint32 dashboardId = 1;
 }
 
 message GetTeamDashboardRequest {
-	uint32 dashboardID = 1;
+	uint32 dashboardId = 1;
 }
 message GetTeamDashboardReply {
 	api.palace.common.TeamDashboardItem dashboard = 1;
@@ -106,6 +106,8 @@ message GetTeamDashboardReply {
 
 message ListTeamDashboardRequest {
 	api.palace.common.PaginationRequest pagination = 1;
+	api.palace.common.GlobalStatus status = 2;
+	string keyword = 3;
 }
 message ListTeamDashboardReply {
 	repeated api.palace.common.TeamDashboardItem items = 1;
@@ -118,8 +120,8 @@ message UpdateTeamDashboardStatusRequest {
 }
 
 message SaveTeamDashboardChartRequest {
-	uint32 dashboardID = 1 [(buf.validate.field).required = true, (buf.validate.field).uint32.gt = 0];
-	uint32 chartID = 2;
+	uint32 dashboardId = 1 [(buf.validate.field).required = true, (buf.validate.field).uint32.gt = 0];
+	uint32 chartId = 2;
 	string title = 3 [(buf.validate.field).cel = {
 		message: "title max length is 32"
 		expression: "this.size() <= 32"
@@ -144,13 +146,13 @@ message SaveTeamDashboardChartRequest {
 }
 
 message DeleteTeamDashboardChartRequest {
-	uint32 chartID = 1 [(buf.validate.field).required = true, (buf.validate.field).uint32.gt = 0];
-	uint32 dashboardID = 2 [(buf.validate.field).required = true, (buf.validate.field).uint32.gt = 0];
+	uint32 chartId = 1 [(buf.validate.field).required = true, (buf.validate.field).uint32.gt = 0];
+	uint32 dashboardId = 2 [(buf.validate.field).required = true, (buf.validate.field).uint32.gt = 0];
 }
 
 message GetTeamDashboardChartRequest {
-	uint32 chartID = 1 [(buf.validate.field).required = true, (buf.validate.field).uint32.gt = 0];
-	uint32 dashboardID = 2 [(buf.validate.field).required = true, (buf.validate.field).uint32.gt = 0];
+	uint32 chartId = 1 [(buf.validate.field).required = true, (buf.validate.field).uint32.gt = 0];
+	uint32 dashboardId = 2 [(buf.validate.field).required = true, (buf.validate.field).uint32.gt = 0];
 }
 message GetTeamDashboardChartReply {
 	api.palace.common.TeamDashboardChartItem chart = 1;
@@ -158,7 +160,9 @@ message GetTeamDashboardChartReply {
 
 message ListTeamDashboardChartRequest {
 	api.palace.common.PaginationRequest pagination = 1;
-	uint32 dashboardID = 2 [(buf.validate.field).required = true, (buf.validate.field).uint32.gt = 0];
+	uint32 dashboardId = 2 [(buf.validate.field).required = true, (buf.validate.field).uint32.gt = 0];
+	api.palace.common.GlobalStatus status = 3;
+	string keyword = 4;
 }
 message ListTeamDashboardChartReply {
 	repeated api.palace.common.TeamDashboardChartItem items = 1;
@@ -166,7 +170,7 @@ message ListTeamDashboardChartReply {
 }
 
 message UpdateTeamDashboardChartStatusRequest {
-	uint32 dashboardID = 1 [(buf.validate.field).required = true, (buf.validate.field).uint32.gt = 0];
+	uint32 dashboardId = 1 [(buf.validate.field).required = true, (buf.validate.field).uint32.gt = 0];
 	repeated uint32 chartIds = 2;
 	api.palace.common.GlobalStatus status = 3;
 }

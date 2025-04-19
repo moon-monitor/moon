@@ -83,7 +83,7 @@ func (s *TeamDictService) ListTeamDict(ctx context.Context, req *palacev1.ListTe
 		return nil, err
 	}
 	return &palacev1.ListTeamDictReply{
-		Pagination: build.ToPaginationReplyProto(listDictReply.PaginationReply),
+		Pagination: build.ToPaginationReply(listDictReply.PaginationReply),
 		Items:      build.ToDictProtos(listDictReply.Items),
 	}, nil
 }

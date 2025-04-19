@@ -52,7 +52,7 @@ func ToEmailConfigReply(configs *bo.ListEmailConfigListReply) *palacev1.GetEmail
 
 	return &palacev1.GetEmailConfigsReply{
 		Items:      items,
-		Pagination: ToPaginationReplyProto(configs.PaginationReply),
+		Pagination: ToPaginationReply(configs.PaginationReply),
 	}
 }
 

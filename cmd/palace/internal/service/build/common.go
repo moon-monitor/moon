@@ -6,7 +6,7 @@ import (
 	"github.com/moon-monitor/moon/pkg/util/validate"
 )
 
-func ToPaginationReplyProto(pagination *bo.PaginationReply) *common.PaginationReply {
+func ToPaginationReply(pagination *bo.PaginationReply) *common.PaginationReply {
 	if validate.IsNil(pagination) {
 		return nil
 	}
