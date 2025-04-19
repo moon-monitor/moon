@@ -972,7 +972,7 @@ paths:
                 content:
                     application/json:
                         schema:
-                            $ref: '#/components/schemas/api.palace.common.EmptyRequest'
+                            $ref: '#/components/schemas/api.palace.GetTeamMembersRequest'
                 required: true
             responses:
                 "200":
@@ -1331,12 +1331,12 @@ paths:
         delete:
             tags:
                 - Team
-            description: DeleteTeamRole deletes a team role by ID
+            description: DeleteTeamRole deletes a team role by Id
             operationId: Team_DeleteTeamRole
             parameters:
-                - name: roleID
+                - name: roleId
                   in: query
-                  description: Role ID
+                  description: Role Id
                   schema:
                     type: integer
                     format: uint32
@@ -2230,7 +2230,26 @@ components:
                     items:
                         $ref: '#/components/schemas/api.palace.common.TeamMemberItem'
                     description: List of team member items
+                pagination:
+                    $ref: '#/components/schemas/api.palace.common.PaginationReply'
             description: GetTeamMembersReply contains the response data for retrieving team members
+        api.palace.GetTeamMembersRequest:
+            type: object
+            properties:
+                pagination:
+                    $ref: '#/components/schemas/api.palace.common.PaginationRequest'
+                keyword:
+                    type: string
+                status:
+                    type: array
+                    items:
+                        type: integer
+                        format: enum
+                positions:
+                    type: array
+                    items:
+                        type: integer
+                        format: enum
         api.palace.GetTeamMetricDatasourceReply:
             type: object
             properties:
@@ -2249,7 +2268,7 @@ components:
         api.palace.GetTeamReply:
             type: object
             properties:
-                detail:
+                team:
                     allOf:
                         - $ref: '#/components/schemas/api.palace.common.TeamItem'
                     description: Detailed information about the team
@@ -2366,7 +2385,7 @@ components:
                     items:
                         type: integer
                         format: uint32
-                    description: List of role IDs to assign to the new member
+                    description: List of role Ids to assign to the new member
             description: InviteMemberRequest represents the request data for inviting a new member to the team
         api.palace.JoinTeamRequest:
             type: object
@@ -2794,9 +2813,9 @@ components:
                     type: integer
                     description: SMS provider type
                     format: enum
-                accessKeyID:
+                accessKeyId:
                     type: string
-                    description: Access Key ID for the SMS provider
+                    description: Access Key Id for the SMS provider
                 accessKeySecret:
                     type: string
                     description: Access Key Secret for the SMS provider
@@ -2879,9 +2898,9 @@ components:
                     type: integer
                     description: SMS provider type
                     format: enum
-                accessKeyID:
+                accessKeyId:
                     type: string
-                    description: Access Key ID for the SMS provider
+                    description: Access Key Id for the SMS provider
                 accessKeySecret:
                     type: string
                     description: Access Key Secret for the SMS provider
@@ -3074,7 +3093,7 @@ components:
             properties:
                 roleId:
                     type: integer
-                    description: Role ID, optional for new roles
+                    description: Role Id, optional for new roles
                     format: uint32
                 name:
                     type: string
@@ -3087,7 +3106,7 @@ components:
                     items:
                         type: integer
                         format: uint32
-                    description: List of resource IDs associated with the role
+                    description: List of resource Ids associated with the role
             description: SaveTeamRoleRequest represents the request data for saving or updating a team role
         api.palace.SaveTeamStrategyGroupRequest:
             type: object
@@ -3242,23 +3261,23 @@ components:
                     description: Keyword to search operation logs by
                 userId:
                     type: integer
-                    description: User ID, optional for filtering logs by user
+                    description: User Id, optional for filtering logs by user
                     format: uint32
             description: OperateLogListRequest represents the request data for listing operation logs
         api.palace.TransferTeamRequest:
             type: object
             properties:
-                newLeaderID:
+                newLeaderId:
                     type: integer
-                    description: New leader's user ID
+                    description: New leader's user Id
                     format: uint32
             description: TransferTeamRequest represents the request data for transferring team leadership
         api.palace.UpdateMemberPositionRequest:
             type: object
             properties:
-                memberID:
+                memberId:
                     type: integer
-                    description: Member ID
+                    description: Member Id
                     format: uint32
                 position:
                     type: integer
@@ -3268,28 +3287,26 @@ components:
         api.palace.UpdateMemberRolesRequest:
             type: object
             properties:
-                memberIDs:
+                memberId:
+                    type: integer
+                    description: List of member Ids to update
+                    format: uint32
+                roleIds:
                     type: array
                     items:
                         type: integer
                         format: uint32
-                    description: List of member IDs to update
-                roleIDs:
-                    type: array
-                    items:
-                        type: integer
-                        format: uint32
-                    description: List of role IDs to assign to the members
+                    description: List of role Ids to assign to the members
             description: UpdateMemberRolesRequest represents the request data for updating the roles of multiple members
         api.palace.UpdateMemberStatusRequest:
             type: object
             properties:
-                memberIDs:
+                memberIds:
                     type: array
                     items:
                         type: integer
                         format: uint32
-                    description: List of member IDs to update
+                    description: List of member Ids to update
                 status:
                     type: integer
                     description: New status for the members
@@ -3429,9 +3446,9 @@ components:
         api.palace.UpdateTeamRoleStatusRequest:
             type: object
             properties:
-                roleID:
+                roleId:
                     type: integer
-                    description: Role ID
+                    description: Role Id
                     format: uint32
                 status:
                     type: integer

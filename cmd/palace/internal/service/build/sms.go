@@ -14,7 +14,7 @@ import (
 func ToSaveSMSConfigRequest(req *palace.SaveSMSConfigRequest) *bo.SaveSMSConfigRequest {
 	return &bo.SaveSMSConfigRequest{
 		Config: &do.SMS{
-			AccessKeyID:     req.GetAccessKeyID(),
+			AccessKeyID:     req.GetAccessKeyId(),
 			AccessKeySecret: req.GetAccessKeySecret(),
 			SignName:        req.GetSignName(),
 			Endpoint:        req.GetEndpoint(),
@@ -48,7 +48,7 @@ func ToSMSConfigReply(reply *bo.ListSMSConfigListReply) *palace.GetSMSConfigsRep
 			}
 			return &palace.SMSConfigItem{
 				ProviderType:    common.SMSProviderType(item.GetProviderType()),
-				AccessKeyID:     config.AccessKeyID,
+				AccessKeyId:     config.AccessKeyID,
 				AccessKeySecret: config.AccessKeySecret,
 				SignName:        config.SignName,
 				Endpoint:        config.Endpoint,

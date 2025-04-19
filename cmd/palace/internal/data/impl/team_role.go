@@ -25,6 +25,27 @@ type teamRoleImpl struct {
 	*data.Data
 }
 
+func (t *teamRoleImpl) Find(ctx context.Context, ids []uint32) ([]do.TeamRole, error) {
+	if len(ids) == 0 {
+		return nil, nil
+	}
+	bizQuery, teamID, err := getTeamBizQuery(ctx, t)
+	if err != nil {
+		return nil, err
+	}
+	roleQuery := bizQuery.Role
+	wrapper := []gen.Condition{
+		roleQuery.TeamID.Eq(teamID),
+		roleQuery.ID.In(ids...),
+	}
+	roles, err := roleQuery.WithContext(ctx).Where(wrapper...).Find()
+	if err != nil {
+		return nil, err
+	}
+	roleDos := slices.Map(roles, func(role *team.Role) do.TeamRole { return role })
+	return roleDos, nil
+}
+
 func (t *teamRoleImpl) Get(ctx context.Context, id uint32) (do.TeamRole, error) {
 	bizQuery, teamID, err := getTeamBizQuery(ctx, t)
 	if err != nil {

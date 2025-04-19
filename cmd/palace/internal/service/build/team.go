@@ -71,3 +71,36 @@ func ToTeamListRequest(req *palace.GetTeamListRequest) *bo.TeamListRequest {
 		CreatorId:         req.GetCreatorId(),
 	}
 }
+
+func ToTeamMemberListRequest(req *palace.GetTeamMembersRequest, teamId uint32) *bo.TeamMemberListRequest {
+	if validate.IsNil(req) {
+		return nil
+	}
+	return &bo.TeamMemberListRequest{
+		PaginationRequest: ToPaginationRequest(req.GetPagination()),
+		Keyword:           req.GetKeyword(),
+		Status:            slices.Map(req.GetStatus(), func(status common.MemberStatus) vobj.MemberStatus { return vobj.MemberStatus(status) }),
+		Positions:         slices.Map(req.GetPositions(), func(position common.MemberPosition) vobj.Role { return vobj.Role(position) }),
+		TeamId:            teamId,
+	}
+}
+
+func ToTeamMemberItem(member do.TeamMember) *common.TeamMemberItem {
+	if validate.IsNil(member) {
+		return nil
+	}
+	return &common.TeamMemberItem{
+		Id:        member.GetTeamMemberID(),
+		User:      UserToUserBaseItemProto(nil),
+		Position:  common.MemberPosition(member.GetPosition()),
+		Status:    common.MemberStatus(member.GetStatus()),
+		Inviter:   UserToUserBaseItemProto(nil),
+		Roles:     ToTeamRoleItems(member.GetRoles()),
+		CreatedAt: member.GetCreatedAt().Format(time.RFC3339),
+		UpdatedAt: member.GetUpdatedAt().Format(time.RFC3339),
+	}
+}
+
+func ToTeamMemberItems(members []do.TeamMember) []*common.TeamMemberItem {
+	return slices.Map(members, ToTeamMemberItem)
+}

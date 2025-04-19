@@ -4,13 +4,15 @@ import (
 	"context"
 
 	"github.com/google/uuid"
-	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do/system"
-	"github.com/moon-monitor/moon/pkg/util/slices"
 
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do"
+	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do/system"
+	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do/team"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/vobj"
 	"github.com/moon-monitor/moon/cmd/palace/internal/helper/permission"
 	"github.com/moon-monitor/moon/pkg/merr"
+	"github.com/moon-monitor/moon/pkg/util/slices"
+	"github.com/moon-monitor/moon/pkg/util/validate"
 )
 
 type SaveTeamRequest interface {
@@ -119,3 +121,194 @@ func (r *TeamListRequest) ToTeamListReply(items []*system.Team) *TeamListReply {
 }
 
 type TeamListReply = ListReply[do.Team]
+
+type TeamMemberListRequest struct {
+	*PaginationRequest
+	Keyword   string
+	Status    []vobj.MemberStatus
+	Positions []vobj.Role
+	TeamId    uint32
+}
+
+func (r *TeamMemberListRequest) ToTeamMemberListReply(items []*team.Member) *TeamMemberListReply {
+	return &TeamMemberListReply{
+		PaginationReply: r.ToReply(),
+		Items:           slices.Map(items, func(member *team.Member) do.TeamMember { return member }),
+	}
+}
+
+type TeamMemberListReply = ListReply[do.TeamMember]
+
+type UpdateMemberPosition interface {
+	GetMember() do.TeamMember
+	GetPosition() vobj.Role
+}
+
+type UpdateMemberPositionReq struct {
+	operator do.TeamMember
+	member   do.TeamMember
+	MemberID uint32
+	Position vobj.Role
+}
+
+func (r *UpdateMemberPositionReq) GetMember() do.TeamMember {
+	if r == nil {
+		return nil
+	}
+	return r.member
+}
+
+func (r *UpdateMemberPositionReq) GetPosition() vobj.Role {
+	if r == nil {
+		return vobj.RoleUnknown
+	}
+	return r.Position
+}
+
+func (r *UpdateMemberPositionReq) WithOperator(operator do.TeamMember) *UpdateMemberPositionReq {
+	r.operator = operator
+	return r
+}
+
+func (r *UpdateMemberPositionReq) WithMember(member do.TeamMember) *UpdateMemberPositionReq {
+	r.member = member
+	return r
+}
+
+func (r *UpdateMemberPositionReq) Validate() error {
+	if validate.IsNil(r.operator) {
+		return merr.ErrorParamsError("invalid operator")
+	}
+	if validate.IsNil(r.member) {
+		return merr.ErrorParamsError("invalid member")
+	}
+	if r.Position.IsUnknown() {
+		return merr.ErrorParamsError("invalid position")
+	}
+	operatorPosition := r.operator.GetPosition()
+	if !(operatorPosition.GT(r.Position) && operatorPosition.IsAdminOrSuperAdmin()) {
+		return merr.ErrorParamsError("invalid position")
+	}
+	return nil
+}
+
+type UpdateMemberStatus interface {
+	GetMembers() []do.TeamMember
+	GetStatus() vobj.MemberStatus
+}
+
+type UpdateMemberStatusReq struct {
+	operator  do.TeamMember
+	members   []do.TeamMember
+	MemberIds []uint32
+	Status    vobj.MemberStatus
+}
+
+func (r *UpdateMemberStatusReq) GetMembers() []do.TeamMember {
+	if r == nil {
+		return nil
+	}
+	return r.members
+}
+
+func (r *UpdateMemberStatusReq) GetStatus() vobj.MemberStatus {
+	if r == nil {
+		return vobj.MemberStatusUnknown
+	}
+	return r.Status
+}
+
+func (r *UpdateMemberStatusReq) WithOperator(operator do.TeamMember) *UpdateMemberStatusReq {
+	r.operator = operator
+	return r
+}
+
+func (r *UpdateMemberStatusReq) WithMembers(members []do.TeamMember) *UpdateMemberStatusReq {
+	r.members = slices.MapFilter(members, func(member do.TeamMember) (do.TeamMember, bool) {
+		if validate.IsNil(member) || member.GetID() <= 0 {
+			return nil, false
+		}
+		return member, true
+	})
+	return r
+}
+
+func (r *UpdateMemberStatusReq) Validate() error {
+	if validate.IsNil(r.operator) {
+		return merr.ErrorParamsError("invalid operator")
+	}
+	if len(r.members) == 0 {
+		return merr.ErrorParamsError("invalid members")
+	}
+	if r.Status.IsUnknown() {
+		return merr.ErrorParamsError("invalid status")
+	}
+	operatorPosition := r.operator.GetPosition()
+	for _, member := range r.members {
+		if !(operatorPosition.GT(member.GetPosition()) && operatorPosition.IsAdminOrSuperAdmin()) {
+			return merr.ErrorParamsError("invalid position")
+		}
+	}
+	return nil
+}
+
+type UpdateMemberRoles interface {
+	GetMember() do.TeamMember
+	GetRoles() []do.TeamRole
+}
+
+type UpdateMemberRolesReq struct {
+	operator do.TeamMember
+	member   do.TeamMember
+	roles    []do.TeamRole
+	MemberId uint32
+	RoleIds  []uint32
+}
+
+func (r *UpdateMemberRolesReq) GetMember() do.TeamMember {
+	if r == nil {
+		return nil
+	}
+	return r.member
+}
+
+func (r *UpdateMemberRolesReq) GetRoles() []do.TeamRole {
+	if r == nil {
+		return nil
+	}
+	return r.roles
+}
+
+func (r *UpdateMemberRolesReq) WithOperator(operator do.TeamMember) *UpdateMemberRolesReq {
+	r.operator = operator
+	return r
+}
+
+func (r *UpdateMemberRolesReq) WithMember(member do.TeamMember) *UpdateMemberRolesReq {
+	r.member = member
+	return r
+}
+
+func (r *UpdateMemberRolesReq) WithRoles(roles []do.TeamRole) *UpdateMemberRolesReq {
+	r.roles = slices.MapFilter(roles, func(role do.TeamRole) (do.TeamRole, bool) {
+		if validate.IsNil(role) || role.GetID() <= 0 {
+			return nil, false
+		}
+		return role, true
+	})
+	return r
+}
+
+func (r *UpdateMemberRolesReq) Validate() error {
+	if validate.IsNil(r.operator) {
+		return merr.ErrorParamsError("invalid operator")
+	}
+	if validate.IsNil(r.member) {
+		return merr.ErrorParamsError("invalid member")
+	}
+	operatorPosition := r.operator.GetPosition()
+	if !(operatorPosition.GT(r.member.GetPosition()) && operatorPosition.IsAdminOrSuperAdmin()) {
+		return merr.ErrorParamsError("invalid position")
+	}
+	return nil
+}

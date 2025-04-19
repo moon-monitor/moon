@@ -12,11 +12,27 @@ const tableNameTeamMember = "team_members"
 
 type Member struct {
 	do.TeamModel
-	UserID    uint32            `gorm:"column:user_id;type:int unsigned;not null;comment:用户ID" json:"userID"`
-	InviterID uint32            `gorm:"column:inviter_id;type:int unsigned;not null;comment:邀请者ID" json:"inviterID"`
-	Position  vobj.Role         `gorm:"column:position;type:tinyint(2);not null;comment:职位" json:"position"`
-	Status    vobj.MemberStatus `gorm:"column:status;type:tinyint(2);not null;comment:状态" json:"status"`
-	Roles     []*Role           `gorm:"many2many:sys_team_member_roles" json:"roles"`
+	MemberName string            `gorm:"column:member_name;type:varchar(64);not null;comment:成员名" json:"memberName"`
+	Remark     string            `gorm:"column:remark;type:varchar(255);not null;comment:备注" json:"remark"`
+	UserID     uint32            `gorm:"column:user_id;type:int unsigned;not null;comment:用户ID" json:"userID"`
+	InviterID  uint32            `gorm:"column:inviter_id;type:int unsigned;not null;comment:邀请者ID" json:"inviterID"`
+	Position   vobj.Role         `gorm:"column:position;type:tinyint(2);not null;comment:职位" json:"position"`
+	Status     vobj.MemberStatus `gorm:"column:status;type:tinyint(2);not null;comment:状态" json:"status"`
+	Roles      []*Role           `gorm:"many2many:sys_team_member_roles" json:"roles"`
+}
+
+func (u *Member) GetMemberName() string {
+	if u == nil {
+		return ""
+	}
+	return u.MemberName
+}
+
+func (u *Member) GetRemark() string {
+	if u == nil {
+		return ""
+	}
+	return u.Remark
 }
 
 func (u *Member) GetTeamMemberID() uint32 {

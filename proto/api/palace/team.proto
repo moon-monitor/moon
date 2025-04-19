@@ -61,7 +61,7 @@ service Team {
   }
 
   // GetTeamMembers retrieves the list of members in the team
-  rpc GetTeamMembers (api.palace.common.EmptyRequest) returns (GetTeamMembersReply) {
+  rpc GetTeamMembers (GetTeamMembersRequest) returns (GetTeamMembersReply) {
     option (google.api.http) = {
       post: "/api/team/members"
       body: "*"
@@ -108,7 +108,7 @@ service Team {
     };
   }
 
-  // DeleteTeamRole deletes a team role by ID
+  // DeleteTeamRole deletes a team role by Id
   rpc DeleteTeamRole (DeleteTeamRoleRequest) returns (api.palace.common.EmptyReply) {
     option (google.api.http) = {
       delete: "/api/team/roles"
@@ -190,7 +190,7 @@ message SaveTeamRequest {
 // GetTeamReply contains the response data for retrieving a team
 message GetTeamReply {
   // Detailed information about the team
-  api.palace.common.TeamItem detail = 1;
+  api.palace.common.TeamItem team = 1;
 }
 
 // GetTeamResourcesReply contains the response data for retrieving team resources
@@ -201,8 +201,8 @@ message GetTeamResourcesReply {
 
 // TransferTeamRequest represents the request data for transferring team leadership
 message TransferTeamRequest {
-  // New leader's user ID
-  uint32 newLeaderID = 1 [(buf.validate.field).required = true];
+  // New leader's user Id
+  uint32 newLeaderId = 1 [(buf.validate.field).required = true];
 }
 
 // InviteMemberRequest represents the request data for inviting a new member to the team
@@ -211,7 +211,7 @@ message InviteMemberRequest {
   string userEmail = 1 [(buf.validate.field).required = true];
   // Position of the new member
   api.palace.common.MemberPosition position = 2 [(buf.validate.field).required = true];
-  // List of role IDs to assign to the new member
+  // List of role Ids to assign to the new member
   repeated uint32 roleIds = 3;
 }
 
@@ -221,10 +221,18 @@ message RemoveMemberRequest {
   string userEmail = 1 [(buf.validate.field).required = true];
 }
 
+message GetTeamMembersRequest {
+  api.palace.common.PaginationRequest pagination = 1;
+  string keyword = 2;
+  repeated api.palace.common.MemberStatus status = 3;
+  repeated api.palace.common.MemberPosition positions = 4;
+}
+
 // GetTeamMembersReply contains the response data for retrieving team members
 message GetTeamMembersReply {
   // List of team member items
   repeated api.palace.common.TeamMemberItem items = 1;
+  api.palace.common.PaginationReply pagination = 2;
 }
 
 // GetTeamRolesRequest represents the request data for retrieving team roles
@@ -247,7 +255,7 @@ message GetTeamRolesReply {
 
 // SaveTeamRoleRequest represents the request data for saving or updating a team role
 message SaveTeamRoleRequest {
-  // Role ID, optional for new roles
+  // Role Id, optional for new roles
   uint32 roleId = 1 [(buf.validate.field).required = true];
   // Role name
   string name = 2 [(buf.validate.field).cel = {
@@ -259,26 +267,26 @@ message SaveTeamRoleRequest {
     message: "remark max length is 200"
     expression: "this.size() <= 200"
   }];
-  // List of resource IDs associated with the role
+  // List of resource Ids associated with the role
   repeated uint32 menuIds = 6;
 }
 
 // UpdateMemberPositionRequest represents the request data for updating a member's position
 message UpdateMemberPositionRequest {
-  // Member ID
-  uint32 memberID = 1 [(buf.validate.field).required = true];
+  // Member Id
+  uint32 memberId = 1 [(buf.validate.field).required = true];
   // New position for the member
   api.palace.common.MemberPosition position = 2 [(buf.validate.field).required = true];
 }
 
 // UpdateMemberStatusRequest represents the request data for updating the status of multiple members
 message UpdateMemberStatusRequest {
-  // List of member IDs to update
-  repeated uint32 memberIDs = 1 [(buf.validate.field).cel = {
-    message: "memberIDs is required"
+  // List of member Ids to update
+  repeated uint32 memberIds = 1 [(buf.validate.field).cel = {
+    message: "memberIds is required"
     expression: "this.size() > 0"
   }, (buf.validate.field).cel = {
-    message: "memberIDs max size is 100"
+    message: "memberIds max size is 100"
     expression: "this.size() <= 100"
   }];
   // New status for the members
@@ -287,31 +295,25 @@ message UpdateMemberStatusRequest {
 
 // UpdateMemberRolesRequest represents the request data for updating the roles of multiple members
 message UpdateMemberRolesRequest {
-  // List of member IDs to update
-  repeated uint32 memberIDs = 1 [(buf.validate.field).cel = {
-    message: "memberIDs is required"
-    expression: "this.size() > 0"
-  }, (buf.validate.field).cel = {
-    message: "memberIDs max size is 100"
-    expression: "this.size() <= 100"
-  }];
-  // List of role IDs to assign to the members
-  repeated uint32 roleIDs = 2 [(buf.validate.field).cel = {
-    message: "roleIDs is required"
+  // List of member Ids to update
+  uint32 memberId = 1 [(buf.validate.field).required = true];
+  // List of role Ids to assign to the members
+  repeated uint32 roleIds = 2 [(buf.validate.field).cel = {
+    message: "roleIds is required"
     expression: "this.size() > 0"
   }];
 }
 
 // DeleteTeamRoleRequest represents the request data for deleting a team role
 message DeleteTeamRoleRequest {
-  // Role ID
-  uint32 roleID = 1 [(buf.validate.field).required = true];
+  // Role Id
+  uint32 roleId = 1 [(buf.validate.field).required = true];
 }
 
 // UpdateTeamRoleStatusRequest represents the request data for updating role status
 message UpdateTeamRoleStatusRequest {
-  // Role ID
-  uint32 roleID = 1 [(buf.validate.field).required = true];
+  // Role Id
+  uint32 roleId = 1 [(buf.validate.field).required = true];
   // New status for the role
   api.palace.common.GlobalStatus status = 2 [(buf.validate.field).required = true];
 }
@@ -383,8 +385,8 @@ message GetEmailConfigsReply {
 message SaveSMSConfigRequest {
   // SMS provider type
   api.palace.common.SMSProviderType provider = 1 [(buf.validate.field).required = true];
-  // Access Key ID for the SMS provider
-  string accessKeyID = 2 [(buf.validate.field).required = true];
+  // Access Key Id for the SMS provider
+  string accessKeyId = 2 [(buf.validate.field).required = true];
   // Access Key Secret for the SMS provider
   string accessKeySecret = 3 [(buf.validate.field).required = true];
   // Sign name for the SMS provider
@@ -411,8 +413,8 @@ message SaveSMSConfigRequest {
 message SMSConfigItem {
   // SMS provider type
   api.palace.common.SMSProviderType providerType = 1;
-  // Access Key ID for the SMS provider
-  string accessKeyID = 2;
+  // Access Key Id for the SMS provider
+  string accessKeyId = 2;
   // Access Key Secret for the SMS provider
   string accessKeySecret = 3;
   // Sign name for the SMS provider
@@ -456,7 +458,7 @@ message TeamOperateLogListRequest {
   repeated api.palace.common.OperateType operateTypes = 2;
   // Keyword to search operation logs by
   string keyword = 3;
-  // User ID, optional for filtering logs by user
+  // User Id, optional for filtering logs by user
   uint32 userId = 4;
 }
 

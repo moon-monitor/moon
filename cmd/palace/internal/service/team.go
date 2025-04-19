@@ -6,9 +6,11 @@ import (
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/bo"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/vobj"
+	"github.com/moon-monitor/moon/cmd/palace/internal/helper/permission"
 	"github.com/moon-monitor/moon/cmd/palace/internal/service/build"
 	palacev1 "github.com/moon-monitor/moon/pkg/api/palace"
 	"github.com/moon-monitor/moon/pkg/api/palace/common"
+	"github.com/moon-monitor/moon/pkg/merr"
 )
 
 type TeamService struct {
@@ -31,8 +33,18 @@ func (s *TeamService) SaveTeam(ctx context.Context, req *palacev1.SaveTeamReques
 	return &common.EmptyReply{Message: "保存团队信息成功"}, nil
 }
 
-func (s *TeamService) GetTeam(ctx context.Context, req *common.EmptyRequest) (*palacev1.GetTeamReply, error) {
-	return &palacev1.GetTeamReply{}, nil
+func (s *TeamService) GetTeam(ctx context.Context, _ *common.EmptyRequest) (*palacev1.GetTeamReply, error) {
+	teamId, ok := permission.GetTeamIDByContext(ctx)
+	if !ok {
+		return nil, merr.ErrorPermissionDenied("please select team")
+	}
+	teamDo, err := s.teamBiz.GetTeamByID(ctx, teamId)
+	if err != nil {
+		return nil, err
+	}
+	return &palacev1.GetTeamReply{
+		Team: build.ToTeamItem(teamDo),
+	}, nil
 }
 
 func (s *TeamService) GetTeamResources(ctx context.Context, req *common.EmptyRequest) (*palacev1.GetTeamResourcesReply, error) {
@@ -51,20 +63,53 @@ func (s *TeamService) RemoveMember(ctx context.Context, req *palacev1.RemoveMemb
 	return &common.EmptyReply{}, nil
 }
 
-func (s *TeamService) GetTeamMembers(ctx context.Context, req *common.EmptyRequest) (*palacev1.GetTeamMembersReply, error) {
-	return &palacev1.GetTeamMembersReply{}, nil
+func (s *TeamService) GetTeamMembers(ctx context.Context, req *palacev1.GetTeamMembersRequest) (*palacev1.GetTeamMembersReply, error) {
+	teamId, ok := permission.GetTeamIDByContext(ctx)
+	if !ok {
+		return nil, merr.ErrorPermissionDenied("please select team")
+	}
+	params := build.ToTeamMemberListRequest(req, teamId)
+	membersReply, err := s.teamBiz.GetTeamMembers(ctx, params)
+	if err != nil {
+		return nil, err
+	}
+	return &palacev1.GetTeamMembersReply{
+		Items:      build.ToTeamMemberItems(membersReply.Items),
+		Pagination: build.ToPaginationReplyProto(membersReply.PaginationReply),
+	}, nil
 }
 
 func (s *TeamService) UpdateMemberPosition(ctx context.Context, req *palacev1.UpdateMemberPositionRequest) (*common.EmptyReply, error) {
-	return &common.EmptyReply{}, nil
+	params := &bo.UpdateMemberPositionReq{
+		MemberID: req.GetMemberId(),
+		Position: vobj.Role(req.GetPosition()),
+	}
+	if err := s.teamBiz.UpdateMemberPosition(ctx, params); err != nil {
+		return nil, err
+	}
+	return &common.EmptyReply{Message: "更新团队成员职位成功"}, nil
 }
 
 func (s *TeamService) UpdateMemberStatus(ctx context.Context, req *palacev1.UpdateMemberStatusRequest) (*common.EmptyReply, error) {
-	return &common.EmptyReply{}, nil
+	params := &bo.UpdateMemberStatusReq{
+		MemberIds: req.GetMemberIds(),
+		Status:    vobj.MemberStatus(req.GetStatus()),
+	}
+	if err := s.teamBiz.UpdateMemberStatus(ctx, params); err != nil {
+		return nil, err
+	}
+	return &common.EmptyReply{Message: "更新团队成员状态成功"}, nil
 }
 
 func (s *TeamService) UpdateMemberRoles(ctx context.Context, req *palacev1.UpdateMemberRolesRequest) (*common.EmptyReply, error) {
-	return &common.EmptyReply{}, nil
+	params := &bo.UpdateMemberRolesReq{
+		MemberId: req.GetMemberId(),
+		RoleIds:  req.GetRoleIds(),
+	}
+	if err := s.teamBiz.UpdateMemberRoles(ctx, params); err != nil {
+		return nil, err
+	}
+	return &common.EmptyReply{Message: "更新团队成员角色成功"}, nil
 }
 
 func (s *TeamService) GetTeamRoles(ctx context.Context, req *palacev1.GetTeamRolesRequest) (*palacev1.GetTeamRolesReply, error) {
@@ -88,7 +133,7 @@ func (s *TeamService) SaveTeamRole(ctx context.Context, req *palacev1.SaveTeamRo
 }
 
 func (s *TeamService) DeleteTeamRole(ctx context.Context, req *palacev1.DeleteTeamRoleRequest) (*common.EmptyReply, error) {
-	if err := s.teamBiz.DeleteTeamRole(ctx, req.GetRoleID()); err != nil {
+	if err := s.teamBiz.DeleteTeamRole(ctx, req.GetRoleId()); err != nil {
 		return nil, err
 	}
 	return &common.EmptyReply{Message: "删除团队角色成功"}, nil
@@ -96,7 +141,7 @@ func (s *TeamService) DeleteTeamRole(ctx context.Context, req *palacev1.DeleteTe
 
 func (s *TeamService) UpdateTeamRoleStatus(ctx context.Context, req *palacev1.UpdateTeamRoleStatusRequest) (*common.EmptyReply, error) {
 	params := &bo.UpdateRoleStatusReq{
-		RoleID: req.GetRoleID(),
+		RoleID: req.GetRoleId(),
 		Status: vobj.GlobalStatus(req.GetStatus()),
 	}
 	if err := s.teamBiz.UpdateTeamRoleStatus(ctx, params); err != nil {

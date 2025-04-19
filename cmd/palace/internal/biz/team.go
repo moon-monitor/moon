@@ -8,6 +8,7 @@ import (
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/bo"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/repository"
+	"github.com/moon-monitor/moon/cmd/palace/internal/helper/permission"
 	"github.com/moon-monitor/moon/pkg/merr"
 )
 
@@ -19,6 +20,7 @@ func NewTeam(
 	teamRoleRepo repository.TeamRole,
 	menuRepo repository.Menu,
 	operateLogRepo repository.OperateLog,
+	memberRepo repository.Member,
 	transaction repository.Transaction,
 	logger log.Logger,
 ) *Team {
@@ -31,6 +33,7 @@ func NewTeam(
 		teamRoleRepo:        teamRoleRepo,
 		menuRepo:            menuRepo,
 		operateLogRepo:      operateLogRepo,
+		memberRepo:          memberRepo,
 		transaction:         transaction,
 	}
 }
@@ -44,6 +47,7 @@ type Team struct {
 	teamRoleRepo        repository.TeamRole
 	menuRepo            repository.Menu
 	operateLogRepo      repository.OperateLog
+	memberRepo          repository.Member
 	transaction         repository.Transaction
 }
 
@@ -163,4 +167,80 @@ func (t *Team) ListTeam(ctx context.Context, req *bo.TeamListRequest) (*bo.TeamL
 
 func (t *Team) OperateLogList(ctx context.Context, req *bo.OperateLogListRequest) (*bo.OperateLogListReply, error) {
 	return t.operateLogRepo.TeamList(ctx, req)
+}
+
+func (t *Team) GetTeamByID(ctx context.Context, teamID uint32) (do.Team, error) {
+	return t.teamRepo.FindByID(ctx, teamID)
+}
+
+func (t *Team) GetTeamMembers(ctx context.Context, req *bo.TeamMemberListRequest) (*bo.TeamMemberListReply, error) {
+	return t.memberRepo.List(ctx, req)
+}
+
+func (t *Team) UpdateMemberPosition(ctx context.Context, req *bo.UpdateMemberPositionReq) error {
+	userId, ok := permission.GetUserIDByContext(ctx)
+	if !ok {
+		return merr.ErrorUnauthorized("user not found in context")
+	}
+	operatorDo, err := t.memberRepo.FindByUserID(ctx, userId)
+	if err != nil {
+		return err
+	}
+	req.WithOperator(operatorDo)
+	memberDo, err := t.memberRepo.Get(ctx, req.MemberID)
+	if err != nil {
+		return err
+	}
+	req.WithMember(memberDo)
+	if err := req.Validate(); err != nil {
+		return err
+	}
+	return t.memberRepo.UpdatePosition(ctx, req)
+}
+
+func (t *Team) UpdateMemberStatus(ctx context.Context, req *bo.UpdateMemberStatusReq) error {
+	userId, ok := permission.GetUserIDByContext(ctx)
+	if !ok {
+		return merr.ErrorUnauthorized("user not found in context")
+	}
+	operatorDo, err := t.memberRepo.FindByUserID(ctx, userId)
+	if err != nil {
+		return err
+	}
+	req.WithOperator(operatorDo)
+	members, err := t.memberRepo.Find(ctx, req.MemberIds)
+	if err != nil {
+		return err
+	}
+	req.WithMembers(members)
+	if err := req.Validate(); err != nil {
+		return err
+	}
+	return t.memberRepo.UpdateStatus(ctx, req)
+}
+
+func (t *Team) UpdateMemberRoles(ctx context.Context, req *bo.UpdateMemberRolesReq) error {
+	userId, ok := permission.GetUserIDByContext(ctx)
+	if !ok {
+		return merr.ErrorUnauthorized("user not found in context")
+	}
+	operatorDo, err := t.memberRepo.FindByUserID(ctx, userId)
+	if err != nil {
+		return err
+	}
+	req.WithOperator(operatorDo)
+	memberDo, err := t.memberRepo.Get(ctx, req.MemberId)
+	if err != nil {
+		return err
+	}
+	req.WithMember(memberDo)
+	roles, err := t.teamRoleRepo.Find(ctx, req.RoleIds)
+	if err != nil {
+		return err
+	}
+	req.WithRoles(roles)
+	if err := req.Validate(); err != nil {
+		return err
+	}
+	return t.memberRepo.UpdateRoles(ctx, req)
 }

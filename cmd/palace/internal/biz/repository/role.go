@@ -14,6 +14,7 @@ type TeamRole interface {
 	Update(ctx context.Context, role bo.Role) error
 	Delete(ctx context.Context, id uint32) error
 	UpdateStatus(ctx context.Context, req *bo.UpdateRoleStatusReq) error
+	Find(ctx context.Context, ids []uint32) ([]do.TeamRole, error)
 }
 
 type Role interface {
