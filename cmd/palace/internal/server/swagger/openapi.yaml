@@ -2138,11 +2138,18 @@ components:
                 status:
                     type: array
                     items:
-                        $ref: '#/components/schemas/api.palace.common.SelectItem'
+                        type: integer
+                        format: enum
                     description: List of statuses to filter teams by
                 keyword:
                     type: string
                     description: Keyword to search teams by
+                leaderId:
+                    type: integer
+                    format: uint32
+                creatorId:
+                    type: integer
+                    format: uint32
             description: GetTeamListRequest represents the request data for listing teams
         api.palace.GetTeamMembersReply:
             type: object
@@ -2261,6 +2268,9 @@ components:
                     allOf:
                         - $ref: '#/components/schemas/api.palace.common.PaginationRequest'
                     description: Pagination request details
+                keyword:
+                    type: string
+                    description: Keyword to search users by
             description: GetUserListRequest represents the request data for listing users
         api.palace.GetUserReply:
             type: object
@@ -2784,7 +2794,7 @@ components:
                 remark:
                     type: string
                     description: Role remark or description
-                resourceIds:
+                menuIds:
                     type: array
                     items:
                         type: integer
@@ -2991,7 +3001,7 @@ components:
         api.palace.SaveTeamRoleRequest:
             type: object
             properties:
-                roleID:
+                roleId:
                     type: integer
                     description: Role ID, optional for new roles
                     format: uint32
@@ -3001,7 +3011,7 @@ components:
                 remark:
                     type: string
                     description: Role remark or description
-                resourceIDs:
+                menuIds:
                     type: array
                     items:
                         type: integer
@@ -3633,21 +3643,6 @@ components:
                     type: string
                     description: Last update time of the API resource
             description: system-api
-        api.palace.common.SelectItem:
-            type: object
-            properties:
-                value:
-                    type: integer
-                    format: uint32
-                label:
-                    type: string
-                disabled:
-                    type: boolean
-            description: |-
-                SelectItem represents an option in a selection, including its value, display label, and whether it is disabled.
-                 value: The actual value of the option.
-                 label: The label displayed for the option.
-                 disabled: Indicates whether the option is disabled, true for disabled, false for enabled.
         api.palace.common.StrategyMetricRuleLabelNotice:
             type: object
             properties:
@@ -3686,6 +3681,24 @@ components:
                     type: integer
                     description: Status of the system role
                     format: enum
+                createdAt:
+                    type: string
+                    description: Creation time of the system role
+                updatedAt:
+                    type: string
+                    description: Last update time of the system role
+                resources:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/api.palace.common.ResourceItem'
+                    description: List of resources associated with the system role
+                users:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/api.palace.common.UserBaseItem'
+                    description: List of users assigned to the system role
+                creator:
+                    $ref: '#/components/schemas/api.palace.common.UserBaseItem'
         api.palace.common.TLS:
             type: object
             properties:
@@ -3977,6 +3990,8 @@ components:
                 updatedAt:
                     type: string
                     description: Timestamp indicating when the role was last updated.
+                creator:
+                    $ref: '#/components/schemas/api.palace.common.UserBaseItem'
             description: TeamRoleItem represents the structure of a team role.
         api.palace.common.TeamStrategyGroupItem:
             type: object

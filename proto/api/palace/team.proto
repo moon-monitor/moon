@@ -226,7 +226,7 @@ message GetTeamRolesRequest {
   // Keyword to search roles by
   string keyword = 2 [(buf.validate.field).string.max_len = 20];
   // Status to filter roles by
-  api.palace.common.RoleStatus status = 3;
+  api.palace.common.GlobalStatus status = 3;
 }
 
 // GetTeamRolesReply contains the response data for retrieving team roles
@@ -240,7 +240,7 @@ message GetTeamRolesReply {
 // SaveTeamRoleRequest represents the request data for saving or updating a team role
 message SaveTeamRoleRequest {
   // Role ID, optional for new roles
-  uint32 roleID = 1 [(buf.validate.field).required = true];
+  uint32 roleId = 1 [(buf.validate.field).required = true];
   // Role name
   string name = 2 [(buf.validate.field).cel = {
     message: "name max length is 32"
@@ -252,7 +252,7 @@ message SaveTeamRoleRequest {
     expression: "this.size() <= 200"
   }];
   // List of resource IDs associated with the role
-  repeated uint32 resourceIDs = 6;
+  repeated uint32 menuIds = 6;
 }
 
 // UpdateMemberPositionRequest represents the request data for updating a member's position
@@ -305,7 +305,7 @@ message UpdateTeamRoleStatusRequest {
   // Role ID
   uint32 roleID = 1 [(buf.validate.field).required = true];
   // New status for the role
-  api.palace.common.RoleStatus status = 2 [(buf.validate.field).required = true];
+  api.palace.common.GlobalStatus status = 2 [(buf.validate.field).required = true];
 }
 
 // SaveEmailConfigRequest represents the request data for saving or updating the email configuration

@@ -4,11 +4,9 @@ import (
 	"context"
 	_ "embed"
 
-	"github.com/go-kratos/kratos/v2/errors"
 	"github.com/go-kratos/kratos/v2/log"
 	"gorm.io/gen"
 	"gorm.io/gen/field"
-	"gorm.io/gorm"
 
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/bo"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do"
@@ -224,27 +222,6 @@ func (u *userRepoImpl) GetTeamsByUserID(ctx context.Context, userID uint32) ([]d
 	return teams, nil
 }
 
-// GetMemberByUserIDAndTeamID Gets information about a user's membership in a particular team
-func (u *userRepoImpl) GetMemberByUserIDAndTeamID(ctx context.Context, userID uint32) (do.TeamMember, error) {
-	bizQuery, teamID, err := getTeamBizQuery(ctx, u)
-	if err != nil {
-		return nil, err
-	}
-	teamMemberQuery := bizQuery.Member
-	member, err := teamMemberQuery.WithContext(ctx).
-		Where(teamMemberQuery.UserID.Eq(userID), teamMemberQuery.TeamID.Eq(teamID)).
-		Preload(teamMemberQuery.Roles.Menus.RelationField).
-		First()
-	if err != nil {
-		if errors.Is(err, gorm.ErrRecordNotFound) {
-			return nil, merr.ErrorPermissionDenied("team member not found")
-		}
-		return nil, err
-	}
-
-	return member, nil
-}
-
 func (u *userRepoImpl) UpdateUserInfo(ctx context.Context, user do.User) error {
 	userMutation := getMainQuery(ctx, u).User
 	_, err := userMutation.WithContext(ctx).
@@ -330,4 +307,42 @@ func (u *userRepoImpl) UpdateUserPosition(ctx context.Context, req *bo.UpdateUse
 		Where(userMutation.ID.Eq(req.UserId)).
 		UpdateSimple(userMutation.Position.Value(req.Position.GetValue()))
 	return err
+}
+
+func (u *userRepoImpl) List(ctx context.Context, req *bo.UserListRequest) (*bo.UserListReply, error) {
+	query := getMainQuery(ctx, u)
+	userQuery := query.User
+	wrapper := userQuery.WithContext(ctx)
+
+	if !validate.TextIsNull(req.Keyword) {
+		ors := []gen.Condition{
+			userQuery.Nickname.Like(req.Keyword),
+			userQuery.Username.Like(req.Keyword),
+			userQuery.Remark.Like(req.Keyword),
+			userQuery.Email.Eq(crypto.String(req.Keyword)),
+			userQuery.Phone.Eq(crypto.String(req.Keyword)),
+		}
+		wrapper = wrapper.Where(userQuery.Or(ors...))
+	}
+	if len(req.Status) > 0 {
+		status := slices.Map(req.Status, func(statusItem vobj.UserStatus) int8 { return statusItem.GetValue() })
+		wrapper = wrapper.Where(userQuery.Status.In(status...))
+	}
+	if len(req.Position) > 0 {
+		position := slices.Map(req.Position, func(positionItem vobj.Role) int8 { return positionItem.GetValue() })
+		wrapper = wrapper.Where(userQuery.Position.In(position...))
+	}
+	if validate.IsNotNil(req.PaginationRequest) {
+		total, err := wrapper.Count()
+		if err != nil {
+			return nil, err
+		}
+		wrapper = wrapper.Offset(req.Offset()).Limit(int(req.Limit))
+		req.WithTotal(total)
+	}
+	users, err := wrapper.Find()
+	if err != nil {
+		return nil, err
+	}
+	return req.ToListUserReply(users), nil
 }

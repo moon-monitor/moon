@@ -5,7 +5,7 @@ import (
 
 	"gorm.io/gen"
 	"gorm.io/gen/field"
-	
+
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/bo"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do/team"
@@ -38,7 +38,7 @@ func (t *teamRoleImpl) Get(ctx context.Context, id uint32) (do.TeamRole, error) 
 	return roleQuery.WithContext(ctx).Where(wrapper...).First()
 }
 
-func (t *teamRoleImpl) List(ctx context.Context, req *bo.ListRoleReq) (*bo.ListRoleReply, error) {
+func (t *teamRoleImpl) List(ctx context.Context, req *bo.ListRoleReq) (*bo.ListTeamRoleReply, error) {
 	bizQuery, teamID, err := getTeamBizQuery(ctx, t)
 	if err != nil {
 		return nil, err
@@ -154,7 +154,7 @@ func (t *teamRoleImpl) Delete(ctx context.Context, id uint32) error {
 	return err
 }
 
-func (t *teamRoleImpl) UpdateStatus(ctx context.Context, req *bo.UpdateTeamRoleStatusReq) error {
+func (t *teamRoleImpl) UpdateStatus(ctx context.Context, req *bo.UpdateRoleStatusReq) error {
 	bizQuery, teamID, err := getTeamBizQuery(ctx, t)
 	if err != nil {
 		return err

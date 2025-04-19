@@ -11,10 +11,17 @@ import (
 	"github.com/moon-monitor/moon/pkg/api/palace/common"
 )
 
-func NewSystemService(userBiz *biz.UserBiz, messageBiz *biz.Message) *SystemService {
+func NewSystemService(
+	userBiz *biz.UserBiz,
+	messageBiz *biz.Message,
+	teamBiz *biz.Team,
+	systemBiz *biz.System,
+) *SystemService {
 	return &SystemService{
 		userBiz:    userBiz,
 		messageBiz: messageBiz,
+		teamBiz:    teamBiz,
+		systemBiz:  systemBiz,
 	}
 }
 
@@ -22,6 +29,8 @@ type SystemService struct {
 	palacev1.UnimplementedSystemServer
 	userBiz    *biz.UserBiz
 	messageBiz *biz.Message
+	teamBiz    *biz.Team
+	systemBiz  *biz.System
 }
 
 func (s *SystemService) UpdateUser(ctx context.Context, req *palacev1.UpdateUserRequest) (*common.EmptyReply, error) {
@@ -77,23 +86,57 @@ func (s *SystemService) GetUser(ctx context.Context, req *palacev1.GetUserReques
 }
 
 func (s *SystemService) GetUserList(ctx context.Context, req *palacev1.GetUserListRequest) (*palacev1.GetUserListReply, error) {
-	return &palacev1.GetUserListReply{}, nil
+	params := build.ToUserListRequest(req)
+	userReply, err := s.userBiz.ListUser(ctx, params)
+	if err != nil {
+		return nil, err
+	}
+	return &palacev1.GetUserListReply{
+		Items:      build.UsersToUserItemsProto(userReply.Items),
+		Pagination: build.ToPaginationReplyProto(userReply.PaginationReply),
+	}, nil
 }
 
 func (s *SystemService) GetTeamList(ctx context.Context, req *palacev1.GetTeamListRequest) (*palacev1.GetTeamListReply, error) {
-	return &palacev1.GetTeamListReply{}, nil
+	params := build.ToTeamListRequest(req)
+	teamReply, err := s.teamBiz.ListTeam(ctx, params)
+	if err != nil {
+		return nil, err
+	}
+
+	return &palacev1.GetTeamListReply{
+		Items:      build.TeamsToTeamItemsProto(teamReply.Items),
+		Pagination: build.ToPaginationReplyProto(teamReply.PaginationReply),
+	}, nil
 }
 
 func (s *SystemService) GetSystemRole(ctx context.Context, req *palacev1.GetSystemRoleRequest) (*palacev1.GetSystemRoleReply, error) {
-	return &palacev1.GetSystemRoleReply{}, nil
+	roleDo, err := s.systemBiz.GetRole(ctx, req.GetRoleId())
+	if err != nil {
+		return nil, err
+	}
+	return &palacev1.GetSystemRoleReply{
+		Role: build.ToSystemRoleItem(roleDo),
+	}, nil
 }
 
 func (s *SystemService) SaveRole(ctx context.Context, req *palacev1.SaveRoleRequest) (*common.EmptyReply, error) {
-	return &common.EmptyReply{}, nil
+	params := build.ToSaveRoleRequest(req)
+	if err := s.systemBiz.SaveRole(ctx, params); err != nil {
+		return nil, err
+	}
+	return &common.EmptyReply{Message: "保存角色成功"}, nil
 }
 
 func (s *SystemService) UpdateRoleStatus(ctx context.Context, req *palacev1.UpdateRoleStatusRequest) (*common.EmptyReply, error) {
-	return &common.EmptyReply{}, nil
+	params := &bo.UpdateRoleStatusReq{
+		RoleID: req.GetRoleId(),
+		Status: vobj.GlobalStatus(req.GetStatus()),
+	}
+	if err := s.systemBiz.UpdateRoleStatus(ctx, params); err != nil {
+		return nil, err
+	}
+	return &common.EmptyReply{Message: "更新角色状态成功"}, nil
 }
 
 func (s *SystemService) UpdateUserRoles(ctx context.Context, req *palacev1.UpdateUserRolesRequest) (*common.EmptyReply, error) {

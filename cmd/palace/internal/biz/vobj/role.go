@@ -3,7 +3,7 @@ package vobj
 // Role System unified role.
 //
 //go:generate stringer -type=Role -linecomment -output=role.string.go
-type Role int
+type Role int8
 
 const (
 	RoleUnknown    Role = iota // unknown

@@ -2,7 +2,9 @@ package bo
 
 import (
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do"
+	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do/system"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/vobj"
+	"github.com/moon-monitor/moon/pkg/util/slices"
 )
 
 type UserUpdateInfo struct {
@@ -77,3 +79,19 @@ type UpdateUserPositionRequest struct {
 	UserId   uint32
 	Position vobj.Role
 }
+
+type UserListRequest struct {
+	*PaginationRequest
+	Status   []vobj.UserStatus `json:"status"`
+	Position []vobj.Role       `json:"position"`
+	Keyword  string            `json:"keyword"`
+}
+
+func (r *UserListRequest) ToListUserReply(users []*system.User) *UserListReply {
+	return &UserListReply{
+		PaginationReply: r.ToReply(),
+		Items:           slices.Map(users, func(user *system.User) do.User { return user }),
+	}
+}
+
+type UserListReply = ListReply[do.User]

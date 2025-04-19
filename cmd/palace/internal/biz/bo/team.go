@@ -104,9 +104,11 @@ func (o *SaveOneTeamRequest) GetCapacity() vobj.TeamCapacity {
 
 type TeamListRequest struct {
 	*PaginationRequest
-	Keyword string
-	Status  []vobj.TeamStatus
-	UserIds []uint32
+	Keyword   string
+	Status    []vobj.TeamStatus
+	UserIds   []uint32
+	LeaderId  uint32
+	CreatorId uint32
 }
 
 func (r *TeamListRequest) ToTeamListReply(items []*system.Team) *TeamListReply {

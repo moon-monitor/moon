@@ -49,7 +49,7 @@ message TeamRoleItem {
   // Remarks or additional information about the role.
   string remark = 3;
   // Status of the role.
-  api.palace.common.RoleStatus status = 4;
+  api.palace.common.GlobalStatus status = 4;
   // List of resources associated with the role.
   repeated api.palace.common.ResourceItem resources = 5;
   // List of members assigned to the role.
@@ -58,6 +58,7 @@ message TeamRoleItem {
   string createdAt = 7;
   // Timestamp indicating when the role was last updated.
   string updatedAt = 8;
+  UserBaseItem creator = 9;
 }
 
 // TeamMemberItem represents the structure of a team member.

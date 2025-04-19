@@ -142,7 +142,7 @@ func (t *Team) SaveTeamRole(ctx context.Context, req *bo.SaveTeamRoleReq) error 
 	})
 }
 
-func (t *Team) GetTeamRoles(ctx context.Context, req *bo.ListRoleReq) (*bo.ListRoleReply, error) {
+func (t *Team) GetTeamRoles(ctx context.Context, req *bo.ListRoleReq) (*bo.ListTeamRoleReply, error) {
 	return t.teamRoleRepo.List(ctx, req)
 }
 
@@ -150,6 +150,10 @@ func (t *Team) DeleteTeamRole(ctx context.Context, roleID uint32) error {
 	return t.teamRoleRepo.Delete(ctx, roleID)
 }
 
-func (t *Team) UpdateTeamRoleStatus(ctx context.Context, req *bo.UpdateTeamRoleStatusReq) error {
+func (t *Team) UpdateTeamRoleStatus(ctx context.Context, req *bo.UpdateRoleStatusReq) error {
 	return t.teamRoleRepo.UpdateStatus(ctx, req)
+}
+
+func (t *Team) ListTeam(ctx context.Context, req *bo.TeamListRequest) (*bo.TeamListReply, error) {
+	return t.teamRepo.List(ctx, req)
 }

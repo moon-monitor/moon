@@ -95,3 +95,12 @@ func ToPasswordUpdateInfo(req *palacev1.UpdateSelfPasswordRequest, sendEmailFun 
 		SendEmailFun: sendEmailFun,
 	}
 }
+
+func ToUserListRequest(req *palacev1.GetUserListRequest) *bo.UserListRequest {
+	return &bo.UserListRequest{
+		PaginationRequest: ToPaginationRequest(req.GetPagination()),
+		Status:            slices.Map(req.GetStatus(), func(status common.UserStatus) vobj.UserStatus { return vobj.UserStatus(status) }),
+		Position:          slices.Map(req.GetPosition(), func(position common.UserPosition) vobj.Role { return vobj.Role(position) }),
+		Keyword:           req.GetKeyword(),
+	}
+}

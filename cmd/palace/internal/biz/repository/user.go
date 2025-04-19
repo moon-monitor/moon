@@ -17,8 +17,8 @@ type User interface {
 	UpdateUserInfo(ctx context.Context, user do.User) error
 	UpdatePassword(ctx context.Context, updateUserPasswordInfo *bo.UpdateUserPasswordInfo) error
 	GetTeamsByUserID(ctx context.Context, userID uint32) ([]do.Team, error)
-	GetMemberByUserIDAndTeamID(ctx context.Context, userID uint32) (do.TeamMember, error)
 	AppendTeam(ctx context.Context, team do.Team) error
 	UpdateUserStatus(ctx context.Context, req *bo.UpdateUserStatusRequest) error
 	UpdateUserPosition(ctx context.Context, req *bo.UpdateUserPositionRequest) error
+	List(ctx context.Context, req *bo.UserListRequest) (*bo.UserListReply, error)
 }

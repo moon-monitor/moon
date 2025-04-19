@@ -3,8 +3,12 @@ package build
 import (
 	"time"
 
+	"github.com/moon-monitor/moon/cmd/palace/internal/biz/bo"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do"
+	"github.com/moon-monitor/moon/cmd/palace/internal/biz/vobj"
+	"github.com/moon-monitor/moon/pkg/api/palace"
 	"github.com/moon-monitor/moon/pkg/api/palace/common"
+	"github.com/moon-monitor/moon/pkg/util/slices"
 	"github.com/moon-monitor/moon/pkg/util/validate"
 )
 
@@ -44,4 +48,15 @@ func TeamsToTeamItemsProto(teams []do.Team) []*common.TeamItem {
 	}
 
 	return items
+}
+
+func ToTeamListRequest(req *palace.GetTeamListRequest) *bo.TeamListRequest {
+	return &bo.TeamListRequest{
+		PaginationRequest: ToPaginationRequest(req.GetPagination()),
+		Keyword:           req.GetKeyword(),
+		Status:            slices.Map(req.GetStatus(), func(status common.TeamStatus) vobj.TeamStatus { return vobj.TeamStatus(status) }),
+		UserIds:           nil,
+		LeaderId:          req.GetLeaderId(),
+		CreatorId:         req.GetCreatorId(),
+	}
 }

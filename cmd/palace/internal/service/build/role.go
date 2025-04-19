@@ -28,29 +28,61 @@ func ToTeamRoleItem(role do.TeamRole) *common.TeamRoleItem {
 		Id:        role.GetID(),
 		Name:      role.GetName(),
 		Remark:    role.GetRemark(),
-		Status:    common.RoleStatus(role.GetStatus()),
+		Status:    common.GlobalStatus(role.GetStatus()),
 		Resources: nil,
 		Members:   nil,
 		CreatedAt: role.GetCreatedAt().Format(time.RFC3339),
 		UpdatedAt: role.GetUpdatedAt().Format(time.RFC3339),
+		Creator:   UserToUserBaseItemProto(role.GetCreator()),
 	}
 }
 
-func ToListTeamRoleReply(reply *bo.ListRoleReply) *palace.GetTeamRolesReply {
-	if validate.IsNil(reply) {
-		return &palace.GetTeamRolesReply{}
+func ToTeamRoleItems(roles []do.TeamRole) []*common.TeamRoleItem {
+	return slices.Map(roles, ToTeamRoleItem)
+}
+
+func ToSystemRoleItem(role do.Role) *common.SystemRoleItem {
+	if validate.IsNil(role) {
+		return nil
 	}
-	return &palace.GetTeamRolesReply{
-		Items:      slices.Map(reply.Items, ToTeamRoleItem),
-		Pagination: ToPaginationReplyProto(reply.PaginationReply),
+	return &common.SystemRoleItem{
+		Id:        role.GetID(),
+		Name:      role.GetName(),
+		Remark:    role.GetRemark(),
+		Status:    common.GlobalStatus(role.GetStatus()),
+		CreatedAt: role.GetCreatedAt().Format(time.RFC3339),
+		UpdatedAt: role.GetUpdatedAt().Format(time.RFC3339),
+		Resources: nil,
+		Users:     nil,
+		Creator:   UserToUserBaseItemProto(role.GetCreator()),
 	}
 }
 
-func ToSaveTeamRoleRequest(req *palace.SaveTeamRoleRequest) *bo.SaveTeamRoleReq {
+func ToSystemRoleItems(roles []do.Role) []*common.SystemRoleItem {
+	return slices.Map(roles, ToSystemRoleItem)
+}
+
+type SaveTeamRoleRequest interface {
+	GetRoleId() uint32
+	GetName() string
+	GetRemark() string
+	GetMenuIds() []uint32
+}
+
+func ToSaveTeamRoleRequest(req SaveTeamRoleRequest) *bo.SaveTeamRoleReq {
 	return &bo.SaveTeamRoleReq{
-		ID:      req.GetRoleID(),
+		ID:      req.GetRoleId(),
 		Name:    req.GetName(),
 		Remark:  req.GetRemark(),
-		MenuIds: req.GetResourceIDs(),
+		MenuIds: req.GetMenuIds(),
+	}
+}
+
+func ToSaveRoleRequest(req SaveTeamRoleRequest) *bo.SaveRoleReq {
+	return &bo.SaveRoleReq{
+		ID:      req.GetRoleId(),
+		Name:    req.GetName(),
+		Remark:  req.GetRemark(),
+		MenuIds: req.GetMenuIds(),
 	}
 }

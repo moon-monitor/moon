@@ -73,7 +73,10 @@ func (s *TeamService) GetTeamRoles(ctx context.Context, req *palacev1.GetTeamRol
 	if err != nil {
 		return nil, err
 	}
-	return build.ToListTeamRoleReply(roleReply), nil
+	return &palacev1.GetTeamRolesReply{
+		Items:      build.ToTeamRoleItems(roleReply.Items),
+		Pagination: build.ToPaginationReplyProto(roleReply.PaginationReply),
+	}, nil
 }
 
 func (s *TeamService) SaveTeamRole(ctx context.Context, req *palacev1.SaveTeamRoleRequest) (*common.EmptyReply, error) {
@@ -92,7 +95,7 @@ func (s *TeamService) DeleteTeamRole(ctx context.Context, req *palacev1.DeleteTe
 }
 
 func (s *TeamService) UpdateTeamRoleStatus(ctx context.Context, req *palacev1.UpdateTeamRoleStatusRequest) (*common.EmptyReply, error) {
-	params := &bo.UpdateTeamRoleStatusReq{
+	params := &bo.UpdateRoleStatusReq{
 		RoleID: req.GetRoleID(),
 		Status: vobj.GlobalStatus(req.GetStatus()),
 	}

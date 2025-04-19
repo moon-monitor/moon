@@ -102,6 +102,12 @@ func (r *teamRepoImpl) List(ctx context.Context, req *bo.TeamListRequest) (*bo.T
 		status := slices.Map(req.Status, func(statusItem vobj.TeamStatus) int8 { return statusItem.GetValue() })
 		wrapper = wrapper.Where(teamQuery.Status.In(status...))
 	}
+	if req.LeaderId > 0 {
+		wrapper = wrapper.Where(teamQuery.LeaderID.Eq(req.LeaderId))
+	}
+	if req.CreatorId > 0 {
+		wrapper = wrapper.Where(teamQuery.CreatorID.Eq(req.CreatorId))
+	}
 	if len(req.UserIds) > 0 {
 		userQuery := query.User
 		users, err := userQuery.WithContext(ctx).Where(userQuery.ID.In(req.UserIds...)).Preload(userQuery.Teams).Find()

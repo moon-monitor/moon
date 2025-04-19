@@ -73,7 +73,16 @@ message SystemRoleItem {
   // Remarks about the system role
   string remark = 3;
   // Status of the system role
-  api.palace.common.RoleStatus status = 4;
+  api.palace.common.GlobalStatus status = 4;
+  // Creation time of the system role
+  string createdAt = 5;
+  // Last update time of the system role
+  string updatedAt = 6;
+  // List of resources associated with the system role
+  repeated ResourceItem resources = 7;
+  // List of users assigned to the system role
+  repeated UserBaseItem users = 8;
+  UserBaseItem creator = 9;
 }
 
 message TeamBaseItem {

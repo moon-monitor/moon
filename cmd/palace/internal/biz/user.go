@@ -183,3 +183,7 @@ func (b *UserBiz) UpdateUserPosition(ctx context.Context, req *bo.UpdateUserPosi
 func (b *UserBiz) GetUser(ctx context.Context, userID uint32) (do.User, error) {
 	return b.userRepo.FindByID(ctx, userID)
 }
+
+func (b *UserBiz) ListUser(ctx context.Context, req *bo.UserListRequest) (*bo.UserListReply, error) {
+	return b.userRepo.List(ctx, req)
+}

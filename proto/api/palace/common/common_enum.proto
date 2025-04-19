@@ -14,16 +14,6 @@ enum GlobalStatus {
   GLOBAL_STATUS_ENABLE = 2;
 }
 
-// RoleStatus represents the status of a role.
-enum RoleStatus {
-  // ROLE_STATUS_UNKNOWN is the default status when the role status is unknown.
-  ROLE_STATUS_UNKNOWN = 0;
-  // ROLE_STATUS_NORMAL indicates that the role is in a normal state.
-  ROLE_STATUS_NORMAL = 1;
-  // ROLE_STATUS_FORBIDDEN indicates that the role is forbidden.
-  ROLE_STATUS_FORBIDDEN = 2;
-}
-
 // OperateType represents the type of an operation.
 enum OperateType {
   // OPERATE_TYPE_UNKNOWN is the default type when the operation type is unknown.

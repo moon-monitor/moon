@@ -9,6 +9,7 @@ import "palace/common/system_enum.proto";
 import "palace/common/common.proto";
 import "palace/common/common_enum.proto";
 import "palace/common/team.proto";
+import "palace/common/team_enum.proto";
 
 option go_package = "github.com/moon-monitor/moon/pkg/api/palace;palace";
 
@@ -192,6 +193,8 @@ message GetUserListRequest {
   repeated api.palace.common.UserPosition position = 2;
   // Pagination request details
   api.palace.common.PaginationRequest pagination = 3;
+  // Keyword to search users by
+  string keyword = 4;
 }
 
 // GetUserListReply contains the response data for listing users
@@ -207,9 +210,11 @@ message GetTeamListRequest {
   // Pagination request details
   api.palace.common.PaginationRequest pagination = 1;
   // List of statuses to filter teams by
-  repeated api.palace.common.SelectItem status = 2;
+  repeated api.palace.common.TeamStatus status = 2;
   // Keyword to search teams by
   string keyword = 3;
+  uint32 leaderId = 4;
+  uint32 creatorId = 5;
 }
 
 // GetTeamListReply contains the response data for listing teams
@@ -235,7 +240,7 @@ message SaveRoleRequest {
     expression: "this.size() <= 200"
   }];
   // List of resource IDs associated with the role
-  repeated uint32 resourceIds = 4 [(buf.validate.field).required = true];
+  repeated uint32 menuIds = 4 [(buf.validate.field).required = true];
 }
 
 // UpdateRoleStatusRequest represents the request data for updating role status
@@ -243,7 +248,7 @@ message UpdateRoleStatusRequest {
   // Role ID
   uint32 roleId = 1 [(buf.validate.field).required = true];
   // New status for the role
-  api.palace.common.RoleStatus status = 2 [(buf.validate.field).required = true];
+  api.palace.common.GlobalStatus status = 2 [(buf.validate.field).required = true];
 }
 
 // UpdateUserRolesRequest represents the request data for updating user roles
