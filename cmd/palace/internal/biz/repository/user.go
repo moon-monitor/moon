@@ -19,7 +19,7 @@ type User interface {
 	GetTeamsByUserID(ctx context.Context, userID uint32) ([]do.Team, error)
 	AppendTeam(ctx context.Context, team do.Team) error
 	UpdateUserStatus(ctx context.Context, req *bo.UpdateUserStatusRequest) error
-	UpdateUserPosition(ctx context.Context, req *bo.UpdateUserPositionRequest) error
+	UpdateUserPosition(ctx context.Context, req bo.UpdateUserPosition) error
 	List(ctx context.Context, req *bo.UserListRequest) (*bo.UserListReply, error)
 	Find(ctx context.Context, ids []uint32) ([]do.User, error)
 	UpdateUserRoles(ctx context.Context, req bo.UpdateUserRoles) error

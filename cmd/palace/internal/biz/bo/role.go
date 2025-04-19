@@ -5,6 +5,7 @@ import (
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do/system"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do/team"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/vobj"
+	"github.com/moon-monitor/moon/pkg/merr"
 	"github.com/moon-monitor/moon/pkg/util/slices"
 	"github.com/moon-monitor/moon/pkg/util/validate"
 )
@@ -182,29 +183,23 @@ type UpdateRoleStatusReq struct {
 }
 
 type UpdateRoleUsers interface {
-	GetRoleID() uint32
-	GetUserIds() []uint32
+	GetRole() do.Role
 	GetUsers() []do.User
 }
 
 type UpdateRoleUsersReq struct {
-	RoleID  uint32   `json:"roleId"`
-	UserIDs []uint32 `json:"userIds"`
-	users   []do.User
+	RoleID   uint32   `json:"roleId"`
+	UserIDs  []uint32 `json:"userIds"`
+	users    []do.User
+	operator do.User
+	role     do.Role
 }
 
-func (r *UpdateRoleUsersReq) GetRoleID() uint32 {
-	if r == nil {
-		return 0
-	}
-	return r.RoleID
-}
-
-func (r *UpdateRoleUsersReq) GetUserIds() []uint32 {
+func (r *UpdateRoleUsersReq) GetRole() do.Role {
 	if r == nil {
 		return nil
 	}
-	return r.UserIDs
+	return r.role
 }
 
 func (r *UpdateRoleUsersReq) GetUsers() []do.User {
@@ -214,7 +209,41 @@ func (r *UpdateRoleUsersReq) GetUsers() []do.User {
 	return r.users
 }
 
-func (r *UpdateRoleUsersReq) WithUsers(users []do.User) UpdateRoleUsers {
-	r.users = users
+func (r *UpdateRoleUsersReq) WithUsers(users []do.User) *UpdateRoleUsersReq {
+	r.users = slices.MapFilter(users, func(user do.User) (do.User, bool) {
+		if validate.IsNil(user) || user.GetID() <= 0 {
+			return nil, false
+		}
+		return user, true
+	})
 	return r
+}
+
+func (r *UpdateRoleUsersReq) WithRole(role do.Role) *UpdateRoleUsersReq {
+	r.role = role
+	return r
+}
+
+func (r *UpdateRoleUsersReq) WithOperator(operator do.User) *UpdateRoleUsersReq {
+	r.operator = operator
+	return r
+}
+
+func (r *UpdateRoleUsersReq) Validate() error {
+	if validate.IsNil(r.operator) {
+		return merr.ErrorParamsError("invalid operator")
+	}
+	if validate.IsNil(r.role) {
+		return merr.ErrorParamsError("invalid role")
+	}
+	operatorPosition := r.operator.GetPosition()
+	if operatorPosition.IsSuperAdmin() {
+		return nil
+	}
+	for _, user := range r.users {
+		if !(operatorPosition.GT(user.GetPosition()) && operatorPosition.IsAdminOrSuperAdmin()) {
+			return merr.ErrorParamsError("invalid position")
+		}
+	}
+	return nil
 }

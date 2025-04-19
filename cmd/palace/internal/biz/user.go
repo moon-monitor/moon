@@ -172,11 +172,15 @@ func (b *UserBiz) UpdateUserPosition(ctx context.Context, req *bo.UpdateUserPosi
 	if err != nil {
 		return err
 	}
-
-	if !(operator.GetPosition().IsAdminOrSuperAdmin() && operator.GetPosition().GT(req.Position)) {
-		return merr.ErrorPermissionDenied("user position is invalid")
+	req.WithOperator(operator)
+	user, err := b.userRepo.FindByID(ctx, req.UserId)
+	if err != nil {
+		return err
 	}
-
+	req.WithUser(user)
+	if err := req.Validate(); err != nil {
+		return err
+	}
 	return b.userRepo.UpdateUserPosition(ctx, req)
 }
 

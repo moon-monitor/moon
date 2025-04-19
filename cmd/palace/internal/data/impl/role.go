@@ -155,7 +155,7 @@ func (r *roleImpl) UpdateUsers(ctx context.Context, req bo.UpdateRoleUsers) erro
 	roleDo := &system.Role{
 		CreatorModel: do.CreatorModel{
 			BaseModel: do.BaseModel{
-				ID: req.GetRoleID(),
+				ID: req.GetRole().GetID(),
 			},
 		},
 	}

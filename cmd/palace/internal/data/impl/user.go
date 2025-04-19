@@ -45,7 +45,7 @@ func (u *userRepoImpl) UpdateUserRoles(ctx context.Context, req bo.UpdateUserRol
 	userMutation := getMainQuery(ctx, u).User
 	userDo := &system.User{
 		BaseModel: do.BaseModel{
-			ID: req.GetUserID(),
+			ID: req.GetUser().GetID(),
 		},
 	}
 	roles := slices.MapFilter(req.GetRoles(), func(role do.Role) (*system.Role, bool) {
@@ -346,11 +346,11 @@ func (u *userRepoImpl) UpdateUserStatus(ctx context.Context, req *bo.UpdateUserS
 	return err
 }
 
-func (u *userRepoImpl) UpdateUserPosition(ctx context.Context, req *bo.UpdateUserPositionRequest) error {
+func (u *userRepoImpl) UpdateUserPosition(ctx context.Context, req bo.UpdateUserPosition) error {
 	userMutation := getMainQuery(ctx, u).User
 	_, err := userMutation.WithContext(ctx).
-		Where(userMutation.ID.Eq(req.UserId)).
-		UpdateSimple(userMutation.Position.Value(req.Position.GetValue()))
+		Where(userMutation.ID.Eq(req.GetUser().GetID())).
+		UpdateSimple(userMutation.Position.Value(req.GetPosition().GetValue()))
 	return err
 }
 
