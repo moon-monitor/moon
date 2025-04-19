@@ -16,16 +16,19 @@ import (
 // NewResourceBiz 创建资源业务逻辑
 func NewResourceBiz(
 	resourceRepo repository.Resource,
+	transaction repository.Transaction,
 	logger log.Logger,
 ) *ResourceBiz {
 	return &ResourceBiz{
 		resourceRepo: resourceRepo,
+		transaction:  transaction,
 		helper:       log.NewHelper(log.With(logger, "module", "biz.resource")),
 	}
 }
 
 type ResourceBiz struct {
 	resourceRepo repository.Resource
+	transaction  repository.Transaction
 	helper       *log.Helper
 }
 
@@ -51,4 +54,77 @@ func (r *ResourceBiz) SelfMenus(ctx context.Context) ([]do.Menu, error) {
 
 func (r *ResourceBiz) Menus(ctx context.Context, t vobj.MenuType) ([]do.Menu, error) {
 	return r.resourceRepo.GetMenus(ctx, t)
+}
+
+func (r *ResourceBiz) SaveResource(ctx context.Context, req *bo.SaveResourceReq) error {
+	return r.transaction.MainExec(ctx, func(ctx context.Context) error {
+		if req.ID <= 0 {
+			return r.resourceRepo.CreateResource(ctx, req)
+		}
+		resourceDo, err := r.resourceRepo.GetResourceByID(ctx, req.ID)
+		if err != nil {
+			return err
+		}
+		return r.resourceRepo.UpdateResource(ctx, req.WithResource(resourceDo))
+	})
+}
+
+func (r *ResourceBiz) SaveMenu(ctx context.Context, req *bo.SaveMenuReq) error {
+	return r.transaction.MainExec(ctx, func(ctx context.Context) error {
+		if req.ID <= 0 {
+			return r.resourceRepo.CreateMenu(ctx, req)
+		}
+		menuDo, err := r.resourceRepo.GetMenuByID(ctx, req.ID)
+		if err != nil {
+			return err
+		}
+		req.WithMenu(menuDo)
+		parentDo, err := r.resourceRepo.GetMenuByID(ctx, req.ParentID)
+		if err != nil {
+			return err
+		}
+		req.WithParent(parentDo)
+		if len(req.ResourceIds) > 0 {
+			resourceDos, err := r.resourceRepo.Find(ctx, req.ResourceIds)
+			if err != nil {
+				return err
+			}
+			req.WithResources(resourceDos)
+		}
+		return r.resourceRepo.UpdateMenu(ctx, req)
+	})
+}
+
+func (r *ResourceBiz) SaveTeamMenu(ctx context.Context, req *bo.SaveMenuReq) error {
+	return r.transaction.BizExec(ctx, func(ctx context.Context) error {
+		if req.ID <= 0 {
+			return r.resourceRepo.CreateTeamMenu(ctx, req)
+		}
+		menuDo, err := r.resourceRepo.GetTeamMenuByID(ctx, req.ID)
+		if err != nil {
+			return err
+		}
+		req.WithParent(menuDo)
+		parentDo, err := r.resourceRepo.GetTeamMenuByID(ctx, req.ParentID)
+		if err != nil {
+			return err
+		}
+		req.WithParent(parentDo)
+		if len(req.ResourceIds) > 0 {
+			resourceDos, err := r.resourceRepo.Find(ctx, req.ResourceIds)
+			if err != nil {
+				return err
+			}
+			req.WithResources(resourceDos)
+		}
+		return r.resourceRepo.UpdateTeamMenu(ctx, req)
+	})
+}
+
+func (r *ResourceBiz) GetMenu(ctx context.Context, id uint32) (do.Menu, error) {
+	return r.resourceRepo.GetMenuByID(ctx, id)
+}
+
+func (r *ResourceBiz) GetTeamMenu(ctx context.Context, id uint32) (do.Menu, error) {
+	return r.resourceRepo.GetTeamMenuByID(ctx, id)
 }

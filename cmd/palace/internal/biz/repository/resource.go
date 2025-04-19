@@ -29,4 +29,31 @@ type Resource interface {
 
 	// GetMenus get all menus
 	GetMenus(ctx context.Context, t vobj.MenuType) ([]do.Menu, error)
+
+	// CreateResource create resource
+	CreateResource(ctx context.Context, req bo.SaveResource) error
+
+	// UpdateResource update resource
+	UpdateResource(ctx context.Context, req bo.SaveResource) error
+
+	// CreateMenu create menu
+	CreateMenu(ctx context.Context, req bo.SaveMenu) error
+
+	// UpdateMenu update menu
+	UpdateMenu(ctx context.Context, req bo.SaveMenu) error
+
+	// GetMenuByID get menu by id
+	GetMenuByID(ctx context.Context, id uint32) (do.Menu, error)
+
+	// CreateTeamMenu create menu
+	CreateTeamMenu(ctx context.Context, req bo.SaveMenu) error
+
+	// UpdateTeamMenu update menu
+	UpdateTeamMenu(ctx context.Context, req bo.SaveMenu) error
+
+	// GetTeamMenuByID get menu by id
+	GetTeamMenuByID(ctx context.Context, id uint32) (do.Menu, error)
+
+	// Find find resources by ids
+	Find(ctx context.Context, ids []uint32) ([]do.Resource, error)
 }

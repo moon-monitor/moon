@@ -3,8 +3,12 @@ package build
 import (
 	"time"
 
+	"github.com/moon-monitor/moon/cmd/palace/internal/biz/bo"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do"
+	"github.com/moon-monitor/moon/cmd/palace/internal/biz/vobj"
+	palacev1 "github.com/moon-monitor/moon/pkg/api/palace"
 	"github.com/moon-monitor/moon/pkg/api/palace/common"
+	"github.com/moon-monitor/moon/pkg/util/validate"
 )
 
 func ToResourceItemProto(resource do.Resource) *common.ResourceItem {
@@ -47,6 +51,10 @@ func ToMenuTreeProto(menus []do.Menu) []*common.MenuTreeItem {
 	return roots
 }
 
+func ToMenuTreeItemProto(menu do.Menu) *common.MenuTreeItem {
+	return convertMenuToTreeItemWithMap(menu, nil)
+}
+
 func convertMenuToTreeItemWithMap(menu do.Menu, menuMap map[uint32]do.Menu) *common.MenuTreeItem {
 	treeItem := &common.MenuTreeItem{
 		Id:       menu.GetID(),
@@ -68,4 +76,34 @@ func convertMenuToTreeItemWithMap(menu do.Menu, menuMap map[uint32]do.Menu) *com
 	}
 
 	return treeItem
+}
+
+func ToSaveMenuReq(req *palacev1.SaveMenuRequest) *bo.SaveMenuReq {
+	if validate.IsNil(req) {
+		return nil
+	}
+	return &bo.SaveMenuReq{
+		ID:          req.GetId(),
+		Name:        req.GetName(),
+		Path:        req.GetPath(),
+		Status:      vobj.GlobalStatus(req.GetStatus()),
+		Icon:        req.GetIcon(),
+		ParentID:    req.GetParentId(),
+		Type:        vobj.MenuType(req.GetMenuType()),
+		ResourceIds: req.GetResourceIds(),
+	}
+}
+
+func ToSaveResourceReq(req *palacev1.SaveResourceRequest) *bo.SaveResourceReq {
+	if validate.IsNil(req) {
+		return nil
+	}
+	return &bo.SaveResourceReq{
+		ID:     req.GetId(),
+		Name:   req.GetName(),
+		Path:   req.GetPath(),
+		Status: vobj.GlobalStatus(req.GetStatus()),
+		Allow:  vobj.ResourceAllow(req.GetAllow()),
+		Remark: req.GetRemark(),
+	}
 }

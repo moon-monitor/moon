@@ -23,6 +23,8 @@ message ResourceItem {
   string createdAt = 6;
   // Last update time of the API resource
   string updatedAt = 7;
+  api.palace.common.ResourceAllow allow = 8;
+  repeated MenuTreeItem menus = 9;
 }
 
 message UserBaseItem {
@@ -151,4 +153,6 @@ message MenuTreeItem {
   string icon = 5;
   // children of the menu tree item
   repeated MenuTreeItem children = 6;
+  api.palace.common.MenuType menuType = 7;
+  repeated ResourceItem resources = 8;
 }

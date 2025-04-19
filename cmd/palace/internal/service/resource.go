@@ -89,3 +89,52 @@ func (s *ResourceService) GetTeamResourceMenuTree(ctx context.Context, _ *common
 		Menus: build.ToMenuTreeProto(menus),
 	}, nil
 }
+
+func (s *ResourceService) SaveResource(ctx context.Context, req *palacev1.SaveResourceRequest) (*common.EmptyReply, error) {
+	saveReq := build.ToSaveResourceReq(req)
+	if err := s.resourceBiz.SaveResource(ctx, saveReq); err != nil {
+		return nil, err
+	}
+
+	return &common.EmptyReply{Message: "保存资源成功"}, nil
+}
+
+func (s *ResourceService) SaveMenu(ctx context.Context, req *palacev1.SaveMenuRequest) (*common.EmptyReply, error) {
+	saveReq := build.ToSaveMenuReq(req)
+	if err := s.resourceBiz.SaveMenu(ctx, saveReq); err != nil {
+		return nil, err
+	}
+
+	return &common.EmptyReply{Message: "保存系统菜单成功"}, nil
+}
+
+func (s *ResourceService) GetMenu(ctx context.Context, req *palacev1.GetMenuRequest) (*palacev1.GetMenuReply, error) {
+	menu, err := s.resourceBiz.GetMenu(ctx, req.GetMenuId())
+	if err != nil {
+		return nil, err
+	}
+
+	return &palacev1.GetMenuReply{
+		Menu: build.ToMenuTreeItemProto(menu),
+	}, nil
+}
+
+func (s *ResourceService) SaveTeamMenu(ctx context.Context, req *palacev1.SaveMenuRequest) (*common.EmptyReply, error) {
+	saveReq := build.ToSaveMenuReq(req)
+	if err := s.resourceBiz.SaveTeamMenu(ctx, saveReq); err != nil {
+		return nil, err
+	}
+
+	return &common.EmptyReply{Message: "保存团队菜单成功"}, nil
+}
+
+func (s *ResourceService) GetTeamMenu(ctx context.Context, req *palacev1.GetMenuRequest) (*palacev1.GetMenuReply, error) {
+	menu, err := s.resourceBiz.GetTeamMenu(ctx, req.GetMenuId())
+	if err != nil {
+		return nil, err
+	}
+
+	return &palacev1.GetMenuReply{
+		Menu: build.ToMenuTreeItemProto(menu),
+	}, nil
+}

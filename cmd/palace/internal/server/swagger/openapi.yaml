@@ -228,6 +228,58 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/api.palace.VerifyEmailReply'
+    /api/menu/detail:
+        get:
+            tags:
+                - Resource
+            description: GetMenu retrieves a menu by ID
+            operationId: Resource_GetMenu
+            parameters:
+                - name: menuId
+                  in: query
+                  description: ID of the menu to retrieve
+                  schema:
+                    type: integer
+                    format: uint32
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.palace.GetMenuReply'
+    /api/menu/save:
+        put:
+            tags:
+                - Resource
+            description: SaveMenu creates or updates a system menu
+            operationId: Resource_SaveMenu
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/api.palace.SaveMenuRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.palace.common.EmptyReply'
+    /api/menu/tree:
+        get:
+            tags:
+                - Resource
+            description: GetResourceMenuTree returns the menu tree
+            operationId: Resource_GetResourceMenuTree
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.palace.GetResourceMenuTreeReply'
     /api/resource/batch/status:
         put:
             tags:
@@ -286,32 +338,25 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/api.palace.ListResourceReply'
-    /api/resource/menu/tree:
-        get:
+    /api/resource/save:
+        put:
             tags:
                 - Resource
-            description: GetResourceMenuTree returns the menu tree
-            operationId: Resource_GetResourceMenuTree
+            description: SaveResource creates or updates a resource
+            operationId: Resource_SaveResource
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/api.palace.SaveResourceRequest'
+                required: true
             responses:
                 "200":
                     description: OK
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/api.palace.GetResourceMenuTreeReply'
-    /api/resource/team/menu/tree:
-        get:
-            tags:
-                - Resource
-            description: GetTeamResourceMenuTree returns the menu tree
-            operationId: Resource_GetTeamResourceMenuTree
-            responses:
-                "200":
-                    description: OK
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/api.palace.GetResourceMenuTreeReply'
+                                $ref: '#/components/schemas/api.palace.common.EmptyReply'
     /api/system/operate/log/list:
         post:
             tags:
@@ -980,6 +1025,58 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/api.palace.GetTeamMembersReply'
+    /api/team/menu/detail:
+        get:
+            tags:
+                - Resource
+            description: GetTeamMenu retrieves a team menu by ID
+            operationId: Resource_GetTeamMenu
+            parameters:
+                - name: menuId
+                  in: query
+                  description: ID of the menu to retrieve
+                  schema:
+                    type: integer
+                    format: uint32
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.palace.GetMenuReply'
+    /api/team/menu/save:
+        put:
+            tags:
+                - Resource
+            description: SaveTeamMenu creates or updates a team menu
+            operationId: Resource_SaveTeamMenu
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/api.palace.SaveMenuRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.palace.common.EmptyReply'
+    /api/team/menu/tree:
+        get:
+            tags:
+                - Resource
+            description: GetTeamResourceMenuTree returns the menu tree
+            operationId: Resource_GetTeamResourceMenuTree
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.palace.GetResourceMenuTreeReply'
     /api/team/metric/datasource:
         get:
             tags:
@@ -2039,6 +2136,14 @@ components:
                     type: string
                     description: Filing information
             description: GetFilingInformationReply contains the response data for getting the filing information
+        api.palace.GetMenuReply:
+            type: object
+            properties:
+                menu:
+                    allOf:
+                        - $ref: '#/components/schemas/api.palace.common.MenuTreeItem'
+                    description: Detailed information about the menu
+            description: GetMenuReply contains the response data for retrieving a menu
         api.palace.GetResourceMenuTreeReply:
             type: object
             properties:
@@ -2870,6 +2975,65 @@ components:
                     description: id of the email configuration
                     format: uint32
             description: SaveEmailConfigRequest represents the request data for saving or updating the email configuration
+        api.palace.SaveMenuRequest:
+            type: object
+            properties:
+                id:
+                    type: integer
+                    description: ID of the menu (0 for create, >0 for update)
+                    format: uint32
+                name:
+                    type: string
+                    description: Name of the menu
+                path:
+                    type: string
+                    description: Path of the menu
+                status:
+                    type: integer
+                    description: Status of the menu
+                    format: enum
+                icon:
+                    type: string
+                    description: Icon of the menu
+                parentId:
+                    type: integer
+                    description: Parent menu ID (0 for root menu)
+                    format: uint32
+                menuType:
+                    type: integer
+                    description: Type of the menu
+                    format: enum
+                resourceIds:
+                    type: array
+                    items:
+                        type: integer
+                        format: uint32
+            description: SaveMenuRequest represents the request data for creating or updating a system menu
+        api.palace.SaveResourceRequest:
+            type: object
+            properties:
+                id:
+                    type: integer
+                    description: ID of the resource (0 for create, >0 for update)
+                    format: uint32
+                name:
+                    type: string
+                    description: Name of the resource
+                path:
+                    type: string
+                    description: Path of the resource
+                status:
+                    type: integer
+                    description: Status of the resource
+                    format: enum
+                allow:
+                    type: integer
+                    description: Allow rule for the resource
+                    format: enum
+                remark:
+                    type: string
+                    description: Remark for the resource
+            description: SaveResourceRequest represents the request data for creating or updating a resource
         api.palace.SaveRoleRequest:
             type: object
             properties:
@@ -3601,6 +3765,13 @@ components:
                     items:
                         $ref: '#/components/schemas/api.palace.common.MenuTreeItem'
                     description: children of the menu tree item
+                menuType:
+                    type: integer
+                    format: enum
+                resources:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/api.palace.common.ResourceItem'
         api.palace.common.NoticeGroupItem:
             type: object
             properties:
@@ -3763,6 +3934,13 @@ components:
                 updatedAt:
                     type: string
                     description: Last update time of the API resource
+                allow:
+                    type: integer
+                    format: enum
+                menus:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/api.palace.common.MenuTreeItem'
             description: system-api
         api.palace.common.StrategyMetricRuleLabelNotice:
             type: object

@@ -55,3 +55,17 @@ func resourceNotFound(err error) error {
 	}
 	return err
 }
+
+func menuNotFound(err error) error {
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return merr.ErrorNotFound("menu not found").WithCause(err)
+	}
+	return err
+}
+
+func teamMenuNotFound(err error) error {
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return merr.ErrorNotFound("team menu not found").WithCause(err)
+	}
+	return err
+}

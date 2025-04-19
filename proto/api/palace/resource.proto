@@ -34,18 +34,56 @@ service Resource {
       body: "*"
     };
   }
+  
+  // SaveResource creates or updates a resource
+  rpc SaveResource (SaveResourceRequest) returns (api.palace.common.EmptyReply) {
+    option (google.api.http) = {
+      put: "/api/resource/save"
+      body: "*"
+    };
+  }
+
+  // SaveMenu creates or updates a system menu
+  rpc SaveMenu (SaveMenuRequest) returns (api.palace.common.EmptyReply) {
+    option (google.api.http) = {
+      put: "/api/menu/save"
+      body: "*"
+    };
+  }
+
+  // GetMenu retrieves a menu by ID
+  rpc GetMenu (GetMenuRequest) returns (GetMenuReply) {
+    option (google.api.http) = {
+      get: "/api/menu/detail"
+    };
+  }
+
+  // SaveTeamMenu creates or updates a team menu
+  rpc SaveTeamMenu (SaveMenuRequest) returns (api.palace.common.EmptyReply) {
+    option (google.api.http) = {
+      put: "/api/team/menu/save"
+      body: "*"
+    };
+  }
+
+  // GetTeamMenu retrieves a team menu by ID
+  rpc GetTeamMenu (GetMenuRequest) returns (GetMenuReply) {
+    option (google.api.http) = {
+      get: "/api/team/menu/detail"
+    };
+  }
 
   // GetResourceMenuTree returns the menu tree
   rpc GetResourceMenuTree (api.palace.common.EmptyRequest) returns (GetResourceMenuTreeReply) {
     option (google.api.http) = {
-      get: "/api/resource/menu/tree"
+      get: "/api/menu/tree"
     };
   }
 
   // GetTeamResourceMenuTree returns the menu tree
   rpc GetTeamResourceMenuTree (api.palace.common.EmptyRequest) returns (GetResourceMenuTreeReply) {
     option (google.api.http) = {
-      get: "/api/resource/team/menu/tree"
+      get: "/api/team/menu/tree"
     };
   }
 }
@@ -90,4 +128,51 @@ message ListResourceReply {
 message GetResourceMenuTreeReply {
   // List of menu items
   repeated api.palace.common.MenuTreeItem menus = 1;
+}
+
+// SaveResourceRequest represents the request data for creating or updating a resource
+message SaveResourceRequest {
+  // ID of the resource (0 for create, >0 for update)
+  uint32 id = 1;
+  // Name of the resource
+  string name = 2 [(buf.validate.field).required = true];
+  // Path of the resource
+  string path = 3 [(buf.validate.field).required = true];
+  // Status of the resource
+  api.palace.common.GlobalStatus status = 4 [(buf.validate.field).required = true];
+  // Allow rule for the resource
+  api.palace.common.ResourceAllow allow = 5 [(buf.validate.field).required = true];
+  // Remark for the resource
+  string remark = 6;
+}
+
+// GetMenuRequest represents the request data for retrieving a menu
+message GetMenuRequest {
+  // ID of the menu to retrieve
+  uint32 menuId = 1 [(buf.validate.field).required = true];
+}
+
+// GetMenuReply contains the response data for retrieving a menu
+message GetMenuReply {
+  // Detailed information about the menu
+  api.palace.common.MenuTreeItem menu = 1;
+}
+
+// SaveMenuRequest represents the request data for creating or updating a system menu
+message SaveMenuRequest {
+  // ID of the menu (0 for create, >0 for update)
+  uint32 id = 1;
+  // Name of the menu
+  string name = 2 [(buf.validate.field).required = true];
+  // Path of the menu
+  string path = 3 [(buf.validate.field).required = true];
+  // Status of the menu
+  api.palace.common.GlobalStatus status = 4 [(buf.validate.field).required = true];
+  // Icon of the menu
+  string icon = 5;
+  // Parent menu ID (0 for root menu)
+  uint32 parentId = 6;
+  // Type of the menu
+  api.palace.common.MenuType menuType = 7 [(buf.validate.field).required = true];
+  repeated uint32 resourceIds = 8;
 }

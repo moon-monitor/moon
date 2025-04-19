@@ -54,6 +54,18 @@ enum ResourceAllow {
   RESOURCE_ALLOW_USER = 6;
 }
 
+// MenuType represents the type of a menu
+enum MenuType {
+  // Default unknown menu type
+  MENU_TYPE_UNKNOWN = 0;
+  // System menu type
+  MENU_TYPE_SYSTEM = 1;
+  // Team menu type
+  MENU_TYPE_TEAM = 2;
+  // User menu type
+  MENU_TYPE_USER = 3;
+}
+
 enum DatasourceDriverMetric {
   DATASOURCE_DRIVER_METRIC_UNKNOWN = 0;
   DATASOURCE_DRIVER_METRIC_PROMETHEUS = 1;
