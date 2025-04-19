@@ -16,12 +16,17 @@ import (
 type TeamService struct {
 	palacev1.UnimplementedTeamServer
 
-	teamBiz *biz.Team
+	teamBiz    *biz.Team
+	messageBiz *biz.Message
 }
 
-func NewTeamService(teamBiz *biz.Team) *TeamService {
+func NewTeamService(
+	teamBiz *biz.Team,
+	messageBiz *biz.Message,
+) *TeamService {
 	return &TeamService{
-		teamBiz: teamBiz,
+		teamBiz:    teamBiz,
+		messageBiz: messageBiz,
 	}
 }
 
@@ -56,7 +61,16 @@ func (s *TeamService) TransferTeam(ctx context.Context, req *palacev1.TransferTe
 }
 
 func (s *TeamService) InviteMember(ctx context.Context, req *palacev1.InviteMemberRequest) (*common.EmptyReply, error) {
-	return &common.EmptyReply{}, nil
+	params := &bo.InviteMemberReq{
+		UserEmail:    req.GetUserEmail(),
+		Position:     vobj.Role(req.GetPosition()),
+		RoleIds:      req.GetRoleIds(),
+		SendEmailFun: s.messageBiz.SendEmail,
+	}
+	if err := s.teamBiz.InviteMember(ctx, params); err != nil {
+		return nil, err
+	}
+	return &common.EmptyReply{Message: "邀请团队成员成功"}, nil
 }
 
 func (s *TeamService) RemoveMember(ctx context.Context, req *palacev1.RemoveMemberRequest) (*common.EmptyReply, error) {

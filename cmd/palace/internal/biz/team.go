@@ -10,6 +10,7 @@ import (
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/repository"
 	"github.com/moon-monitor/moon/cmd/palace/internal/helper/permission"
 	"github.com/moon-monitor/moon/pkg/merr"
+	"github.com/moon-monitor/moon/pkg/util/crypto"
 )
 
 func NewTeam(
@@ -21,6 +22,7 @@ func NewTeam(
 	menuRepo repository.Menu,
 	operateLogRepo repository.OperateLog,
 	memberRepo repository.Member,
+	inviteRepo repository.Invite,
 	transaction repository.Transaction,
 	logger log.Logger,
 ) *Team {
@@ -34,6 +36,7 @@ func NewTeam(
 		menuRepo:            menuRepo,
 		operateLogRepo:      operateLogRepo,
 		memberRepo:          memberRepo,
+		inviteRepo:          inviteRepo,
 		transaction:         transaction,
 	}
 }
@@ -48,6 +51,7 @@ type Team struct {
 	menuRepo            repository.Menu
 	operateLogRepo      repository.OperateLog
 	memberRepo          repository.Member
+	inviteRepo          repository.Invite
 	transaction         repository.Transaction
 }
 
@@ -264,4 +268,36 @@ func (t *Team) RemoveMember(ctx context.Context, req *bo.RemoveMemberReq) error 
 		return err
 	}
 	return t.memberRepo.UpdateStatus(ctx, req)
+}
+
+func (t *Team) InviteMember(ctx context.Context, req *bo.InviteMemberReq) error {
+	userId, ok := permission.GetUserIDByContext(ctx)
+	if !ok {
+		return merr.ErrorUnauthorized("user not found in context")
+	}
+	operatorDo, err := t.memberRepo.FindByUserID(ctx, userId)
+	if err != nil {
+		return err
+	}
+	req.WithOperator(operatorDo)
+	inviterDo, err := t.userRepo.FindByEmail(ctx, crypto.String(req.UserEmail))
+	if err != nil {
+		return err
+	}
+	req.WithInviteUser(inviterDo)
+	teamId, ok := permission.GetTeamIDByContext(ctx)
+	if !ok {
+		return merr.ErrorUnauthorized("team not found in context")
+	}
+	teamDo, err := t.teamRepo.FindByID(ctx, teamId)
+	if err != nil {
+		return err
+	}
+	req.WithTeam(teamDo)
+	if err := req.Validate(); err != nil {
+		return err
+	}
+	return t.transaction.MainExec(ctx, func(ctx context.Context) error {
+		return t.inviteRepo.TeamInviteUser(ctx, req)
+	})
 }

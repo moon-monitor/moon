@@ -23,4 +23,5 @@ type User interface {
 	List(ctx context.Context, req *bo.UserListRequest) (*bo.UserListReply, error)
 	Find(ctx context.Context, ids []uint32) ([]do.User, error)
 	UpdateUserRoles(ctx context.Context, req bo.UpdateUserRoles) error
+	Get(ctx context.Context, id uint32) (do.User, error)
 }

@@ -37,6 +37,10 @@ type userRepoImpl struct {
 	helper *log.Helper
 }
 
+func (u *userRepoImpl) Get(ctx context.Context, id uint32) (do.User, error) {
+	return u.FindByID(ctx, id)
+}
+
 func (u *userRepoImpl) UpdateUserRoles(ctx context.Context, req bo.UpdateUserRoles) error {
 	userMutation := getMainQuery(ctx, u).User
 	userDo := &system.User{

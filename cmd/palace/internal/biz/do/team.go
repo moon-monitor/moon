@@ -30,3 +30,13 @@ type TeamAudit interface {
 	GetReason() string
 	GetTeam() Team
 }
+
+type TeamInviteUser interface {
+	Creator
+	GetTeamID() uint32
+	GetInviteUserID() uint32
+	GetPosition() vobj.Role
+	GetRoles() []uint32
+	GetInviteUser() User
+	GetTeam() Team
+}

@@ -356,3 +356,109 @@ func (r *RemoveMemberReq) Validate() error {
 	}
 	return nil
 }
+
+type InviteMember interface {
+	GetTeam() do.Team
+	GetInviteUser() do.User
+	GetPosition() vobj.Role
+	GetRoles() []do.TeamRole
+	GetSendEmailFun() SendEmailFun
+	GetOperator() do.TeamMember
+}
+
+type InviteMemberReq struct {
+	operator     do.TeamMember
+	team         do.Team
+	invitee      do.User
+	roles        []do.TeamRole
+	UserEmail    string
+	Position     vobj.Role
+	RoleIds      []uint32
+	SendEmailFun SendEmailFun
+}
+
+func (r *InviteMemberReq) GetTeam() do.Team {
+	if r == nil {
+		return nil
+	}
+	return r.team
+}
+
+func (r *InviteMemberReq) GetInviteUser() do.User {
+	if r == nil {
+		return nil
+	}
+	return r.invitee
+}
+
+func (r *InviteMemberReq) GetPosition() vobj.Role {
+	if r == nil {
+		return vobj.RoleUnknown
+	}
+	return r.Position
+}
+
+func (r *InviteMemberReq) GetRoles() []do.TeamRole {
+	if r == nil {
+		return nil
+	}
+	return r.roles
+}
+
+func (r *InviteMemberReq) GetSendEmailFun() SendEmailFun {
+	if r == nil {
+		return nil
+	}
+	return r.SendEmailFun
+}
+
+func (r *InviteMemberReq) GetOperator() do.TeamMember {
+	if r == nil {
+		return nil
+	}
+	return r.operator
+}
+
+func (r *InviteMemberReq) Validate() error {
+	if validate.IsNil(r.team) {
+		return merr.ErrorParamsError("invalid team")
+	}
+	if validate.IsNil(r.invitee) {
+		return merr.ErrorParamsError("invalid invitee")
+	}
+	if validate.IsNil(r.operator) {
+		return merr.ErrorParamsError("invalid operator")
+	}
+	if r.Position.IsUnknown() {
+		return merr.ErrorParamsError("invalid position")
+	}
+	if !r.operator.GetPosition().IsAdminOrSuperAdmin() {
+		return merr.ErrorParamsError("invalid position")
+	}
+	return nil
+}
+
+func (r *InviteMemberReq) WithTeam(team do.Team) *InviteMemberReq {
+	r.team = team
+	return r
+}
+
+func (r *InviteMemberReq) WithInviteUser(invitee do.User) *InviteMemberReq {
+	r.invitee = invitee
+	return r
+}
+
+func (r *InviteMemberReq) WithOperator(operator do.TeamMember) *InviteMemberReq {
+	r.operator = operator
+	return r
+}
+
+func (r *InviteMemberReq) WithRoles(roles []do.TeamRole) *InviteMemberReq {
+	r.roles = slices.MapFilter(roles, func(role do.TeamRole) (do.TeamRole, bool) {
+		if validate.IsNil(role) || role.GetID() <= 0 {
+			return nil, false
+		}
+		return role, true
+	})
+	return r
+}
