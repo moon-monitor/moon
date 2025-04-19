@@ -65,3 +65,12 @@ enum TeamAuditStatus {
   // The team audit status is rejected.
   TEAM_AUDIT_STATUS_REJECTED = 3;
 }
+
+enum TeamAuditAction {
+  // The team audit action is unknown.
+  TEAM_AUDIT_ACTION_UNKNOWN = 0;
+  // The team audit action is join.
+  TEAM_AUDIT_ACTION_JOIN = 1;
+  // The team audit action is leave.
+  TEAM_AUDIT_ACTION_LEAVE = 2;
+}

@@ -11,3 +11,8 @@ const (
 	AuditStatusApproved                    // Approved
 	AuditStatusRejected                    // Rejected
 )
+
+// IsFinal is final status
+func (i StatusAudit) IsFinal() bool {
+	return i == AuditStatusApproved || i == AuditStatusRejected
+}

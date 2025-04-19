@@ -21,3 +21,12 @@ type Team interface {
 	GetAdmins() []User
 	GetResources() []Resource
 }
+
+type TeamAudit interface {
+	Creator
+	GetTeamID() uint32
+	GetStatus() vobj.StatusAudit
+	GetAction() vobj.AuditAction
+	GetReason() string
+	GetTeam() Team
+}

@@ -315,6 +315,7 @@ message GetTeamAuditListRequest {
   string keyword = 3;
   // User ID, optional for filtering audits by user
   uint32 userId = 4;
+  repeated api.palace.common.TeamAuditAction actions = 5;
 }
 
 // GetTeamAuditListReply contains the response data for listing team audit records

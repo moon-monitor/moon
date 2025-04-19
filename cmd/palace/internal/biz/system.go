@@ -13,12 +13,14 @@ import (
 func NewSystem(
 	roleRepo repository.Role,
 	userRepo repository.User,
+	auditRepo repository.Audit,
 	transactionRepo repository.Transaction,
 	logger log.Logger,
 ) *System {
 	return &System{
 		roleRepo:        roleRepo,
 		userRepo:        userRepo,
+		auditRepo:       auditRepo,
 		transactionRepo: transactionRepo,
 		helper:          log.NewHelper(log.With(logger, "module", "biz.system")),
 	}
@@ -27,6 +29,7 @@ func NewSystem(
 type System struct {
 	roleRepo        repository.Role
 	userRepo        repository.User
+	auditRepo       repository.Audit
 	transactionRepo repository.Transaction
 	helper          *log.Helper
 }
@@ -73,4 +76,20 @@ func (s *System) UpdateUserRoles(ctx context.Context, req *bo.UpdateUserRolesReq
 	}
 	req.WithRoles(roleDos)
 	return s.userRepo.UpdateUserRoles(ctx, req)
+}
+
+func (s *System) GetTeamAuditList(ctx context.Context, req *bo.TeamAuditListRequest) (*bo.TeamAuditListReply, error) {
+	return s.auditRepo.TeamAuditList(ctx, req)
+}
+
+func (s *System) UpdateTeamAuditStatus(ctx context.Context, req *bo.UpdateTeamAuditStatusReq) error {
+	teamAuditDo, err := s.auditRepo.Get(ctx, req.GetAuditID())
+	if err != nil {
+		return err
+	}
+	req.WithTeamAudit(teamAuditDo)
+	if err := req.Validate(); err != nil {
+		return err
+	}
+	return s.auditRepo.UpdateTeamAuditStatus(ctx, req)
 }

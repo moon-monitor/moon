@@ -105,7 +105,7 @@ func (s *SystemService) GetTeamList(ctx context.Context, req *palacev1.GetTeamLi
 	}
 
 	return &palacev1.GetTeamListReply{
-		Items:      build.TeamsToTeamItemsProto(teamReply.Items),
+		Items:      build.ToTeamItems(teamReply.Items),
 		Pagination: build.ToPaginationReplyProto(teamReply.PaginationReply),
 	}, nil
 }
@@ -174,11 +174,27 @@ func (s *SystemService) UpdateRoleUsers(ctx context.Context, req *palacev1.Updat
 }
 
 func (s *SystemService) GetTeamAuditList(ctx context.Context, req *palacev1.GetTeamAuditListRequest) (*palacev1.GetTeamAuditListReply, error) {
-	return &palacev1.GetTeamAuditListReply{}, nil
+	params := build.ToTeamAuditListRequest(req)
+	teamAuditReply, err := s.systemBiz.GetTeamAuditList(ctx, params)
+	if err != nil {
+		return nil, err
+	}
+	return &palacev1.GetTeamAuditListReply{
+		Items:      build.ToTeamAuditItems(teamAuditReply.Items),
+		Pagination: build.ToPaginationReplyProto(teamAuditReply.PaginationReply),
+	}, nil
 }
 
 func (s *SystemService) UpdateTeamAuditStatus(ctx context.Context, req *palacev1.UpdateTeamAuditStatusRequest) (*common.EmptyReply, error) {
-	return &common.EmptyReply{}, nil
+	params := &bo.UpdateTeamAuditStatusReq{
+		AuditID: req.GetAuditId(),
+		Status:  vobj.StatusAudit(req.GetStatus()),
+		Reason:  req.GetReason(),
+	}
+	if err := s.systemBiz.UpdateTeamAuditStatus(ctx, params); err != nil {
+		return nil, err
+	}
+	return &common.EmptyReply{Message: "更新团队审核状态成功"}, nil
 }
 
 func (s *SystemService) OperateLogList(ctx context.Context, req *palacev1.OperateLogListRequest) (*palacev1.OperateLogListReply, error) {

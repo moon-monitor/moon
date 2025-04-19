@@ -109,6 +109,7 @@ message TeamAuditItem {
   string createdAt = 5;
   // Team information being audited
   TeamBaseItem team = 6;
+  api.palace.common.TeamAuditAction action = 7;
 }
 
 // OperateLogItem represents the structure of an operation log item.

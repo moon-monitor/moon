@@ -2146,6 +2146,11 @@ components:
                     type: integer
                     description: User ID, optional for filtering audits by user
                     format: uint32
+                actions:
+                    type: array
+                    items:
+                        type: integer
+                        format: enum
             description: GetTeamAuditListRequest represents the request data for listing team audit records
         api.palace.GetTeamDashboardChartReply:
             type: object
@@ -3780,6 +3785,9 @@ components:
                     allOf:
                         - $ref: '#/components/schemas/api.palace.common.TeamBaseItem'
                     description: Team information being audited
+                action:
+                    type: integer
+                    format: enum
         api.palace.common.TeamBaseItem:
             type: object
             properties:
