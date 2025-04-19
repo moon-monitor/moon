@@ -30,6 +30,7 @@ type System struct {
 	roleRepo        repository.Role
 	userRepo        repository.User
 	auditRepo       repository.Audit
+	operateLogRepo  repository.OperateLog
 	transactionRepo repository.Transaction
 	helper          *log.Helper
 }
@@ -92,4 +93,8 @@ func (s *System) UpdateTeamAuditStatus(ctx context.Context, req *bo.UpdateTeamAu
 		return err
 	}
 	return s.auditRepo.UpdateTeamAuditStatus(ctx, req)
+}
+
+func (s *System) OperateLogList(ctx context.Context, req *bo.OperateLogListRequest) (*bo.OperateLogListReply, error) {
+	return s.operateLogRepo.List(ctx, req)
 }

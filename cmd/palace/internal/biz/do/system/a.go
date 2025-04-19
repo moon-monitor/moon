@@ -2,6 +2,7 @@ package system
 
 func Models() []any {
 	return []any{
+		&OperateLog{},
 		&Menu{},
 		&Resource{},
 		&Role{},

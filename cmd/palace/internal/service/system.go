@@ -198,5 +198,13 @@ func (s *SystemService) UpdateTeamAuditStatus(ctx context.Context, req *palacev1
 }
 
 func (s *SystemService) OperateLogList(ctx context.Context, req *palacev1.OperateLogListRequest) (*palacev1.OperateLogListReply, error) {
-	return &palacev1.OperateLogListReply{}, nil
+	params := build.ToOperateLogListRequest(req)
+	operateLogReply, err := s.systemBiz.OperateLogList(ctx, params)
+	if err != nil {
+		return nil, err
+	}
+	return &palacev1.OperateLogListReply{
+		Items:      build.ToOperateLogItems(operateLogReply.Items),
+		Pagination: build.ToPaginationReplyProto(operateLogReply.PaginationReply),
+	}, nil
 }
