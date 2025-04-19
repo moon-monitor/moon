@@ -29,7 +29,7 @@ func NewResourceService(resourceBiz *biz.ResourceBiz, logger log.Logger) *Resour
 
 func (s *ResourceService) BatchUpdateResourceStatus(ctx context.Context, req *palacev1.BatchUpdateResourceStatusRequest) (*common.EmptyReply, error) {
 	updateReq := &bo.BatchUpdateResourceStatusReq{
-		IDs:    req.GetIds(),
+		IDs:    req.GetResourceIds(),
 		Status: vobj.GlobalStatus(req.GetStatus()),
 	}
 
@@ -38,17 +38,17 @@ func (s *ResourceService) BatchUpdateResourceStatus(ctx context.Context, req *pa
 		return nil, err
 	}
 
-	return &common.EmptyReply{Message: "success"}, nil
+	return &common.EmptyReply{Message: "更改资源接口状态成功"}, nil
 }
 
 func (s *ResourceService) GetResource(ctx context.Context, req *palacev1.GetResourceRequest) (*palacev1.GetResourceReply, error) {
-	resource, err := s.resourceBiz.GetResource(ctx, req.GetId())
+	resource, err := s.resourceBiz.GetResource(ctx, req.GetResourceId())
 	if err != nil {
 		return nil, err
 	}
 
 	return &palacev1.GetResourceReply{
-		Detail: build.ToResourceItemProto(resource),
+		Resource: build.ToResourceItemProto(resource),
 	}, nil
 }
 
@@ -76,7 +76,7 @@ func (s *ResourceService) GetResourceMenuTree(ctx context.Context, _ *common.Emp
 		return nil, err
 	}
 	return &palacev1.GetResourceMenuTreeReply{
-		Items: build.ToMenuTreeProto(menus),
+		Menus: build.ToMenuTreeProto(menus),
 	}, nil
 }
 
@@ -86,6 +86,6 @@ func (s *ResourceService) GetTeamResourceMenuTree(ctx context.Context, _ *common
 		return nil, err
 	}
 	return &palacev1.GetResourceMenuTreeReply{
-		Items: build.ToMenuTreeProto(menus),
+		Menus: build.ToMenuTreeProto(menus),
 	}, nil
 }

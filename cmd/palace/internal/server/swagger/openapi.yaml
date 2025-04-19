@@ -247,6 +247,26 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/api.palace.common.EmptyReply'
+    /api/resource/detail:
+        get:
+            tags:
+                - Resource
+            description: GetResource retrieves a resource by ID
+            operationId: Resource_GetResource
+            parameters:
+                - name: resourceId
+                  in: query
+                  description: ID of the resource to retrieve
+                  schema:
+                    type: integer
+                    format: uint32
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.palace.GetResourceReply'
     /api/resource/list:
         post:
             tags:
@@ -292,27 +312,6 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/api.palace.GetResourceMenuTreeReply'
-    /api/resource/{id}:
-        get:
-            tags:
-                - Resource
-            description: GetResource retrieves a resource by ID
-            operationId: Resource_GetResource
-            parameters:
-                - name: id
-                  in: path
-                  description: ID of the resource to retrieve
-                  required: true
-                  schema:
-                    type: integer
-                    format: uint32
-            responses:
-                "200":
-                    description: OK
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/api.palace.GetResourceReply'
     /api/system/operate/log/list:
         post:
             tags:
@@ -1913,7 +1912,7 @@ components:
         api.palace.BatchUpdateResourceStatusRequest:
             type: object
             properties:
-                ids:
+                resourceIds:
                     type: array
                     items:
                         type: integer
@@ -2043,7 +2042,7 @@ components:
         api.palace.GetResourceMenuTreeReply:
             type: object
             properties:
-                items:
+                menus:
                     type: array
                     items:
                         $ref: '#/components/schemas/api.palace.common.MenuTreeItem'
@@ -2052,7 +2051,7 @@ components:
         api.palace.GetResourceReply:
             type: object
             properties:
-                detail:
+                resource:
                     allOf:
                         - $ref: '#/components/schemas/api.palace.common.ResourceItem'
                     description: Detailed information about the resource
