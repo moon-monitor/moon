@@ -12,10 +12,16 @@ const tableNameNoticeMember = "team_notice_members"
 type NoticeMember struct {
 	do.TeamModel
 	NoticeGroupID uint32          `gorm:"column:notice_group_id;type:int(10) unsigned;not null;comment:通知组ID" json:"noticeGroupID"`
-	MemberID      uint32          `gorm:"column:member_id;type:int(10) unsigned;not null;comment:成员ID" json:"memberID"`
+	UserID        uint32          `gorm:"column:user_id;type:int(10) unsigned;not null;comment:用户ID" json:"userID"`
 	NoticeType    vobj.NoticeType `gorm:"column:notice_type;type:int(10) unsigned;not null;comment:通知类型" json:"noticeType"`
 	NoticeGroup   *NoticeGroup    `gorm:"foreignKey:NoticeGroupID;references:ID" json:"noticeGroup"`
-	Member        *Member         `gorm:"foreignKey:MemberID;references:ID" json:"member"`
+}
+
+func (n *NoticeMember) GetUserID() uint32 {
+	if n == nil {
+		return 0
+	}
+	return n.UserID
 }
 
 func (n *NoticeMember) GetNoticeGroupID() uint32 {
@@ -23,13 +29,6 @@ func (n *NoticeMember) GetNoticeGroupID() uint32 {
 		return 0
 	}
 	return n.NoticeGroupID
-}
-
-func (n *NoticeMember) GetMemberID() uint32 {
-	if n == nil {
-		return 0
-	}
-	return n.MemberID
 }
 
 func (n *NoticeMember) GetNoticeType() vobj.NoticeType {
@@ -44,13 +43,6 @@ func (n *NoticeMember) GetNoticeGroup() do.NoticeGroup {
 		return nil
 	}
 	return n.NoticeGroup
-}
-
-func (n *NoticeMember) GetMember() do.TeamMember {
-	if n == nil || n.Member == nil {
-		return nil
-	}
-	return n.Member
 }
 
 func (n *NoticeMember) TableName() string {

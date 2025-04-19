@@ -1025,45 +1025,6 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/api.palace.GetTeamMembersReply'
-    /api/team/menu/detail:
-        get:
-            tags:
-                - Resource
-            description: GetTeamMenu retrieves a team menu by ID
-            operationId: Resource_GetTeamMenu
-            parameters:
-                - name: menuId
-                  in: query
-                  description: ID of the menu to retrieve
-                  schema:
-                    type: integer
-                    format: uint32
-            responses:
-                "200":
-                    description: OK
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/api.palace.GetMenuReply'
-    /api/team/menu/save:
-        put:
-            tags:
-                - Resource
-            description: SaveTeamMenu creates or updates a team menu
-            operationId: Resource_SaveTeamMenu
-            requestBody:
-                content:
-                    application/json:
-                        schema:
-                            $ref: '#/components/schemas/api.palace.SaveMenuRequest'
-                required: true
-            responses:
-                "200":
-                    description: OK
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/api.palace.common.EmptyReply'
     /api/team/menu/tree:
         get:
             tags:

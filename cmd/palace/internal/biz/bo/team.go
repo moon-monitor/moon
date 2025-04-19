@@ -7,7 +7,6 @@ import (
 
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do/system"
-	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do/team"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/vobj"
 	"github.com/moon-monitor/moon/cmd/palace/internal/helper/permission"
 	"github.com/moon-monitor/moon/pkg/merr"
@@ -130,10 +129,10 @@ type TeamMemberListRequest struct {
 	TeamId    uint32
 }
 
-func (r *TeamMemberListRequest) ToTeamMemberListReply(items []*team.Member) *TeamMemberListReply {
+func (r *TeamMemberListRequest) ToTeamMemberListReply(items []*system.TeamMember) *TeamMemberListReply {
 	return &TeamMemberListReply{
 		PaginationReply: r.ToReply(),
-		Items:           slices.Map(items, func(member *team.Member) do.TeamMember { return member }),
+		Items:           slices.Map(items, func(member *system.TeamMember) do.TeamMember { return member }),
 	}
 }
 

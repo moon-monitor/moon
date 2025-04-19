@@ -45,15 +45,6 @@ type Resource interface {
 	// GetMenuByID get menu by id
 	GetMenuByID(ctx context.Context, id uint32) (do.Menu, error)
 
-	// CreateTeamMenu create menu
-	CreateTeamMenu(ctx context.Context, req bo.SaveMenu) error
-
-	// UpdateTeamMenu update menu
-	UpdateTeamMenu(ctx context.Context, req bo.SaveMenu) error
-
-	// GetTeamMenuByID get menu by id
-	GetTeamMenuByID(ctx context.Context, id uint32) (do.Menu, error)
-
 	// Find find resources by ids
 	Find(ctx context.Context, ids []uint32) ([]do.Resource, error)
 }

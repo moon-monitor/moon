@@ -36,8 +36,7 @@ type NoticeGroup interface {
 type NoticeMember interface {
 	TeamBase
 	GetNoticeGroupID() uint32
-	GetMemberID() uint32
+	GetUserID() uint32
 	GetNoticeType() vobj.NoticeType
 	GetNoticeGroup() NoticeGroup
-	GetMember() TeamMember
 }

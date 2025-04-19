@@ -118,23 +118,3 @@ func (s *ResourceService) GetMenu(ctx context.Context, req *palacev1.GetMenuRequ
 		Menu: build.ToMenuTreeItemProto(menu),
 	}, nil
 }
-
-func (s *ResourceService) SaveTeamMenu(ctx context.Context, req *palacev1.SaveMenuRequest) (*common.EmptyReply, error) {
-	saveReq := build.ToSaveMenuReq(req)
-	if err := s.resourceBiz.SaveTeamMenu(ctx, saveReq); err != nil {
-		return nil, err
-	}
-
-	return &common.EmptyReply{Message: "保存团队菜单成功"}, nil
-}
-
-func (s *ResourceService) GetTeamMenu(ctx context.Context, req *palacev1.GetMenuRequest) (*palacev1.GetMenuReply, error) {
-	menu, err := s.resourceBiz.GetTeamMenu(ctx, req.GetMenuId())
-	if err != nil {
-		return nil, err
-	}
-
-	return &palacev1.GetMenuReply{
-		Menu: build.ToMenuTreeItemProto(menu),
-	}, nil
-}

@@ -8,9 +8,11 @@ import (
 
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/bo"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do"
-	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do/team"
+	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do/system"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/repository"
 	"github.com/moon-monitor/moon/cmd/palace/internal/data"
+	"github.com/moon-monitor/moon/cmd/palace/internal/helper/permission"
+	"github.com/moon-monitor/moon/pkg/merr"
 	"github.com/moon-monitor/moon/pkg/util/slices"
 	"github.com/moon-monitor/moon/pkg/util/validate"
 )
@@ -29,11 +31,11 @@ func (t *teamRoleImpl) Find(ctx context.Context, ids []uint32) ([]do.TeamRole, e
 	if len(ids) == 0 {
 		return nil, nil
 	}
-	bizQuery, teamID, err := getTeamBizQuery(ctx, t)
-	if err != nil {
-		return nil, err
+	teamID, ok := permission.GetTeamIDByContext(ctx)
+	if !ok {
+		return nil, merr.ErrorPermissionDenied("team id not found")
 	}
-	roleQuery := bizQuery.Role
+	roleQuery := getMainQuery(ctx, t).TeamRole
 	wrapper := []gen.Condition{
 		roleQuery.TeamID.Eq(teamID),
 		roleQuery.ID.In(ids...),
@@ -42,16 +44,17 @@ func (t *teamRoleImpl) Find(ctx context.Context, ids []uint32) ([]do.TeamRole, e
 	if err != nil {
 		return nil, err
 	}
-	roleDos := slices.Map(roles, func(role *team.Role) do.TeamRole { return role })
+	roleDos := slices.Map(roles, func(role *system.TeamRole) do.TeamRole { return role })
 	return roleDos, nil
 }
 
 func (t *teamRoleImpl) Get(ctx context.Context, id uint32) (do.TeamRole, error) {
-	bizQuery, teamID, err := getTeamBizQuery(ctx, t)
-	if err != nil {
-		return nil, err
+	teamID, ok := permission.GetTeamIDByContext(ctx)
+	if !ok {
+		return nil, merr.ErrorPermissionDenied("team id not found")
 	}
-	roleQuery := bizQuery.Role
+
+	roleQuery := getMainQuery(ctx, t).TeamRole
 	wrapper := []gen.Condition{
 		roleQuery.TeamID.Eq(teamID),
 		roleQuery.ID.Eq(id),
@@ -60,11 +63,11 @@ func (t *teamRoleImpl) Get(ctx context.Context, id uint32) (do.TeamRole, error) 
 }
 
 func (t *teamRoleImpl) List(ctx context.Context, req *bo.ListRoleReq) (*bo.ListTeamRoleReply, error) {
-	bizQuery, teamID, err := getTeamBizQuery(ctx, t)
-	if err != nil {
-		return nil, err
+	teamID, ok := permission.GetTeamIDByContext(ctx)
+	if !ok {
+		return nil, merr.ErrorPermissionDenied("team id not found")
 	}
-	roleQuery := bizQuery.Role
+	roleQuery := getMainQuery(ctx, t).TeamRole
 	wrapper := roleQuery.WithContext(ctx).Where(roleQuery.TeamID.Eq(teamID))
 
 	if !req.Status.IsUnknown() {
@@ -89,38 +92,31 @@ func (t *teamRoleImpl) List(ctx context.Context, req *bo.ListRoleReq) (*bo.ListT
 }
 
 func (t *teamRoleImpl) Create(ctx context.Context, role bo.Role) error {
-	teamDo := &team.Role{
+	teamDo := &system.TeamRole{
 		Name:   role.GetName(),
 		Remark: role.GetRemark(),
 		Status: role.GetStatus(),
-		Menus: slices.MapFilter(role.GetMenus(), func(menu do.Menu) (*team.Menu, bool) {
+		Menus: slices.MapFilter(role.GetMenus(), func(menu do.Menu) (*system.Menu, bool) {
 			if validate.IsNil(menu) || menu.GetID() <= 0 {
 				return nil, false
 			}
-			return &team.Menu{
-				TeamModel: do.TeamModel{
-					CreatorModel: do.CreatorModel{
-						BaseModel: do.BaseModel{ID: menu.GetID()},
-					},
-				},
+			return &system.Menu{
+				BaseModel: do.BaseModel{ID: menu.GetID()},
 			}, true
 		}),
 	}
 	teamDo.WithContext(ctx)
-	bizQuery, _, err := getTeamBizQuery(ctx, t)
-	if err != nil {
-		return err
-	}
-	bizRoleQuery := bizQuery.Role
+
+	bizRoleQuery := getMainQuery(ctx, t).TeamRole
 	return bizRoleQuery.WithContext(ctx).Create(teamDo)
 }
 
 func (t *teamRoleImpl) Update(ctx context.Context, role bo.Role) error {
-	bizQuery, teamID, err := getTeamBizQuery(ctx, t)
-	if err != nil {
-		return err
+	teamID, ok := permission.GetTeamIDByContext(ctx)
+	if !ok {
+		return merr.ErrorPermissionDenied("team id not found")
 	}
-	bizRoleQuery := bizQuery.Role
+	bizRoleQuery := getMainQuery(ctx, t).TeamRole
 	wrapper := []gen.Condition{
 		bizRoleQuery.TeamID.Eq(teamID),
 		bizRoleQuery.ID.Eq(role.GetID()),
@@ -130,28 +126,24 @@ func (t *teamRoleImpl) Update(ctx context.Context, role bo.Role) error {
 		bizRoleQuery.Remark.Value(role.GetRemark()),
 		bizRoleQuery.Status.Value(role.GetStatus().GetValue()),
 	}
-	_, err = bizRoleQuery.WithContext(ctx).Where(wrapper...).UpdateColumnSimple(mutations...)
+	_, err := bizRoleQuery.WithContext(ctx).Where(wrapper...).UpdateColumnSimple(mutations...)
 	if err != nil {
 		return err
 	}
 
-	roleDo := &team.Role{
+	roleDo := &system.TeamRole{
 		TeamModel: do.TeamModel{
 			CreatorModel: do.CreatorModel{
 				BaseModel: do.BaseModel{ID: role.GetID()},
 			},
 		},
 	}
-	menuDos := slices.MapFilter(role.GetMenus(), func(menu do.Menu) (*team.Menu, bool) {
+	menuDos := slices.MapFilter(role.GetMenus(), func(menu do.Menu) (*system.Menu, bool) {
 		if validate.IsNil(menu) || menu.GetID() <= 0 {
 			return nil, false
 		}
-		return &team.Menu{
-			TeamModel: do.TeamModel{
-				CreatorModel: do.CreatorModel{
-					BaseModel: do.BaseModel{ID: menu.GetID()},
-				},
-			},
+		return &system.Menu{
+			BaseModel: do.BaseModel{ID: menu.GetID()},
 		}, true
 	})
 	menuMutation := bizRoleQuery.Menus.WithContext(ctx).Model(roleDo)
@@ -162,29 +154,29 @@ func (t *teamRoleImpl) Update(ctx context.Context, role bo.Role) error {
 }
 
 func (t *teamRoleImpl) Delete(ctx context.Context, id uint32) error {
-	bizQuery, teamID, err := getTeamBizQuery(ctx, t)
-	if err != nil {
-		return err
+	teamID, ok := permission.GetTeamIDByContext(ctx)
+	if !ok {
+		return merr.ErrorPermissionDenied("team id not found")
 	}
-	bizRoleQuery := bizQuery.Role
+	bizRoleQuery := getMainQuery(ctx, t).TeamRole
 	wrapper := []gen.Condition{
 		bizRoleQuery.TeamID.Eq(teamID),
 		bizRoleQuery.ID.Eq(id),
 	}
-	_, err = bizRoleQuery.WithContext(ctx).Where(wrapper...).Delete()
+	_, err := bizRoleQuery.WithContext(ctx).Where(wrapper...).Delete()
 	return err
 }
 
 func (t *teamRoleImpl) UpdateStatus(ctx context.Context, req *bo.UpdateRoleStatusReq) error {
-	bizQuery, teamID, err := getTeamBizQuery(ctx, t)
-	if err != nil {
-		return err
+	teamID, ok := permission.GetTeamIDByContext(ctx)
+	if !ok {
+		return merr.ErrorPermissionDenied("team id not found")
 	}
-	bizRoleQuery := bizQuery.Role
+	bizRoleQuery := getMainQuery(ctx, t).TeamRole
 	wrapper := []gen.Condition{
 		bizRoleQuery.TeamID.Eq(teamID),
 		bizRoleQuery.ID.Eq(req.RoleID),
 	}
-	_, err = bizRoleQuery.WithContext(ctx).Where(wrapper...).UpdateColumnSimple(bizRoleQuery.Status.Value(req.Status.GetValue()))
+	_, err := bizRoleQuery.WithContext(ctx).Where(wrapper...).UpdateColumnSimple(bizRoleQuery.Status.Value(req.Status.GetValue()))
 	return err
 }

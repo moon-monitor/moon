@@ -8,10 +8,11 @@ import (
 
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/bo"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do"
-	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do/team"
+	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do/system"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/repository"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/vobj"
 	"github.com/moon-monitor/moon/cmd/palace/internal/data"
+	"github.com/moon-monitor/moon/cmd/palace/internal/helper/permission"
 	"github.com/moon-monitor/moon/pkg/merr"
 	"github.com/moon-monitor/moon/pkg/util/slices"
 	"github.com/moon-monitor/moon/pkg/util/validate"
@@ -33,12 +34,13 @@ func (m *memberImpl) List(ctx context.Context, req *bo.TeamMemberListRequest) (*
 	if validate.IsNil(req) {
 		return nil, merr.ErrorParamsError("invalid request")
 	}
-	bizQuery, teamID, err := getTeamBizQuery(ctx, m)
-	if err != nil {
-		return nil, err
+	teamId, ok := permission.GetTeamIDByContext(ctx)
+	if !ok {
+		return nil, merr.ErrorPermissionDenied("team id not found")
 	}
-	memberQuery := bizQuery.Member
-	wrapper := memberQuery.WithContext(ctx).Where(memberQuery.TeamID.Eq(teamID))
+
+	memberQuery := getMainQuery(ctx, m).TeamMember
+	wrapper := memberQuery.WithContext(ctx).Where(memberQuery.TeamID.Eq(teamId))
 	if !validate.TextIsNull(req.Keyword) {
 		ors := []gen.Condition{
 			memberQuery.MemberName.Like(req.Keyword),
@@ -76,9 +78,9 @@ func (m *memberImpl) UpdateStatus(ctx context.Context, req bo.UpdateMemberStatus
 	if len(req.GetMembers()) == 0 {
 		return nil
 	}
-	bizQuery, teamID, err := getTeamBizQuery(ctx, m)
-	if err != nil {
-		return err
+	teamId, ok := permission.GetTeamIDByContext(ctx)
+	if !ok {
+		return merr.ErrorPermissionDenied("team id not found")
 	}
 	memberIds := slices.MapFilter(req.GetMembers(), func(member do.TeamMember) (uint32, bool) {
 		if validate.IsNil(member) || member.GetID() <= 0 {
@@ -89,31 +91,32 @@ func (m *memberImpl) UpdateStatus(ctx context.Context, req bo.UpdateMemberStatus
 	if len(memberIds) == 0 {
 		return nil
 	}
-	memberQuery := bizQuery.Member
+	memberQuery := getMainQuery(ctx, m).TeamMember
 	wrappers := []gen.Condition{
-		memberQuery.TeamID.Eq(teamID),
+		memberQuery.TeamID.Eq(teamId),
 		memberQuery.ID.In(memberIds...),
 	}
-	_, err = memberQuery.WithContext(ctx).Where(wrappers...).UpdateSimple(memberQuery.Status.Value(req.GetStatus().GetValue()))
+	_, err := memberQuery.WithContext(ctx).Where(wrappers...).UpdateSimple(memberQuery.Status.Value(req.GetStatus().GetValue()))
 	return err
 }
 
 func (m *memberImpl) UpdatePosition(ctx context.Context, req bo.UpdateMemberPosition) error {
-	bizQuery, teamID, err := getTeamBizQuery(ctx, m)
-	if err != nil {
-		return err
+	teamID, ok := permission.GetTeamIDByContext(ctx)
+	if !ok {
+		return merr.ErrorPermissionDenied("team id not found")
 	}
-	memberQuery := bizQuery.Member
+
+	memberQuery := getMainQuery(ctx, m).TeamMember
 	wrappers := []gen.Condition{
 		memberQuery.TeamID.Eq(teamID),
 		memberQuery.ID.Eq(req.GetMember().GetID()),
 	}
-	_, err = memberQuery.WithContext(ctx).Where(wrappers...).UpdateSimple(memberQuery.Position.Value(req.GetPosition().GetValue()))
+	_, err := memberQuery.WithContext(ctx).Where(wrappers...).UpdateSimple(memberQuery.Position.Value(req.GetPosition().GetValue()))
 	return err
 }
 
 func (m *memberImpl) UpdateRoles(ctx context.Context, req bo.UpdateMemberRoles) error {
-	memberDo := &team.Member{
+	memberDo := &system.TeamMember{
 		TeamModel: do.TeamModel{
 			CreatorModel: do.CreatorModel{
 				BaseModel: do.BaseModel{ID: req.GetMember().GetID()},
@@ -121,11 +124,11 @@ func (m *memberImpl) UpdateRoles(ctx context.Context, req bo.UpdateMemberRoles) 
 		},
 	}
 
-	roles := slices.MapFilter(req.GetRoles(), func(role do.TeamRole) (*team.Role, bool) {
+	roles := slices.MapFilter(req.GetRoles(), func(role do.TeamRole) (*system.TeamRole, bool) {
 		if validate.IsNil(role) || role.GetID() <= 0 {
 			return nil, false
 		}
-		return &team.Role{
+		return &system.TeamRole{
 			TeamModel: do.TeamModel{
 				CreatorModel: do.CreatorModel{
 					BaseModel: do.BaseModel{ID: role.GetID()},
@@ -133,11 +136,8 @@ func (m *memberImpl) UpdateRoles(ctx context.Context, req bo.UpdateMemberRoles) 
 			},
 		}, true
 	})
-	bizMutation, _, err := getTeamBizQuery(ctx, m)
-	if err != nil {
-		return err
-	}
-	memberMutation := bizMutation.Member
+
+	memberMutation := getMainQuery(ctx, m).TeamMember
 	rolesAssociation := memberMutation.Roles.WithContext(ctx).Model(memberDo)
 	if len(roles) == 0 {
 		return rolesAssociation.Clear()
@@ -146,11 +146,11 @@ func (m *memberImpl) UpdateRoles(ctx context.Context, req bo.UpdateMemberRoles) 
 }
 
 func (m *memberImpl) Get(ctx context.Context, id uint32) (do.TeamMember, error) {
-	query, teamID, err := getTeamBizQuery(ctx, m)
-	if err != nil {
-		return nil, err
+	teamID, ok := permission.GetTeamIDByContext(ctx)
+	if !ok {
+		return nil, merr.ErrorPermissionDenied("team id not found")
 	}
-	memberQuery := query.Member
+	memberQuery := getMainQuery(ctx, m).TeamMember
 	wrappers := []gen.Condition{
 		memberQuery.TeamID.Eq(teamID),
 		memberQuery.ID.Eq(id),
@@ -166,11 +166,12 @@ func (m *memberImpl) Find(ctx context.Context, ids []uint32) ([]do.TeamMember, e
 	if len(ids) == 0 {
 		return nil, nil
 	}
-	query, teamID, err := getTeamBizQuery(ctx, m)
-	if err != nil {
-		return nil, err
+	teamID, ok := permission.GetTeamIDByContext(ctx)
+	if !ok {
+		return nil, merr.ErrorPermissionDenied("team id not found")
 	}
-	memberQuery := query.Member
+	query := getMainQuery(ctx, m)
+	memberQuery := query.TeamMember
 	wrappers := []gen.Condition{
 		memberQuery.TeamID.Eq(teamID),
 		memberQuery.ID.In(ids...),
@@ -179,16 +180,17 @@ func (m *memberImpl) Find(ctx context.Context, ids []uint32) ([]do.TeamMember, e
 	if err != nil {
 		return nil, err
 	}
-	memberDos := slices.Map(members, func(member *team.Member) do.TeamMember { return member })
+	memberDos := slices.Map(members, func(member *system.TeamMember) do.TeamMember { return member })
 	return memberDos, nil
 }
 
 func (m *memberImpl) FindByUserID(ctx context.Context, userID uint32) (do.TeamMember, error) {
-	query, teamID, err := getTeamBizQuery(ctx, m)
-	if err != nil {
-		return nil, err
+	teamID, ok := permission.GetTeamIDByContext(ctx)
+	if !ok {
+		return nil, merr.ErrorPermissionDenied("team id not found")
 	}
-	memberQuery := query.Member
+	query := getMainQuery(ctx, m)
+	memberQuery := query.TeamMember
 	wrappers := []gen.Condition{
 		memberQuery.TeamID.Eq(teamID),
 		memberQuery.UserID.Eq(userID),

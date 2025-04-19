@@ -58,21 +58,6 @@ service Resource {
     };
   }
 
-  // SaveTeamMenu creates or updates a team menu
-  rpc SaveTeamMenu (SaveMenuRequest) returns (api.palace.common.EmptyReply) {
-    option (google.api.http) = {
-      put: "/api/team/menu/save"
-      body: "*"
-    };
-  }
-
-  // GetTeamMenu retrieves a team menu by ID
-  rpc GetTeamMenu (GetMenuRequest) returns (GetMenuReply) {
-    option (google.api.http) = {
-      get: "/api/team/menu/detail"
-    };
-  }
-
   // GetResourceMenuTree returns the menu tree
   rpc GetResourceMenuTree (api.palace.common.EmptyRequest) returns (GetResourceMenuTreeReply) {
     option (google.api.http) = {

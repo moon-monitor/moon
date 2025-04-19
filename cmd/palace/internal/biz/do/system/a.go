@@ -10,6 +10,8 @@ func Models() []any {
 		&TeamAudit{},
 		&TeamInviteLink{},
 		&TeamInviteUser{},
+		&TeamRole{},
+		&TeamMember{},
 		&User{},
 		&UserConfigTable{},
 		&UserConfigTheme{},

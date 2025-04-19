@@ -3,7 +3,6 @@ package bo
 import (
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do/system"
-	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do/team"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/vobj"
 	"github.com/moon-monitor/moon/pkg/merr"
 	"github.com/moon-monitor/moon/pkg/util/slices"
@@ -159,10 +158,10 @@ type ListRoleReq struct {
 	Keyword string            `json:"keyword"`
 }
 
-func (r *ListRoleReq) ToListTeamRoleReply(roles []*team.Role) *ListTeamRoleReply {
+func (r *ListRoleReq) ToListTeamRoleReply(roles []*system.TeamRole) *ListTeamRoleReply {
 	return &ListTeamRoleReply{
 		PaginationReply: r.ToReply(),
-		Items:           slices.Map(roles, func(role *team.Role) do.TeamRole { return role }),
+		Items:           slices.Map(roles, func(role *system.TeamRole) do.TeamRole { return role }),
 	}
 }
 

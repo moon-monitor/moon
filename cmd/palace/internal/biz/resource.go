@@ -71,6 +71,20 @@ func (r *ResourceBiz) SaveResource(ctx context.Context, req *bo.SaveResourceReq)
 
 func (r *ResourceBiz) SaveMenu(ctx context.Context, req *bo.SaveMenuReq) error {
 	return r.transaction.MainExec(ctx, func(ctx context.Context) error {
+		if req.ParentID > 0 {
+			parentDo, err := r.resourceRepo.GetMenuByID(ctx, req.ParentID)
+			if err != nil {
+				return err
+			}
+			req.WithParent(parentDo)
+		}
+		if len(req.ResourceIds) > 0 {
+			resourceDos, err := r.resourceRepo.Find(ctx, req.ResourceIds)
+			if err != nil {
+				return err
+			}
+			req.WithResources(resourceDos)
+		}
 		if req.ID <= 0 {
 			return r.resourceRepo.CreateMenu(ctx, req)
 		}
@@ -79,52 +93,10 @@ func (r *ResourceBiz) SaveMenu(ctx context.Context, req *bo.SaveMenuReq) error {
 			return err
 		}
 		req.WithMenu(menuDo)
-		parentDo, err := r.resourceRepo.GetMenuByID(ctx, req.ParentID)
-		if err != nil {
-			return err
-		}
-		req.WithParent(parentDo)
-		if len(req.ResourceIds) > 0 {
-			resourceDos, err := r.resourceRepo.Find(ctx, req.ResourceIds)
-			if err != nil {
-				return err
-			}
-			req.WithResources(resourceDos)
-		}
 		return r.resourceRepo.UpdateMenu(ctx, req)
-	})
-}
-
-func (r *ResourceBiz) SaveTeamMenu(ctx context.Context, req *bo.SaveMenuReq) error {
-	return r.transaction.BizExec(ctx, func(ctx context.Context) error {
-		if req.ID <= 0 {
-			return r.resourceRepo.CreateTeamMenu(ctx, req)
-		}
-		menuDo, err := r.resourceRepo.GetTeamMenuByID(ctx, req.ID)
-		if err != nil {
-			return err
-		}
-		req.WithParent(menuDo)
-		parentDo, err := r.resourceRepo.GetTeamMenuByID(ctx, req.ParentID)
-		if err != nil {
-			return err
-		}
-		req.WithParent(parentDo)
-		if len(req.ResourceIds) > 0 {
-			resourceDos, err := r.resourceRepo.Find(ctx, req.ResourceIds)
-			if err != nil {
-				return err
-			}
-			req.WithResources(resourceDos)
-		}
-		return r.resourceRepo.UpdateTeamMenu(ctx, req)
 	})
 }
 
 func (r *ResourceBiz) GetMenu(ctx context.Context, id uint32) (do.Menu, error) {
 	return r.resourceRepo.GetMenuByID(ctx, id)
-}
-
-func (r *ResourceBiz) GetTeamMenu(ctx context.Context, id uint32) (do.Menu, error) {
-	return r.resourceRepo.GetTeamMenuByID(ctx, id)
 }

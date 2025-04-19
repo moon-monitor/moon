@@ -10,10 +10,10 @@ import (
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/bo"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do/system"
-	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do/team"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/repository"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/vobj"
 	"github.com/moon-monitor/moon/cmd/palace/internal/data"
+	"github.com/moon-monitor/moon/cmd/palace/internal/helper/permission"
 	"github.com/moon-monitor/moon/pkg/util/slices"
 	"github.com/moon-monitor/moon/pkg/util/validate"
 )
@@ -81,18 +81,17 @@ func (r *resourceImpl) CreateMenu(ctx context.Context, req bo.SaveMenu) error {
 			BaseModel: do.BaseModel{ID: resource.GetID()},
 		}, true
 	})
-	parent := &system.Menu{
-		BaseModel: do.BaseModel{ID: req.GetParent().GetID()},
-	}
+
 	menuDo := &system.Menu{
 		Name:      req.GetName(),
 		Path:      req.GetPath(),
 		Status:    req.GetStatus(),
 		Icon:      req.GetIcon(),
-		ParentID:  req.GetParent().GetID(),
 		Type:      req.GetType(),
-		Parent:    parent,
 		Resources: resources,
+	}
+	if validate.IsNotNil(req.GetParent()) {
+		menuDo.ParentID = req.GetParent().GetID()
 	}
 	menuDo.WithContext(ctx)
 	menuMutation := getMainQuery(ctx, r).Menu
@@ -109,8 +108,10 @@ func (r *resourceImpl) UpdateMenu(ctx context.Context, req bo.SaveMenu) error {
 		menuMutation.Path.Value(req.GetPath()),
 		menuMutation.Status.Value(req.GetStatus().GetValue()),
 		menuMutation.Icon.Value(req.GetIcon()),
-		menuMutation.ParentID.Value(req.GetParent().GetID()),
 		menuMutation.Type.Value(req.GetType().GetValue()),
+	}
+	if validate.IsNotNil(req.GetParent()) {
+		mutations = append(mutations, menuMutation.ParentID.Value(req.GetParent().GetID()))
 	}
 	_, err := menuMutation.WithContext(ctx).Where(wrapper...).UpdateColumnSimple(mutations...)
 	if err != nil {
@@ -141,111 +142,6 @@ func (r *resourceImpl) GetMenuByID(ctx context.Context, id uint32) (do.Menu, err
 	menuDo, err := menu.WithContext(ctx).Where(menu.ID.Eq(id)).First()
 	if err != nil {
 		return nil, menuNotFound(err)
-	}
-	return menuDo, nil
-}
-
-func (r *resourceImpl) CreateTeamMenu(ctx context.Context, req bo.SaveMenu) error {
-	bizQuery, _, err := getTeamBizQuery(ctx, r)
-	if err != nil {
-		return err
-	}
-	bizMenu := bizQuery.Menu
-	parent := &team.Menu{
-		TeamModel: do.TeamModel{
-			CreatorModel: do.CreatorModel{
-				BaseModel: do.BaseModel{ID: req.GetParent().GetID()},
-			},
-		},
-	}
-	resources := slices.MapFilter(req.GetResources(), func(resource do.Resource) (*team.Resource, bool) {
-		if validate.IsNil(resource) || resource.GetID() <= 0 {
-			return nil, false
-		}
-		return &team.Resource{
-			TeamModel: do.TeamModel{
-				CreatorModel: do.CreatorModel{
-					BaseModel: do.BaseModel{ID: resource.GetID()},
-				},
-			},
-		}, true
-	})
-	teamMenu := &team.Menu{
-		Name:      req.GetName(),
-		Path:      req.GetPath(),
-		Status:    req.GetStatus(),
-		Icon:      req.GetIcon(),
-		ParentID:  req.GetParent().GetID(),
-		Type:      req.GetType(),
-		Parent:    parent,
-		Resources: resources,
-		Roles:     nil,
-	}
-	teamMenu.WithContext(ctx)
-	return bizMenu.WithContext(ctx).Create(teamMenu)
-}
-
-func (r *resourceImpl) UpdateTeamMenu(ctx context.Context, req bo.SaveMenu) error {
-	bizQuery, teamId, err := getTeamBizQuery(ctx, r)
-	if err != nil {
-		return err
-	}
-	bizMenu := bizQuery.Menu
-	wrapper := []gen.Condition{
-		bizMenu.TeamID.Eq(teamId),
-		bizMenu.ID.Eq(req.GetID()),
-	}
-	mutations := []field.AssignExpr{
-		bizMenu.Name.Value(req.GetName()),
-		bizMenu.Path.Value(req.GetPath()),
-		bizMenu.Status.Value(req.GetStatus().GetValue()),
-		bizMenu.Icon.Value(req.GetIcon()),
-		bizMenu.ParentID.Value(req.GetParent().GetID()),
-		bizMenu.Type.Value(req.GetType().GetValue()),
-	}
-	_, err = bizMenu.WithContext(ctx).Where(wrapper...).UpdateColumnSimple(mutations...)
-	if err != nil {
-		return err
-	}
-	resources := slices.MapFilter(req.GetResources(), func(resource do.Resource) (*team.Resource, bool) {
-		if validate.IsNil(resource) || resource.GetID() <= 0 {
-			return nil, false
-		}
-		return &team.Resource{
-			TeamModel: do.TeamModel{
-				CreatorModel: do.CreatorModel{
-					BaseModel: do.BaseModel{ID: resource.GetID()},
-				},
-			},
-		}, true
-	})
-	menuDo := &team.Menu{
-		TeamModel: do.TeamModel{
-			CreatorModel: do.CreatorModel{
-				BaseModel: do.BaseModel{ID: req.GetID()},
-			},
-		},
-	}
-	bizMenu.WithContext(ctx)
-	resourcesAssociation := bizMenu.Resources.WithContext(ctx).Model(menuDo)
-	if len(resources) == 0 {
-		return resourcesAssociation.Clear()
-	}
-	return resourcesAssociation.Replace(resources...)
-}
-
-func (r *resourceImpl) GetTeamMenuByID(ctx context.Context, id uint32) (do.Menu, error) {
-	bizQuery, teamID, err := getTeamBizQuery(ctx, r)
-	if err != nil {
-		return nil, err
-	}
-	bizMenu := bizQuery.Menu
-	menuDo, err := bizMenu.WithContext(ctx).Where(
-		bizMenu.TeamID.Eq(teamID),
-		bizMenu.ID.Eq(id),
-	).First()
-	if err != nil {
-		return nil, teamMenuNotFound(err)
 	}
 	return menuDo, nil
 }
@@ -328,18 +224,18 @@ func (r *resourceImpl) GetMenusByUserID(ctx context.Context, userID uint32) ([]d
 	for _, role := range userDo.Roles {
 		menus = append(menus, slices.Map(role.Menus, func(menu *system.Menu) do.Menu { return menu })...)
 	}
-	teamBizQuery, teamID, err := getTeamBizQuery(ctx, r)
-	if err != nil {
-		return nil, err
+	teamId, ok := permission.GetTeamIDByContext(ctx)
+	if !ok {
+		return menus, nil
 	}
-	teamMember := teamBizQuery.Member
-	teamQuery := teamMember.WithContext(ctx).Where(teamMember.TeamID.Eq(teamID)).Preload(teamMember.Roles.Menus)
+	teamMember := mainQuery.TeamMember
+	teamQuery := teamMember.WithContext(ctx).Where(teamMember.TeamID.Eq(teamId)).Preload(teamMember.Roles.Menus)
 	teamMemberDo, err := teamQuery.First()
 	if err != nil {
 		return nil, teamMemberNotFound(err)
 	}
 	for _, role := range teamMemberDo.Roles {
-		menus = append(menus, slices.Map(role.Menus, func(menu *team.Menu) do.Menu { return menu })...)
+		menus = append(menus, slices.Map(role.Menus, func(menu *system.Menu) do.Menu { return menu })...)
 	}
 	return menus, nil
 }

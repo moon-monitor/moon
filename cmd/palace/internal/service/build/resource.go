@@ -57,12 +57,14 @@ func ToMenuTreeItemProto(menu do.Menu) *common.MenuTreeItem {
 
 func convertMenuToTreeItemWithMap(menu do.Menu, menuMap map[uint32]do.Menu) *common.MenuTreeItem {
 	treeItem := &common.MenuTreeItem{
-		Id:       menu.GetID(),
-		Name:     menu.GetName(),
-		Path:     menu.GetPath(),
-		Status:   common.GlobalStatus(menu.GetStatus()),
-		Icon:     menu.GetIcon(),
-		Children: nil,
+		Id:        menu.GetID(),
+		Name:      menu.GetName(),
+		Path:      menu.GetPath(),
+		Status:    common.GlobalStatus(menu.GetStatus()),
+		Icon:      menu.GetIcon(),
+		Children:  nil,
+		MenuType:  common.MenuType(menu.GetType()),
+		Resources: ToResourceItemProtoList(menu.GetResources()),
 	}
 
 	// 查找所有子菜单
