@@ -217,8 +217,7 @@ message InviteMemberRequest {
 
 // RemoveMemberRequest represents the request data for removing a member from the team
 message RemoveMemberRequest {
-  // Email of the user to remove
-  string userEmail = 1 [(buf.validate.field).required = true];
+  uint32 memberId = 1 [(buf.validate.field).required = true];
 }
 
 message GetTeamMembersRequest {

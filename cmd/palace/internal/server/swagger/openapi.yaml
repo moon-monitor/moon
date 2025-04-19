@@ -2771,9 +2771,9 @@ components:
         api.palace.RemoveMemberRequest:
             type: object
             properties:
-                userEmail:
-                    type: string
-                    description: Email of the user to remove
+                memberId:
+                    type: integer
+                    format: uint32
             description: RemoveMemberRequest represents the request data for removing a member from the team
         api.palace.ReplaceMemberRoleRequest:
             type: object

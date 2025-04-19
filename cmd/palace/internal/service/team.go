@@ -60,7 +60,13 @@ func (s *TeamService) InviteMember(ctx context.Context, req *palacev1.InviteMemb
 }
 
 func (s *TeamService) RemoveMember(ctx context.Context, req *palacev1.RemoveMemberRequest) (*common.EmptyReply, error) {
-	return &common.EmptyReply{}, nil
+	params := &bo.RemoveMemberReq{
+		MemberID: req.GetMemberId(),
+	}
+	if err := s.teamBiz.RemoveMember(ctx, params); err != nil {
+		return nil, err
+	}
+	return &common.EmptyReply{Message: "移除团队成员成功"}, nil
 }
 
 func (s *TeamService) GetTeamMembers(ctx context.Context, req *palacev1.GetTeamMembersRequest) (*palacev1.GetTeamMembersReply, error) {

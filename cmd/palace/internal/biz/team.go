@@ -244,3 +244,24 @@ func (t *Team) UpdateMemberRoles(ctx context.Context, req *bo.UpdateMemberRolesR
 	}
 	return t.memberRepo.UpdateRoles(ctx, req)
 }
+
+func (t *Team) RemoveMember(ctx context.Context, req *bo.RemoveMemberReq) error {
+	userId, ok := permission.GetUserIDByContext(ctx)
+	if !ok {
+		return merr.ErrorUnauthorized("user not found in context")
+	}
+	operatorDo, err := t.memberRepo.FindByUserID(ctx, userId)
+	if err != nil {
+		return err
+	}
+	req.WithOperator(operatorDo)
+	memberDo, err := t.memberRepo.Get(ctx, req.MemberID)
+	if err != nil {
+		return err
+	}
+	req.WithMember(memberDo)
+	if err := req.Validate(); err != nil {
+		return err
+	}
+	return t.memberRepo.UpdateStatus(ctx, req)
+}

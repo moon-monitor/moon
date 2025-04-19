@@ -312,3 +312,47 @@ func (r *UpdateMemberRolesReq) Validate() error {
 	}
 	return nil
 }
+
+type RemoveMemberReq struct {
+	operator do.TeamMember
+	member   do.TeamMember
+	MemberID uint32
+}
+
+func (r *RemoveMemberReq) GetMembers() []do.TeamMember {
+	if r == nil {
+		return nil
+	}
+	return []do.TeamMember{r.member}
+}
+
+func (r *RemoveMemberReq) GetStatus() vobj.MemberStatus {
+	if r == nil {
+		return vobj.MemberStatusUnknown
+	}
+	return vobj.MemberStatusDeleted
+}
+
+func (r *RemoveMemberReq) WithOperator(operator do.TeamMember) *RemoveMemberReq {
+	r.operator = operator
+	return r
+}
+
+func (r *RemoveMemberReq) WithMember(member do.TeamMember) *RemoveMemberReq {
+	r.member = member
+	return r
+}
+
+func (r *RemoveMemberReq) Validate() error {
+	if validate.IsNil(r.operator) {
+		return merr.ErrorParamsError("invalid operator")
+	}
+	if validate.IsNil(r.member) {
+		return merr.ErrorParamsError("invalid member")
+	}
+	operatorPosition := r.operator.GetPosition()
+	if !(operatorPosition.GT(r.member.GetPosition()) && operatorPosition.IsAdminOrSuperAdmin()) {
+		return merr.ErrorParamsError("invalid position")
+	}
+	return nil
+}
