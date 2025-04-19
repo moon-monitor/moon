@@ -370,6 +370,25 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/api.palace.common.EmptyReply'
+    /api/system/role/list:
+        post:
+            tags:
+                - System
+            description: GetSystemRoles lists system roles based on specified filters
+            operationId: System_GetSystemRoles
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/api.palace.GetSystemRolesRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.palace.GetSystemRolesReply'
     /api/system/role/status:
         put:
             tags:
@@ -2066,6 +2085,34 @@ components:
                         - $ref: '#/components/schemas/api.palace.common.SystemRoleItem'
                     description: Detailed information about the system role
             description: GetSystemRoleReply contains the response data for retrieving a system role
+        api.palace.GetSystemRolesReply:
+            type: object
+            properties:
+                items:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/api.palace.common.SystemRoleItem'
+                    description: List of system role items
+                pagination:
+                    allOf:
+                        - $ref: '#/components/schemas/api.palace.common.PaginationReply'
+                    description: Pagination response details
+            description: GetSystemRolesReply contains the response data for listing system roles
+        api.palace.GetSystemRolesRequest:
+            type: object
+            properties:
+                pagination:
+                    allOf:
+                        - $ref: '#/components/schemas/api.palace.common.PaginationRequest'
+                    description: Pagination request details
+                keyword:
+                    type: string
+                    description: Keyword to search roles by
+                status:
+                    type: integer
+                    description: Status to filter roles by
+                    format: enum
+            description: GetSystemRolesRequest represents the request data for listing system roles
         api.palace.GetTeamAuditListReply:
             type: object
             properties:

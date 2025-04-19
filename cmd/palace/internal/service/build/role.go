@@ -6,13 +6,18 @@ import (
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/bo"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/vobj"
-	"github.com/moon-monitor/moon/pkg/api/palace"
 	"github.com/moon-monitor/moon/pkg/api/palace/common"
 	"github.com/moon-monitor/moon/pkg/util/slices"
 	"github.com/moon-monitor/moon/pkg/util/validate"
 )
 
-func ToListRoleRequest(req *palace.GetTeamRolesRequest) *bo.ListRoleReq {
+type ListRoleRequest interface {
+	GetPagination() *common.PaginationRequest
+	GetStatus() common.GlobalStatus
+	GetKeyword() string
+}
+
+func ToListRoleRequest(req ListRoleRequest) *bo.ListRoleReq {
 	return &bo.ListRoleReq{
 		PaginationRequest: ToPaginationRequest(req.GetPagination()),
 		Status:            vobj.GlobalStatus(req.GetStatus()),

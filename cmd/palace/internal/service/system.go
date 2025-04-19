@@ -120,6 +120,18 @@ func (s *SystemService) GetSystemRole(ctx context.Context, req *palacev1.GetSyst
 	}, nil
 }
 
+func (s *SystemService) GetSystemRoles(ctx context.Context, req *palacev1.GetSystemRolesRequest) (*palacev1.GetSystemRolesReply, error) {
+	params := build.ToListRoleRequest(req)
+	roleReply, err := s.systemBiz.GetRoles(ctx, params)
+	if err != nil {
+		return nil, err
+	}
+	return &palacev1.GetSystemRolesReply{
+		Items:      build.ToSystemRoleItems(roleReply.Items),
+		Pagination: build.ToPaginationReplyProto(roleReply.PaginationReply),
+	}, nil
+}
+
 func (s *SystemService) SaveRole(ctx context.Context, req *palacev1.SaveRoleRequest) (*common.EmptyReply, error) {
 	params := build.ToSaveRoleRequest(req)
 	if err := s.systemBiz.SaveRole(ctx, params); err != nil {

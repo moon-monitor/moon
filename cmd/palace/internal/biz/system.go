@@ -32,6 +32,10 @@ func (s *System) GetRole(ctx context.Context, roleId uint32) (do.Role, error) {
 	return s.roleRepo.Get(ctx, roleId)
 }
 
+func (s *System) GetRoles(ctx context.Context, req *bo.ListRoleReq) (*bo.ListRoleReply, error) {
+	return s.roleRepo.List(ctx, req)
+}
+
 func (s *System) SaveRole(ctx context.Context, req *bo.SaveRoleReq) error {
 	return s.transactionRepo.BizExec(ctx, func(ctx context.Context) error {
 		if req.GetID() <= 0 {

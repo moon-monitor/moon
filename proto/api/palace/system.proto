@@ -77,6 +77,14 @@ service System {
     };
   }
 
+  // GetSystemRoles lists system roles based on specified filters
+  rpc GetSystemRoles (GetSystemRolesRequest) returns (GetSystemRolesReply) {
+    option (google.api.http) = {
+      post: "/api/system/role/list"
+      body: "*"
+    };
+  }
+
   // SaveRole saves a new role or updates an existing one
   rpc SaveRole (SaveRoleRequest) returns (api.palace.common.EmptyReply) {
     option (google.api.http) = {
@@ -221,6 +229,24 @@ message GetTeamListRequest {
 message GetTeamListReply {
   // List of team items
   repeated api.palace.common.TeamItem items = 1;
+  // Pagination response details
+  api.palace.common.PaginationReply pagination = 2;
+}
+
+// GetSystemRolesRequest represents the request data for listing system roles
+message GetSystemRolesRequest {
+  // Pagination request details
+  api.palace.common.PaginationRequest pagination = 1;
+  // Keyword to search roles by
+  string keyword = 2;
+  // Status to filter roles by
+  api.palace.common.GlobalStatus status = 3;
+}
+
+// GetSystemRolesReply contains the response data for listing system roles
+message GetSystemRolesReply {
+  // List of system role items
+  repeated api.palace.common.SystemRoleItem items = 1;
   // Pagination response details
   api.palace.common.PaginationReply pagination = 2;
 }
