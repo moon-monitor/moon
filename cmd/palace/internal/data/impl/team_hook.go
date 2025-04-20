@@ -29,6 +29,27 @@ type teamHookImpl struct {
 	helper *log.Helper
 }
 
+func (t *teamHookImpl) Find(ctx context.Context, ids []uint32) ([]do.NoticeHook, error) {
+	if len(ids) == 0 {
+		return nil, nil
+	}
+	bizQuery, teamId, err := getTeamBizQuery(ctx, t)
+	if err != nil {
+		return nil, err
+	}
+
+	hookQuery := bizQuery.NoticeHook
+	wrapper := []gen.Condition{
+		hookQuery.TeamID.Eq(teamId),
+		hookQuery.ID.In(ids...),
+	}
+	hooks, err := hookQuery.WithContext(ctx).Where(wrapper...).Find()
+	if err != nil {
+		return nil, err
+	}
+	return slices.Map(hooks, func(hook *team.NoticeHook) do.NoticeHook { return hook }), nil
+}
+
 func (t *teamHookImpl) Create(ctx context.Context, hook bo.NoticeHook) error {
 	noticeHook := &team.NoticeHook{
 		Name:    hook.GetName(),

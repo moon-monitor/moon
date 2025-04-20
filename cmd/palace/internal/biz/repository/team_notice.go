@@ -1,0 +1,17 @@
+package repository
+
+import (
+	"context"
+
+	"github.com/moon-monitor/moon/cmd/palace/internal/biz/bo"
+	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do"
+)
+
+type TeamNotice interface {
+	Create(ctx context.Context, group bo.SaveNoticeGroup) error
+	Update(ctx context.Context, group bo.SaveNoticeGroup) error
+	UpdateStatus(ctx context.Context, req *bo.UpdateTeamNoticeGroupStatusRequest) error
+	Delete(ctx context.Context, groupID uint32) error
+	Get(ctx context.Context, groupID uint32) (do.NoticeGroup, error)
+	List(ctx context.Context, req *bo.ListNoticeGroupReq) (*bo.ListNoticeGroupReply, error)
+}

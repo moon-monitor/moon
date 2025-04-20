@@ -1157,13 +1157,30 @@ paths:
         post:
             tags:
                 - TeamNotice
-            operationId: TeamNotice_DeleteTeamNoticeGroup
+            operationId: TeamNotice_SaveTeamNoticeGroup
             requestBody:
                 content:
                     application/json:
                         schema:
-                            $ref: '#/components/schemas/api.palace.DeleteTeamNoticeGroupRequest'
+                            $ref: '#/components/schemas/api.palace.SaveTeamNoticeGroupRequest'
                 required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.palace.common.EmptyReply'
+        delete:
+            tags:
+                - TeamNotice
+            operationId: TeamNotice_DeleteTeamNoticeGroup
+            parameters:
+                - name: groupId
+                  in: query
+                  schema:
+                    type: integer
+                    format: uint32
             responses:
                 "200":
                     description: OK
@@ -1228,13 +1245,30 @@ paths:
         post:
             tags:
                 - TeamNotice
-            operationId: TeamNotice_DeleteTeamNoticeHook
+            operationId: TeamNotice_SaveTeamNoticeHook
             requestBody:
                 content:
                     application/json:
                         schema:
-                            $ref: '#/components/schemas/api.palace.DeleteTeamNoticeHookRequest'
+                            $ref: '#/components/schemas/api.palace.SaveTeamNoticeHookRequest'
                 required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.palace.common.EmptyReply'
+        delete:
+            tags:
+                - TeamNotice
+            operationId: TeamNotice_DeleteTeamNoticeHook
+            parameters:
+                - name: hookId
+                  in: query
+                  schema:
+                    type: integer
+                    format: uint32
             responses:
                 "200":
                     description: OK
@@ -2004,18 +2038,6 @@ components:
                     type: string
                     description: Team logo URL
             description: CreateTeamRequest represents the request data for creating a new team
-        api.palace.DeleteTeamNoticeGroupRequest:
-            type: object
-            properties:
-                groupId:
-                    type: integer
-                    format: uint32
-        api.palace.DeleteTeamNoticeHookRequest:
-            type: object
-            properties:
-                hookId:
-                    type: integer
-                    format: uint32
         api.palace.EmailConfigItem:
             type: object
             properties:
@@ -3155,9 +3177,6 @@ components:
                     type: string
                 remark:
                     type: string
-                status:
-                    type: integer
-                    format: enum
                 hookIds:
                     type: array
                     items:
@@ -3168,6 +3187,12 @@ components:
                     items:
                         $ref: '#/components/schemas/api.palace.SaveTeamNoticeGroupRequest_Member'
                 groupId:
+                    type: integer
+                    format: uint32
+                emailConfigId:
+                    type: integer
+                    format: uint32
+                smsConfigId:
                     type: integer
                     format: uint32
         api.palace.SaveTeamNoticeGroupRequest_Member:

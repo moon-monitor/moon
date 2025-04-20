@@ -9,16 +9,22 @@ import (
 	"github.com/moon-monitor/moon/cmd/palace/internal/service/build"
 	"github.com/moon-monitor/moon/pkg/api/palace"
 	"github.com/moon-monitor/moon/pkg/api/palace/common"
+	"github.com/moon-monitor/moon/pkg/util/slices"
 )
 
 type TeamNoticeService struct {
 	palace.UnimplementedTeamNoticeServer
-	teamHookBiz *biz.TeamHook
+	teamHookBiz   *biz.TeamHook
+	teamNoticeBiz *biz.TeamNotice
 }
 
-func NewTeamNoticeService(teamHookBiz *biz.TeamHook) *TeamNoticeService {
+func NewTeamNoticeService(
+	teamHookBiz *biz.TeamHook,
+	teamNoticeBiz *biz.TeamNotice,
+) *TeamNoticeService {
 	return &TeamNoticeService{
-		teamHookBiz: teamHookBiz,
+		teamHookBiz:   teamHookBiz,
+		teamNoticeBiz: teamNoticeBiz,
 	}
 }
 
@@ -27,7 +33,7 @@ func (s *TeamNoticeService) SaveTeamNoticeHook(ctx context.Context, req *palace.
 	if err := s.teamHookBiz.SaveHook(ctx, build.ToSaveTeamNoticeHookRequest(req)); err != nil {
 		return nil, err
 	}
-	return &common.EmptyReply{}, nil
+	return &common.EmptyReply{Message: "保存团队通知Hook成功"}, nil
 }
 
 // UpdateTeamNoticeHookStatus 更新钩子状态
@@ -39,7 +45,7 @@ func (s *TeamNoticeService) UpdateTeamNoticeHookStatus(ctx context.Context, req 
 	if err := s.teamHookBiz.UpdateHookStatus(ctx, params); err != nil {
 		return nil, err
 	}
-	return &common.EmptyReply{}, nil
+	return &common.EmptyReply{Message: "更新团队通知Hook状态成功"}, nil
 }
 
 // DeleteTeamNoticeHook 删除钩子
@@ -47,7 +53,7 @@ func (s *TeamNoticeService) DeleteTeamNoticeHook(ctx context.Context, req *palac
 	if err := s.teamHookBiz.DeleteHook(ctx, req.GetHookId()); err != nil {
 		return nil, err
 	}
-	return &common.EmptyReply{}, nil
+	return &common.EmptyReply{Message: "删除团队通知Hook成功"}, nil
 }
 
 // GetTeamNoticeHook 获取钩子详情
@@ -75,21 +81,70 @@ func (s *TeamNoticeService) ListTeamNoticeHook(ctx context.Context, req *palace.
 }
 
 func (s *TeamNoticeService) SaveTeamNoticeGroup(ctx context.Context, req *palace.SaveTeamNoticeGroupRequest) (*common.EmptyReply, error) {
-	return &common.EmptyReply{}, nil
+	members := slices.Map(req.GetMembers(), func(member *palace.SaveTeamNoticeGroupRequest_Member) *bo.SaveNoticeMemberItem {
+		return &bo.SaveNoticeMemberItem{
+			MemberID:   member.GetMemberId(),
+			UserID:     0,
+			NoticeType: vobj.NoticeType(member.GetNoticeType()),
+		}
+	})
+	params := &bo.SaveNoticeGroupReq{
+		GroupID:       req.GetGroupId(),
+		Name:          req.GetName(),
+		Remark:        req.GetRemark(),
+		HookIds:       req.GetHookIds(),
+		NoticeMembers: members,
+		EmailConfigID: req.GetEmailConfigId(),
+		SMSConfigID:   req.GetSmsConfigId(),
+	}
+	if err := s.teamNoticeBiz.SaveNoticeGroup(ctx, params); err != nil {
+		return nil, err
+	}
+	return &common.EmptyReply{Message: "保存团队通知组成功"}, nil
 }
 
 func (s *TeamNoticeService) UpdateTeamNoticeGroupStatus(ctx context.Context, req *palace.UpdateTeamNoticeGroupStatusRequest) (*common.EmptyReply, error) {
-	return &common.EmptyReply{}, nil
+	params := &bo.UpdateTeamNoticeGroupStatusRequest{
+		GroupIds: []uint32{req.GetGroupId()},
+		Status:   vobj.GlobalStatus(req.GetStatus()),
+	}
+	if err := s.teamNoticeBiz.UpdateNoticeGroupStatus(ctx, params); err != nil {
+		return nil, err
+	}
+	return &common.EmptyReply{Message: "更新团队通知组状态成功"}, nil
 }
 
 func (s *TeamNoticeService) DeleteTeamNoticeGroup(ctx context.Context, req *palace.DeleteTeamNoticeGroupRequest) (*common.EmptyReply, error) {
-	return &common.EmptyReply{}, nil
+	if err := s.teamNoticeBiz.DeleteNoticeGroup(ctx, req.GetGroupId()); err != nil {
+		return nil, err
+	}
+	return &common.EmptyReply{Message: "删除团队通知组成功"}, nil
 }
 
 func (s *TeamNoticeService) GetTeamNoticeGroup(ctx context.Context, req *palace.GetTeamNoticeGroupRequest) (*palace.GetTeamNoticeGroupReply, error) {
-	return &palace.GetTeamNoticeGroupReply{}, nil
+	noticeGroup, err := s.teamNoticeBiz.GetNoticeGroup(ctx, req.GetGroupId())
+	if err != nil {
+		return nil, err
+	}
+	return &palace.GetTeamNoticeGroupReply{
+		NoticeGroup: build.ToNoticeGroupItem(noticeGroup),
+	}, nil
 }
 
 func (s *TeamNoticeService) ListTeamNoticeGroup(ctx context.Context, req *palace.ListTeamNoticeGroupRequest) (*palace.ListTeamNoticeGroupReply, error) {
-	return &palace.ListTeamNoticeGroupReply{}, nil
+	params := &bo.ListNoticeGroupReq{
+		PaginationRequest: build.ToPaginationRequest(req.GetPagination()),
+		MemberIds:         req.GetMemberIds(),
+		Status:            vobj.GlobalStatus(req.GetStatus()),
+		Keyword:           req.GetKeyword(),
+	}
+	reply, err := s.teamNoticeBiz.TeamNoticeGroups(ctx, params)
+	if err != nil {
+		return nil, err
+	}
+
+	return &palace.ListTeamNoticeGroupReply{
+		Pagination: build.ToPaginationReply(reply.PaginationReply),
+		Items:      build.ToNoticeGroupItems(reply.Items),
+	}, nil
 }

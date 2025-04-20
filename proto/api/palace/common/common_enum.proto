@@ -8,10 +8,10 @@ option go_package = "github.com/moon-monitor/moon/pkg/api/palace/common;common";
 enum GlobalStatus {
   // GLOBAL_STATUS_UNKNOWN is the default status for a global resource.
   GLOBAL_STATUS_UNKNOWN = 0;
-  // GLOBAL_STATUS_DISABLE indicates the resource is disabled.
-  GLOBAL_STATUS_DISABLE = 1;
   // GLOBAL_STATUS_ENABLE indicates the resource is enabled.
-  GLOBAL_STATUS_ENABLE = 2;
+  GLOBAL_STATUS_ENABLE = 1;
+  // GLOBAL_STATUS_DISABLE indicates the resource is disabled.
+  GLOBAL_STATUS_DISABLE = 2;
 }
 
 // OperateType represents the type of an operation.
