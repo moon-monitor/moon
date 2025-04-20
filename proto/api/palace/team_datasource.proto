@@ -44,9 +44,7 @@ service TeamDatasource {
 
 message SaveTeamMetricDatasourceRequest {
   api.palace.common.DatasourceDriverMetric metricDatasourceDriver = 1;
-  uint32 datasourceID = 2 [(buf.validate.field).uint32 = {
-    gt: 0,
-  }];
+  uint32 datasourceId = 2;
   string name = 3 [(buf.validate.field).string = {
     max_len: 20,
     min_len: 1,
@@ -69,28 +67,25 @@ message SaveTeamMetricDatasourceRequest {
 }
 
 message UpdateTeamMetricDatasourceStatusRequest {
-  api.palace.common.DatasourceDriverMetric metricDatasourceDriver = 1;
-  uint32 datasourceID = 2 [(buf.validate.field).uint32 = {
+  uint32 datasourceId = 1 [(buf.validate.field).uint32 = {
     gt: 0,
   }];
-  api.palace.common.GlobalStatus status = 3 [(buf.validate.field).required = true];
+  api.palace.common.GlobalStatus status = 2 [(buf.validate.field).required = true];
 }
 
 message DeleteTeamMetricDatasourceRequest {
-  api.palace.common.DatasourceDriverMetric metricDatasourceDriver = 1;
-  uint32 datasourceID = 2 [(buf.validate.field).uint32 = {
+  uint32 datasourceId = 1 [(buf.validate.field).uint32 = {
     gt: 0,
   }];
 }
 
 message GetTeamMetricDatasourceRequest {
-  api.palace.common.DatasourceDriverMetric metricDatasourceDriver = 1;
-  uint32 datasourceID = 2 [(buf.validate.field).uint32 = {
+  uint32 datasourceId = 1 [(buf.validate.field).uint32 = {
     gt: 0,
   }];
 }
 message GetTeamMetricDatasourceReply {
-  api.palace.common.TeamMetricDatasourceItem detail = 1;
+  api.palace.common.TeamMetricDatasourceItem datasource = 1;
 }
 
 message ListTeamMetricDatasourceRequest {
@@ -98,6 +93,8 @@ message ListTeamMetricDatasourceRequest {
   string keyword = 2 [(buf.validate.field).string = {
     max_len: 20,
   }];
+  api.palace.common.GlobalStatus status = 3;
+  api.palace.common.DatasourceDriverMetric driver = 4;
 }
 message ListTeamMetricDatasourceReply {
   api.palace.common.PaginationReply pagination = 1;

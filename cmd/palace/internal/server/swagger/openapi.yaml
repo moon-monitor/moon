@@ -1044,12 +1044,7 @@ paths:
                 - TeamDatasource
             operationId: TeamDatasource_GetTeamMetricDatasource
             parameters:
-                - name: metricDatasourceDriver
-                  in: query
-                  schema:
-                    type: integer
-                    format: enum
-                - name: datasourceID
+                - name: datasourceId
                   in: query
                   schema:
                     type: integer
@@ -1083,12 +1078,7 @@ paths:
                 - TeamDatasource
             operationId: TeamDatasource_DeleteTeamMetricDatasource
             parameters:
-                - name: metricDatasourceDriver
-                  in: query
-                  schema:
-                    type: integer
-                    format: enum
-                - name: datasourceID
+                - name: datasourceId
                   in: query
                   schema:
                     type: integer
@@ -2340,7 +2330,7 @@ components:
         api.palace.GetTeamMetricDatasourceReply:
             type: object
             properties:
-                detail:
+                datasource:
                     $ref: '#/components/schemas/api.palace.common.TeamMetricDatasourceItem'
         api.palace.GetTeamNoticeGroupReply:
             type: object
@@ -2606,6 +2596,12 @@ components:
                     $ref: '#/components/schemas/api.palace.common.PaginationRequest'
                 keyword:
                     type: string
+                status:
+                    type: integer
+                    format: enum
+                driver:
+                    type: integer
+                    format: enum
         api.palace.ListTeamNoticeGroupReply:
             type: object
             properties:
@@ -3141,7 +3137,7 @@ components:
                 metricDatasourceDriver:
                     type: integer
                     format: enum
-                datasourceID:
+                datasourceId:
                     type: integer
                     format: uint32
                 name:
@@ -3575,10 +3571,7 @@ components:
         api.palace.UpdateTeamMetricDatasourceStatusRequest:
             type: object
             properties:
-                metricDatasourceDriver:
-                    type: integer
-                    format: enum
-                datasourceID:
+                datasourceId:
                     type: integer
                     format: uint32
                 status:
