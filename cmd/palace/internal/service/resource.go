@@ -48,7 +48,7 @@ func (s *ResourceService) GetResource(ctx context.Context, req *palacev1.GetReso
 	}
 
 	return &palacev1.GetResourceReply{
-		Resource: build.ToResourceItemProto(resource),
+		Resource: build.ToResourceItem(resource),
 	}, nil
 }
 
@@ -65,7 +65,7 @@ func (s *ResourceService) ListResource(ctx context.Context, req *palacev1.ListRe
 	}
 
 	return &palacev1.ListResourceReply{
-		Items:      build.ToResourceItemProtoList(resourcesReply.Items),
+		Items:      build.ToResourceItems(resourcesReply.Items),
 		Pagination: build.ToPaginationReply(resourcesReply.PaginationReply),
 	}, nil
 }
@@ -76,7 +76,7 @@ func (s *ResourceService) GetResourceMenuTree(ctx context.Context, _ *common.Emp
 		return nil, err
 	}
 	return &palacev1.GetResourceMenuTreeReply{
-		Menus: build.ToMenuTreeProto(menus),
+		Menus: build.ToMenuTree(menus),
 	}, nil
 }
 
@@ -86,7 +86,7 @@ func (s *ResourceService) GetTeamResourceMenuTree(ctx context.Context, _ *common
 		return nil, err
 	}
 	return &palacev1.GetResourceMenuTreeReply{
-		Menus: build.ToMenuTreeProto(menus),
+		Menus: build.ToMenuTree(menus),
 	}, nil
 }
 
@@ -115,6 +115,6 @@ func (s *ResourceService) GetMenu(ctx context.Context, req *palacev1.GetMenuRequ
 	}
 
 	return &palacev1.GetMenuReply{
-		Menu: build.ToMenuTreeItemProto(menu),
+		Menu: build.ToMenuTreeItem(menu),
 	}, nil
 }

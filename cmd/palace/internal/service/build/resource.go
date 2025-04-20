@@ -8,10 +8,11 @@ import (
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/vobj"
 	palacev1 "github.com/moon-monitor/moon/pkg/api/palace"
 	"github.com/moon-monitor/moon/pkg/api/palace/common"
+	"github.com/moon-monitor/moon/pkg/util/slices"
 	"github.com/moon-monitor/moon/pkg/util/validate"
 )
 
-func ToResourceItemProto(resource do.Resource) *common.ResourceItem {
+func ToResourceItem(resource do.Resource) *common.ResourceItem {
 	if resource == nil {
 		return nil
 	}
@@ -23,18 +24,16 @@ func ToResourceItemProto(resource do.Resource) *common.ResourceItem {
 		Remark:    resource.GetRemark(),
 		CreatedAt: resource.GetCreatedAt().Format(time.DateTime),
 		UpdatedAt: resource.GetUpdatedAt().Format(time.DateTime),
+		Allow:     common.ResourceAllow(resource.GetAllow()),
+		Menus:     ToMenuTree(resource.GetMenus()),
 	}
 }
 
-func ToResourceItemProtoList(resources []do.Resource) []*common.ResourceItem {
-	result := make([]*common.ResourceItem, 0, len(resources))
-	for _, resource := range resources {
-		result = append(result, ToResourceItemProto(resource))
-	}
-	return result
+func ToResourceItems(resources []do.Resource) []*common.ResourceItem {
+	return slices.Map(resources, ToResourceItem)
 }
 
-func ToMenuTreeProto(menus []do.Menu) []*common.MenuTreeItem {
+func ToMenuTree(menus []do.Menu) []*common.MenuTreeItem {
 	menuMap := make(map[uint32]do.Menu)
 	for _, menu := range menus {
 		menuMap[menu.GetID()] = menu
@@ -51,7 +50,7 @@ func ToMenuTreeProto(menus []do.Menu) []*common.MenuTreeItem {
 	return roots
 }
 
-func ToMenuTreeItemProto(menu do.Menu) *common.MenuTreeItem {
+func ToMenuTreeItem(menu do.Menu) *common.MenuTreeItem {
 	return convertMenuToTreeItemWithMap(menu, nil)
 }
 
@@ -64,7 +63,7 @@ func convertMenuToTreeItemWithMap(menu do.Menu, menuMap map[uint32]do.Menu) *com
 		Icon:      menu.GetIcon(),
 		Children:  nil,
 		MenuType:  common.MenuType(menu.GetType()),
-		Resources: ToResourceItemProtoList(menu.GetResources()),
+		Resources: ToResourceItems(menu.GetResources()),
 	}
 
 	// 查找所有子菜单

@@ -37,26 +37,36 @@ func ToListSMSConfigRequest(req *palace.GetSMSConfigsRequest) *bo.ListSMSConfigR
 	}
 }
 
+func ToSMSConfigItem(item do.TeamSMSConfig) *palace.SMSConfigItem {
+	if validate.IsNil(item) {
+		return nil
+	}
+
+	config := item.GetSMSConfig()
+	if validate.IsNil(config) {
+		return nil
+	}
+	return &palace.SMSConfigItem{
+		ProviderType:    common.SMSProviderType(item.GetProviderType()),
+		AccessKeyId:     config.AccessKeyID,
+		AccessKeySecret: config.AccessKeySecret,
+		SignName:        config.SignName,
+		Endpoint:        config.Endpoint,
+		Name:            item.GetName(),
+		Remark:          item.GetRemark(),
+		Id:              item.GetID(),
+		Status:          common.GlobalStatus(item.GetStatus()),
+	}
+}
+
+func ToSMSConfigItems(items []do.TeamSMSConfig) []*palace.SMSConfigItem {
+	return slices.Map(items, ToSMSConfigItem)
+}
+
 // ToSMSConfigReply converts business object to API response
 func ToSMSConfigReply(reply *bo.ListSMSConfigListReply) *palace.GetSMSConfigsReply {
 	return &palace.GetSMSConfigsReply{
 		Pagination: ToPaginationReply(reply.PaginationReply),
-		Items: slices.MapFilter(reply.Items, func(item do.TeamSMSConfig) (*palace.SMSConfigItem, bool) {
-			config := item.GetSMSConfig()
-			if validate.IsNil(config) {
-				return nil, false
-			}
-			return &palace.SMSConfigItem{
-				ProviderType:    common.SMSProviderType(item.GetProviderType()),
-				AccessKeyId:     config.AccessKeyID,
-				AccessKeySecret: config.AccessKeySecret,
-				SignName:        config.SignName,
-				Endpoint:        config.Endpoint,
-				Name:            item.GetName(),
-				Remark:          item.GetRemark(),
-				Id:              item.GetID(),
-				Status:          common.GlobalStatus(item.GetStatus()),
-			}, true
-		}),
+		Items:      ToSMSConfigItems(reply.Items),
 	}
 }

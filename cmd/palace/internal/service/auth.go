@@ -216,7 +216,7 @@ func (s *AuthService) GetSelfMenuTree(ctx context.Context, _ *common.EmptyReques
 		return nil, err
 	}
 	return &palacev1.GetSelfMenuTreeReply{
-		Items: build.ToMenuTreeProto(menus),
+		Items: build.ToMenuTree(menus),
 	}, nil
 }
 

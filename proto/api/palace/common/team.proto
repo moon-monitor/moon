@@ -81,6 +81,17 @@ message TeamMemberItem {
   string updatedAt = 8;
 }
 
+message TeamMemberBaseItem {
+  uint32 id = 1;
+  string memberName = 2;
+  string remark = 3;
+  api.palace.common.MemberPosition position = 4;
+  api.palace.common.MemberStatus status = 5;
+  string createdAt = 6;
+  string updatedAt = 7;
+  api.palace.common.UserBaseItem user = 8;
+}
+
 message TeamDashboardItem {
   uint32 id = 1;
   string name = 2;

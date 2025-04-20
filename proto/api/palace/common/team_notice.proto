@@ -25,30 +25,30 @@ message NoticeHookItem {
 }
 
 message NoticeMemberItem {
-  uint32 noticeGroupID = 1;
-  uint32 memberID = 2;
+  uint32 noticeGroupId = 1;
+  uint32 userId = 2;
   api.palace.common.NoticeType noticeType = 3;
   NoticeGroupItem noticeGroup = 4;
-  api.palace.common.TeamMemberItem member = 5;
+  api.palace.common.TeamMemberBaseItem member = 5;
 }
 
 message NoticeGroupItem {
-  uint32 noticeGroupID = 1;
+  uint32 noticeGroupId = 1;
   string createdAt = 2;
   string updatedAt = 3;
   string name = 4;
   string remark = 5;
   api.palace.common.GlobalStatus status = 6;
-  repeated api.palace.common.TeamMemberItem members = 7;
+  repeated api.palace.common.NoticeMemberItem noticeMembers = 7;
   repeated NoticeHookItem hooks = 8;
   api.palace.common.UserBaseItem creator = 9;
 }
 
 message StrategyMetricRuleLabelNotice {
-  uint32 labelNoticeID = 1;
+  uint32 labelNoticeId = 1;
   string createdAt = 2;
   string updatedAt = 3;
-  uint32 strategyMetricRuleID = 4;
+  uint32 strategyMetricRuleId = 4;
   string labelKey = 5;
   string labelValue = 6;
   repeated api.palace.common.NoticeGroupItem notices = 7;

@@ -6,7 +6,7 @@ import (
 	"github.com/moon-monitor/moon/pkg/api/palace/common"
 )
 
-func LoginSignToUserBaseProto(b *bo.LoginSign) *common.UserBaseItem {
+func LoginSignToUserBaseItem(b *bo.LoginSign) *common.UserBaseItem {
 	if b == nil || b.Base == nil {
 		return nil
 	}
@@ -23,6 +23,6 @@ func LoginReply(b *bo.LoginSign) *palace.LoginReply {
 	return &palace.LoginReply{
 		Token:          b.Token,
 		ExpiredSeconds: int32(b.ExpiredSeconds),
-		User:           LoginSignToUserBaseProto(b),
+		User:           LoginSignToUserBaseItem(b),
 	}
 }

@@ -3,11 +3,12 @@ package build
 import (
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/bo"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/vobj"
-	common "github.com/moon-monitor/moon/pkg/api/common"
+	"github.com/moon-monitor/moon/pkg/api/common"
+	"github.com/moon-monitor/moon/pkg/util/validate"
 )
 
 func ToServerRegisterReq(req *common.ServerRegisterRequest) *bo.ServerRegisterReq {
-	if req == nil {
+	if validate.IsNil(req) {
 		return nil
 	}
 	return &bo.ServerRegisterReq{

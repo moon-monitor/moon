@@ -1142,7 +1142,7 @@ paths:
                 - TeamNotice
             operationId: TeamNotice_GetTeamNoticeGroup
             parameters:
-                - name: groupID
+                - name: groupId
                   in: query
                   schema:
                     type: integer
@@ -1213,7 +1213,7 @@ paths:
                 - TeamNotice
             operationId: TeamNotice_GetTeamNoticeHook
             parameters:
-                - name: hookID
+                - name: hookId
                   in: query
                   schema:
                     type: integer
@@ -2007,13 +2007,13 @@ components:
         api.palace.DeleteTeamNoticeGroupRequest:
             type: object
             properties:
-                groupID:
+                groupId:
                     type: integer
                     format: uint32
         api.palace.DeleteTeamNoticeHookRequest:
             type: object
             properties:
-                hookID:
+                hookId:
                     type: integer
                     format: uint32
         api.palace.EmailConfigItem:
@@ -2323,12 +2323,12 @@ components:
         api.palace.GetTeamNoticeGroupReply:
             type: object
             properties:
-                detail:
+                noticeGroup:
                     $ref: '#/components/schemas/api.palace.common.NoticeGroupItem'
         api.palace.GetTeamNoticeHookReply:
             type: object
             properties:
-                detail:
+                hook:
                     $ref: '#/components/schemas/api.palace.common.NoticeHookItem'
         api.palace.GetTeamReply:
             type: object
@@ -2598,7 +2598,7 @@ components:
             properties:
                 pagination:
                     $ref: '#/components/schemas/api.palace.common.PaginationRequest'
-                memberIDs:
+                memberIds:
                     type: array
                     items:
                         type: integer
@@ -2608,7 +2608,7 @@ components:
                     format: enum
                 keyword:
                     type: string
-                hookIDs:
+                hookIds:
                     type: array
                     items:
                         type: integer
@@ -3158,7 +3158,7 @@ components:
                 status:
                     type: integer
                     format: enum
-                hookIDs:
+                hookIds:
                     type: array
                     items:
                         type: integer
@@ -3167,13 +3167,13 @@ components:
                     type: array
                     items:
                         $ref: '#/components/schemas/api.palace.SaveTeamNoticeGroupRequest_Member'
-                groupID:
+                groupId:
                     type: integer
                     format: uint32
         api.palace.SaveTeamNoticeGroupRequest_Member:
             type: object
             properties:
-                memberID:
+                memberId:
                     type: integer
                     format: uint32
                 noticeType:
@@ -3203,7 +3203,7 @@ components:
                 app:
                     type: integer
                     format: enum
-                hookID:
+                hookId:
                     type: integer
                     format: uint32
         api.palace.SaveTeamRequest:
@@ -3562,7 +3562,7 @@ components:
         api.palace.UpdateTeamNoticeGroupStatusRequest:
             type: object
             properties:
-                groupID:
+                groupId:
                     type: integer
                     format: uint32
                 status:
@@ -3571,7 +3571,7 @@ components:
         api.palace.UpdateTeamNoticeHookStatusRequest:
             type: object
             properties:
-                hookID:
+                hookId:
                     type: integer
                     format: uint32
                 status:
@@ -3746,7 +3746,7 @@ components:
         api.palace.common.NoticeGroupItem:
             type: object
             properties:
-                noticeGroupID:
+                noticeGroupId:
                     type: integer
                     format: uint32
                 createdAt:
@@ -3760,10 +3760,10 @@ components:
                 status:
                     type: integer
                     format: enum
-                members:
+                noticeMembers:
                     type: array
                     items:
-                        $ref: '#/components/schemas/api.palace.common.TeamMemberItem'
+                        $ref: '#/components/schemas/api.palace.common.NoticeMemberItem'
                 hooks:
                     type: array
                     items:
@@ -3807,6 +3807,22 @@ components:
                     type: array
                     items:
                         $ref: '#/components/schemas/api.palace.common.NoticeGroupItem'
+        api.palace.common.NoticeMemberItem:
+            type: object
+            properties:
+                noticeGroupId:
+                    type: integer
+                    format: uint32
+                userId:
+                    type: integer
+                    format: uint32
+                noticeType:
+                    type: integer
+                    format: enum
+                noticeGroup:
+                    $ref: '#/components/schemas/api.palace.common.NoticeGroupItem'
+                member:
+                    $ref: '#/components/schemas/api.palace.common.TeamMemberBaseItem'
         api.palace.common.OperateLogItem:
             type: object
             properties:
@@ -3916,14 +3932,14 @@ components:
         api.palace.common.StrategyMetricRuleLabelNotice:
             type: object
             properties:
-                labelNoticeID:
+                labelNoticeId:
                     type: integer
                     format: uint32
                 createdAt:
                     type: string
                 updatedAt:
                     type: string
-                strategyMetricRuleID:
+                strategyMetricRuleId:
                     type: integer
                     format: uint32
                 labelKey:
@@ -4148,6 +4164,28 @@ components:
                     type: string
                     description: Total number of data sources associated with the team.
             description: TeamItem represents the structure of a team.
+        api.palace.common.TeamMemberBaseItem:
+            type: object
+            properties:
+                id:
+                    type: integer
+                    format: uint32
+                memberName:
+                    type: string
+                remark:
+                    type: string
+                position:
+                    type: integer
+                    format: enum
+                status:
+                    type: integer
+                    format: enum
+                createdAt:
+                    type: string
+                updatedAt:
+                    type: string
+                user:
+                    $ref: '#/components/schemas/api.palace.common.UserBaseItem'
         api.palace.common.TeamMemberItem:
             type: object
             properties:

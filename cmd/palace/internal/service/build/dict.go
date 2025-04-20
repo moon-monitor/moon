@@ -8,7 +8,7 @@ import (
 	"github.com/moon-monitor/moon/pkg/util/slices"
 )
 
-func ToDictProto(dictItem do.TeamDict) *common.TeamDictItem {
+func ToDictItem(dictItem do.TeamDict) *common.TeamDictItem {
 	return &common.TeamDictItem{
 		TeamID:    dictItem.GetTeamID(),
 		DictID:    dictItem.GetID(),
@@ -23,6 +23,6 @@ func ToDictProto(dictItem do.TeamDict) *common.TeamDictItem {
 	}
 }
 
-func ToDictProtos(dictItems []do.TeamDict) []*common.TeamDictItem {
-	return slices.Map(dictItems, ToDictProto)
+func ToDictItems(dictItems []do.TeamDict) []*common.TeamDictItem {
+	return slices.Map(dictItems, ToDictItem)
 }

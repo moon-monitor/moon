@@ -38,7 +38,7 @@ func ToTeamRoleItem(role do.TeamRole) *common.TeamRoleItem {
 		Members:   nil,
 		CreatedAt: role.GetCreatedAt().Format(time.RFC3339),
 		UpdatedAt: role.GetUpdatedAt().Format(time.RFC3339),
-		Creator:   UserToUserBaseItemProto(role.GetCreator()),
+		Creator:   ToUserBaseItem(role.GetCreator()),
 	}
 }
 
@@ -59,7 +59,7 @@ func ToSystemRoleItem(role do.Role) *common.SystemRoleItem {
 		UpdatedAt: role.GetUpdatedAt().Format(time.RFC3339),
 		Resources: nil,
 		Users:     nil,
-		Creator:   UserToUserBaseItemProto(role.GetCreator()),
+		Creator:   ToUserBaseItem(role.GetCreator()),
 	}
 }
 

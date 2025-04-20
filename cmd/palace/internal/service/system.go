@@ -81,7 +81,7 @@ func (s *SystemService) GetUser(ctx context.Context, req *palacev1.GetUserReques
 	}
 
 	return &palacev1.GetUserReply{
-		User: build.UserToUserItemProto(userDo),
+		User: build.ToUserItem(userDo),
 	}, nil
 }
 
@@ -92,7 +92,7 @@ func (s *SystemService) GetUserList(ctx context.Context, req *palacev1.GetUserLi
 		return nil, err
 	}
 	return &palacev1.GetUserListReply{
-		Items:      build.UsersToUserItemsProto(userReply.Items),
+		Items:      build.ToUserItems(userReply.Items),
 		Pagination: build.ToPaginationReply(userReply.PaginationReply),
 	}, nil
 }

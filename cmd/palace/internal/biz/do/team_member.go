@@ -14,4 +14,6 @@ type TeamMember interface {
 	GetPosition() vobj.Role
 	GetStatus() vobj.MemberStatus
 	GetRoles() []TeamRole
+	GetUser() User
+	GetInviter() User
 }

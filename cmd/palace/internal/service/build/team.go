@@ -25,9 +25,9 @@ func ToTeamItem(team do.Team) *common.TeamItem {
 		Remark:          team.GetRemark(),
 		Logo:            team.GetLogo(),
 		Status:          common.TeamStatus(team.GetStatus()),
-		Creator:         UserToUserBaseItemProto(team.GetCreator()),
-		Leader:          UserToUserBaseItemProto(team.GetLeader()),
-		Admins:          UsersToUserBaseItemsProto(team.GetAdmins()),
+		Creator:         ToUserBaseItem(team.GetCreator()),
+		Leader:          ToUserBaseItem(team.GetLeader()),
+		Admins:          ToUserBaseItems(team.GetAdmins()),
 		CreatedAt:       team.GetCreatedAt().Format(time.RFC3339),
 		UpdatedAt:       team.GetUpdatedAt().Format(time.RFC3339),
 		MemberCount:     0,
@@ -91,10 +91,10 @@ func ToTeamMemberItem(member do.TeamMember) *common.TeamMemberItem {
 	}
 	return &common.TeamMemberItem{
 		Id:        member.GetTeamMemberID(),
-		User:      UserToUserBaseItemProto(nil),
+		User:      ToUserBaseItem(nil),
 		Position:  common.MemberPosition(member.GetPosition()),
 		Status:    common.MemberStatus(member.GetStatus()),
-		Inviter:   UserToUserBaseItemProto(nil),
+		Inviter:   ToUserBaseItem(nil),
 		Roles:     ToTeamRoleItems(member.GetRoles()),
 		CreatedAt: member.GetCreatedAt().Format(time.RFC3339),
 		UpdatedAt: member.GetUpdatedAt().Format(time.RFC3339),
@@ -103,4 +103,24 @@ func ToTeamMemberItem(member do.TeamMember) *common.TeamMemberItem {
 
 func ToTeamMemberItems(members []do.TeamMember) []*common.TeamMemberItem {
 	return slices.Map(members, ToTeamMemberItem)
+}
+
+func ToTeamMemberBaseItem(member do.TeamMember) *common.TeamMemberBaseItem {
+	if validate.IsNil(member) {
+		return nil
+	}
+	return &common.TeamMemberBaseItem{
+		Id:         member.GetID(),
+		MemberName: member.GetMemberName(),
+		Remark:     member.GetRemark(),
+		Position:   common.MemberPosition(member.GetPosition()),
+		Status:     common.MemberStatus(member.GetStatus()),
+		CreatedAt:  member.GetCreatedAt().Format(time.DateTime),
+		UpdatedAt:  member.GetUpdatedAt().Format(time.DateTime),
+		User:       ToUserBaseItem(member.GetUser()),
+	}
+}
+
+func ToTeamMemberBaseItems(members []do.TeamMember) []*common.TeamMemberBaseItem {
+	return slices.Map(members, ToTeamMemberBaseItem)
 }

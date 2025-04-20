@@ -66,7 +66,7 @@ func (s *TeamDictService) GetTeamDict(ctx context.Context, req *palacev1.GetTeam
 		return nil, err
 	}
 	return &palacev1.GetTeamDictReply{
-		Detail: build.ToDictProto(dict),
+		Detail: build.ToDictItem(dict),
 	}, nil
 }
 
@@ -84,6 +84,6 @@ func (s *TeamDictService) ListTeamDict(ctx context.Context, req *palacev1.ListTe
 	}
 	return &palacev1.ListTeamDictReply{
 		Pagination: build.ToPaginationReply(listDictReply.PaginationReply),
-		Items:      build.ToDictProtos(listDictReply.Items),
+		Items:      build.ToDictItems(listDictReply.Items),
 	}, nil
 }

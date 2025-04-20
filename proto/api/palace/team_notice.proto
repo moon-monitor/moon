@@ -80,23 +80,23 @@ message SaveTeamNoticeHookRequest {
   api.palace.common.HTTPMethod method = 6;
   map<string, string> headers = 7;
   api.palace.common.HookAPP app = 8;
-  uint32 hookID = 9;
+  uint32 hookId = 9;
 }
 
 message UpdateTeamNoticeHookStatusRequest {
-  uint32 hookID = 1;
+  uint32 hookId = 1;
   api.palace.common.GlobalStatus status = 2;
 }
 
 message DeleteTeamNoticeHookRequest {
-  uint32 hookID = 1;
+  uint32 hookId = 1;
 }
 
 message GetTeamNoticeHookRequest {
-  uint32 hookID = 1;
+  uint32 hookId = 1;
 }
 message GetTeamNoticeHookReply {
-  api.palace.common.NoticeHookItem detail = 1;
+  api.palace.common.NoticeHookItem hook = 1;
 }
 
 message ListTeamNoticeHookRequest {
@@ -113,39 +113,39 @@ message ListTeamNoticeHookReply {
 
 message SaveTeamNoticeGroupRequest {
   message Member {
-    uint32 memberID = 1;
+    uint32 memberId = 1;
     api.palace.common.NoticeType noticeType = 2;
   }
   string name = 1;
   string remark = 2;
   api.palace.common.GlobalStatus status = 3;
-  repeated uint32 hookIDs = 4;
+  repeated uint32 hookIds = 4;
   repeated Member members = 5;
-  uint32 groupID = 6;
+  uint32 groupId = 6;
 }
 
 message UpdateTeamNoticeGroupStatusRequest {
-  uint32 groupID = 1;
+  uint32 groupId = 1;
   api.palace.common.GlobalStatus status = 2;
 }
 
 message DeleteTeamNoticeGroupRequest {
-  uint32 groupID = 1;
+  uint32 groupId = 1;
 }
 
 message GetTeamNoticeGroupRequest {
-  uint32 groupID = 1;
+  uint32 groupId = 1;
 }
 message GetTeamNoticeGroupReply {
-  api.palace.common.NoticeGroupItem detail = 1;
+  api.palace.common.NoticeGroupItem noticeGroup = 1;
 }
 
 message ListTeamNoticeGroupRequest {
   api.palace.common.PaginationRequest pagination = 1;
-  repeated uint32 memberIDs = 2;
+  repeated uint32 memberIds = 2;
   api.palace.common.GlobalStatus status = 3;
   string keyword = 4;
-  repeated uint32 hookIDs = 5;
+  repeated uint32 hookIds = 5;
 }
 message ListTeamNoticeGroupReply {
   api.palace.common.PaginationReply pagination = 1;

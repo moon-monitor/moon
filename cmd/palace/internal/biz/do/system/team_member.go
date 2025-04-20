@@ -19,6 +19,22 @@ type TeamMember struct {
 	Position   vobj.Role         `gorm:"column:position;type:tinyint(2);not null;comment:职位" json:"position"`
 	Status     vobj.MemberStatus `gorm:"column:status;type:tinyint(2);not null;comment:状态" json:"status"`
 	Roles      []*TeamRole       `gorm:"many2many:sys_team_member_roles" json:"roles"`
+	User       *User             `gorm:"foreignKey:UserID;references:ID" json:"user"`
+	Inviter    *User             `gorm:"foreignKey:InviterID;references:ID" json:"inviter"`
+}
+
+func (u *TeamMember) GetUser() do.User {
+	if u == nil {
+		return nil
+	}
+	return u.User
+}
+
+func (u *TeamMember) GetInviter() do.User {
+	if u == nil {
+		return nil
+	}
+	return u.Inviter
 }
 
 func (u *TeamMember) GetMemberName() string {

@@ -33,7 +33,7 @@ func (s *TeamNoticeService) SaveTeamNoticeHook(ctx context.Context, req *palace.
 // UpdateTeamNoticeHookStatus 更新钩子状态
 func (s *TeamNoticeService) UpdateTeamNoticeHookStatus(ctx context.Context, req *palace.UpdateTeamNoticeHookStatusRequest) (*common.EmptyReply, error) {
 	params := &bo.UpdateTeamNoticeHookStatusRequest{
-		HookID: req.GetHookID(),
+		HookID: req.GetHookId(),
 		Status: vobj.GlobalStatus(req.GetStatus()),
 	}
 	if err := s.teamHookBiz.UpdateHookStatus(ctx, params); err != nil {
@@ -44,7 +44,7 @@ func (s *TeamNoticeService) UpdateTeamNoticeHookStatus(ctx context.Context, req 
 
 // DeleteTeamNoticeHook 删除钩子
 func (s *TeamNoticeService) DeleteTeamNoticeHook(ctx context.Context, req *palace.DeleteTeamNoticeHookRequest) (*common.EmptyReply, error) {
-	if err := s.teamHookBiz.DeleteHook(ctx, req.GetHookID()); err != nil {
+	if err := s.teamHookBiz.DeleteHook(ctx, req.GetHookId()); err != nil {
 		return nil, err
 	}
 	return &common.EmptyReply{}, nil
@@ -52,12 +52,12 @@ func (s *TeamNoticeService) DeleteTeamNoticeHook(ctx context.Context, req *palac
 
 // GetTeamNoticeHook 获取钩子详情
 func (s *TeamNoticeService) GetTeamNoticeHook(ctx context.Context, req *palace.GetTeamNoticeHookRequest) (*palace.GetTeamNoticeHookReply, error) {
-	hook, err := s.teamHookBiz.GetHook(ctx, req.GetHookID())
+	hook, err := s.teamHookBiz.GetHook(ctx, req.GetHookId())
 	if err != nil {
 		return nil, err
 	}
 	return &palace.GetTeamNoticeHookReply{
-		Detail: build.ToNoticeHookItem(hook),
+		Hook: build.ToNoticeHookItem(hook),
 	}, nil
 }
 

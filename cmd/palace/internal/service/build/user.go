@@ -12,8 +12,8 @@ import (
 	"github.com/moon-monitor/moon/pkg/util/validate"
 )
 
-// UserToUserItemProto converts a system.User to a common.UserItem
-func UserToUserItemProto(user do.User) *common.UserItem {
+// ToUserItem converts a system.User to a common.UserItem
+func ToUserItem(user do.User) *common.UserItem {
 	if validate.IsNil(user) {
 		return nil
 	}
@@ -34,7 +34,7 @@ func UserToUserItemProto(user do.User) *common.UserItem {
 	}
 }
 
-func UserToUserBaseItemProto(user do.User) *common.UserBaseItem {
+func ToUserBaseItem(user do.User) *common.UserBaseItem {
 	if validate.IsNil(user) {
 		return nil
 	}
@@ -48,14 +48,14 @@ func UserToUserBaseItemProto(user do.User) *common.UserBaseItem {
 	}
 }
 
-// UsersToUserItemsProto converts a slice of system.User to a slice of common.UserItem
-func UsersToUserItemsProto(users []do.User) []*common.UserItem {
-	return slices.Map(users, UserToUserItemProto)
+// ToUserItems converts a slice of system.User to a slice of common.UserItem
+func ToUserItems(users []do.User) []*common.UserItem {
+	return slices.Map(users, ToUserItem)
 }
 
-// UsersToUserBaseItemsProto converts a slice of system.User to a slice of common.UserBaseItem
-func UsersToUserBaseItemsProto(users []do.User) []*common.UserBaseItem {
-	return slices.Map(users, UserToUserBaseItemProto)
+// ToUserBaseItems converts a slice of system.User to a slice of common.UserBaseItem
+func ToUserBaseItems(users []do.User) []*common.UserBaseItem {
+	return slices.Map(users, ToUserBaseItem)
 }
 
 func ToSelfUpdateInfo(req *palacev1.UpdateSelfInfoRequest) *bo.UserUpdateInfo {

@@ -17,7 +17,7 @@ func ToSaveTeamNoticeHookRequest(req *palace.SaveTeamNoticeHookRequest) *bo.Save
 		return nil
 	}
 	return &bo.SaveTeamNoticeHookRequest{
-		HookID:  req.GetHookID(),
+		HookID:  req.GetHookId(),
 		Name:    req.GetName(),
 		Remark:  req.GetRemark(),
 		Status:  vobj.GlobalStatus(req.GetStatus()),
@@ -49,6 +49,8 @@ func ToNoticeHookItem(hook do.NoticeHook) *common.NoticeHookItem {
 	}
 	return &common.NoticeHookItem{
 		NoticeHookID: hook.GetID(),
+		CreatedAt:    hook.GetCreatedAt().Format(time.DateTime),
+		UpdatedAt:    hook.GetUpdatedAt().Format(time.DateTime),
 		Name:         hook.GetName(),
 		Remark:       hook.GetRemark(),
 		Status:       common.GlobalStatus(hook.GetStatus()),
@@ -56,8 +58,9 @@ func ToNoticeHookItem(hook do.NoticeHook) *common.NoticeHookItem {
 		Method:       common.HTTPMethod(hook.GetMethod()),
 		Secret:       hook.GetSecret(),
 		Headers:      hook.GetHeaders(),
-		CreatedAt:    hook.GetCreatedAt().Format(time.DateTime),
-		UpdatedAt:    hook.GetUpdatedAt().Format(time.DateTime),
+		App:          common.HookAPP(hook.GetApp()),
+		Creator:      ToUserBaseItem(hook.GetCreator()),
+		NoticeGroups: ToNoticeGroupItems(hook.GetNoticeGroups()),
 	}
 }
 

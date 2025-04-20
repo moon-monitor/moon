@@ -45,7 +45,7 @@ func (s *UserService) SelfInfo(ctx context.Context, _ *common.EmptyRequest) (*pa
 	}
 
 	return &palace.SelfInfoReply{
-		User: build.UserToUserItemProto(user),
+		User: build.ToUserItem(user),
 	}, nil
 }
 
