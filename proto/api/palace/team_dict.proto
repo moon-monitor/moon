@@ -46,7 +46,7 @@ message SaveTeamDictRequest {
   string lang = 3;
   string color = 4;
   api.palace.common.DictType dictType = 5;
-  uint32 dictID = 6;
+  uint32 dictId = 6;
 }
 
 message UpdateTeamDictStatusRequest {
@@ -55,14 +55,14 @@ message UpdateTeamDictStatusRequest {
 }
 
 message DeleteTeamDictRequest {
-  uint32 dictID = 1;
+  uint32 dictId = 1;
 }
 
 message GetTeamDictRequest {
-  uint32 dictID = 1;
+  uint32 dictId = 1;
 }
 message GetTeamDictReply {
-  api.palace.common.TeamDictItem detail = 1;
+  api.palace.common.TeamDictItem dict = 1;
 }
 
 message ListTeamDictRequest {

@@ -867,7 +867,7 @@ paths:
                 - TeamDict
             operationId: TeamDict_GetTeamDict
             parameters:
-                - name: dictID
+                - name: dictId
                   in: query
                   schema:
                     type: integer
@@ -901,7 +901,7 @@ paths:
                 - TeamDict
             operationId: TeamDict_DeleteTeamDict
             parameters:
-                - name: dictID
+                - name: dictId
                   in: query
                   schema:
                     type: integer
@@ -2271,7 +2271,7 @@ components:
         api.palace.GetTeamDictReply:
             type: object
             properties:
-                detail:
+                dict:
                     $ref: '#/components/schemas/api.palace.common.TeamDictItem'
         api.palace.GetTeamListReply:
             type: object
@@ -3132,7 +3132,7 @@ components:
                 dictType:
                     type: integer
                     format: enum
-                dictID:
+                dictId:
                     type: integer
                     format: uint32
         api.palace.SaveTeamMetricDatasourceRequest:

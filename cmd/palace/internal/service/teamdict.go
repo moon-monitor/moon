@@ -26,7 +26,7 @@ func NewTeamDictService(dictBiz *biz.Dict) *TeamDictService {
 
 func (s *TeamDictService) SaveTeamDict(ctx context.Context, req *palacev1.SaveTeamDictRequest) (*common.EmptyReply, error) {
 	var params = &bo.SaveDictReq{
-		DictID: req.GetDictID(),
+		DictID: req.GetDictId(),
 		Key:    req.GetKey(),
 		Value:  req.GetValue(),
 		Status: vobj.GlobalStatusEnable,
@@ -37,7 +37,7 @@ func (s *TeamDictService) SaveTeamDict(ctx context.Context, req *palacev1.SaveTe
 	if err := s.dictBiz.SaveDict(ctx, params); err != nil {
 		return nil, err
 	}
-	return &common.EmptyReply{}, nil
+	return &common.EmptyReply{Message: "保存团队字典成功"}, nil
 }
 
 func (s *TeamDictService) UpdateTeamDictStatus(ctx context.Context, req *palacev1.UpdateTeamDictStatusRequest) (*common.EmptyReply, error) {
@@ -48,25 +48,25 @@ func (s *TeamDictService) UpdateTeamDictStatus(ctx context.Context, req *palacev
 	if err := s.dictBiz.UpdateDictStatus(ctx, params); err != nil {
 		return nil, err
 	}
-	return &common.EmptyReply{}, nil
+	return &common.EmptyReply{Message: "更新团队字典状态成功"}, nil
 }
 
 func (s *TeamDictService) DeleteTeamDict(ctx context.Context, req *palacev1.DeleteTeamDictRequest) (*common.EmptyReply, error) {
-	params := &bo.OperateOneDictReq{DictID: req.GetDictID()}
+	params := &bo.OperateOneDictReq{DictID: req.GetDictId()}
 	if err := s.dictBiz.DeleteDict(ctx, params); err != nil {
 		return nil, err
 	}
-	return &common.EmptyReply{}, nil
+	return &common.EmptyReply{Message: "删除团队字典成功"}, nil
 }
 
 func (s *TeamDictService) GetTeamDict(ctx context.Context, req *palacev1.GetTeamDictRequest) (*palacev1.GetTeamDictReply, error) {
-	params := &bo.OperateOneDictReq{DictID: req.GetDictID()}
+	params := &bo.OperateOneDictReq{DictID: req.GetDictId()}
 	dict, err := s.dictBiz.GetDict(ctx, params)
 	if err != nil {
 		return nil, err
 	}
 	return &palacev1.GetTeamDictReply{
-		Detail: build.ToDictItem(dict),
+		Dict: build.ToDictItem(dict),
 	}, nil
 }
 
