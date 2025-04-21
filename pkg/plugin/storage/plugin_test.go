@@ -5,8 +5,8 @@ import (
 	"testing"
 
 	"github.com/go-kratos/kratos/v2/log"
-	"github.com/moon-monitor/moon/pkg/plugin"
 
+	"github.com/moon-monitor/moon/pkg/plugin"
 	"github.com/moon-monitor/moon/pkg/plugin/storage"
 )
 
