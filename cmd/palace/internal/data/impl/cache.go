@@ -8,6 +8,8 @@ import (
 
 	"github.com/go-kratos/kratos/v2/errors"
 	"github.com/go-kratos/kratos/v2/log"
+	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do"
+	"github.com/moon-monitor/moon/cmd/palace/internal/data/impl/build"
 	"github.com/redis/go-redis/v9"
 
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/bo"
@@ -36,6 +38,29 @@ type cacheReoImpl struct {
 	*data.Data
 
 	helper *log.Helper
+}
+
+func (c *cacheReoImpl) CacheUsers(ctx context.Context, users ...do.User) error {
+	key := repository.UserCacheKey.Key()
+	usersMap := make(map[string]any)
+	for _, user := range users {
+		userItem := build.ToUser(user)
+		if validate.IsNil(userItem) {
+			continue
+		}
+		usersMap[userItem] = userItem
+	}
+	return c.GetCache().Client().HSet(ctx, key, usersMap).Err()
+}
+
+func (c *cacheReoImpl) GetUser(ctx context.Context, userID uint32) (do.User, error) {
+	//TODO implement me
+	panic("implement me")
+}
+
+func (c *cacheReoImpl) GetUsers(ctx context.Context, ids ...uint32) ([]do.User, error) {
+	//TODO implement me
+	panic("implement me")
 }
 
 func (c *cacheReoImpl) Lock(ctx context.Context, key string, expiration time.Duration) (bool, error) {

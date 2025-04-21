@@ -7,23 +7,31 @@ import (
 
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/bo"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do"
+	"github.com/moon-monitor/moon/cmd/palace/internal/biz/job"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/repository"
 	"github.com/moon-monitor/moon/cmd/palace/internal/helper/permission"
 	"github.com/moon-monitor/moon/pkg/merr"
+	"github.com/moon-monitor/moon/pkg/plugin/server"
 	"github.com/moon-monitor/moon/pkg/util/password"
 )
 
 // UserBiz is a user business logic implementation.
 type UserBiz struct {
-	userRepo repository.User
-	log      *log.Helper
+	userRepo  repository.User
+	cacheRepo repository.Cache
+	log       *log.Helper
 }
 
 // NewUserBiz creates a new UserBiz instance.
-func NewUserBiz(userRepo repository.User, logger log.Logger) *UserBiz {
+func NewUserBiz(
+	userRepo repository.User,
+	cacheRepo repository.Cache,
+	logger log.Logger,
+) *UserBiz {
 	return &UserBiz{
-		userRepo: userRepo,
-		log:      log.NewHelper(log.With(logger, "module", "biz.user")),
+		userRepo:  userRepo,
+		cacheRepo: cacheRepo,
+		log:       log.NewHelper(log.With(logger, "module", "biz.user")),
 	}
 }
 
@@ -190,4 +198,10 @@ func (b *UserBiz) GetUser(ctx context.Context, userID uint32) (do.User, error) {
 
 func (b *UserBiz) ListUser(ctx context.Context, req *bo.UserListRequest) (*bo.UserListReply, error) {
 	return b.userRepo.List(ctx, req)
+}
+
+func (b *UserBiz) Jobs() []server.CronJob {
+	return []server.CronJob{
+		job.NewUserJob(b.userRepo, b.cacheRepo, b.log.Logger()),
+	}
 }

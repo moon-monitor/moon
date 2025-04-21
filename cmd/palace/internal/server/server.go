@@ -13,13 +13,19 @@ import (
 )
 
 // ProviderSetServer is server providers.
-var ProviderSetServer = wire.NewSet(NewGRPCServer, NewHTTPServer, RegisterService)
+var ProviderSetServer = wire.NewSet(
+	NewGRPCServer,
+	NewHTTPServer,
+	NewTickerServer,
+	RegisterService,
+)
 
 // RegisterService register service
 func RegisterService(
 	c *conf.Bootstrap,
 	rpcSrv *grpc.Server,
 	httpSrv *http.Server,
+	tickerSrv *TickerServer,
 	healthService *service.HealthService,
 	authService *service.AuthService,
 	serverService *service.ServerService,
@@ -50,5 +56,5 @@ func RegisterService(
 	palacev1.RegisterTeamStrategyHTTPServer(httpSrv, strategyService)
 	palacev1.RegisterTeamHTTPServer(httpSrv, teamService)
 	palacev1.RegisterSystemHTTPServer(httpSrv, systemService)
-	return server.Servers{rpcSrv, httpSrv}
+	return server.Servers{rpcSrv, httpSrv, tickerSrv}
 }

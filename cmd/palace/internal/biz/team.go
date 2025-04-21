@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/go-kratos/kratos/v2/log"
+	"github.com/moon-monitor/moon/pkg/plugin/server"
 
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/bo"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do"
@@ -300,4 +301,8 @@ func (t *Team) InviteMember(ctx context.Context, req *bo.InviteMemberReq) error 
 	return t.transaction.MainExec(ctx, func(ctx context.Context) error {
 		return t.inviteRepo.TeamInviteUser(ctx, req)
 	})
+}
+
+func (t *Team) Jobs() []server.CronJob {
+	return []server.CronJob{}
 }
