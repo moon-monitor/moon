@@ -99,7 +99,7 @@ func (s *UserService) SelfTeamList(ctx context.Context, _ *common.EmptyRequest) 
 
 	// 使用转换方法将领域对象转换为proto对象
 	return &palace.SelfTeamListReply{
-		Items: build.ToTeamBaseItems(teams),
+		Items: build.ToTeamItems(teams),
 	}, nil
 }
 

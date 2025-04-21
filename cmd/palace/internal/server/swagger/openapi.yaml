@@ -3330,7 +3330,7 @@ components:
                 items:
                     type: array
                     items:
-                        $ref: '#/components/schemas/api.palace.common.TeamBaseItem'
+                        $ref: '#/components/schemas/api.palace.common.TeamItem'
                     description: List of team items
             description: SelfTeamListReply contains the response data for retrieving the list of teams the current user is a member of
         api.palace.SendMsgCallbackReply:
