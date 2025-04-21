@@ -11,9 +11,9 @@ func ToPaginationReply(pagination *bo.PaginationReply) *common.PaginationReply {
 		return nil
 	}
 	return &common.PaginationReply{
-		Total: pagination.Total,
-		Page:  pagination.Page,
-		Limit: pagination.Limit,
+		Total:    pagination.Total,
+		Page:     pagination.Page,
+		PageSize: pagination.Limit,
 	}
 }
 
@@ -23,6 +23,6 @@ func ToPaginationRequest(pagination *common.PaginationRequest) *bo.PaginationReq
 	}
 	return &bo.PaginationRequest{
 		Page:  pagination.GetPage(),
-		Limit: pagination.GetLimit(),
+		Limit: pagination.GetPageSize(),
 	}
 }

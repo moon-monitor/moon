@@ -7,7 +7,6 @@ import "buf/validate/validate.proto";
 import "palace/common/system.proto";
 import "palace/common/system_enum.proto";
 import "palace/common/common.proto";
-import "palace/common/team.proto";
 import "palace/common/team_strategy.proto";
 
 option go_package = "github.com/moon-monitor/moon/pkg/api/palace;palace";
@@ -154,7 +153,7 @@ message CreateTeamRequest {
 // SelfTeamListReply contains the response data for retrieving the list of teams the current user is a member of
 message SelfTeamListReply {
   // List of team items
-  repeated api.palace.common.TeamItem items = 1;
+  repeated api.palace.common.TeamBaseItem items = 1;
 }
 
 // SelfSubscribeTeamStrategiesRequest represents the request data for retrieving subscribed team strategies
