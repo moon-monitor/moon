@@ -36,8 +36,8 @@ func ToTeamRoleItem(role do.TeamRole) *common.TeamRoleItem {
 		Status:    common.GlobalStatus(role.GetStatus()),
 		Resources: nil,
 		Members:   nil,
-		CreatedAt: role.GetCreatedAt().Format(time.RFC3339),
-		UpdatedAt: role.GetUpdatedAt().Format(time.RFC3339),
+		CreatedAt: role.GetCreatedAt().Format(time.DateTime),
+		UpdatedAt: role.GetUpdatedAt().Format(time.DateTime),
 		Creator:   ToUserBaseItem(role.GetCreator()),
 	}
 }
@@ -55,8 +55,8 @@ func ToSystemRoleItem(role do.Role) *common.SystemRoleItem {
 		Name:      role.GetName(),
 		Remark:    role.GetRemark(),
 		Status:    common.GlobalStatus(role.GetStatus()),
-		CreatedAt: role.GetCreatedAt().Format(time.RFC3339),
-		UpdatedAt: role.GetUpdatedAt().Format(time.RFC3339),
+		CreatedAt: role.GetCreatedAt().Format(time.DateTime),
+		UpdatedAt: role.GetUpdatedAt().Format(time.DateTime),
 		Resources: nil,
 		Users:     nil,
 		Creator:   ToUserBaseItem(role.GetCreator()),

@@ -1,6 +1,9 @@
 package system
 
 import (
+	"encoding/json"
+	"strconv"
+
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/vobj"
 	"github.com/moon-monitor/moon/pkg/util/crypto"
@@ -27,6 +30,24 @@ type User struct {
 	Status   vobj.UserStatus `gorm:"column:status;type:tinyint(2);not null;comment:状态" json:"status"`
 	Roles    []*Role         `gorm:"many2many:sys_user_roles" json:"roles"`
 	Teams    []*Team         `gorm:"many2many:sys_user_teams" json:"teams"`
+}
+
+func (u *User) MarshalBinary() (data []byte, err error) {
+	if u == nil {
+		return nil, nil
+	}
+	return json.Marshal(u)
+}
+
+func (u *User) UnmarshalBinary(data []byte) error {
+	if u == nil || len(data) == 0 {
+		return nil
+	}
+	return json.Unmarshal(data, u)
+}
+
+func (u *User) UniqueKey() string {
+	return strconv.Itoa(int(u.ID))
 }
 
 func (u *User) GetUsername() string {

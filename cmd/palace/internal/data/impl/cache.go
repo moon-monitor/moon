@@ -3,13 +3,16 @@ package impl
 import (
 	"context"
 	_ "embed"
+	"strconv"
 	"strings"
 	"time"
 
 	"github.com/go-kratos/kratos/v2/errors"
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do"
+	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do/system"
 	"github.com/moon-monitor/moon/cmd/palace/internal/data/impl/build"
+	"github.com/moon-monitor/moon/pkg/util/slices"
 	"github.com/redis/go-redis/v9"
 
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/bo"
@@ -48,19 +51,52 @@ func (c *cacheReoImpl) CacheUsers(ctx context.Context, users ...do.User) error {
 		if validate.IsNil(userItem) {
 			continue
 		}
-		usersMap[userItem] = userItem
+		usersMap[userItem.UniqueKey()] = userItem
 	}
 	return c.GetCache().Client().HSet(ctx, key, usersMap).Err()
 }
 
 func (c *cacheReoImpl) GetUser(ctx context.Context, userID uint32) (do.User, error) {
-	//TODO implement me
-	panic("implement me")
+	key := repository.UserCacheKey.Key()
+	userKey := strconv.Itoa(int(userID))
+	exist, err := c.GetCache().Client().HExists(ctx, key, userKey).Result()
+	if err != nil {
+		return nil, err
+	}
+
+	if !exist {
+		return nil, merr.ErrorUserNotFound("user not found")
+	}
+	var user system.User
+	if err = c.GetCache().Client().HGet(ctx, key, userKey).Scan(&user); err != nil {
+		return nil, err
+	}
+	return &user, nil
 }
 
 func (c *cacheReoImpl) GetUsers(ctx context.Context, ids ...uint32) ([]do.User, error) {
-	//TODO implement me
-	panic("implement me")
+	key := repository.UserCacheKey.Key()
+	exist, err := c.GetCache().Client().Exists(ctx, key).Result()
+	if err != nil {
+		return nil, err
+	}
+	if exist == 0 {
+		return nil, nil
+	}
+	userKeys := slices.Map(ids, func(id uint32) string { return strconv.Itoa(int(id)) })
+	userMap, err := c.GetCache().Client().HMGet(ctx, key, userKeys...).Result()
+	if err != nil {
+		return nil, err
+	}
+	users := make([]do.User, 0, len(userMap))
+	for _, v := range userMap {
+		var user system.User
+		if err := user.UnmarshalBinary([]byte(v.(string))); err != nil {
+			continue
+		}
+		users = append(users, &user)
+	}
+	return users, nil
 }
 
 func (c *cacheReoImpl) Lock(ctx context.Context, key string, expiration time.Duration) (bool, error) {
