@@ -5,10 +5,11 @@ import (
 	"time"
 
 	"github.com/go-kratos/kratos/v2/log"
+	"github.com/robfig/cron/v3"
+	
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/bo"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/repository"
 	"github.com/moon-monitor/moon/pkg/plugin/server"
-	"github.com/robfig/cron/v3"
 )
 
 var _ server.CronJob = (*userJob)(nil)
@@ -19,9 +20,12 @@ func NewUserJob(
 	logger log.Logger,
 ) server.CronJob {
 	return &userJob{
+		index:     "cache.user",
+		id:        0,
+		spec:      server.CronSpecEvery(10 * time.Minute),
+		helper:    log.NewHelper(log.With(logger, "module", "job.user")),
 		userRepo:  userRepo,
 		cacheRepo: cacheRepo,
-		helper:    log.NewHelper(log.With(logger, "module", "job.user")),
 	}
 }
 
