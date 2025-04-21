@@ -28,14 +28,14 @@ service TeamStrategy {
     };
   }
 
-  // DeleteTeamStrategyGroup deletes a team strategy group by ID
+  // DeleteTeamStrategyGroup deletes a team strategy group by Id
   rpc DeleteTeamStrategyGroup (DeleteTeamStrategyGroupRequest) returns (api.palace.common.EmptyReply) {
     option (google.api.http) = {
       delete: "/api/team/strategy/group"
     };
   }
 
-  // GetTeamStrategyGroup retrieves a team strategy group by ID
+  // GetTeamStrategyGroup retrieves a team strategy group by Id
   rpc GetTeamStrategyGroup (GetTeamStrategyGroupRequest) returns (GetTeamStrategyGroupReply) {
     option (google.api.http) = {
       get: "/api/team/strategy/group"
@@ -66,14 +66,14 @@ service TeamStrategy {
     };
   }
 
-  // DeleteTeamStrategy deletes a team strategy by ID
+  // DeleteTeamStrategy deletes a team strategy by Id
   rpc DeleteTeamStrategy (DeleteTeamStrategyRequest) returns (api.palace.common.EmptyReply) {
     option (google.api.http) = {
       delete: "/api/team/strategy"
     };
   }
 
-  // GetTeamStrategy retrieves a team strategy by ID
+  // GetTeamStrategy retrieves a team strategy by Id
   rpc GetTeamStrategy (GetTeamStrategyRequest) returns (GetTeamStrategyReply) {
     option (google.api.http) = {
       get: "/api/team/strategy"
@@ -107,8 +107,8 @@ service TeamStrategy {
 
 // SaveTeamStrategyGroupRequest represents the request data for saving or updating a team strategy group
 message SaveTeamStrategyGroupRequest {
-  // Strategy group ID, optional for new groups
-  uint32 groupID = 1;
+  // Strategy group Id, optional for new groups
+  uint32 groupId = 1;
   // Strategy group name
   string name = 2 [(buf.validate.field).string.max_len = 128];
   // Strategy group remark or description
@@ -117,22 +117,22 @@ message SaveTeamStrategyGroupRequest {
 
 // UpdateTeamStrategyGroupStatusRequest represents the request data for updating the status of a team strategy group
 message UpdateTeamStrategyGroupStatusRequest {
-  // Strategy group ID
-  uint32 groupID = 1;
+  // Strategy group Id
+  uint32 groupId = 1;
   // New status for the strategy group
   api.palace.common.GlobalStatus status = 2;
 }
 
 // DeleteTeamStrategyGroupRequest represents the request data for deleting a team strategy group
 message DeleteTeamStrategyGroupRequest {
-  // Strategy group ID
-  uint32 groupID = 1 [(buf.validate.field).required = true];
+  // Strategy group Id
+  uint32 groupId = 1 [(buf.validate.field).required = true];
 }
 
 // GetTeamStrategyGroupRequest represents the request data for retrieving a team strategy group
 message GetTeamStrategyGroupRequest {
-  // Strategy group ID
-  uint32 groupID = 1 [(buf.validate.field).required = true];
+  // Strategy group Id
+  uint32 groupId = 1 [(buf.validate.field).required = true];
 }
 
 // GetTeamStrategyGroupReply contains the response data for retrieving a team strategy group
@@ -161,10 +161,10 @@ message ListTeamStrategyGroupReply {
 
 // SaveTeamStrategyRequest represents the request data for saving or updating a team strategy
 message SaveTeamStrategyRequest {
-  // Strategy ID, optional for new strategies
-  uint32 strategyID = 1;
-  // Strategy group ID
-  uint32 groupID = 2 [(buf.validate.field).required = true];
+  // Strategy Id, optional for new strategies
+  uint32 strategyId = 1;
+  // Strategy group Id
+  uint32 groupId = 2 [(buf.validate.field).required = true];
   // Strategy name
   string name = 3 [(buf.validate.field).string.max_len = 128];
   // Strategy remark or description
@@ -173,22 +173,22 @@ message SaveTeamStrategyRequest {
 
 // UpdateTeamStrategiesStatusRequest represents the request data for updating the status of multiple team strategies
 message UpdateTeamStrategiesStatusRequest {
-  // List of strategy IDs to update
-  repeated uint32 strategyIDs = 1 [(buf.validate.field).required = true];
+  // List of strategy Ids to update
+  repeated uint32 strategyIds = 1 [(buf.validate.field).required = true];
   // New status for the strategies
   api.palace.common.GlobalStatus status = 2;
 }
 
 // DeleteTeamStrategyRequest represents the request data for deleting a team strategy
 message DeleteTeamStrategyRequest {
-  // Strategy ID
-  uint32 strategyID = 1 [(buf.validate.field).required = true];
+  // Strategy Id
+  uint32 strategyId = 1 [(buf.validate.field).required = true];
 }
 
 // GetTeamStrategyRequest represents the request data for retrieving a team strategy
 message GetTeamStrategyRequest {
-  // Strategy ID
-  uint32 strategyID = 1 [(buf.validate.field).required = true];
+  // Strategy Id
+  uint32 strategyId = 1 [(buf.validate.field).required = true];
 }
 
 // GetTeamStrategyReply contains the response data for retrieving a team strategy
@@ -201,8 +201,8 @@ message GetTeamStrategyReply {
 message ListTeamStrategyRequest {
   // Pagination request details
   api.palace.common.PaginationRequest pagination = 1;
-  // Strategy group ID to filter strategies by
-  uint32 groupID = 2;
+  // Strategy group Id to filter strategies by
+  uint32 groupId = 2;
   // List of statuses to filter strategies by
   repeated api.palace.common.GlobalStatus status = 3;
 }
@@ -217,8 +217,8 @@ message ListTeamStrategyReply {
 
 // SubscribeTeamStrategyRequest represents the request data for subscribing or unsubscribing from a team strategy
 message SubscribeTeamStrategyRequest {
-  // Strategy ID
-  uint32 strategyID = 1 [(buf.validate.field).required = true];
+  // Strategy Id
+  uint32 strategyId = 1 [(buf.validate.field).required = true];
   // Subscription status (true to subscribe, false to unsubscribe)
   bool isSubscribe = 2;
 }

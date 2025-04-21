@@ -1489,12 +1489,12 @@ paths:
         get:
             tags:
                 - TeamStrategy
-            description: GetTeamStrategy retrieves a team strategy by ID
+            description: GetTeamStrategy retrieves a team strategy by Id
             operationId: TeamStrategy_GetTeamStrategy
             parameters:
-                - name: strategyID
+                - name: strategyId
                   in: query
-                  description: Strategy ID
+                  description: Strategy Id
                   schema:
                     type: integer
                     format: uint32
@@ -1508,12 +1508,12 @@ paths:
         delete:
             tags:
                 - TeamStrategy
-            description: DeleteTeamStrategy deletes a team strategy by ID
+            description: DeleteTeamStrategy deletes a team strategy by Id
             operationId: TeamStrategy_DeleteTeamStrategy
             parameters:
-                - name: strategyID
+                - name: strategyId
                   in: query
-                  description: Strategy ID
+                  description: Strategy Id
                   schema:
                     type: integer
                     format: uint32
@@ -1528,12 +1528,12 @@ paths:
         get:
             tags:
                 - TeamStrategy
-            description: GetTeamStrategyGroup retrieves a team strategy group by ID
+            description: GetTeamStrategyGroup retrieves a team strategy group by Id
             operationId: TeamStrategy_GetTeamStrategyGroup
             parameters:
-                - name: groupID
+                - name: groupId
                   in: query
-                  description: Strategy group ID
+                  description: Strategy group Id
                   schema:
                     type: integer
                     format: uint32
@@ -1565,12 +1565,12 @@ paths:
         delete:
             tags:
                 - TeamStrategy
-            description: DeleteTeamStrategyGroup deletes a team strategy group by ID
+            description: DeleteTeamStrategyGroup deletes a team strategy group by Id
             operationId: TeamStrategy_DeleteTeamStrategyGroup
             parameters:
-                - name: groupID
+                - name: groupId
                   in: query
-                  description: Strategy group ID
+                  description: Strategy group Id
                   schema:
                     type: integer
                     format: uint32
@@ -2707,9 +2707,9 @@ components:
                     allOf:
                         - $ref: '#/components/schemas/api.palace.common.PaginationRequest'
                     description: Pagination request details
-                groupID:
+                groupId:
                     type: integer
-                    description: Strategy group ID to filter strategies by
+                    description: Strategy group Id to filter strategies by
                     format: uint32
                 status:
                     type: array
@@ -3266,9 +3266,9 @@ components:
         api.palace.SaveTeamStrategyGroupRequest:
             type: object
             properties:
-                groupID:
+                groupId:
                     type: integer
-                    description: Strategy group ID, optional for new groups
+                    description: Strategy group Id, optional for new groups
                     format: uint32
                 name:
                     type: string
@@ -3280,13 +3280,13 @@ components:
         api.palace.SaveTeamStrategyRequest:
             type: object
             properties:
-                strategyID:
+                strategyId:
                     type: integer
-                    description: Strategy ID, optional for new strategies
+                    description: Strategy Id, optional for new strategies
                     format: uint32
-                groupID:
+                groupId:
                     type: integer
-                    description: Strategy group ID
+                    description: Strategy group Id
                     format: uint32
                 name:
                     type: string
@@ -3377,9 +3377,9 @@ components:
         api.palace.SubscribeTeamStrategyRequest:
             type: object
             properties:
-                strategyID:
+                strategyId:
                     type: integer
-                    description: Strategy ID
+                    description: Strategy Id
                     format: uint32
                 isSubscribe:
                     type: boolean
@@ -3610,12 +3610,12 @@ components:
         api.palace.UpdateTeamStrategiesStatusRequest:
             type: object
             properties:
-                strategyIDs:
+                strategyIds:
                     type: array
                     items:
                         type: integer
                         format: uint32
-                    description: List of strategy IDs to update
+                    description: List of strategy Ids to update
                 status:
                     type: integer
                     description: New status for the strategies
@@ -3624,9 +3624,9 @@ components:
         api.palace.UpdateTeamStrategyGroupStatusRequest:
             type: object
             properties:
-                groupID:
+                groupId:
                     type: integer
-                    description: Strategy group ID
+                    description: Strategy group Id
                     format: uint32
                 status:
                     type: integer
