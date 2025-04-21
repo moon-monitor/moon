@@ -10,15 +10,21 @@ import (
 	"testing"
 
 	"github.com/go-kratos/kratos/v2/log"
+
+	"github.com/moon-monitor/moon/pkg/plugin"
 	"github.com/moon-monitor/moon/pkg/plugin/sms"
 )
 
-const mockSmsPlugin = "./mock/mock_sms_plugin_1.so"
+const mockSmsPlugin = "./mock/mock_sms_plugin.so"
 
 func TestLoadPlugin(t *testing.T) {
 	logger := log.NewStdLogger(os.Stdout)
 
-	sender, err := sms.LoadPlugin(mockSmsPlugin, logger)
+	sender, err := sms.LoadPlugin(&plugin.LoadConfig{
+		Path:    mockSmsPlugin,
+		Logger:  logger,
+		Configs: nil,
+	})
 	if err != nil {
 		t.Fatalf("Failed to load plugin: %v", err)
 	}
@@ -45,7 +51,11 @@ func Test_Async_LoadPlugin_Server(t *testing.T) {
 	http.HandleFunc("/load", func(w http.ResponseWriter, r *http.Request) {
 		logger := log.NewStdLogger(os.Stdout)
 
-		sender, err := sms.LoadPlugin(mockSmsPlugin, logger)
+		sender, err := sms.LoadPlugin(&plugin.LoadConfig{
+			Path:    mockSmsPlugin,
+			Logger:  logger,
+			Configs: nil,
+		})
 		if err != nil {
 			w.WriteHeader(http.StatusOK)
 			w.Write([]byte("Failed to load plugin " + err.Error()))
@@ -90,7 +100,11 @@ func Test_Async_LoadPlugin_Server(t *testing.T) {
 
 		logger := log.NewStdLogger(os.Stdout)
 
-		sender, err := sms.LoadPlugin(filename, logger)
+		sender, err := sms.LoadPlugin(&plugin.LoadConfig{
+			Path:    filename,
+			Logger:  logger,
+			Configs: nil,
+		})
 		if err != nil {
 			w.WriteHeader(http.StatusOK)
 			w.Write([]byte("Failed to load plugin " + err.Error()))
@@ -118,7 +132,11 @@ func Test_Async_LoadPlugin(t *testing.T) {
 	server := httptest.NewServer(http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
 		logger := log.NewStdLogger(os.Stdout)
 
-		sender, err := sms.LoadPlugin(mockSmsPlugin, logger)
+		sender, err := sms.LoadPlugin(&plugin.LoadConfig{
+			Path:    mockSmsPlugin,
+			Logger:  logger,
+			Configs: nil,
+		})
 		if err != nil {
 			w.WriteHeader(http.StatusOK)
 			w.Write([]byte("Failed to load plugin " + err.Error()))
