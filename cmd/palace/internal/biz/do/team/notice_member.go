@@ -1,8 +1,6 @@
 package team
 
 import (
-	"context"
-
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/vobj"
 )
@@ -17,29 +15,13 @@ type NoticeMember struct {
 	UserID        uint32          `gorm:"column:user_id;type:int(10) unsigned;not null;comment:用户ID" json:"userID"`
 	NoticeType    vobj.NoticeType `gorm:"column:notice_type;type:int(10) unsigned;not null;comment:通知类型" json:"noticeType"`
 	NoticeGroup   *NoticeGroup    `gorm:"foreignKey:NoticeGroupID;references:ID" json:"noticeGroup"`
-
-	member do.TeamMember
-}
-
-func (n *NoticeMember) WithMember(f func(ctx context.Context, userID uint32) (do.TeamMember, error)) error {
-	if n == nil || f == nil {
-		return nil
-	}
-
-	member, err := f(n.GetContext(), n.UserID)
-	if err != nil {
-		return err
-	}
-
-	n.member = member
-	return nil
 }
 
 func (n *NoticeMember) GetMember() do.TeamMember {
 	if n == nil {
 		return nil
 	}
-	return n.member
+	return do.GetTeamMember(n.GetContext(), n.GetUserID())
 }
 
 func (n *NoticeMember) GetUserID() uint32 {

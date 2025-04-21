@@ -4,9 +4,11 @@ import (
 	"github.com/google/uuid"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/vobj"
 	"github.com/moon-monitor/moon/pkg/config"
+	"github.com/moon-monitor/moon/pkg/plugin/cache"
 )
 
 type Team interface {
+	cache.Object
 	Creator
 	GetName() string
 	GetRemark() string

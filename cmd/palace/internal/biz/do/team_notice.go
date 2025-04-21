@@ -1,7 +1,6 @@
 package do
 
 import (
-	"context"
 	"time"
 
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/vobj"
@@ -40,6 +39,5 @@ type NoticeMember interface {
 	GetUserID() uint32
 	GetNoticeType() vobj.NoticeType
 	GetNoticeGroup() NoticeGroup
-	WithMember(func(ctx context.Context, userID uint32) (TeamMember, error)) error
 	GetMember() TeamMember
 }

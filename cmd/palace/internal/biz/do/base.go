@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"database/sql/driver"
+	"sync"
 	"time"
 
 	"gorm.io/gorm"
@@ -12,6 +13,51 @@ import (
 	"github.com/moon-monitor/moon/cmd/palace/internal/helper/permission"
 	"github.com/moon-monitor/moon/pkg/merr"
 )
+
+type GetUserFun func(ctx context.Context, id uint32) User
+
+type GetTeamFun func(ctx context.Context, id uint32) Team
+
+type GetTeamMemberFun func(ctx context.Context, id uint32) TeamMember
+
+var registerGetUserFuncOnce sync.Once
+var getUser GetUserFun
+
+func RegisterGetUserFunc(getUserFunc GetUserFun) {
+	registerGetUserFuncOnce.Do(func() {
+		getUser = getUserFunc
+	})
+}
+
+func GetUser(ctx context.Context, id uint32) User {
+	return getUser(ctx, id)
+}
+
+var registerGetTeamFuncOnce sync.Once
+var getTeam GetTeamFun
+
+func RegisterGetTeamFunc(getTeamFunc GetTeamFun) {
+	registerGetTeamFuncOnce.Do(func() {
+		getTeam = getTeamFunc
+	})
+}
+
+func GetTeam(ctx context.Context, id uint32) Team {
+	return getTeam(ctx, id)
+}
+
+var registerGetTeamMemberFuncOnce sync.Once
+var getTeamMember GetTeamMemberFun
+
+func RegisterGetTeamMemberFunc(getTeamMemberFunc GetTeamMemberFun) {
+	registerGetTeamMemberFuncOnce.Do(func() {
+		getTeamMember = getTeamMemberFunc
+	})
+}
+
+func GetTeamMember(ctx context.Context, id uint32) TeamMember {
+	return getTeamMember(ctx, id)
+}
 
 type ORMModel interface {
 	sql.Scanner
@@ -31,12 +77,13 @@ type Creator interface {
 	Base
 	GetCreatorID() uint32
 	GetCreator() User
-	WithCreator(func(ctx context.Context, creatorID uint32) (User, error)) error
+	GetCreatorMember() TeamMember
 }
 
 type TeamBase interface {
 	Creator
 	GetTeamID() uint32
+	GetTeam() Team
 }
 
 var _ Base = (*BaseModel)(nil)
@@ -97,8 +144,13 @@ var _ Creator = (*CreatorModel)(nil)
 type CreatorModel struct {
 	BaseModel
 	CreatorID uint32 `gorm:"column:creator;type:int unsigned;not null;comment:创建者" json:"creator_id,omitempty"`
+}
 
-	creator User
+func (u *CreatorModel) GetCreatorMember() TeamMember {
+	if u == nil {
+		return nil
+	}
+	return getTeamMember(u.GetContext(), u.GetCreatorID())
 }
 
 func (u *CreatorModel) GetCreatorID() uint32 {
@@ -112,21 +164,7 @@ func (u *CreatorModel) GetCreator() User {
 	if u == nil {
 		return nil
 	}
-	return u.creator
-}
-
-func (u *CreatorModel) WithCreator(f func(ctx context.Context, creatorID uint32) (User, error)) error {
-	if u == nil || f == nil {
-		return nil
-	}
-
-	creator, err := f(u.GetContext(), u.CreatorID)
-	if err != nil {
-		return err
-	}
-
-	u.creator = creator
-	return nil
+	return getUser(u.GetContext(), u.GetCreatorID())
 }
 
 func (u *CreatorModel) BeforeCreate(tx *gorm.DB) (err error) {
@@ -144,6 +182,13 @@ var _ TeamBase = (*TeamModel)(nil)
 type TeamModel struct {
 	CreatorModel
 	TeamID uint32 `gorm:"column:team_id;type:int unsigned;not null;comment:团队ID" json:"team_id,omitempty"`
+}
+
+func (u *TeamModel) GetTeam() Team {
+	if u == nil {
+		return nil
+	}
+	return getTeam(u.GetContext(), u.GetTeamID())
 }
 
 func (u *TeamModel) GetTeamID() uint32 {

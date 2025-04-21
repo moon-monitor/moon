@@ -7,7 +7,7 @@ import (
 	"github.com/moon-monitor/moon/pkg/util/validate"
 )
 
-func ToRoleItem(roleDo do.Role) *system.Role {
+func ToRole(roleDo do.Role) *system.Role {
 	if validate.IsNil(roleDo) {
 		return nil
 	}
@@ -16,7 +16,7 @@ func ToRoleItem(roleDo do.Role) *system.Role {
 		return role
 	}
 	return &system.Role{
-		CreatorModel: do.CreatorModel{},
+		CreatorModel: ToCreatorModel(roleDo),
 		Name:         role.GetName(),
 		Remark:       role.GetRemark(),
 		Status:       role.GetStatus(),
@@ -26,5 +26,27 @@ func ToRoleItem(roleDo do.Role) *system.Role {
 }
 
 func ToRoles(roles []do.Role) []*system.Role {
-	return slices.Map(roles, ToRoleItem)
+	return slices.Map(roles, ToRole)
+}
+
+func ToTeamRole(roleDo do.TeamRole) *system.TeamRole {
+	if validate.IsNil(roleDo) {
+		return nil
+	}
+	role, ok := roleDo.(*system.TeamRole)
+	if ok {
+		return role
+	}
+	return &system.TeamRole{
+		TeamModel: ToTeamModel(roleDo),
+		Name:      role.GetName(),
+		Remark:    role.GetRemark(),
+		Status:    role.GetStatus(),
+		Members:   nil,
+		Menus:     nil,
+	}
+}
+
+func ToTeamRoles(roles []do.TeamRole) []*system.TeamRole {
+	return slices.Map(roles, ToTeamRole)
 }

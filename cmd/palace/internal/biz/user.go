@@ -28,18 +28,16 @@ func NewUserBiz(
 	cacheRepo repository.Cache,
 	logger log.Logger,
 ) *UserBiz {
-	GetUser = cacheRepo.GetUser
-	GetUsers = func(ctx context.Context, ids ...uint32) (map[uint32]do.User, error) {
-		users, err := cacheRepo.GetUsers(ctx, ids...)
+	do.RegisterGetUserFunc(func(ctx context.Context, id uint32) do.User {
+		user, err := cacheRepo.GetUser(ctx, id)
 		if err != nil {
-			return nil, err
+			if merr.IsUserNotFound(err) {
+				user, _ = userRepo.Get(ctx, id)
+			}
+			return user
 		}
-		userMap := make(map[uint32]do.User, len(users))
-		for _, user := range users {
-			userMap[user.GetID()] = user
-		}
-		return userMap, nil
-	}
+		return user
+	})
 	return &UserBiz{
 		userRepo:  userRepo,
 		cacheRepo: cacheRepo,

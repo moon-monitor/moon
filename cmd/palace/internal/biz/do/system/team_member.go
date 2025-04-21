@@ -1,6 +1,9 @@
 package system
 
 import (
+	"encoding/json"
+	"strconv"
+
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/vobj"
 	"github.com/moon-monitor/moon/pkg/util/slices"
@@ -21,6 +24,24 @@ type TeamMember struct {
 	Roles      []*TeamRole       `gorm:"many2many:sys_team_member_roles" json:"roles"`
 	User       *User             `gorm:"foreignKey:UserID;references:ID" json:"user"`
 	Inviter    *User             `gorm:"foreignKey:InviterID;references:ID" json:"inviter"`
+}
+
+func (u *TeamMember) MarshalBinary() (data []byte, err error) {
+	if u == nil {
+		return nil, nil
+	}
+	return json.Marshal(u)
+}
+
+func (u *TeamMember) UnmarshalBinary(data []byte) error {
+	if u == nil || len(data) == 0 {
+		return nil
+	}
+	return json.Unmarshal(data, u)
+}
+
+func (u *TeamMember) UniqueKey() string {
+	return strconv.Itoa(int(u.ID))
 }
 
 func (u *TeamMember) GetUser() do.User {

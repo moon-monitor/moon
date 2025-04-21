@@ -2,9 +2,11 @@ package do
 
 import (
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/vobj"
+	"github.com/moon-monitor/moon/pkg/plugin/cache"
 )
 
 type TeamMember interface {
+	cache.Object
 	TeamBase
 	GetTeamMemberID() uint32
 	GetMemberName() string

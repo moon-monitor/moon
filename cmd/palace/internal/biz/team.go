@@ -15,6 +15,7 @@ import (
 )
 
 func NewTeam(
+	cacheRepo repository.Cache,
 	userRepo repository.User,
 	teamRepo repository.Team,
 	teamEmailConfigRepo repository.TeamEmailConfig,
@@ -27,6 +28,26 @@ func NewTeam(
 	transaction repository.Transaction,
 	logger log.Logger,
 ) *Team {
+	do.RegisterGetTeamFunc(func(ctx context.Context, id uint32) do.Team {
+		team, err := cacheRepo.GetTeam(ctx, id)
+		if err != nil {
+			if merr.IsNotFound(err) {
+				team, _ = teamRepo.FindByID(ctx, id)
+			}
+			return team
+		}
+		return team
+	})
+	do.RegisterGetTeamMemberFunc(func(ctx context.Context, id uint32) do.TeamMember {
+		teamMember, err := cacheRepo.GetTeamMember(ctx, id)
+		if err != nil {
+			if merr.IsNotFound(err) {
+				teamMember, _ = memberRepo.Get(ctx, id)
+			}
+			return teamMember
+		}
+		return teamMember
+	})
 	return &Team{
 		helper:              log.NewHelper(log.With(logger, "module", "biz.team")),
 		userRepo:            userRepo,

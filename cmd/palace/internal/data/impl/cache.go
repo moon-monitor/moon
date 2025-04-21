@@ -9,19 +9,19 @@ import (
 
 	"github.com/go-kratos/kratos/v2/errors"
 	"github.com/go-kratos/kratos/v2/log"
-	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do"
-	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do/system"
-	"github.com/moon-monitor/moon/cmd/palace/internal/data/impl/build"
-	"github.com/moon-monitor/moon/pkg/util/slices"
 	"github.com/redis/go-redis/v9"
 
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/bo"
+	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do"
+	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do/system"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/repository"
 	"github.com/moon-monitor/moon/cmd/palace/internal/conf"
 	"github.com/moon-monitor/moon/cmd/palace/internal/data"
+	"github.com/moon-monitor/moon/cmd/palace/internal/data/impl/build"
 	"github.com/moon-monitor/moon/cmd/palace/internal/helper/middleware"
 	"github.com/moon-monitor/moon/pkg/merr"
 	"github.com/moon-monitor/moon/pkg/util/hash"
+	"github.com/moon-monitor/moon/pkg/util/slices"
 	"github.com/moon-monitor/moon/pkg/util/template"
 	"github.com/moon-monitor/moon/pkg/util/validate"
 )
@@ -41,6 +41,125 @@ type cacheReoImpl struct {
 	*data.Data
 
 	helper *log.Helper
+}
+
+func (c *cacheReoImpl) CacheTeams(ctx context.Context, teams ...do.Team) error {
+	key := repository.UserCacheKey.Key()
+	teamsMap := make(map[string]any)
+	for _, team := range teams {
+		teamItem := build.ToTeam(team)
+		if validate.IsNil(teamItem) {
+			continue
+		}
+		teamsMap[teamItem.UniqueKey()] = teamItem
+	}
+	return c.GetCache().Client().HSet(ctx, key, teamsMap).Err()
+}
+
+func (c *cacheReoImpl) GetTeam(ctx context.Context, teamID uint32) (do.Team, error) {
+	key := repository.TeamCacheKey.Key()
+	teamKey := strconv.Itoa(int(teamID))
+	exist, err := c.GetCache().Client().HExists(ctx, key, teamKey).Result()
+	if err != nil {
+		return nil, err
+	}
+	if !exist {
+		return nil, merr.ErrorNotFound("team not found")
+	}
+	var team system.Team
+	if err = c.GetCache().Client().HGet(ctx, key, teamKey).Scan(&team); err != nil {
+		return nil, err
+	}
+	return &team, nil
+}
+
+func (c *cacheReoImpl) GetTeams(ctx context.Context, ids ...uint32) ([]do.Team, error) {
+	if len(ids) == 0 {
+		return nil, nil
+	}
+	key := repository.TeamCacheKey.Key()
+	exist, err := c.GetCache().Client().Exists(ctx, key).Result()
+	if err != nil {
+		return nil, err
+	}
+	if exist == 0 {
+		return nil, nil
+	}
+	teamKeys := slices.Map(ids, func(id uint32) string { return strconv.Itoa(int(id)) })
+	teamMap, err := c.GetCache().Client().HMGet(ctx, key, teamKeys...).Result()
+	if err != nil {
+		return nil, err
+	}
+	teams := make([]do.Team, 0, len(teamMap))
+	for _, v := range teamMap {
+		var team system.Team
+		if err := team.UnmarshalBinary([]byte(v.(string))); err != nil {
+			continue
+		}
+		teams = append(teams, &team)
+	}
+	return teams, nil
+}
+
+func (c *cacheReoImpl) CacheTeamMembers(ctx context.Context, members ...do.TeamMember) error {
+	if len(members) == 0 {
+		return nil
+	}
+	key := repository.TeamMemberCacheKey.Key()
+	membersMap := make(map[string]any)
+	for _, member := range members {
+		memberItem := build.ToTeamMember(member)
+		if validate.IsNil(memberItem) {
+			continue
+		}
+		membersMap[memberItem.UniqueKey()] = memberItem
+	}
+	return c.GetCache().Client().HSet(ctx, key, membersMap).Err()
+}
+
+func (c *cacheReoImpl) GetTeamMember(ctx context.Context, memberID uint32) (do.TeamMember, error) {
+	key := repository.TeamMemberCacheKey.Key()
+	memberKey := strconv.Itoa(int(memberID))
+	exist, err := c.GetCache().Client().HExists(ctx, key, memberKey).Result()
+	if err != nil {
+		return nil, err
+	}
+	if !exist {
+		return nil, merr.ErrorNotFound("team member not found")
+	}
+	var member system.TeamMember
+	if err = c.GetCache().Client().HGet(ctx, key, memberKey).Scan(&member); err != nil {
+		return nil, err
+	}
+	return &member, nil
+}
+
+func (c *cacheReoImpl) GetTeamMembers(ctx context.Context, ids ...uint32) ([]do.TeamMember, error) {
+	if len(ids) == 0 {
+		return nil, nil
+	}
+	key := repository.TeamMemberCacheKey.Key()
+	exist, err := c.GetCache().Client().Exists(ctx, key).Result()
+	if err != nil {
+		return nil, err
+	}
+	if exist == 0 {
+		return nil, nil
+	}
+	memberKeys := slices.Map(ids, func(id uint32) string { return strconv.Itoa(int(id)) })
+	memberMap, err := c.GetCache().Client().HMGet(ctx, key, memberKeys...).Result()
+	if err != nil {
+		return nil, err
+	}
+	members := make([]do.TeamMember, 0, len(memberMap))
+	for _, v := range memberMap {
+		var member system.TeamMember
+		if err := member.UnmarshalBinary([]byte(v.(string))); err != nil {
+			continue
+		}
+		members = append(members, &member)
+	}
+	return members, nil
 }
 
 func (c *cacheReoImpl) CacheUsers(ctx context.Context, users ...do.User) error {
