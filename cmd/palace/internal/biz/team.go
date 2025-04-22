@@ -7,6 +7,7 @@ import (
 
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/bo"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do"
+	"github.com/moon-monitor/moon/cmd/palace/internal/biz/job"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/repository"
 	"github.com/moon-monitor/moon/cmd/palace/internal/helper/permission"
 	"github.com/moon-monitor/moon/pkg/merr"
@@ -50,6 +51,7 @@ func NewTeam(
 	})
 	return &Team{
 		helper:              log.NewHelper(log.With(logger, "module", "biz.team")),
+		cacheRepo:           cacheRepo,
 		userRepo:            userRepo,
 		teamRepo:            teamRepo,
 		teamEmailConfigRepo: teamEmailConfigRepo,
@@ -65,6 +67,7 @@ func NewTeam(
 
 type Team struct {
 	helper              *log.Helper
+	cacheRepo           repository.Cache
 	userRepo            repository.User
 	teamRepo            repository.Team
 	teamEmailConfigRepo repository.TeamEmailConfig
@@ -325,5 +328,8 @@ func (t *Team) InviteMember(ctx context.Context, req *bo.InviteMemberReq) error 
 }
 
 func (t *Team) Jobs() []server.CronJob {
-	return []server.CronJob{}
+	return []server.CronJob{
+		job.NewTeamJob(t.teamRepo, t.cacheRepo, t.helper.Logger()),
+		job.NewTeamMemberJob(t.memberRepo, t.cacheRepo, t.helper.Logger()),
+	}
 }
