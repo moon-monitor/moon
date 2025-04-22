@@ -1,6 +1,8 @@
 package judge
 
 import (
+	"time"
+
 	"github.com/moon-monitor/moon/cmd/houyi/internal/biz/bo"
 	"github.com/moon-monitor/moon/cmd/houyi/internal/data/impl/judge/condition"
 	"github.com/moon-monitor/moon/pkg/api/houyi/common"
@@ -27,6 +29,7 @@ type MetricJudgeConfig struct {
 	condition       condition.MetricCondition
 	conditionValues []float64
 	conditionCount  int64
+	step            time.Duration
 }
 
 type MetricJudgeOption func(*MetricJudgeConfig)
@@ -49,6 +52,12 @@ func WithMetricJudgeConditionCount(count int64) MetricJudgeOption {
 	}
 }
 
+func WithMetricJudgeStep(step time.Duration) MetricJudgeOption {
+	return func(c *MetricJudgeConfig) {
+		c.step = step
+	}
+}
+
 type MetricJudge interface {
 	Judge(originValues []bo.MetricJudgeDataValue) (bo.MetricJudgeDataValue, bool)
 	Type() common.SampleMode
@@ -65,7 +74,11 @@ func (m *metricForJudge) Type() common.SampleMode {
 func (m *metricForJudge) Judge(originValues []bo.MetricJudgeDataValue) (bo.MetricJudgeDataValue, bool) {
 	total := int64(0)
 	var currentValue bo.MetricJudgeDataValue
+	step := m.step
 	for _, value := range originValues {
+		if time.Duration(value.GetTimestamp())-step > 0 {
+			total = 0
+		}
 		if !m.condition.Comparable(m.conditionValues, value.GetValue()) {
 			total = 0
 			currentValue = nil

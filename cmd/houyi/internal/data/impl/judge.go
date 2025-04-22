@@ -43,6 +43,7 @@ func (j *judgeImpl) Metric(_ context.Context, data *bo.MetricJudgeRequest) ([]bo
 		judge.WithMetricJudgeCondition(conditionType),
 		judge.WithMetricJudgeConditionValues(rule.GetValues()),
 		judge.WithMetricJudgeConditionCount(rule.GetCount()),
+		judge.WithMetricJudgeStep(data.Step),
 	}
 	judgeInstance := judge.NewMetricJudge(rule.GetSampleMode(), opts...)
 	alerts := make([]bo.Alert, 0, len(judgeData))
