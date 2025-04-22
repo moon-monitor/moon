@@ -34,13 +34,12 @@ func (m *memberImpl) List(ctx context.Context, req *bo.TeamMemberListRequest) (*
 	if validate.IsNil(req) {
 		return nil, merr.ErrorParamsError("invalid request")
 	}
-	teamId, ok := permission.GetTeamIDByContext(ctx)
-	if !ok {
-		return nil, merr.ErrorPermissionDenied("team id not found")
-	}
 
 	memberQuery := getMainQuery(ctx, m).TeamMember
-	wrapper := memberQuery.WithContext(ctx).Where(memberQuery.TeamID.Eq(teamId))
+	wrapper := memberQuery.WithContext(ctx)
+	if req.TeamId > 0 {
+		wrapper = wrapper.Where(memberQuery.TeamID.Eq(req.TeamId))
+	}
 	if !validate.TextIsNull(req.Keyword) {
 		ors := []gen.Condition{
 			memberQuery.MemberName.Like(req.Keyword),

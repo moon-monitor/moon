@@ -28,21 +28,30 @@ func NewUserBiz(
 	cacheRepo repository.Cache,
 	logger log.Logger,
 ) *UserBiz {
-	do.RegisterGetUserFunc(func(ctx context.Context, id uint32) do.User {
-		user, err := cacheRepo.GetUser(ctx, id)
-		if err != nil {
-			if merr.IsUserNotFound(err) {
-				user, _ = userRepo.Get(ctx, id)
-			}
-			return user
-		}
-		return user
-	})
-	return &UserBiz{
+	userBiz := &UserBiz{
 		userRepo:  userRepo,
 		cacheRepo: cacheRepo,
 		log:       log.NewHelper(log.With(logger, "module", "biz.user")),
 	}
+	do.RegisterGetUserFunc(userBiz.getUser)
+	return userBiz
+}
+
+func (b *UserBiz) getUser(ctx context.Context, userID uint32) do.User {
+	user, err := b.cacheRepo.GetUser(ctx, userID)
+	if err != nil {
+		if merr.IsUserNotFound(err) {
+			user, err = b.userRepo.FindByID(ctx, userID)
+			if err != nil {
+				b.log.Errorw("msg", "get user fail", "err", err)
+			} else {
+				if err := b.cacheRepo.CacheUsers(ctx, user); err != nil {
+					b.log.Errorw("msg", "cache user fail", "err", err)
+				}
+			}
+		}
+	}
+	return user
 }
 
 // GetSelfInfo retrieves the current user's information from the context.

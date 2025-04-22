@@ -29,27 +29,7 @@ func NewTeam(
 	transaction repository.Transaction,
 	logger log.Logger,
 ) *Team {
-	do.RegisterGetTeamFunc(func(ctx context.Context, id uint32) do.Team {
-		team, err := cacheRepo.GetTeam(ctx, id)
-		if err != nil {
-			if merr.IsNotFound(err) {
-				team, _ = teamRepo.FindByID(ctx, id)
-			}
-			return team
-		}
-		return team
-	})
-	do.RegisterGetTeamMemberFunc(func(ctx context.Context, id uint32) do.TeamMember {
-		teamMember, err := cacheRepo.GetTeamMember(ctx, id)
-		if err != nil {
-			if merr.IsNotFound(err) {
-				teamMember, _ = memberRepo.Get(ctx, id)
-			}
-			return teamMember
-		}
-		return teamMember
-	})
-	return &Team{
+	teamBiz := &Team{
 		helper:              log.NewHelper(log.With(logger, "module", "biz.team")),
 		cacheRepo:           cacheRepo,
 		userRepo:            userRepo,
@@ -63,6 +43,9 @@ func NewTeam(
 		inviteRepo:          inviteRepo,
 		transaction:         transaction,
 	}
+	do.RegisterGetTeamFunc(teamBiz.getTeam)
+	do.RegisterGetTeamMemberFunc(teamBiz.getTeamMember)
+	return teamBiz
 }
 
 type Team struct {
@@ -78,6 +61,40 @@ type Team struct {
 	memberRepo          repository.Member
 	inviteRepo          repository.Invite
 	transaction         repository.Transaction
+}
+
+func (t *Team) getTeam(ctx context.Context, id uint32) do.Team {
+	team, err := t.cacheRepo.GetTeam(ctx, id)
+	if err != nil {
+		if merr.IsNotFound(err) {
+			team, err = t.teamRepo.FindByID(ctx, id)
+			if err != nil {
+				t.helper.Errorw("msg", "get team fail", "err", err)
+			} else {
+				if err := t.cacheRepo.CacheTeams(ctx, team); err != nil {
+					t.helper.Errorw("msg", "cache team fail", "err", err)
+				}
+			}
+		}
+	}
+	return team
+}
+
+func (t *Team) getTeamMember(ctx context.Context, id uint32) do.TeamMember {
+	teamMember, err := t.cacheRepo.GetTeamMember(ctx, id)
+	if err != nil {
+		if merr.IsNotFound(err) {
+			teamMember, err = t.memberRepo.Get(ctx, id)
+			if err != nil {
+				t.helper.Errorw("msg", "get team member fail", "err", err)
+			} else {
+				if err := t.cacheRepo.CacheTeamMembers(ctx, teamMember); err != nil {
+					t.helper.Errorw("msg", "cache team member fail", "err", err)
+				}
+			}
+		}
+	}
+	return teamMember
 }
 
 func (t *Team) SaveTeam(ctx context.Context, req *bo.SaveOneTeamRequest) error {
