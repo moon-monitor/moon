@@ -35,7 +35,9 @@ type judgeImpl struct {
 	helper           *log.Helper
 }
 
-func (j *judgeImpl) Metric(_ context.Context, data []bo.MetricJudgeData, rule bo.MetricJudgeRule) ([]bo.Alert, error) {
+func (j *judgeImpl) Metric(_ context.Context, data *bo.MetricJudgeRequest) ([]bo.Alert, error) {
+	rule := data.Strategy
+	judgeData := data.JudgeData
 	conditionType := condition.NewMetricCondition(rule.GetCondition())
 	opts := []judge.MetricJudgeOption{
 		judge.WithMetricJudgeCondition(conditionType),
@@ -43,8 +45,8 @@ func (j *judgeImpl) Metric(_ context.Context, data []bo.MetricJudgeData, rule bo
 		judge.WithMetricJudgeConditionCount(rule.GetCount()),
 	}
 	judgeInstance := judge.NewMetricJudge(rule.GetSampleMode(), opts...)
-	alerts := make([]bo.Alert, 0, len(data))
-	for _, datum := range data {
+	alerts := make([]bo.Alert, 0, len(judgeData))
+	for _, datum := range judgeData {
 		value, ok := judgeInstance.Judge(datum.GetValues())
 		if !ok {
 			continue

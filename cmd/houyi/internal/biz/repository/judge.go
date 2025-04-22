@@ -7,5 +7,5 @@ import (
 )
 
 type Judge interface {
-	Metric(ctx context.Context, data []bo.MetricJudgeData, rule bo.MetricJudgeRule) ([]bo.Alert, error)
+	Metric(ctx context.Context, data *bo.MetricJudgeRequest) ([]bo.Alert, error)
 }

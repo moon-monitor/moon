@@ -2,7 +2,6 @@ package impl
 
 import (
 	"context"
-	"time"
 
 	"github.com/go-kratos/kratos/v2/log"
 
@@ -64,10 +63,10 @@ func (m *metricImpl) Init(config bo.MetricDatasourceConfig) (repository.Metric, 
 	}, nil
 }
 
-func (m *metricInstance) Query(ctx context.Context, expr string, t time.Time) ([]*do.MetricQueryReply, error) {
+func (m *metricInstance) Query(ctx context.Context, req *bo.MetricQueryRequest) ([]*do.MetricQueryReply, error) {
 	queryParams := &datasource.MetricQueryRequest{
-		Expr: expr,
-		Time: t.Unix(),
+		Expr: req.Expr,
+		Time: req.Time.Unix(),
 	}
 	metricQueryResponse, err := m.metric.Query(ctx, queryParams)
 	if err != nil {
@@ -90,14 +89,13 @@ func (m *metricInstance) Query(ctx context.Context, expr string, t time.Time) ([
 	return list, nil
 }
 
-func (m *metricInstance) QueryRange(ctx context.Context, expr string, start, end time.Time) ([]*do.MetricQueryRangeReply, error) {
+func (m *metricInstance) QueryRange(ctx context.Context, req *bo.MetricRangeQueryRequest) ([]*do.MetricQueryRangeReply, error) {
 	// 分辨率计算
-	step := m.getOptimalStep(start, end)
+	step := req.GetOptimalStep(m.metric.GetScrapeInterval())
 	queryParams := &datasource.MetricQueryRequest{
-		Expr:      expr,
-		Time:      0,
-		StartTime: start.Unix(),
-		EndTime:   end.Unix(),
+		Expr:      req.Expr,
+		StartTime: req.StartTime.Unix(),
+		EndTime:   req.EndTime.Unix(),
 		Step:      uint32(step.Seconds()),
 	}
 	metricQueryResponse, err := m.metric.Query(ctx, queryParams)
@@ -155,34 +153,4 @@ func (m *metricInstance) Metadata(ctx context.Context) (<-chan []*do.MetricItem,
 		}
 	}()
 	return ch, nil
-}
-
-func (m *metricInstance) getOptimalStep(start, end time.Time) time.Duration {
-	duration := end.Sub(start)
-
-	// Prometheus 通常会对较旧的数据进行降采样
-	if duration > 15*24*time.Hour {
-		// 对于超过15天的数据，使用较大的step
-		return 2 * time.Hour
-	} else if duration > 3*24*time.Hour {
-		return 1 * time.Hour
-	}
-
-	// 对于近期数据，尝试匹配采集间隔
-	scrapeInterval := m.metric.GetScrapeInterval()
-
-	// 确保step至少是scrape_interval的倍数
-	minStep := scrapeInterval
-
-	// 计算一个合理的step，使返回点数在500-1000之间
-	desiredPoints := 800
-	calculatedStep := duration / time.Duration(desiredPoints)
-
-	// 确保step不小于最小step，且是scrapeInterval的倍数
-	if calculatedStep < minStep {
-		return minStep
-	}
-
-	// 向上取整到scrapeInterval的倍数
-	return ((calculatedStep + scrapeInterval - 1) / scrapeInterval) * scrapeInterval
 }

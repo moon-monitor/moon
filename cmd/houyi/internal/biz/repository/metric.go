@@ -2,7 +2,6 @@ package repository
 
 import (
 	"context"
-	"time"
 
 	"github.com/moon-monitor/moon/cmd/houyi/internal/biz/bo"
 	"github.com/moon-monitor/moon/cmd/houyi/internal/biz/do"
@@ -13,9 +12,9 @@ type MetricInit interface {
 }
 
 type Metric interface {
-	Query(ctx context.Context, expr string, t time.Time) ([]*do.MetricQueryReply, error)
+	Query(ctx context.Context, req *bo.MetricQueryRequest) ([]*do.MetricQueryReply, error)
 
-	QueryRange(ctx context.Context, expr string, start, end time.Time) ([]*do.MetricQueryRangeReply, error)
+	QueryRange(ctx context.Context, req *bo.MetricRangeQueryRequest) ([]*do.MetricQueryRangeReply, error)
 
 	Metadata(ctx context.Context) (<-chan []*do.MetricItem, error)
 }

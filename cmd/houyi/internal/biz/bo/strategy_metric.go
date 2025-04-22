@@ -44,3 +44,9 @@ type MetricRule interface {
 
 	MetricJudgeRule
 }
+
+type MetricJudgeRequest struct {
+	JudgeData []MetricJudgeData
+	Strategy  MetricRule
+	Step      time.Duration
+}

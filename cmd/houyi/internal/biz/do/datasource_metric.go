@@ -28,8 +28,8 @@ type DatasourceMetricConfig struct {
 }
 
 func (d *DatasourceMetricConfig) GetScrapeInterval() time.Duration {
-	if d == nil {
-		return 0
+	if d == nil || d.ScrapeInterval <= 0 {
+		return 15 * time.Second
 	}
 	return d.ScrapeInterval
 }

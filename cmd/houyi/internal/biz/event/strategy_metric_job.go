@@ -222,7 +222,13 @@ func (s *strategyMetricJob) Run() {
 
 	end := time.Now()
 	start := end.Add(-metricStrategy.GetDuration())
-	queryRange, err := query.QueryRange(ctx, metricStrategy.GetExpr(), start, end)
+	queryRangeParams := &bo.MetricRangeQueryRequest{
+		Expr:      metricStrategy.GetExpr(),
+		StartTime: start,
+		EndTime:   end,
+	}
+
+	queryRange, err := query.QueryRange(ctx, queryRangeParams)
 	if err != nil {
 		s.helper.Warnw("msg", "query fail", "err", err)
 		return
@@ -231,7 +237,12 @@ func (s *strategyMetricJob) Run() {
 		return dataItem
 	})
 
-	alerts, err := s.judgeRepo.Metric(ctx, metricJudgeData, metricStrategy)
+	judgeData := &bo.MetricJudgeRequest{
+		JudgeData: metricJudgeData,
+		Strategy:  metricStrategy,
+		Step:      queryRangeParams.GetOptimalStep(datasourceConfig.GetScrapeInterval()),
+	}
+	alerts, err := s.judgeRepo.Metric(ctx, judgeData)
 	if err != nil {
 		s.helper.Warnw("msg", "judge fail", "err", err)
 		return
