@@ -9,12 +9,13 @@ import (
 	"time"
 
 	"github.com/go-kratos/kratos/v2/log"
-	"github.com/moon-monitor/moon/pkg/api/houyi/common"
-	"github.com/moon-monitor/moon/pkg/merr"
 	"golang.org/x/sync/errgroup"
 
+	"github.com/moon-monitor/moon/pkg/api/houyi/common"
+	"github.com/moon-monitor/moon/pkg/merr"
 	"github.com/moon-monitor/moon/pkg/plugin/datasource"
 	"github.com/moon-monitor/moon/pkg/util/httpx"
+	"github.com/moon-monitor/moon/pkg/util/validate"
 )
 
 var _ datasource.Metric = (*Prometheus)(nil)
@@ -141,21 +142,48 @@ func (p *Prometheus) sendMetadata(send chan<- *datasource.MetricMetadata, metric
 	}
 }
 
+func (p *Prometheus) configureHTTPClient(ctx context.Context) httpx.Client {
+	hx := httpx.NewClient().WithContext(ctx)
+	hx = hx.WithHeader(http.Header{
+		"Accept":          []string{"*/*"},
+		"Accept-Language": []string{"zh-CN,zh;q=0.9"},
+	})
+
+	// Configure TLS if available
+	if tls := p.c.GetTLS(); validate.IsNotNil(tls) {
+		hx = hx.WithTLSClientConfig(tls.GetClientCertificate(), tls.GetClientKey())
+		if serverName := tls.GetServerName(); serverName != "" {
+			hx = hx.WithServerName(serverName)
+		}
+	}
+
+	// Configure CA if available
+	if ca := p.c.GetCA(); validate.TextIsNotNull(ca) {
+		hx = hx.WithRootCA(ca)
+	}
+
+	// Configure authentication if available
+	if basicAuth := p.c.GetBasicAuth(); validate.IsNotNil(basicAuth) {
+		hx = hx.WithBasicAuth(basicAuth.GetUsername(), basicAuth.GetPassword())
+	}
+
+	// Configure custom headers if available
+	if headers := p.c.GetHeaders(); len(headers) > 0 {
+		for k, v := range headers {
+			hx = hx.WithHeader(http.Header{k: []string{v}})
+		}
+	}
+
+	return hx
+}
+
 func (p *Prometheus) query(ctx context.Context, expr string, t int64) (*datasource.MetricQueryResponse, error) {
 	params := httpx.ParseQuery(map[string]any{
 		"query": expr,
 		"time":  t,
 	})
 
-	hx := httpx.NewClient().WithContext(ctx)
-	hx = hx.WithHeader(http.Header{
-		"Accept":          []string{"*/*"},
-		"Accept-Language": []string{"zh-CN,zh;q=0.9"},
-	})
-	if p.c.GetBasicAuth() != nil {
-		basicAuth := p.c.GetBasicAuth()
-		hx = hx.WithBasicAuth(basicAuth.GetUsername(), basicAuth.GetPassword())
-	}
+	hx := p.configureHTTPClient(ctx)
 	api, err := url.JoinPath(p.c.GetEndpoint(), prometheusAPIV1Query)
 	if err != nil {
 		return nil, err
@@ -184,15 +212,7 @@ func (p *Prometheus) queryRange(ctx context.Context, expr string, start, end int
 		"step":  step,
 	})
 
-	hx := httpx.NewClient().WithContext(ctx)
-	hx = hx.WithHeader(http.Header{
-		"Accept":          []string{"*/*"},
-		"Accept-Language": []string{"zh-CN,zh;q=0.9"},
-	})
-	if p.c.GetBasicAuth() != nil {
-		basicAuth := p.c.GetBasicAuth()
-		hx = hx.WithBasicAuth(basicAuth.GetUsername(), basicAuth.GetPassword())
-	}
+	hx := p.configureHTTPClient(ctx)
 	api, err := url.JoinPath(p.c.GetEndpoint(), prometheusAPIV1QueryRange)
 	if err != nil {
 		return nil, err
@@ -227,16 +247,7 @@ func (p *Prometheus) series(ctx context.Context, now time.Time, metricNames ...s
 		params.Set("match[]", metricName)
 	}
 
-	hx := httpx.NewClient().WithContext(ctx)
-	hx = hx.WithHeader(http.Header{
-		"Accept":          []string{"*/*"},
-		"Accept-Language": []string{"zh-CN,zh;q=0.9"},
-	})
-	if p.c.GetBasicAuth() != nil {
-		basicAuth := p.c.GetBasicAuth()
-		hx = hx.WithBasicAuth(basicAuth.GetUsername(), basicAuth.GetPassword())
-	}
-
+	hx := p.configureHTTPClient(ctx)
 	api, err := url.JoinPath(p.c.GetEndpoint(), prometheusAPIV1Series)
 	if err != nil {
 		return nil, err
@@ -279,15 +290,7 @@ func (p *Prometheus) series(ctx context.Context, now time.Time, metricNames ...s
 }
 
 func (p *Prometheus) metadata(ctx context.Context) (map[string][]PromMetricInfo, error) {
-	hx := httpx.NewClient().WithContext(ctx)
-	hx = hx.WithHeader(http.Header{
-		"Accept":          []string{"*/*"},
-		"Accept-Language": []string{"zh-CN,zh;q=0.9"},
-	})
-	if p.c.GetBasicAuth() != nil {
-		basicAuth := p.c.GetBasicAuth()
-		hx = hx.WithBasicAuth(basicAuth.GetUsername(), basicAuth.GetPassword())
-	}
+	hx := p.configureHTTPClient(ctx)
 	api, err := url.JoinPath(p.c.GetEndpoint(), prometheusAPIV1Metadata)
 	if err != nil {
 		return nil, err

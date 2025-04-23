@@ -2,13 +2,18 @@ package validate
 
 import (
 	"regexp"
+	"strings"
 
 	"github.com/moon-monitor/moon/pkg/merr"
 )
 
 // TextIsNull 判断字符串是否为空
 func TextIsNull(text string) bool {
-	return len(text) == 0
+	return len(strings.TrimSpace(text)) == 0
+}
+
+func TextIsNotNull(text string) bool {
+	return !TextIsNull(text)
 }
 
 func CheckEmail(email string) error {

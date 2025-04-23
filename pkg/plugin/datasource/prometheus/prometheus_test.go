@@ -35,7 +35,7 @@ func (c *config) GetHeaders() map[string]string {
 
 // GetMethod implements prometheus.Config.
 func (c *config) GetMethod() common.DatasourceQueryMethod {
-	return common.DatasourceQueryMethod_QueryMethod_HTTP_GET
+	return common.DatasourceQueryMethod_GET
 }
 
 // GetTLS implements prometheus.Config.
