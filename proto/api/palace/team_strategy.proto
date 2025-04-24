@@ -7,6 +7,7 @@ import "buf/validate/validate.proto";
 import "palace/common/common.proto";
 import "palace/common/common_enum.proto";
 import "palace/common/team_strategy.proto";
+import "google/protobuf/duration.proto";
 
 option go_package = "github.com/moon-monitor/moon/pkg/api/palace;palace";
 
@@ -50,10 +51,10 @@ service TeamStrategy {
     };
   }
 
-  // SaveTeamStrategy saves a new team strategy or updates an existing one
-  rpc SaveTeamStrategy (SaveTeamStrategyRequest) returns (api.palace.common.EmptyReply) {
+  // SaveTeamMetricStrategy saves a new team metric strategy or updates an existing one
+  rpc SaveTeamMetricStrategy (SaveTeamMetricStrategyRequest) returns (api.palace.common.EmptyReply) {
     option (google.api.http) = {
-      post: "/api/team/strategy/list"
+      post: "/api/team/strategy/metric"
       body: "*"
     };
   }
@@ -66,17 +67,17 @@ service TeamStrategy {
     };
   }
 
-  // DeleteTeamStrategy deletes a team strategy by Id
-  rpc DeleteTeamStrategy (DeleteTeamStrategyRequest) returns (api.palace.common.EmptyReply) {
+  // DeleteTeamMetricStrategy deletes a team metric strategy by Id
+  rpc DeleteTeamMetricStrategy (OperateTeamMetricStrategyRequest) returns (api.palace.common.EmptyReply) {
     option (google.api.http) = {
-      delete: "/api/team/strategy"
+      delete: "/api/team/strategy/metric"
     };
   }
 
   // GetTeamStrategy retrieves a team strategy by Id
-  rpc GetTeamStrategy (GetTeamStrategyRequest) returns (GetTeamStrategyReply) {
+  rpc GetTeamMetricStrategy (OperateTeamMetricStrategyRequest) returns (GetTeamMetricStrategyReply) {
     option (google.api.http) = {
-      get: "/api/team/strategy"
+      get: "/api/team/strategy/metric"
     };
   }
 
@@ -159,55 +160,90 @@ message ListTeamStrategyGroupReply {
   api.palace.common.PaginationReply pagination = 2;
 }
 
-// SaveTeamStrategyRequest represents the request data for saving or updating a team strategy
-message SaveTeamStrategyRequest {
-  // Strategy Id, optional for new strategies
+message SaveTeamStrategyItemRequest {
+  // Strategy item Id, optional for new items
   uint32 strategyId = 1;
-  // Strategy group Id
-  uint32 groupId = 2 [(buf.validate.field).required = true];
-  // Strategy name
-  string name = 3 [(buf.validate.field).string.max_len = 128];
-  // Strategy remark or description
-  string remark = 4 [(buf.validate.field).string.max_len = 255];
+  // Strategy item name
+  string name = 2 [(buf.validate.field).string.max_len = 128];
+  // Strategy item remark or description
+  string remark = 3 [(buf.validate.field).string.max_len = 255];
+  // Strategy item type
+  api.palace.common.StrategyType strategyType = 4;
 }
 
-// UpdateTeamStrategiesStatusRequest represents the request data for updating the status of multiple team strategies
+message LabelNotices {
+  string key = 1;
+  string value = 2;
+  repeated uint32 receiverRoutes = 3;
+}
+
+// SaveTeamMetricStrategyRequest represents the request data for saving or updating a team metric strategy
+message SaveTeamMetricStrategyRequest {
+  message MetricStrategyLevelItem {
+    // Level Id
+    uint32 levelId = 1;
+    // Level name
+    string levelName = 2 [(buf.validate.field).string.max_len = 128];
+    // Sample mode
+    api.palace.common.SampleMode sampleMode = 3;
+    // Count
+    int64 count = 4;
+    // Condition
+    api.palace.common.ConditionMetric condition = 5;
+    // Values
+    repeated double values = 6;
+    // Receiver routes
+    repeated uint32 receiverRoutes = 7;
+    // Label notices
+    repeated LabelNotices labelNotices = 8;
+    // Duration
+    google.protobuf.Duration duration = 9;
+    // Status
+    api.palace.common.GlobalStatus status = 10;
+  }
+  SaveTeamStrategyItemRequest strategy = 1;
+  // Expression
+  string expr = 2 [(buf.validate.field).string.min_len = 1];
+  // Labels
+  map<string, string> labels = 3;
+  // Annotations
+  map<string, string> annotations = 4;
+  // Receiver routes
+  repeated uint32 receiverRoutes = 5;
+  // Levels
+  repeated MetricStrategyLevelItem levels = 6;
+  // Datasource
+  repeated uint32 datasource = 7;
+}
+
 message UpdateTeamStrategiesStatusRequest {
-  // List of strategy Ids to update
-  repeated uint32 strategyIds = 1 [(buf.validate.field).required = true];
-  // New status for the strategies
+  // Strategy ids
+  repeated uint32 strategyIds = 1;
+  // Status
   api.palace.common.GlobalStatus status = 2;
 }
 
-// DeleteTeamStrategyRequest represents the request data for deleting a team strategy
-message DeleteTeamStrategyRequest {
-  // Strategy Id
-  uint32 strategyId = 1 [(buf.validate.field).required = true];
+message OperateTeamMetricStrategyRequest {
+  // Strategy id
+  uint32 strategyId = 1;
+  // Metric strategy id
+  uint32 metricStrategyId = 2;
 }
 
-// GetTeamStrategyRequest represents the request data for retrieving a team strategy
-message GetTeamStrategyRequest {
-  // Strategy Id
-  uint32 strategyId = 1 [(buf.validate.field).required = true];
+
+message GetTeamMetricStrategyReply {
+  api.palace.common.TeamStrategyMetricItem strategy = 1;
 }
 
-// GetTeamStrategyReply contains the response data for retrieving a team strategy
-message GetTeamStrategyReply {
-  // Detailed information about the strategy
-  api.palace.common.TeamStrategyMetricItem detail = 1;
-}
-
-// ListTeamStrategyRequest represents the request data for listing team strategies
 message ListTeamStrategyRequest {
   // Pagination request details
   api.palace.common.PaginationRequest pagination = 1;
-  // Strategy group Id to filter strategies by
-  uint32 groupId = 2;
+  // Keyword to search strategies by
+  string keyword = 2 [(buf.validate.field).string.max_len = 20];
   // List of statuses to filter strategies by
   repeated api.palace.common.GlobalStatus status = 3;
 }
 
-// ListTeamStrategyReply contains the response data for listing team strategies
 message ListTeamStrategyReply {
   // List of strategy items
   repeated api.palace.common.TeamStrategyItem items = 1;
@@ -215,21 +251,28 @@ message ListTeamStrategyReply {
   api.palace.common.PaginationReply pagination = 2;
 }
 
-// SubscribeTeamStrategyRequest represents the request data for subscribing or unsubscribing from a team strategy
 message SubscribeTeamStrategyRequest {
-  // Strategy Id
-  uint32 strategyId = 1 [(buf.validate.field).required = true];
-  // Subscription status (true to subscribe, false to unsubscribe)
-  bool isSubscribe = 2;
+  // Strategy id
+  uint32 strategyId = 1;
+  // Metric strategy id
+  uint32 metricStrategyId = 2;
+  // subscribe type
+  api.palace.common.NoticeType subscribeType = 3;
 }
 
-// SubscribeTeamStrategiesRequest represents the request data for subscribing or unsubscribing from multiple team strategies
 message SubscribeTeamStrategiesRequest {
-  // Pagination request details
-  api.palace.common.PaginationRequest pagination = 1;
-  string keyword = 2 [(buf.validate.field).string.max_len = 20];
+  // Strategy id
+  uint32 strategyId = 1;
+  // subscribers
+  repeated uint32 subscribers = 2;
+  // subscribe type
+  api.palace.common.NoticeType subscribeType = 3;
+  api.palace.common.PaginationRequest pagination = 4;
 }
+
 message SubscribeTeamStrategiesReply {
-  repeated api.palace.common.TeamStrategyItem items = 1;
+  // subscribers
+  repeated api.palace.common.SubscriberItem items = 1;
+  // pagination
   api.palace.common.PaginationReply pagination = 2;
 }

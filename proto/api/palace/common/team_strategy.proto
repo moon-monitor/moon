@@ -81,3 +81,14 @@ message TeamStrategyMetricItem {
   repeated api.palace.common.TeamMetricDatasourceItem datasource = 7;
   api.palace.common.UserBaseItem creator = 8;
 }
+
+// subscriber
+message SubscriberItem {
+  api.palace.common.UserBaseItem user = 1;
+  // subscribe type
+  api.palace.common.NoticeType subscribeType = 2;
+  // strategy
+  api.palace.common.TeamStrategyItem strategy = 3;
+  // subscribe time
+  string subscribeTime = 4;
+}

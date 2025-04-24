@@ -12,15 +12,20 @@ import (
 	"github.com/moon-monitor/moon/pkg/util/slices"
 )
 
-func NewTeamStrategyService(teamStrategyGroupBiz *biz.TeamStrategyGroupBiz) *TeamStrategyService {
+func NewTeamStrategyService(
+	teamStrategyGroupBiz *biz.TeamStrategyGroupBiz,
+	teamStrategyBiz *biz.TeamStrategy,
+) *TeamStrategyService {
 	return &TeamStrategyService{
 		teamStrategyGroupBiz: teamStrategyGroupBiz,
+		teamStrategyBiz:      teamStrategyBiz,
 	}
 }
 
 type TeamStrategyService struct {
 	palacev1.UnimplementedTeamStrategyServer
 	teamStrategyGroupBiz *biz.TeamStrategyGroupBiz
+	teamStrategyBiz      *biz.TeamStrategy
 }
 
 func (t *TeamStrategyService) SaveTeamStrategyGroup(ctx context.Context, request *palacev1.SaveTeamStrategyGroupRequest) (*common.EmptyReply, error) {
@@ -79,37 +84,69 @@ func (t *TeamStrategyService) ListTeamStrategyGroup(ctx context.Context, request
 	}, nil
 }
 
-func (t *TeamStrategyService) SaveTeamStrategy(ctx context.Context, request *palacev1.SaveTeamStrategyRequest) (*common.EmptyReply, error) {
-	//TODO implement me
-	panic("implement me")
+func (t *TeamStrategyService) SaveTeamMetricStrategy(ctx context.Context, request *palacev1.SaveTeamMetricStrategyRequest) (*common.EmptyReply, error) {
+	params := build.ToSaveTeamMetricStrategyParams(request)
+	if err := t.teamStrategyBiz.SaveTeamMetricStrategy(ctx, params); err != nil {
+		return nil, err
+	}
+	return &common.EmptyReply{Message: "保存策略成功"}, nil
 }
 
 func (t *TeamStrategyService) UpdateTeamStrategiesStatus(ctx context.Context, request *palacev1.UpdateTeamStrategiesStatusRequest) (*common.EmptyReply, error) {
-	//TODO implement me
-	panic("implement me")
+	params := build.ToUpdateTeamStrategiesStatusParams(request)
+	if err := t.teamStrategyBiz.UpdateTeamStrategiesStatus(ctx, params); err != nil {
+		return nil, err
+	}
+	return &common.EmptyReply{Message: "更新策略状态成功"}, nil
 }
 
-func (t *TeamStrategyService) DeleteTeamStrategy(ctx context.Context, request *palacev1.DeleteTeamStrategyRequest) (*common.EmptyReply, error) {
-	//TODO implement me
-	panic("implement me")
+func (t *TeamStrategyService) DeleteTeamMetricStrategy(ctx context.Context, request *palacev1.OperateTeamMetricStrategyRequest) (*common.EmptyReply, error) {
+	params := build.ToOperateTeamMetricStrategyParams(request)
+	if err := t.teamStrategyBiz.DeleteTeamMetricStrategy(ctx, params); err != nil {
+		return nil, err
+	}
+	return &common.EmptyReply{Message: "删除策略成功"}, nil
 }
 
-func (t *TeamStrategyService) GetTeamStrategy(ctx context.Context, request *palacev1.GetTeamStrategyRequest) (*palacev1.GetTeamStrategyReply, error) {
-	//TODO implement me
-	panic("implement me")
+func (t *TeamStrategyService) GetTeamMetricStrategy(ctx context.Context, request *palacev1.OperateTeamMetricStrategyRequest) (*palacev1.GetTeamMetricStrategyReply, error) {
+	params := build.ToOperateTeamMetricStrategyParams(request)
+	strategy, err := t.teamStrategyBiz.GetTeamMetricStrategy(ctx, params)
+	if err != nil {
+		return nil, err
+	}
+	return &palacev1.GetTeamMetricStrategyReply{
+		Strategy: build.ToTeamMetricStrategyItem(strategy),
+	}, nil
 }
 
 func (t *TeamStrategyService) ListTeamStrategy(ctx context.Context, request *palacev1.ListTeamStrategyRequest) (*palacev1.ListTeamStrategyReply, error) {
-	//TODO implement me
-	panic("implement me")
+	params := build.ToListTeamStrategyParams(request)
+	strategies, err := t.teamStrategyBiz.ListTeamStrategy(ctx, params)
+	if err != nil {
+		return nil, err
+	}
+	return &palacev1.ListTeamStrategyReply{
+		Items:      build.ToTeamStrategyItems(strategies.Items),
+		Pagination: build.ToPaginationReply(strategies.PaginationReply),
+	}, nil
 }
 
 func (t *TeamStrategyService) SubscribeTeamStrategy(ctx context.Context, request *palacev1.SubscribeTeamStrategyRequest) (*common.EmptyReply, error) {
-	//TODO implement me
-	panic("implement me")
+	params := build.ToSubscribeTeamStrategyParams(request)
+	if err := t.teamStrategyBiz.SubscribeTeamStrategy(ctx, params); err != nil {
+		return nil, err
+	}
+	return &common.EmptyReply{Message: "订阅策略成功"}, nil
 }
 
 func (t *TeamStrategyService) SubscribeTeamStrategies(ctx context.Context, request *palacev1.SubscribeTeamStrategiesRequest) (*palacev1.SubscribeTeamStrategiesReply, error) {
-	//TODO implement me
-	panic("implement me")
+	params := build.ToSubscribeTeamStrategiesParams(request)
+	subscribers, err := t.teamStrategyBiz.SubscribeTeamStrategies(ctx, params)
+	if err != nil {
+		return nil, err
+	}
+	return &palacev1.SubscribeTeamStrategiesReply{
+		Items:      build.ToSubscribeTeamStrategiesItems(subscribers.Items),
+		Pagination: build.ToPaginationReply(subscribers.PaginationReply),
+	}, nil
 }

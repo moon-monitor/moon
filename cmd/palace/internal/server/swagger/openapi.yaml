@@ -1485,45 +1485,6 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/api.palace.GetSMSConfigsReply'
-    /api/team/strategy:
-        get:
-            tags:
-                - TeamStrategy
-            description: GetTeamStrategy retrieves a team strategy by Id
-            operationId: TeamStrategy_GetTeamStrategy
-            parameters:
-                - name: strategyId
-                  in: query
-                  description: Strategy Id
-                  schema:
-                    type: integer
-                    format: uint32
-            responses:
-                "200":
-                    description: OK
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/api.palace.GetTeamStrategyReply'
-        delete:
-            tags:
-                - TeamStrategy
-            description: DeleteTeamStrategy deletes a team strategy by Id
-            operationId: TeamStrategy_DeleteTeamStrategy
-            parameters:
-                - name: strategyId
-                  in: query
-                  description: Strategy Id
-                  schema:
-                    type: integer
-                    format: uint32
-            responses:
-                "200":
-                    description: OK
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/api.palace.common.EmptyReply'
     /api/team/strategy/group:
         get:
             tags:
@@ -1638,6 +1599,75 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/api.palace.ListTeamStrategyReply'
+    /api/team/strategy/metric:
+        get:
+            tags:
+                - TeamStrategy
+            description: GetTeamStrategy retrieves a team strategy by Id
+            operationId: TeamStrategy_GetTeamMetricStrategy
+            parameters:
+                - name: strategyId
+                  in: query
+                  description: Strategy id
+                  schema:
+                    type: integer
+                    format: uint32
+                - name: metricStrategyId
+                  in: query
+                  description: Metric strategy id
+                  schema:
+                    type: integer
+                    format: uint32
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.palace.GetTeamMetricStrategyReply'
+        post:
+            tags:
+                - TeamStrategy
+            description: SaveTeamMetricStrategy saves a new team metric strategy or updates an existing one
+            operationId: TeamStrategy_SaveTeamMetricStrategy
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/api.palace.SaveTeamMetricStrategyRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.palace.common.EmptyReply'
+        delete:
+            tags:
+                - TeamStrategy
+            description: DeleteTeamMetricStrategy deletes a team metric strategy by Id
+            operationId: TeamStrategy_DeleteTeamMetricStrategy
+            parameters:
+                - name: strategyId
+                  in: query
+                  description: Strategy id
+                  schema:
+                    type: integer
+                    format: uint32
+                - name: metricStrategyId
+                  in: query
+                  description: Metric strategy id
+                  schema:
+                    type: integer
+                    format: uint32
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.palace.common.EmptyReply'
     /api/team/strategy/status:
         put:
             tags:
@@ -2332,6 +2362,11 @@ components:
             properties:
                 datasource:
                     $ref: '#/components/schemas/api.palace.common.TeamMetricDatasourceItem'
+        api.palace.GetTeamMetricStrategyReply:
+            type: object
+            properties:
+                strategy:
+                    $ref: '#/components/schemas/api.palace.common.TeamStrategyMetricItem'
         api.palace.GetTeamNoticeGroupReply:
             type: object
             properties:
@@ -2395,14 +2430,6 @@ components:
                         - $ref: '#/components/schemas/api.palace.common.TeamStrategyGroupItem'
                     description: Detailed information about the strategy group
             description: GetTeamStrategyGroupReply contains the response data for retrieving a team strategy group
-        api.palace.GetTeamStrategyReply:
-            type: object
-            properties:
-                detail:
-                    allOf:
-                        - $ref: '#/components/schemas/api.palace.common.TeamStrategyMetricItem'
-                    description: Detailed information about the strategy
-            description: GetTeamStrategyReply contains the response data for retrieving a team strategy
         api.palace.GetUserListReply:
             type: object
             properties:
@@ -2474,6 +2501,18 @@ components:
                     type: string
                     description: Reason for joining the team
             description: JoinTeamRequest represents the request data for joining a team
+        api.palace.LabelNotices:
+            type: object
+            properties:
+                key:
+                    type: string
+                value:
+                    type: string
+                receiverRoutes:
+                    type: array
+                    items:
+                        type: integer
+                        format: uint32
         api.palace.LeaveTeamRequest:
             type: object
             properties:
@@ -2699,7 +2738,6 @@ components:
                     allOf:
                         - $ref: '#/components/schemas/api.palace.common.PaginationReply'
                     description: Pagination response details
-            description: ListTeamStrategyReply contains the response data for listing team strategies
         api.palace.ListTeamStrategyRequest:
             type: object
             properties:
@@ -2707,17 +2745,15 @@ components:
                     allOf:
                         - $ref: '#/components/schemas/api.palace.common.PaginationRequest'
                     description: Pagination request details
-                groupId:
-                    type: integer
-                    description: Strategy group Id to filter strategies by
-                    format: uint32
+                keyword:
+                    type: string
+                    description: Keyword to search strategies by
                 status:
                     type: array
                     items:
                         type: integer
                         format: enum
                     description: List of statuses to filter strategies by
-            description: ListTeamStrategyRequest represents the request data for listing team strategies
         api.palace.LoginByEmailRequest:
             type: object
             properties:
@@ -3166,6 +3202,88 @@ components:
                     type: object
                     additionalProperties:
                         type: string
+        api.palace.SaveTeamMetricStrategyRequest:
+            type: object
+            properties:
+                strategy:
+                    $ref: '#/components/schemas/api.palace.SaveTeamStrategyItemRequest'
+                expr:
+                    type: string
+                    description: Expression
+                labels:
+                    type: object
+                    additionalProperties:
+                        type: string
+                    description: Labels
+                annotations:
+                    type: object
+                    additionalProperties:
+                        type: string
+                    description: Annotations
+                receiverRoutes:
+                    type: array
+                    items:
+                        type: integer
+                        format: uint32
+                    description: Receiver routes
+                levels:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/api.palace.SaveTeamMetricStrategyRequest_MetricStrategyLevelItem'
+                    description: Levels
+                datasource:
+                    type: array
+                    items:
+                        type: integer
+                        format: uint32
+                    description: Datasource
+            description: SaveTeamMetricStrategyRequest represents the request data for saving or updating a team metric strategy
+        api.palace.SaveTeamMetricStrategyRequest_MetricStrategyLevelItem:
+            type: object
+            properties:
+                levelId:
+                    type: integer
+                    description: Level Id
+                    format: uint32
+                levelName:
+                    type: string
+                    description: Level name
+                sampleMode:
+                    type: integer
+                    description: Sample mode
+                    format: enum
+                count:
+                    type: string
+                    description: Count
+                condition:
+                    type: integer
+                    description: Condition
+                    format: enum
+                values:
+                    type: array
+                    items:
+                        type: number
+                        format: double
+                    description: Values
+                receiverRoutes:
+                    type: array
+                    items:
+                        type: integer
+                        format: uint32
+                    description: Receiver routes
+                labelNotices:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/api.palace.LabelNotices'
+                    description: Label notices
+                duration:
+                    pattern: ^-?(?:0|[1-9][0-9]{0,11})(?:\.[0-9]{1,9})?s$
+                    type: string
+                    description: Duration
+                status:
+                    type: integer
+                    description: Status
+                    format: enum
         api.palace.SaveTeamNoticeGroupRequest:
             type: object
             properties:
@@ -3277,24 +3395,23 @@ components:
                     type: string
                     description: Strategy group remark or description
             description: SaveTeamStrategyGroupRequest represents the request data for saving or updating a team strategy group
-        api.palace.SaveTeamStrategyRequest:
+        api.palace.SaveTeamStrategyItemRequest:
             type: object
             properties:
                 strategyId:
                     type: integer
-                    description: Strategy Id, optional for new strategies
-                    format: uint32
-                groupId:
-                    type: integer
-                    description: Strategy group Id
+                    description: Strategy item Id, optional for new items
                     format: uint32
                 name:
                     type: string
-                    description: Strategy name
+                    description: Strategy item name
                 remark:
                     type: string
-                    description: Strategy remark or description
-            description: SaveTeamStrategyRequest represents the request data for saving or updating a team strategy
+                    description: Strategy item remark or description
+                strategyType:
+                    type: integer
+                    description: Strategy item type
+                    format: enum
         api.palace.SelfInfoReply:
             type: object
             properties:
@@ -3361,30 +3478,46 @@ components:
                 items:
                     type: array
                     items:
-                        $ref: '#/components/schemas/api.palace.common.TeamStrategyItem'
+                        $ref: '#/components/schemas/api.palace.common.SubscriberItem'
+                    description: subscribers
                 pagination:
-                    $ref: '#/components/schemas/api.palace.common.PaginationReply'
+                    allOf:
+                        - $ref: '#/components/schemas/api.palace.common.PaginationReply'
+                    description: pagination
         api.palace.SubscribeTeamStrategiesRequest:
             type: object
             properties:
+                strategyId:
+                    type: integer
+                    description: Strategy id
+                    format: uint32
+                subscribers:
+                    type: array
+                    items:
+                        type: integer
+                        format: uint32
+                    description: subscribers
+                subscribeType:
+                    type: integer
+                    description: subscribe type
+                    format: enum
                 pagination:
-                    allOf:
-                        - $ref: '#/components/schemas/api.palace.common.PaginationRequest'
-                    description: Pagination request details
-                keyword:
-                    type: string
-            description: SubscribeTeamStrategiesRequest represents the request data for subscribing or unsubscribing from multiple team strategies
+                    $ref: '#/components/schemas/api.palace.common.PaginationRequest'
         api.palace.SubscribeTeamStrategyRequest:
             type: object
             properties:
                 strategyId:
                     type: integer
-                    description: Strategy Id
+                    description: Strategy id
                     format: uint32
-                isSubscribe:
-                    type: boolean
-                    description: Subscription status (true to subscribe, false to unsubscribe)
-            description: SubscribeTeamStrategyRequest represents the request data for subscribing or unsubscribing from a team strategy
+                metricStrategyId:
+                    type: integer
+                    description: Metric strategy id
+                    format: uint32
+                subscribeType:
+                    type: integer
+                    description: subscribe type
+                    format: enum
         api.palace.TeamOperateLogListReply:
             type: object
             properties:
@@ -3615,12 +3748,11 @@ components:
                     items:
                         type: integer
                         format: uint32
-                    description: List of strategy Ids to update
+                    description: Strategy ids
                 status:
                     type: integer
-                    description: New status for the strategies
+                    description: Status
                     format: enum
-            description: UpdateTeamStrategiesStatusRequest represents the request data for updating the status of multiple team strategies
         api.palace.UpdateTeamStrategyGroupStatusRequest:
             type: object
             properties:
@@ -3968,6 +4100,23 @@ components:
                     type: array
                     items:
                         $ref: '#/components/schemas/api.palace.common.NoticeGroupItem'
+        api.palace.common.SubscriberItem:
+            type: object
+            properties:
+                user:
+                    $ref: '#/components/schemas/api.palace.common.UserBaseItem'
+                subscribeType:
+                    type: integer
+                    description: subscribe type
+                    format: enum
+                strategy:
+                    allOf:
+                        - $ref: '#/components/schemas/api.palace.common.TeamStrategyItem'
+                    description: strategy
+                subscribeTime:
+                    type: string
+                    description: subscribe time
+            description: subscriber
         api.palace.common.SystemRoleItem:
             type: object
             properties:

@@ -15,6 +15,7 @@ func Models() []any {
 		&Strategy{},
 		&StrategyGroup{},
 		&StrategyMetric{},
+		&StrategySubscriber{},
 		&StrategyMetricRule{},
 		&StrategyMetricRuleLabelNotice{},
 		&TimeEngine{},
