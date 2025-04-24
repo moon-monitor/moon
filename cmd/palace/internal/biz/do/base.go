@@ -134,7 +134,7 @@ func (u *BaseModel) WithContext(ctx context.Context) {
 // GetContext get context
 func (u *BaseModel) GetContext() context.Context {
 	if u.ctx == nil {
-		panic("context is nil")
+		u.ctx = context.Background()
 	}
 	return u.ctx
 }
