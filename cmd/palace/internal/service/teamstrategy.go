@@ -15,17 +15,20 @@ import (
 func NewTeamStrategyService(
 	teamStrategyGroupBiz *biz.TeamStrategyGroupBiz,
 	teamStrategyBiz *biz.TeamStrategy,
+	teamStrategyMetricBiz *biz.TeamStrategyMetric,
 ) *TeamStrategyService {
 	return &TeamStrategyService{
-		teamStrategyGroupBiz: teamStrategyGroupBiz,
-		teamStrategyBiz:      teamStrategyBiz,
+		teamStrategyGroupBiz:  teamStrategyGroupBiz,
+		teamStrategyBiz:       teamStrategyBiz,
+		teamStrategyMetricBiz: teamStrategyMetricBiz,
 	}
 }
 
 type TeamStrategyService struct {
 	palacev1.UnimplementedTeamStrategyServer
-	teamStrategyGroupBiz *biz.TeamStrategyGroupBiz
-	teamStrategyBiz      *biz.TeamStrategy
+	teamStrategyGroupBiz  *biz.TeamStrategyGroupBiz
+	teamStrategyBiz       *biz.TeamStrategy
+	teamStrategyMetricBiz *biz.TeamStrategyMetric
 }
 
 func (t *TeamStrategyService) SaveTeamStrategyGroup(ctx context.Context, request *palacev1.SaveTeamStrategyGroupRequest) (*common.EmptyReply, error) {
@@ -86,7 +89,7 @@ func (t *TeamStrategyService) ListTeamStrategyGroup(ctx context.Context, request
 
 func (t *TeamStrategyService) SaveTeamMetricStrategy(ctx context.Context, request *palacev1.SaveTeamMetricStrategyRequest) (*common.EmptyReply, error) {
 	params := build.ToSaveTeamMetricStrategyParams(request)
-	if err := t.teamStrategyBiz.SaveTeamMetricStrategy(ctx, params); err != nil {
+	if err := t.teamStrategyMetricBiz.SaveTeamMetricStrategy(ctx, params); err != nil {
 		return nil, err
 	}
 	return &common.EmptyReply{Message: "保存策略成功"}, nil
@@ -102,7 +105,7 @@ func (t *TeamStrategyService) UpdateTeamStrategiesStatus(ctx context.Context, re
 
 func (t *TeamStrategyService) DeleteTeamMetricStrategy(ctx context.Context, request *palacev1.OperateTeamMetricStrategyRequest) (*common.EmptyReply, error) {
 	params := build.ToOperateTeamMetricStrategyParams(request)
-	if err := t.teamStrategyBiz.DeleteTeamMetricStrategy(ctx, params); err != nil {
+	if err := t.teamStrategyMetricBiz.DeleteTeamMetricStrategy(ctx, params); err != nil {
 		return nil, err
 	}
 	return &common.EmptyReply{Message: "删除策略成功"}, nil
@@ -110,7 +113,7 @@ func (t *TeamStrategyService) DeleteTeamMetricStrategy(ctx context.Context, requ
 
 func (t *TeamStrategyService) GetTeamMetricStrategy(ctx context.Context, request *palacev1.OperateTeamMetricStrategyRequest) (*palacev1.GetTeamMetricStrategyReply, error) {
 	params := build.ToOperateTeamMetricStrategyParams(request)
-	strategy, err := t.teamStrategyBiz.GetTeamMetricStrategy(ctx, params)
+	strategy, err := t.teamStrategyMetricBiz.GetTeamMetricStrategy(ctx, params)
 	if err != nil {
 		return nil, err
 	}
