@@ -2390,7 +2390,7 @@ components:
         api.palace.GetTeamStrategyGroupReply:
             type: object
             properties:
-                detail:
+                strategyGroup:
                     allOf:
                         - $ref: '#/components/schemas/api.palace.common.TeamStrategyGroupItem'
                     description: Detailed information about the strategy group

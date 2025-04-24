@@ -138,7 +138,7 @@ message GetTeamStrategyGroupRequest {
 // GetTeamStrategyGroupReply contains the response data for retrieving a team strategy group
 message GetTeamStrategyGroupReply {
   // Detailed information about the strategy group
-  api.palace.common.TeamStrategyGroupItem detail = 1;
+  api.palace.common.TeamStrategyGroupItem strategyGroup = 1;
 }
 
 // ListTeamStrategyGroupRequest represents the request data for listing team strategy groups
