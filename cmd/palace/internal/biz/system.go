@@ -71,6 +71,9 @@ func (s *System) UpdateRoleUsers(ctx context.Context, req *bo.UpdateRoleUsersReq
 		return merr.ErrorUnauthorized("user not found in context")
 	}
 	operatorDo, err := s.userRepo.Get(ctx, operatorId)
+	if err != nil {
+		return err
+	}
 	req.WithOperator(operatorDo)
 	roleDo, err := s.roleRepo.Get(ctx, req.RoleID)
 	if err != nil {
