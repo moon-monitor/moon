@@ -13,10 +13,12 @@ import (
 )
 
 type SaveTeamStrategyItem struct {
-	StrategyID   uint32
-	Name         string
-	Remark       string
-	StrategyType vobj.StrategyType
+	StrategyGroupID uint32
+	StrategyID      uint32
+	Name            string
+	Remark          string
+	StrategyType    vobj.StrategyType
+	ReceiverRoutes  []uint32
 }
 
 type SaveLabelNoticesItem struct {
@@ -43,14 +45,23 @@ type SaveTeamMetricStrategyParams struct {
 	Expr           string
 	Labels         kv.StringMap
 	Annotations    kv.StringMap
-	ReceiverRoutes []uint32
 	DatasourceList []uint32
 	Rules          []*SaveTeamMetricStrategyRuleItem
 
 	datasource     []do.DatasourceMetric
-	receiverRoutes []do.NoticeGroup
+	receiverRoutes map[uint32]do.NoticeGroup
 	levels         []do.TeamDict
 	strategy       do.Strategy
+}
+
+func (s *SaveTeamMetricStrategyParams) GetNotice(ids []uint32) []do.NoticeGroup {
+	routes := make([]do.NoticeGroup, 0, len(ids))
+	for _, id := range ids {
+		if route, ok := s.receiverRoutes[id]; ok {
+			routes = append(routes, route)
+		}
+	}
+	return routes
 }
 
 func (s *SaveTeamMetricStrategyParams) GetLevelIds() []uint32 {
@@ -58,7 +69,7 @@ func (s *SaveTeamMetricStrategyParams) GetLevelIds() []uint32 {
 }
 
 func (s *SaveTeamMetricStrategyParams) GetReceiverRouteIds() []uint32 {
-	routes := s.ReceiverRoutes
+	routes := s.Strategy.ReceiverRoutes
 	for _, rule := range s.Rules {
 		routes = append(routes, rule.ReceiverRoutes...)
 	}
@@ -76,7 +87,7 @@ func (s *SaveTeamMetricStrategyParams) WithDatasourceList(datasourceList []do.Da
 }
 
 func (s *SaveTeamMetricStrategyParams) WithReceiverRoutes(receiverRoutes []do.NoticeGroup) *SaveTeamMetricStrategyParams {
-	s.receiverRoutes = receiverRoutes
+	s.receiverRoutes = slices.ToMap(receiverRoutes, func(route do.NoticeGroup) uint32 { return route.GetID() })
 	return s
 }
 

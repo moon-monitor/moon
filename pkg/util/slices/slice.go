@@ -55,3 +55,11 @@ func UniqueWithFunc[T any, K comparable](s []T, f func(v T) K) []T {
 	}
 	return r
 }
+
+func ToMap[T any, K comparable](s []T, f func(v T) K) map[K]T {
+	m := make(map[K]T)
+	for _, v := range s {
+		m[f(v)] = v
+	}
+	return m
+}
