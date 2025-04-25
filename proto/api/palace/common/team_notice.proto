@@ -9,7 +9,7 @@ import "palace/common/system.proto";
 option go_package = "github.com/moon-monitor/moon/pkg/api/palace/common;common";
 
 message NoticeHookItem {
-  uint32 noticeHookID = 1;
+  uint32 noticeHookId = 1;
   string createdAt = 2;
   string updatedAt = 3;
   string name = 4;

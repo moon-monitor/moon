@@ -48,7 +48,7 @@ func ToNoticeHookItem(hook do.NoticeHook) *common.NoticeHookItem {
 		return nil
 	}
 	return &common.NoticeHookItem{
-		NoticeHookID: hook.GetID(),
+		NoticeHookId: hook.GetID(),
 		CreatedAt:    hook.GetCreatedAt().Format(time.DateTime),
 		UpdatedAt:    hook.GetUpdatedAt().Format(time.DateTime),
 		Name:         hook.GetName(),

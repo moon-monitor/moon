@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/bo"
+	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do"
 )
 
 type TeamStrategy interface {
@@ -11,4 +12,12 @@ type TeamStrategy interface {
 	List(ctx context.Context, params *bo.ListTeamStrategyParams) (*bo.ListTeamStrategyReply, error)
 	Subscribe(ctx context.Context, params *bo.ToSubscribeTeamStrategyParams) error
 	SubscribeList(ctx context.Context, params *bo.ToSubscribeTeamStrategiesParams) (*bo.ToSubscribeTeamStrategiesReply, error)
+	Get(ctx context.Context, strategyID uint32) (do.Strategy, error)
+}
+
+type TeamStrategyMetric interface {
+	Create(ctx context.Context, params *bo.SaveTeamMetricStrategyParams) error
+	Update(ctx context.Context, params *bo.SaveTeamMetricStrategyParams) error
+	Get(ctx context.Context, params *bo.OperateTeamMetricStrategyParams) (do.StrategyMetric, error)
+	Delete(ctx context.Context, params *bo.OperateTeamMetricStrategyParams) error
 }

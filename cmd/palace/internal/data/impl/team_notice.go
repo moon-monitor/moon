@@ -250,3 +250,20 @@ func (t *teamNoticeImpl) Get(ctx context.Context, groupID uint32) (do.NoticeGrou
 	}
 	return bizQuery.NoticeGroup.WithContext(ctx).Where(wrapper...).Preload(field.Associations).First()
 }
+
+func (t *teamNoticeImpl) FindByIds(ctx context.Context, groupIds []uint32) ([]do.NoticeGroup, error) {
+	if len(groupIds) == 0 {
+		return nil, nil
+	}
+	bizQuery, teamId, err := getTeamBizQuery(ctx, t)
+	if err != nil {
+		return nil, err
+	}
+	mutation := bizQuery.NoticeGroup
+	wrapper := mutation.WithContext(ctx).Where(mutation.TeamID.Eq(teamId), mutation.ID.In(groupIds...))
+	rows, err := wrapper.Find()
+	if err != nil {
+		return nil, err
+	}
+	return slices.Map(rows, func(row *team.NoticeGroup) do.NoticeGroup { return row }), nil
+}

@@ -17,7 +17,7 @@ func LoginSignToUserBaseItem(b *bo.LoginSign) *common.UserBaseItem {
 		Nickname: b.Base.Nickname,
 		Avatar:   b.Base.Avatar,
 		Gender:   common.Gender(b.Base.Gender),
-		UserID:   b.Base.UserID,
+		UserId:   b.Base.UserID,
 	}
 }
 

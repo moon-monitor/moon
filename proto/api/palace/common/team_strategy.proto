@@ -15,7 +15,7 @@ option go_package = "github.com/moon-monitor/moon/pkg/api/palace/common;common";
 // TeamStrategyGroupItem represents the structure of a team strategy group item.
 message TeamStrategyGroupItem {
   // Unique identifier for the strategy group.
-  uint32 groupID = 1;
+  uint32 groupId = 1;
   // Name of the strategy group.
   string name = 2;
   // Remarks or additional information about the group.
@@ -37,9 +37,9 @@ message TeamStrategyGroupItem {
 // TeamStrategyItem represents the structure of a team strategy item.
 message TeamStrategyItem {
   // Unique identifier for the strategy.
-  uint32 strategyID = 1;
-  // ID of the group to which the strategy belongs.
-  uint32 groupID = 2;
+  uint32 strategyId = 1;
+  // Id of the group to which the strategy belongs.
+  uint32 groupId = 2;
   // Name of the strategy.
   string name = 3;
   // Remarks or additional information about the strategy.
@@ -59,9 +59,9 @@ message TeamStrategyItem {
 
 message TeamStrategyMetricItem {
   message RuleItem {
-    uint32 strategyMetricID = 1;
+    uint32 strategyMetricId = 1;
     api.palace.common.TeamDictItem level = 2;
-    uint32 ruleID = 3;
+    uint32 ruleId = 3;
     SampleMode sampleMode = 4;
     ConditionMetric condition = 5;
     int64 count = 6;
@@ -73,7 +73,7 @@ message TeamStrategyMetricItem {
     repeated api.palace.common.TeamDictItem alarmPages = 12;
   }
   TeamStrategyItem base = 1;
-  uint32 StrategyMetricID = 2;
+  uint32 StrategyMetricId = 2;
   string expr = 3;
   map<string, string> labels = 4;
   map<string, string> annotations = 5;

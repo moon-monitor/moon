@@ -47,7 +47,7 @@ service System {
     };
   }
 
-  // GetUser retrieves a user by ID
+  // GetUser retrieves a user by Id
   rpc GetUser (GetUserRequest) returns (GetUserReply) {
     option (google.api.http) = {
       get: "/api/system/user/detail"
@@ -70,7 +70,7 @@ service System {
     };
   }
 
-  // GetSystemRole retrieves a system role by ID
+  // GetSystemRole retrieves a system role by Id
   rpc GetSystemRole (GetSystemRoleRequest) returns (GetSystemRoleReply) {
     option (google.api.http) = {
       get: "/api/system/role"
@@ -144,7 +144,7 @@ service System {
 
 // UpdateUserRequest represents the request data for updating user information
 message UpdateUserRequest {
-  // User ID
+  // User Id
   uint32 userId = 1 [(buf.validate.field).required = true];
   // User nickname
   string nickname = 2 [(buf.validate.field).required = true];
@@ -156,7 +156,7 @@ message UpdateUserRequest {
 
 // UpdateUserStatusRequest represents the request data for updating user status
 message UpdateUserStatusRequest {
-  // List of user IDs to update
+  // List of user Ids to update
   repeated uint32 userIds = 1 [(buf.validate.field).cel = {
     message: "please select user"
     expression: "this.size() > 0"
@@ -175,7 +175,7 @@ message ResetUserPasswordRequest {
 
 // UpdateUserPositionRequest represents the request data for updating user position
 message UpdateUserPositionRequest {
-  // User ID
+  // User Id
   uint32 userId = 1 [(buf.validate.field).required = true];
   // New position for the user
   api.palace.common.UserPosition position = 2 [(buf.validate.field).required = true];
@@ -183,7 +183,7 @@ message UpdateUserPositionRequest {
 
 // GetUserRequest represents the request data for retrieving a user
 message GetUserRequest {
-  // User ID
+  // User Id
   uint32 userId = 1 [(buf.validate.field).required = true];
 }
 
@@ -253,7 +253,7 @@ message GetSystemRolesReply {
 
 // SaveRoleRequest represents the request data for saving or updating a role
 message SaveRoleRequest {
-  // Role ID, optional for new roles
+  // Role Id, optional for new roles
   uint32 roleId = 1;
   // Role name
   string name = 2 [(buf.validate.field).cel = {
@@ -265,13 +265,13 @@ message SaveRoleRequest {
     message: "remark max length is 200"
     expression: "this.size() <= 200"
   }];
-  // List of resource IDs associated with the role
+  // List of resource Ids associated with the role
   repeated uint32 menuIds = 4 [(buf.validate.field).required = true];
 }
 
 // UpdateRoleStatusRequest represents the request data for updating role status
 message UpdateRoleStatusRequest {
-  // Role ID
+  // Role Id
   uint32 roleId = 1 [(buf.validate.field).required = true];
   // New status for the role
   api.palace.common.GlobalStatus status = 2 [(buf.validate.field).required = true];
@@ -279,23 +279,23 @@ message UpdateRoleStatusRequest {
 
 // UpdateUserRolesRequest represents the request data for updating user roles
 message UpdateUserRolesRequest {
-  // User ID
+  // User Id
   uint32 userId = 1 [(buf.validate.field).required = true];
-  // List of role IDs to assign to the user
+  // List of role Ids to assign to the user
   repeated uint32 roleIds = 2 [(buf.validate.field).required = true];
 }
 
 // UpdateRoleUsersRequest represents the request data for updating role users
 message UpdateRoleUsersRequest {
-  // Role ID
+  // Role Id
   uint32 roleId = 1 [(buf.validate.field).required = true];
-  // List of user IDs to assign to the role
+  // List of user Ids to assign to the role
   repeated uint32 userIds = 2 [(buf.validate.field).required = true];
 }
 
 // GetSystemRoleRequest represents the request data for retrieving a system role
 message GetSystemRoleRequest {
-  // Role ID
+  // Role Id
   uint32 roleId = 1 [(buf.validate.field).required = true];
 }
 
@@ -313,7 +313,7 @@ message GetTeamAuditListRequest {
   repeated api.palace.common.TeamAuditStatus status = 2;
   // Keyword to search team audit records by
   string keyword = 3;
-  // User ID, optional for filtering audits by user
+  // User Id, optional for filtering audits by user
   uint32 userId = 4;
   repeated api.palace.common.TeamAuditAction actions = 5;
 }
@@ -328,7 +328,7 @@ message GetTeamAuditListReply {
 
 // UpdateTeamAuditStatusRequest represents the request data for updating team audit status
 message UpdateTeamAuditStatusRequest {
-  // Audit ID
+  // Audit Id
   uint32 auditId = 1 [(buf.validate.field).required = true];
   // New status for the team audit record
   api.palace.common.TeamAuditStatus status = 2 [(buf.validate.field).required = true];
@@ -347,7 +347,7 @@ message OperateLogListRequest {
   repeated api.palace.common.OperateType operateTypes = 2;
   // Keyword to search operation logs by
   string keyword = 3;
-  // User ID, optional for filtering logs by user
+  // User Id, optional for filtering logs by user
   uint32 userId = 4;
 }
 

@@ -8,8 +8,8 @@ import "palace/common/system.proto";
 option go_package = "github.com/moon-monitor/moon/pkg/api/palace/common;common";
 
 message TeamDictItem {
-  uint32 teamID = 1;
-  uint32 dictID = 2;
+  uint32 teamId = 1;
+  uint32 dictId = 2;
   string createdAt = 3;
   string updatedAt = 4;
   string key = 5;

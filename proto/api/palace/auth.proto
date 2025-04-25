@@ -110,7 +110,7 @@ service Auth {
 
 // CaptchaValidateRequest is used to validate the captcha
 message CaptchaValidateRequest {
-  // Captcha ID, used to identify the captcha image
+  // Captcha Id, used to identify the captcha image
   string captchaId = 1 [(buf.validate.field).cel = {
     message: "captchaId is required"
     expression: "this.size() > 0"
@@ -193,9 +193,9 @@ message LoginByEmailRequest {
 
 // OAuthLoginByEmailRequest represents the request data for OAuth2.0 login with email
 message OAuthLoginByEmailRequest {
-  // OAuth2.0 provider ID
-  uint32 oauthID = 1 [(buf.validate.field).cel = {
-    message: "oauthID is required"
+  // OAuth2.0 provider Id
+  uint32 oauthId = 1 [(buf.validate.field).cel = {
+    message: "oauthId is required"
     expression: "this > 0"
   }];
   // User email
@@ -216,7 +216,7 @@ message OAuthLoginByEmailRequest {
     message: "token is required"
     expression: "this.size() > 0"
   }];
-  // Application ID, to identify the application
+  // Application Id, to identify the application
   int32 app = 5 [(buf.validate.field).cel = {
     message: "app is required"
     expression: "this > 0"
@@ -297,8 +297,8 @@ message GetSelfMenuTreeReply {
 
 // ReplaceUserRoleRequest represents the request data for replacing a user's role
 message ReplaceUserRoleRequest {
-  uint32 userID = 1 [(buf.validate.field).cel = {
-    message: "userID is required"
+  uint32 userId = 1 [(buf.validate.field).cel = {
+    message: "userId is required"
     expression: "this > 0"
   }];
   repeated uint32 roleIds = 2;
@@ -306,8 +306,8 @@ message ReplaceUserRoleRequest {
 
 // ReplaceMemberRoleRequest represents the request data for replacing a member's role
 message ReplaceMemberRoleRequest {
-  uint32 memberID = 1 [(buf.validate.field).cel = {
-    message: "memberID is required"
+  uint32 memberId = 1 [(buf.validate.field).cel = {
+    message: "memberId is required"
     expression: "this > 0"
   }];
   repeated uint32 roleIds = 2;

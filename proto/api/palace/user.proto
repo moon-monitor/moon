@@ -103,8 +103,8 @@ message UpdateSelfPasswordRequest {
 
 // LeaveTeamRequest represents the request data for leaving a team
 message LeaveTeamRequest {
-  // Team ID to leave
-  uint32 teamID = 1 [(buf.validate.field).cel = {
+  // Team Id to leave
+  uint32 teamId = 1 [(buf.validate.field).cel = {
     message: "team is required"
     expression: "this > 0"
   }];

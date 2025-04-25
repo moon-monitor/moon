@@ -14,4 +14,5 @@ type TeamDatasourceMetric interface {
 	Delete(ctx context.Context, datasourceID uint32) error
 	Get(ctx context.Context, datasourceID uint32) (do.DatasourceMetric, error)
 	List(ctx context.Context, req *bo.ListTeamMetricDatasource) (*bo.ListTeamMetricDatasourceReply, error)
+	FindByIds(ctx context.Context, datasourceIds []uint32) ([]do.DatasourceMetric, error)
 }

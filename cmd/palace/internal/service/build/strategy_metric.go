@@ -6,11 +6,60 @@ import (
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/vobj"
 	palacev1 "github.com/moon-monitor/moon/pkg/api/palace"
 	"github.com/moon-monitor/moon/pkg/api/palace/common"
+	"github.com/moon-monitor/moon/pkg/util/kv"
 	"github.com/moon-monitor/moon/pkg/util/slices"
 )
 
+func ToSaveTeamStrategyItem(request *palacev1.SaveTeamStrategyItemRequest) *bo.SaveTeamStrategyItem {
+	return &bo.SaveTeamStrategyItem{
+		StrategyID:   request.GetStrategyId(),
+		Name:         request.GetName(),
+		Remark:       request.GetRemark(),
+		StrategyType: vobj.StrategyType(request.GetStrategyType()),
+	}
+}
+
+func ToSaveLabelNoticesItem(request *palacev1.LabelNotices) *bo.SaveLabelNoticesItem {
+	return &bo.SaveLabelNoticesItem{
+		LabelKey:       request.GetKey(),
+		LabelValue:     request.GetValue(),
+		ReceiverRoutes: request.GetReceiverRoutes(),
+	}
+}
+
+func ToSaveLabelNoticesItems(request []*palacev1.LabelNotices) []*bo.SaveLabelNoticesItem {
+	return slices.Map(request, ToSaveLabelNoticesItem)
+}
+
+func ToSaveTeamMetricStrategyRuleItem(request *palacev1.SaveTeamMetricStrategyRequest_MetricStrategyLevelItem) *bo.SaveTeamMetricStrategyRuleItem {
+	return &bo.SaveTeamMetricStrategyRuleItem{
+		LevelID:        request.GetLevelId(),
+		LevelName:      request.GetLevelName(),
+		SampleMode:     vobj.SampleMode(request.GetSampleMode()),
+		Condition:      vobj.ConditionMetric(request.GetCondition()),
+		Count:          request.GetCount(),
+		Values:         request.GetValues(),
+		Duration:       request.GetDuration().AsDuration(),
+		ReceiverRoutes: request.GetReceiverRoutes(),
+		Status:         vobj.GlobalStatus(request.GetStatus()),
+		LabelNotices:   ToSaveLabelNoticesItems(request.GetLabelNotices()),
+	}
+}
+
+func ToSaveTeamMetricStrategyRuleItems(request []*palacev1.SaveTeamMetricStrategyRequest_MetricStrategyLevelItem) []*bo.SaveTeamMetricStrategyRuleItem {
+	return slices.Map(request, ToSaveTeamMetricStrategyRuleItem)
+}
+
 func ToSaveTeamMetricStrategyParams(request *palacev1.SaveTeamMetricStrategyRequest) *bo.SaveTeamMetricStrategyParams {
-	return &bo.SaveTeamMetricStrategyParams{}
+	return &bo.SaveTeamMetricStrategyParams{
+		Strategy:       ToSaveTeamStrategyItem(request.GetStrategy()),
+		Expr:           request.GetExpr(),
+		Labels:         kv.NewStringMap(request.GetLabels()),
+		Annotations:    kv.NewStringMap(request.GetAnnotations()),
+		ReceiverRoutes: request.GetReceiverRoutes(),
+		DatasourceList: request.GetDatasource(),
+		Rules:          ToSaveTeamMetricStrategyRuleItems(request.GetLevels()),
+	}
 }
 
 func ToUpdateTeamStrategiesStatusParams(request *palacev1.UpdateTeamStrategiesStatusRequest) *bo.UpdateTeamStrategiesStatusParams {
@@ -24,6 +73,7 @@ func ToOperateTeamMetricStrategyParams(request *palacev1.OperateTeamMetricStrate
 	return &bo.OperateTeamMetricStrategyParams{
 		StrategyID:       request.GetStrategyId(),
 		MetricStrategyID: request.GetMetricStrategyId(),
+		Preload:          true,
 	}
 }
 

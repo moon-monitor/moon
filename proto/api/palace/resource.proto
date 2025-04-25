@@ -20,7 +20,7 @@ service Resource {
     };
   }
 
-  // GetResource retrieves a resource by ID
+  // GetResource retrieves a resource by Id
   rpc GetResource (GetResourceRequest) returns (GetResourceReply) {
     option (google.api.http) = {
       get: "/api/resource/detail"
@@ -51,7 +51,7 @@ service Resource {
     };
   }
 
-  // GetMenu retrieves a menu by ID
+  // GetMenu retrieves a menu by Id
   rpc GetMenu (GetMenuRequest) returns (GetMenuReply) {
     option (google.api.http) = {
       get: "/api/menu/detail"
@@ -75,7 +75,7 @@ service Resource {
 
 // BatchUpdateResourceStatusRequest represents the request data for updating the status of multiple resources
 message BatchUpdateResourceStatusRequest {
-  // List of resource IDs to update
+  // List of resource Ids to update
   repeated uint32 resourceIds = 1 [(buf.validate.field).required = true];
   // New status for the resources
   api.palace.common.GlobalStatus status = 2 [(buf.validate.field).required = true];
@@ -83,7 +83,7 @@ message BatchUpdateResourceStatusRequest {
 
 // GetResourceRequest represents the request data for retrieving a resource
 message GetResourceRequest {
-  // ID of the resource to retrieve
+  // Id of the resource to retrieve
   uint32 resourceId = 1 [(buf.validate.field).required = true];
 }
 
@@ -117,7 +117,7 @@ message GetResourceMenuTreeReply {
 
 // SaveResourceRequest represents the request data for creating or updating a resource
 message SaveResourceRequest {
-  // ID of the resource (0 for create, >0 for update)
+  // Id of the resource (0 for create, >0 for update)
   uint32 id = 1;
   // Name of the resource
   string name = 2 [(buf.validate.field).required = true];
@@ -133,7 +133,7 @@ message SaveResourceRequest {
 
 // GetMenuRequest represents the request data for retrieving a menu
 message GetMenuRequest {
-  // ID of the menu to retrieve
+  // Id of the menu to retrieve
   uint32 menuId = 1 [(buf.validate.field).required = true];
 }
 
@@ -145,7 +145,7 @@ message GetMenuReply {
 
 // SaveMenuRequest represents the request data for creating or updating a system menu
 message SaveMenuRequest {
-  // ID of the menu (0 for create, >0 for update)
+  // Id of the menu (0 for create, >0 for update)
   uint32 id = 1;
   // Name of the menu
   string name = 2 [(buf.validate.field).required = true];
@@ -155,7 +155,7 @@ message SaveMenuRequest {
   api.palace.common.GlobalStatus status = 4 [(buf.validate.field).required = true];
   // Icon of the menu
   string icon = 5;
-  // Parent menu ID (0 for root menu)
+  // Parent menu Id (0 for root menu)
   uint32 parentId = 6;
   // Type of the menu
   api.palace.common.MenuType menuType = 7 [(buf.validate.field).required = true];

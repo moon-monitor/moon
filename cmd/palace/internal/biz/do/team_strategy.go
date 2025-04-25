@@ -23,6 +23,7 @@ type Strategy interface {
 	GetName() string
 	GetRemark() string
 	GetNotices() []NoticeGroup
+	GetStrategyType() vobj.StrategyType
 }
 
 type StrategyMetric interface {

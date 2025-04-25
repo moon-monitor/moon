@@ -37,7 +37,7 @@ message UserBaseItem {
   // User's gender
   api.palace.common.Gender gender = 4;
   // User's unique identifier
-  uint32 userID = 5;
+  uint32 userId = 5;
 }
 
 message UserItem {
@@ -64,7 +64,7 @@ message UserItem {
   // User's last update time
   string updatedAt = 11;
   // User's unique identifier
-  uint32 userID = 12;
+  uint32 userId = 12;
 }
 
 message SystemRoleItem {
@@ -124,8 +124,8 @@ message OperateLogItem {
   api.palace.common.OperateType type = 3;
   // ResourceModule of the operation
   api.palace.common.ResourceModule module = 4;
-  // DataID of the operation
-  uint32 dataID = 5;
+  // DataId of the operation
+  uint32 dataId = 5;
   // DataName of the operation
   string dataName = 6;
   // OperateTime of the operation

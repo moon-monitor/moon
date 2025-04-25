@@ -51,8 +51,8 @@ func ToTeamMetricDatasourceItem(item do.DatasourceMetric) *common.TeamMetricData
 		return nil
 	}
 	return &common.TeamMetricDatasourceItem{
-		TeamID:         item.GetTeamID(),
-		DatasourceID:   item.GetID(),
+		TeamId:         item.GetTeamID(),
+		DatasourceId:   item.GetID(),
 		CreatedAt:      item.GetCreatedAt().Format(time.DateTime),
 		UpdatedAt:      item.GetUpdatedAt().Format(time.DateTime),
 		Name:           item.GetName(),

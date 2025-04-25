@@ -161,7 +161,7 @@ func (s *AuthService) OAuthLoginByEmail(ctx context.Context, req *palacev1.OAuth
 		APP:     vobj.OAuthAPP(req.GetApp()),
 		Code:    req.GetCode(),
 		Email:   req.GetEmail(),
-		OAuthID: req.GetOauthID(),
+		OAuthID: req.GetOauthId(),
 		Token:   req.GetToken(),
 	}
 	return login(s.authBiz.OAuthLoginWithEmail(ctx, oauthParams))
@@ -222,7 +222,7 @@ func (s *AuthService) GetSelfMenuTree(ctx context.Context, _ *common.EmptyReques
 
 func (s *AuthService) ReplaceUserRole(ctx context.Context, req *palacev1.ReplaceUserRoleRequest) (*common.EmptyReply, error) {
 	updateReq := &bo.ReplaceUserRoleReq{
-		UserID: req.GetUserID(),
+		UserID: req.GetUserId(),
 		Roles:  req.GetRoleIds(),
 	}
 	if err := s.authBiz.ReplaceUserRole(ctx, updateReq); err != nil {
@@ -233,7 +233,7 @@ func (s *AuthService) ReplaceUserRole(ctx context.Context, req *palacev1.Replace
 
 func (s *AuthService) ReplaceMemberRole(ctx context.Context, req *palacev1.ReplaceMemberRoleRequest) (*common.EmptyReply, error) {
 	updateReq := &bo.ReplaceMemberRoleReq{
-		MemberID: req.GetMemberID(),
+		MemberID: req.GetMemberId(),
 		Roles:    req.GetRoleIds(),
 	}
 	if err := s.authBiz.ReplaceMemberRole(ctx, updateReq); err != nil {

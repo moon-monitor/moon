@@ -149,3 +149,20 @@ func (t *teamDictImpl) List(ctx context.Context, req *bo.ListDictReq) (*bo.ListD
 	}
 	return req.ToListDictReply(dictItems), nil
 }
+
+func (t *teamDictImpl) FindByIds(ctx context.Context, dictIds []uint32) ([]do.TeamDict, error) {
+	if len(dictIds) == 0 {
+		return nil, nil
+	}
+	bizQuery, teamID, err := getTeamBizQuery(ctx, t)
+	if err != nil {
+		return nil, err
+	}
+	mutation := bizQuery.Dict
+	wrapper := mutation.WithContext(ctx).Where(mutation.TeamID.Eq(teamID), mutation.ID.In(dictIds...))
+	rows, err := wrapper.Find()
+	if err != nil {
+		return nil, err
+	}
+	return slices.Map(rows, func(row *team.Dict) do.TeamDict { return row }), nil
+}

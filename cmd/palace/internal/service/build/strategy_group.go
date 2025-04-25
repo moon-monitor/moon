@@ -12,7 +12,7 @@ func ToTeamStrategyGroupItem(group do.StrategyGroup) *common.TeamStrategyGroupIt
 	return &common.TeamStrategyGroupItem{
 		Name:                group.GetName(),
 		Remark:              group.GetRemark(),
-		GroupID:             group.GetID(),
+		GroupId:             group.GetID(),
 		Status:              common.GlobalStatus(group.GetStatus()),
 		StrategyCount:       0,
 		EnableStrategyCount: 0,

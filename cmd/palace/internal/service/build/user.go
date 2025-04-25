@@ -30,7 +30,7 @@ func ToUserItem(user do.User) *common.UserItem {
 		Status:    common.UserStatus(user.GetStatus()),
 		CreatedAt: user.GetCreatedAt().Format(time.DateTime),
 		UpdatedAt: user.GetUpdatedAt().Format(time.DateTime),
-		UserID:    user.GetID(),
+		UserId:    user.GetID(),
 	}
 }
 
@@ -44,7 +44,7 @@ func ToUserBaseItem(user do.User) *common.UserBaseItem {
 		Nickname: user.GetNickname(),
 		Avatar:   user.GetAvatar(),
 		Gender:   common.Gender(user.GetGender()),
-		UserID:   user.GetID(),
+		UserId:   user.GetID(),
 	}
 }
 

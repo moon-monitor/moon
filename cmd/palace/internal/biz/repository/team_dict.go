@@ -9,6 +9,7 @@ import (
 
 type TeamDict interface {
 	Get(ctx context.Context, dictID uint32) (do.TeamDict, error)
+	FindByIds(ctx context.Context, dictIds []uint32) ([]do.TeamDict, error)
 	Delete(ctx context.Context, dictID uint32) error
 	Create(ctx context.Context, dict bo.Dict) error
 	Update(ctx context.Context, dict bo.Dict) error

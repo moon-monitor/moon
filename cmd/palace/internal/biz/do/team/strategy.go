@@ -16,6 +16,7 @@ type Strategy struct {
 	Name            string            `gorm:"column:name;type:varchar(64);not null;comment:名称" json:"name"`
 	Remark          string            `gorm:"column:remark;type:varchar(255);not null;comment:备注" json:"remark"`
 	Status          vobj.GlobalStatus `gorm:"column:status;type:tinyint(2);not null;comment:状态" json:"status"`
+	StrategyType    vobj.StrategyType `gorm:"column:strategy_type;type:tinyint(2);not null;comment:类型" json:"strategyType"`
 	StrategyGroup   *StrategyGroup    `gorm:"foreignKey:StrategyGroupID;references:ID" json:"strategyGroup"`
 	Notices         []*NoticeGroup    `gorm:"many2many:team_strategy_notice_groups" json:"notices"`
 }
@@ -60,6 +61,13 @@ func (s *Strategy) GetNotices() []do.NoticeGroup {
 		return nil
 	}
 	return slices.Map(s.Notices, func(v *NoticeGroup) do.NoticeGroup { return v })
+}
+
+func (s *Strategy) GetStrategyType() vobj.StrategyType {
+	if s == nil {
+		return vobj.StrategyTypeUnknown
+	}
+	return vobj.StrategyType(s.StrategyType)
 }
 
 func (s *Strategy) TableName() string {

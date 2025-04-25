@@ -7,6 +7,7 @@ import (
 	"gorm.io/gen/field"
 
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/bo"
+	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do/team"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/repository"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/vobj"
@@ -116,4 +117,30 @@ func (t *teamStrategyImpl) UpdateStatus(ctx context.Context, params *bo.UpdateTe
 	}
 	_, err = mutation.WithContext(ctx).Where(wrappers...).UpdateSimple(mutations...)
 	return err
+}
+
+func (t *teamStrategyImpl) FindByIds(ctx context.Context, strategyIds []uint32) ([]do.Strategy, error) {
+	if len(strategyIds) == 0 {
+		return nil, nil
+	}
+	bizQuery, teamId, err := getTeamBizQuery(ctx, t)
+	if err != nil {
+		return nil, err
+	}
+	mutation := bizQuery.Strategy
+	wrapper := mutation.WithContext(ctx).Where(mutation.TeamID.Eq(teamId), mutation.ID.In(strategyIds...))
+	rows, err := wrapper.Find()
+	if err != nil {
+		return nil, err
+	}
+	return slices.Map(rows, func(row *team.Strategy) do.Strategy { return row }), nil
+}
+
+func (t *teamStrategyImpl) Get(ctx context.Context, strategyID uint32) (do.Strategy, error) {
+	bizQuery, teamId, err := getTeamBizQuery(ctx, t)
+	if err != nil {
+		return nil, err
+	}
+	wrapper := bizQuery.Strategy.WithContext(ctx).Where(bizQuery.Strategy.TeamID.Eq(teamId), bizQuery.Strategy.ID.Eq(strategyID))
+	return wrapper.First()
 }

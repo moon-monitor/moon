@@ -38,7 +38,7 @@ func ToDashboardChartItem(chart do.DashboardChart) *common.TeamDashboardChartIte
 
 	return &common.TeamDashboardChartItem{
 		Id:          chart.GetID(),
-		DashboardID: chart.GetDashboardID(),
+		DashboardId: chart.GetDashboardID(),
 		Title:       chart.GetTitle(),
 		Remark:      chart.GetRemark(),
 		Status:      common.GlobalStatus(chart.GetStatus()),

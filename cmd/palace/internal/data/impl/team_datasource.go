@@ -13,6 +13,7 @@ import (
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/repository"
 	"github.com/moon-monitor/moon/cmd/palace/internal/data"
 	"github.com/moon-monitor/moon/pkg/util/crypto"
+	"github.com/moon-monitor/moon/pkg/util/slices"
 	"github.com/moon-monitor/moon/pkg/util/validate"
 )
 
@@ -153,4 +154,21 @@ func (t *teamMetricDatasourceImpl) List(ctx context.Context, req *bo.ListTeamMet
 		return nil, err
 	}
 	return req.ToListTeamMetricDatasourceReply(datasourceDos), nil
+}
+
+func (t *teamMetricDatasourceImpl) FindByIds(ctx context.Context, datasourceIds []uint32) ([]do.DatasourceMetric, error) {
+	if len(datasourceIds) == 0 {
+		return nil, nil
+	}
+	bizQuery, teamId, err := getTeamBizQuery(ctx, t)
+	if err != nil {
+		return nil, err
+	}
+	mutation := bizQuery.DatasourceMetric
+	wrapper := mutation.WithContext(ctx).Where(mutation.TeamID.Eq(teamId), mutation.ID.In(datasourceIds...))
+	rows, err := wrapper.Find()
+	if err != nil {
+		return nil, err
+	}
+	return slices.Map(rows, func(row *team.DatasourceMetric) do.DatasourceMetric { return row }), nil
 }

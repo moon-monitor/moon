@@ -10,8 +10,8 @@ import (
 
 func ToDictItem(dictItem do.TeamDict) *common.TeamDictItem {
 	return &common.TeamDictItem{
-		TeamID:    dictItem.GetTeamID(),
-		DictID:    dictItem.GetID(),
+		TeamId:    dictItem.GetTeamID(),
+		DictId:    dictItem.GetID(),
 		CreatedAt: dictItem.GetCreatedAt().Format(time.DateTime),
 		UpdatedAt: dictItem.GetUpdatedAt().Format(time.DateTime),
 		Key:       dictItem.GetKey(),
