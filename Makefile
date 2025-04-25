@@ -2,15 +2,6 @@ GOHOSTOS:=$(shell go env GOHOSTOS)
 VERSION=$(shell git describe --tags --always)
 APP_NAME ?= $(app)
 
-# Define path separator based on OS
-ifeq ($(GOHOSTOS), windows)
-	PATHSEP=\\
-	PSEP=;
-else
-	PATHSEP=/
-	PSEP=:
-endif
-
 # Normalize paths for different OS
 NORMALIZE_PATH=$(subst /,$(PATHSEP),$1)
 DENORMALIZE_PATH=$(subst $(PATHSEP),/,$1)
@@ -25,11 +16,17 @@ ifeq ($(GOHOSTOS), windows)
 	# Use mkdir -p equivalent for Windows
 	MKDIR=mkdir
 	RM=del /f /q
+	RM_CMD := rmdir /s /q
+	PATH_ADJUST = $(subst /,\,$1)
+	PATHSEP=\\
+	PSEP=;
 else
 	INTERNAL_PROTO_FILES=$(shell find cmd -name *.proto)
 	API_PROTO_FILES=$(shell find proto/api/$(APP_NAME) -name *.proto)
 	MKDIR=mkdir -p
 	RM=rm -f
+	PATHSEP=/
+	PSEP=:
 endif
 
 .PHONY: init
@@ -47,7 +44,11 @@ init:
 .PHONY: all
 all:
 	@echo "Initialization of moon project"
-	@if [ -z "$(APP_NAME)" ]; then echo "app name is required"; echo "usage: make all app=<app_name>"; exit 1; fi
+ifeq ($(APP_NAME),)
+	$(error APP_NAME is required. Usage: make api app=<app_name>)
+endif
+	@echo "make all, APP_NAME: $(APP_NAME)"
+
 	make api
 	make errors
 	make conf
@@ -56,34 +57,37 @@ all:
 	make wire-$(APP_NAME)
 	make gen-$(APP_NAME)
 
+
 .PHONY: api
 # generate api proto
 api:
-	@if [ -z "$(APP_NAME)" ]; then echo "app name is required"; echo "usage: make api app=<app_name>"; exit 1; fi
+# 检查 APP_NAME 是否定义
+ifeq ($(APP_NAME),)
+	$(error APP_NAME is required. Usage: make api app=<app_name>)
+endif
 	@echo "Generating api proto"
 	@echo "APP_NAME: $(APP_NAME)"
-	@if [ "$(GOHOSTOS)" = "windows" ]; then \
-		$(Git_Bash) -c "rm -rf ./pkg/api/$(APP_NAME)"; \
-		if [ ! -d "./pkg/api" ]; then $(MKDIR) ./pkg/api; fi \
-	else \
-		rm -rf ./pkg/api/$(APP_NAME); \
-		if [ ! -d "./pkg/api" ]; then $(MKDIR) ./pkg/api; fi \
-	fi
-	protoc --proto_path=./proto/api \
-	       --proto_path=./proto/api \
-	       --proto_path=./proto/config \
-	       --proto_path=./proto/third_party \
- 	       --go_out=paths=source_relative:./pkg/api \
- 	       --go-http_out=paths=source_relative:./pkg/api \
- 	       --go-grpc_out=paths=source_relative:./pkg/api \
-	       --openapi_out=fq_schema_naming=true,default_response=false:./cmd/$(APP_NAME)/internal/server/swagger \
-	       --experimental_allow_proto3_optional \
-	       $(API_PROTO_FILES) ./proto/api/common/*.proto
+
+# 删除旧目录
+	@if exist "$(call PATH_ADJUST,./pkg/api/$(APP_NAME))" ( $(RM) "$(call PATH_ADJUST,./pkg/api/$(APP_NAME))" )
+# 创建新目录
+	@if not exist "$(call PATH_ADJUST,./pkg/api)" ( $(MKDIR) "$(call PATH_ADJUST,./pkg/api)" )
+
+# 生成 Proto 文件
+	protoc \
+		--proto_path=./proto/api \
+		--proto_path=./proto/config \
+		--proto_path=./proto/third_party \
+		--go_out=paths=source_relative:./pkg/api \
+		--go-http_out=paths=source_relative:./pkg/api \
+		--go-grpc_out=paths=source_relative:./pkg/api \
+		--openapi_out=fq_schema_naming=true,default_response=false:./cmd/$(APP_NAME)/internal/server/swagger \
+		--experimental_allow_proto3_optional \
+		$(API_PROTO_FILES) ./proto/api/common/*.proto
 
 .PHONY: errors
-# generate errors
 errors:
-	mkdir -p ./pkg/merr
+	@if not exist "$(call PATH_ADJUST,./pkg/merr)" ( $(MKDIR) "$(call PATH_ADJUST,./pkg/merr)" )
 	protoc --proto_path=./proto/merr \
            --proto_path=./proto/third_party \
            --go_out=paths=source_relative:./pkg/merr \
@@ -94,7 +98,7 @@ errors:
 .PHONY: conf
 # generate config
 conf:
-	mkdir -p ./pkg/config
+	@if not exist "$(call PATH_ADJUST,./pkg/config)" ( $(MKDIR) "$(call PATH_ADJUST,./pkg/config)" )
 	protoc --proto_path=./proto/config \
            --proto_path=./proto/third_party \
            --go_out=paths=source_relative:./pkg/config \
@@ -109,7 +113,6 @@ i18n:
 .PHONY: gen-palace
 # generate gorm gen
 gen-palace:
-	rm -rf ./cmd/palace/internal/data/query
 	go run cmd/palace/migrate/gen/gen.go
 
 .PHONY: conf-palace
@@ -166,12 +169,10 @@ stringer-palace:
 .PHONY: stringer-rabbit
 stringer-rabbit:
 	@echo "Generating rabbit stringer"
-	cd ./cmd/rabbit/internal/biz/vobj && go generate
 
 .PHONY: stringer-houyi
 stringer-houyi:
 	@echo "Generating houyi stringer"
-	cd ./cmd/houyi/internal/biz/vobj && go generate
 
 .PHONY: gen-rabbit
 gen-rabbit:
@@ -183,27 +184,37 @@ gen-houyi:
 
 .PHONY: build
 build:
-	@if [ -z "$(APP_NAME)" ]; then echo "app name is required"; echo "usage: make build app=<app_name>"; exit 1; fi
+ifeq ($(APP_NAME),)
+	$(error APP_NAME is required. Usage: make build app=<app_name>)
+endif
 	@echo "Building moon app=$(APP_NAME)"
 	make all
-	mkdir -p bin/ && go build -ldflags "-X main.Version=$(VERSION)" -o ./bin/ ./cmd/$(APP_NAME)
+# 删除旧目录
+	@if exist "$(call PATH_ADJUST,bin/)" ( $(RM) "$(call PATH_ADJUST,bin/)" )
+# 创建新目录
+	@if not exist "$(call PATH_ADJUST,bin/)" ( $(MKDIR) "$(call PATH_ADJUST,bin/)" )
+
+	go build -ldflags "-X main.Version=$(VERSION)" -o ./bin/ ./cmd/$(APP_NAME)
 
 .PHONY: run
 run:
-	@if [ -z "$(APP_NAME)" ]; then echo "app name is required"; echo "usage: make run app=<app_name>"; exit 1; fi
 	@echo "Running moon app=$(APP_NAME)"
 	make all
 	go run ./cmd/$(APP_NAME) -c ./cmd/$(APP_NAME)/config
 
 .PHONY: migrate-table
 migrate-table:
-	@if [ -z "$(APP_NAME)" ]; then echo "app name is required"; echo "usage: make migrate-table app=<app_name>"; exit 1; fi
+ifeq ($(APP_NAME),)
+	$(error APP_NAME is required. Usage: make migrate-table app=<app_name>)
+endif
 	@echo "Migrating moon app=$(APP_NAME)"
 	go run ./cmd/$(APP_NAME)/migrate/auto_migrate/migrate.go
 
 .PHONY: docker-build
 docker-build:
-	@if [ -z "$(APP_NAME)" ]; then echo "app name is required"; echo "usage: make docker-build app=<app_name>"; exit 1; fi
+ifeq ($(APP_NAME),)
+	$(error APP_NAME is required. Usage: make docker-build app=<app_name>)
+endif
 	@echo "Building moon app=$(APP_NAME)"
 	docker build -t ghcr.io/moon-monitor/$(APP_NAME):$(VERSION) \
       --build-arg APP_NAME=$(APP_NAME) \
