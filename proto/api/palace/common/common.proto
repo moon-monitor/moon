@@ -41,6 +41,7 @@ message EmptyRequest {}
 // message: A string message, usually used to indicate the execution status.
 message EmptyReply {
   string message = 1;
+  uint32 id = 2;
 }
 
 message BasicAuth {

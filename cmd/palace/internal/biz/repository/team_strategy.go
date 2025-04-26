@@ -8,16 +8,22 @@ import (
 )
 
 type TeamStrategy interface {
+	Create(ctx context.Context, params bo.CreateTeamStrategyParams) (do.Strategy, error)
+	Update(ctx context.Context, params bo.UpdateTeamStrategyParams) (do.Strategy, error)
+	Delete(ctx context.Context, params *bo.OperateTeamStrategyParams) error
 	UpdateStatus(ctx context.Context, params *bo.UpdateTeamStrategiesStatusParams) error
 	List(ctx context.Context, params *bo.ListTeamStrategyParams) (*bo.ListTeamStrategyReply, error)
-	Subscribe(ctx context.Context, params *bo.ToSubscribeTeamStrategyParams) error
-	SubscribeList(ctx context.Context, params *bo.ToSubscribeTeamStrategiesParams) (*bo.ToSubscribeTeamStrategiesReply, error)
-	Get(ctx context.Context, strategyID uint32) (do.Strategy, error)
+	Subscribe(ctx context.Context, params bo.SubscribeTeamStrategy) error
+	SubscribeList(ctx context.Context, params *bo.SubscribeTeamStrategiesParams) (*bo.SubscribeTeamStrategiesReply, error)
+	Get(ctx context.Context, params *bo.OperateTeamStrategyParams) (do.Strategy, error)
 }
 
 type TeamStrategyMetric interface {
-	Create(ctx context.Context, params bo.SaveTeamMetricStrategy) error
-	Update(ctx context.Context, params bo.SaveTeamMetricStrategy) error
-	Get(ctx context.Context, params *bo.OperateTeamMetricStrategyParams) (do.StrategyMetric, error)
-	Delete(ctx context.Context, params *bo.OperateTeamMetricStrategyParams) error
+	Create(ctx context.Context, params bo.CreateTeamMetricStrategyParams) (do.StrategyMetric, error)
+	Update(ctx context.Context, params bo.UpdateTeamMetricStrategyParams) (do.StrategyMetric, error)
+	Get(ctx context.Context, params *bo.OperateTeamStrategyParams) (do.StrategyMetric, error)
+	Delete(ctx context.Context, params *bo.OperateTeamStrategyParams) error
+
+	CreateLevels(ctx context.Context, params *bo.SaveTeamMetricStrategyLevelsParams) ([]do.StrategyMetricRule, error)
+	UpdateLevels(ctx context.Context, params *bo.SaveTeamMetricStrategyLevelsParams) ([]do.StrategyMetricRule, error)
 }

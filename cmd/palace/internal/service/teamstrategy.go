@@ -87,12 +87,34 @@ func (t *TeamStrategyService) ListTeamStrategyGroup(ctx context.Context, request
 	}, nil
 }
 
-func (t *TeamStrategyService) SaveTeamMetricStrategy(ctx context.Context, request *palacev1.SaveTeamMetricStrategyRequest) (*common.EmptyReply, error) {
-	params := build.ToSaveTeamMetricStrategyParams(request)
-	if err := t.teamStrategyMetricBiz.SaveTeamMetricStrategy(ctx, params); err != nil {
+func (t *TeamStrategyService) SaveTeamStrategy(ctx context.Context, request *palacev1.SaveTeamStrategyRequest) (*common.EmptyReply, error) {
+	params := build.ToSaveTeamStrategyParams(request)
+	strategyDo, err := t.teamStrategyBiz.SaveTeamStrategy(ctx, params)
+	if err != nil {
 		return nil, err
 	}
-	return &common.EmptyReply{Message: "保存策略成功"}, nil
+	return &common.EmptyReply{Message: "保存策略成功", Id: strategyDo.GetID()}, nil
+}
+
+func (t *TeamStrategyService) SaveTeamMetricStrategy(ctx context.Context, request *palacev1.SaveTeamMetricStrategyRequest) (*common.EmptyReply, error) {
+	params := build.ToSaveTeamMetricStrategyParams(request)
+	metricStrategyDo, err := t.teamStrategyMetricBiz.SaveTeamMetricStrategy(ctx, params)
+	if err != nil {
+		return nil, err
+	}
+	return &common.EmptyReply{Message: "保存策略成功", Id: metricStrategyDo.GetID()}, nil
+}
+
+func (t *TeamStrategyService) SaveTeamMetricStrategyLevels(ctx context.Context, request *palacev1.SaveTeamMetricStrategyLevelsRequest) (*palacev1.SaveTeamMetricStrategyLevelsReply, error) {
+	params := build.ToSaveTeamMetricStrategyLevelsParams(request)
+	metricStrategyRules, err := t.teamStrategyMetricBiz.SaveTeamMetricStrategyLevels(ctx, params)
+	if err != nil {
+		return nil, err
+	}
+	return &palacev1.SaveTeamMetricStrategyLevelsReply{
+		Levels:  build.ToTeamMetricStrategyItemRules(metricStrategyRules),
+		Message: "保存策略成功",
+	}, nil
 }
 
 func (t *TeamStrategyService) UpdateTeamStrategiesStatus(ctx context.Context, request *palacev1.UpdateTeamStrategiesStatusRequest) (*common.EmptyReply, error) {
@@ -103,16 +125,16 @@ func (t *TeamStrategyService) UpdateTeamStrategiesStatus(ctx context.Context, re
 	return &common.EmptyReply{Message: "更新策略状态成功"}, nil
 }
 
-func (t *TeamStrategyService) DeleteTeamMetricStrategy(ctx context.Context, request *palacev1.OperateTeamMetricStrategyRequest) (*common.EmptyReply, error) {
-	params := build.ToOperateTeamMetricStrategyParams(request)
-	if err := t.teamStrategyMetricBiz.DeleteTeamMetricStrategy(ctx, params); err != nil {
+func (t *TeamStrategyService) DeleteTeamStrategy(ctx context.Context, request *palacev1.OperateTeamStrategyRequest) (*common.EmptyReply, error) {
+	params := build.ToOperateTeamStrategyParams(request)
+	if err := t.teamStrategyBiz.DeleteTeamStrategy(ctx, params); err != nil {
 		return nil, err
 	}
 	return &common.EmptyReply{Message: "删除策略成功"}, nil
 }
 
-func (t *TeamStrategyService) GetTeamMetricStrategy(ctx context.Context, request *palacev1.OperateTeamMetricStrategyRequest) (*palacev1.GetTeamMetricStrategyReply, error) {
-	params := build.ToOperateTeamMetricStrategyParams(request)
+func (t *TeamStrategyService) GetTeamMetricStrategy(ctx context.Context, request *palacev1.OperateTeamStrategyRequest) (*palacev1.GetTeamMetricStrategyReply, error) {
+	params := build.ToOperateTeamStrategyParams(request)
 	strategy, err := t.teamStrategyMetricBiz.GetTeamMetricStrategy(ctx, params)
 	if err != nil {
 		return nil, err

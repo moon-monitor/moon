@@ -1485,6 +1485,50 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/api.palace.GetSMSConfigsReply'
+    /api/team/strategy:
+        post:
+            tags:
+                - TeamStrategy
+            description: SaveTeamStrategy saves a new team strategy or updates an existing one
+            operationId: TeamStrategy_SaveTeamStrategy
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/api.palace.SaveTeamStrategyRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.palace.common.EmptyReply'
+        delete:
+            tags:
+                - TeamStrategy
+            description: DeleteTeamStrategy deletes a team strategy by Id
+            operationId: TeamStrategy_DeleteTeamStrategy
+            parameters:
+                - name: strategyId
+                  in: query
+                  description: Strategy id
+                  schema:
+                    type: integer
+                    format: uint32
+                - name: strategyType
+                  in: query
+                  description: strategy type
+                  schema:
+                    type: integer
+                    format: enum
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.palace.common.EmptyReply'
     /api/team/strategy/group:
         get:
             tags:
@@ -1612,12 +1656,12 @@ paths:
                   schema:
                     type: integer
                     format: uint32
-                - name: metricStrategyId
+                - name: strategyType
                   in: query
-                  description: Metric strategy id
+                  description: strategy type
                   schema:
                     type: integer
-                    format: uint32
+                    format: enum
             responses:
                 "200":
                     description: OK
@@ -1643,31 +1687,25 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/api.palace.common.EmptyReply'
-        delete:
+    /api/team/strategy/metric/levels:
+        post:
             tags:
                 - TeamStrategy
-            description: DeleteTeamMetricStrategy deletes a team metric strategy by Id
-            operationId: TeamStrategy_DeleteTeamMetricStrategy
-            parameters:
-                - name: strategyId
-                  in: query
-                  description: Strategy id
-                  schema:
-                    type: integer
-                    format: uint32
-                - name: metricStrategyId
-                  in: query
-                  description: Metric strategy id
-                  schema:
-                    type: integer
-                    format: uint32
+            description: SaveTeamMetricStrategyLevels saves a new team metric strategy level or updates an existing one
+            operationId: TeamStrategy_SaveTeamMetricStrategyLevels
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/api.palace.SaveTeamMetricStrategyLevelsRequest'
+                required: true
             responses:
                 "200":
                     description: OK
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/api.palace.common.EmptyReply'
+                                $ref: '#/components/schemas/api.palace.SaveTeamMetricStrategyLevelsReply'
     /api/team/strategy/status:
         put:
             tags:
@@ -2504,6 +2542,9 @@ components:
         api.palace.LabelNotices:
             type: object
             properties:
+                labelNoticeId:
+                    type: integer
+                    format: uint32
                 key:
                     type: string
                 value:
@@ -3202,37 +3243,7 @@ components:
                     type: object
                     additionalProperties:
                         type: string
-        api.palace.SaveTeamMetricStrategyRequest:
-            type: object
-            properties:
-                strategy:
-                    $ref: '#/components/schemas/api.palace.SaveTeamStrategyItemRequest'
-                expr:
-                    type: string
-                    description: Expression
-                labels:
-                    type: object
-                    additionalProperties:
-                        type: string
-                    description: Labels
-                annotations:
-                    type: object
-                    additionalProperties:
-                        type: string
-                    description: Annotations
-                levels:
-                    type: array
-                    items:
-                        $ref: '#/components/schemas/api.palace.SaveTeamMetricStrategyRequest_MetricStrategyLevelItem'
-                    description: Levels
-                datasource:
-                    type: array
-                    items:
-                        type: integer
-                        format: uint32
-                    description: Datasource
-            description: SaveTeamMetricStrategyRequest represents the request data for saving or updating a team metric strategy
-        api.palace.SaveTeamMetricStrategyRequest_MetricStrategyLevelItem:
+        api.palace.SaveTeamMetricStrategyLevelRequest:
             type: object
             properties:
                 levelId:
@@ -3278,6 +3289,63 @@ components:
                     type: integer
                     description: Status
                     format: enum
+                id:
+                    type: integer
+                    description: Id
+                    format: uint32
+        api.palace.SaveTeamMetricStrategyLevelsReply:
+            type: object
+            properties:
+                levels:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/api.palace.common.TeamStrategyMetricItem_RuleItem'
+                    description: Levels
+                message:
+                    type: string
+        api.palace.SaveTeamMetricStrategyLevelsRequest:
+            type: object
+            properties:
+                strategyMetricId:
+                    type: integer
+                    description: Strategy metric id
+                    format: uint32
+                levels:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/api.palace.SaveTeamMetricStrategyLevelRequest'
+                    description: Levels
+        api.palace.SaveTeamMetricStrategyRequest:
+            type: object
+            properties:
+                strategyId:
+                    type: integer
+                    description: Strategy id
+                    format: uint32
+                metricStrategyId:
+                    type: integer
+                    description: Metric strategy id
+                    format: uint32
+                expr:
+                    type: string
+                    description: Expression
+                labels:
+                    type: object
+                    additionalProperties:
+                        type: string
+                    description: Labels
+                annotations:
+                    type: object
+                    additionalProperties:
+                        type: string
+                    description: Annotations
+                datasource:
+                    type: array
+                    items:
+                        type: integer
+                        format: uint32
+                    description: Datasource
+            description: SaveTeamMetricStrategyRequest represents the request data for saving or updating a team metric strategy
         api.palace.SaveTeamNoticeGroupRequest:
             type: object
             properties:
@@ -3389,7 +3457,7 @@ components:
                     type: string
                     description: Strategy group remark or description
             description: SaveTeamStrategyGroupRequest represents the request data for saving or updating a team strategy group
-        api.palace.SaveTeamStrategyItemRequest:
+        api.palace.SaveTeamStrategyRequest:
             type: object
             properties:
                 strategyId:
@@ -3509,10 +3577,6 @@ components:
                 strategyId:
                     type: integer
                     description: Strategy id
-                    format: uint32
-                metricStrategyId:
-                    type: integer
-                    description: Metric strategy id
                     format: uint32
                 subscribeType:
                     type: integer
@@ -3854,6 +3918,9 @@ components:
             properties:
                 message:
                     type: string
+                id:
+                    type: integer
+                    format: uint32
             description: |-
                 EmptyReply represents an empty response, typically used for operations that only need to return a status message.
                  message: A string message, usually used to indicate the execution status.

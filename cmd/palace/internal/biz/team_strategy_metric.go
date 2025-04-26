@@ -15,7 +15,6 @@ func NewTeamStrategyMetric(
 	dictRepo repository.TeamDict,
 	noticeGroupRepo repository.TeamNotice,
 	datasourceRepo repository.TeamDatasourceMetric,
-	transaction repository.Transaction,
 ) *TeamStrategyMetric {
 	return &TeamStrategyMetric{
 		teamStrategyGroupRepo:  teamStrategyGroupRepo,
@@ -24,7 +23,6 @@ func NewTeamStrategyMetric(
 		dictRepo:               dictRepo,
 		noticeGroupRepo:        noticeGroupRepo,
 		datasourceRepo:         datasourceRepo,
-		transaction:            transaction,
 	}
 }
 
@@ -35,52 +33,42 @@ type TeamStrategyMetric struct {
 	dictRepo               repository.TeamDict
 	noticeGroupRepo        repository.TeamNotice
 	datasourceRepo         repository.TeamDatasourceMetric
-	transaction            repository.Transaction
 }
 
-func (t *TeamStrategyMetric) SaveTeamMetricStrategy(ctx context.Context, params *bo.SaveTeamMetricStrategyParams) error {
-	datasourceDoList, err := t.datasourceRepo.FindByIds(ctx, params.DatasourceList)
+func (t *TeamStrategyMetric) SaveTeamMetricStrategy(ctx context.Context, params *bo.SaveTeamMetricStrategyParams) (do.StrategyMetric, error) {
+	strategyDo, err := t.teamStrategyRepo.Get(ctx, &bo.OperateTeamStrategyParams{StrategyId: params.StrategyID})
 	if err != nil {
-		return err
+		return nil, err
 	}
-	params.WithDatasourceList(datasourceDoList)
-	dictDoList, err := t.dictRepo.FindByIds(ctx, params.GetDictIds())
+	datasourceDos, err := t.datasourceRepo.FindByIds(ctx, params.Datasource)
 	if err != nil {
-		return err
+		return nil, err
 	}
-	params.WithDicts(dictDoList)
-	noticeGroupDoList, err := t.noticeGroupRepo.FindByIds(ctx, params.GetReceiverIds())
-	if err != nil {
-		return err
-	}
-	params.WithReceiverRoutes(noticeGroupDoList)
-	labelNotices, err := t.noticeGroupRepo.FindLabelNotices(ctx, params.GetLabelNoticeIds())
-	if err != nil {
-		return err
-	}
-	params.WithLabelNotices(labelNotices)
-	return t.transaction.BizExec(ctx, func(ctx context.Context) error {
-		if params.GetID() <= 0 {
-			return t.teamStrategyMetricRepo.Create(ctx, params)
+	if params.ID <= 0 {
+		req := params.ToCreateTeamMetricStrategyParams(strategyDo, datasourceDos)
+		if err := req.Validate(); err != nil {
+			return nil, err
 		}
-		strategyDo, err := t.teamStrategyRepo.Get(ctx, params.GetStrategy().GetID())
-		if err != nil {
-			return err
-		}
-		params.WithStrategy(strategyDo)
-		stratgyGroup, err := t.teamStrategyGroupRepo.Get(ctx, params.GetStrategy().GetStrategyGroupID())
-		if err != nil {
-			return err
-		}
-		params.WithStrategyGroup(stratgyGroup)
-		return t.teamStrategyMetricRepo.Update(ctx, params)
-	})
+		return t.teamStrategyMetricRepo.Create(ctx, req)
+	}
+	strategyMetricDo, err := t.teamStrategyMetricRepo.Get(ctx, &bo.OperateTeamStrategyParams{StrategyId: params.StrategyID})
+	if err != nil {
+		return nil, err
+	}
+	req := params.ToUpdateTeamMetricStrategyParams(strategyDo, datasourceDos, strategyMetricDo)
+	if err := req.Validate(); err != nil {
+		return nil, err
+	}
+	return t.teamStrategyMetricRepo.Update(ctx, req)
 }
 
-func (t *TeamStrategyMetric) GetTeamMetricStrategy(ctx context.Context, params *bo.OperateTeamMetricStrategyParams) (do.StrategyMetric, error) {
+func (t *TeamStrategyMetric) SaveTeamMetricStrategyLevels(ctx context.Context, params *bo.SaveTeamMetricStrategyLevelsParams) ([]do.StrategyMetricRule, error) {
+	return nil, nil
+}
+
+func (t *TeamStrategyMetric) GetTeamMetricStrategy(ctx context.Context, params *bo.OperateTeamStrategyParams) (do.StrategyMetric, error) {
+	if err := params.Validate(); err != nil {
+		return nil, err
+	}
 	return t.teamStrategyMetricRepo.Get(ctx, params)
-}
-
-func (t *TeamStrategyMetric) DeleteTeamMetricStrategy(ctx context.Context, params *bo.OperateTeamMetricStrategyParams) error {
-	return t.teamStrategyMetricRepo.Delete(ctx, params)
 }

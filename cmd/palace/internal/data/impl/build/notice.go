@@ -1,7 +1,6 @@
 package build
 
 import (
-	"github.com/moon-monitor/moon/cmd/palace/internal/biz/bo"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do/team"
 	"github.com/moon-monitor/moon/pkg/util/crypto"
@@ -116,21 +115,4 @@ func ToStrategyMetricRuleLabelNotice(notice do.StrategyMetricRuleLabelNotice) *t
 
 func ToStrategyMetricRuleLabelNotices(notices []do.StrategyMetricRuleLabelNotice) []*team.StrategyMetricRuleLabelNotice {
 	return slices.Map(notices, ToStrategyMetricRuleLabelNotice)
-}
-
-func ToStrategyMetricRuleLabelNoticesDo(notices []bo.SaveLabelNotice) []*team.StrategyMetricRuleLabelNotice {
-	return slices.Map(notices, ToStrategyMetricRuleLabelNoticeDo)
-}
-
-func ToStrategyMetricRuleLabelNoticeDo(notice bo.SaveLabelNotice) *team.StrategyMetricRuleLabelNotice {
-	if validate.IsNil(notice) {
-		return nil
-	}
-	return &team.StrategyMetricRuleLabelNotice{
-		TeamModel:            ToTeamModel(notice.GetLabelNotice()),
-		StrategyMetricRuleID: notice.GetStrategyMetricRuleID(),
-		LabelKey:             notice.GetLabelKey(),
-		LabelValue:           notice.GetLabelValue(),
-		Notices:              ToStrategyNotices(notice.GetReceiverRoutes()),
-	}
 }

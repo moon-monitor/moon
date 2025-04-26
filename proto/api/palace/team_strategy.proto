@@ -51,10 +51,26 @@ service TeamStrategy {
     };
   }
 
+  // SaveTeamStrategy saves a new team strategy or updates an existing one
+  rpc SaveTeamStrategy (SaveTeamStrategyRequest) returns (api.palace.common.EmptyReply) {
+    option (google.api.http) = {
+      post: "/api/team/strategy"
+      body: "*"
+    };
+  }
+
   // SaveTeamMetricStrategy saves a new team metric strategy or updates an existing one
   rpc SaveTeamMetricStrategy (SaveTeamMetricStrategyRequest) returns (api.palace.common.EmptyReply) {
     option (google.api.http) = {
       post: "/api/team/strategy/metric"
+      body: "*"
+    };
+  }
+
+  // SaveTeamMetricStrategyLevels saves a new team metric strategy level or updates an existing one
+  rpc SaveTeamMetricStrategyLevels (SaveTeamMetricStrategyLevelsRequest) returns (SaveTeamMetricStrategyLevelsReply) {
+    option (google.api.http) = {
+      post: "/api/team/strategy/metric/levels"
       body: "*"
     };
   }
@@ -67,15 +83,15 @@ service TeamStrategy {
     };
   }
 
-  // DeleteTeamMetricStrategy deletes a team metric strategy by Id
-  rpc DeleteTeamMetricStrategy (OperateTeamMetricStrategyRequest) returns (api.palace.common.EmptyReply) {
+  // DeleteTeamStrategy deletes a team strategy by Id
+  rpc DeleteTeamStrategy (OperateTeamStrategyRequest) returns (api.palace.common.EmptyReply) {
     option (google.api.http) = {
-      delete: "/api/team/strategy/metric"
+      delete: "/api/team/strategy"
     };
   }
 
   // GetTeamStrategy retrieves a team strategy by Id
-  rpc GetTeamMetricStrategy (OperateTeamMetricStrategyRequest) returns (GetTeamMetricStrategyReply) {
+  rpc GetTeamMetricStrategy (OperateTeamStrategyRequest) returns (GetTeamMetricStrategyReply) {
     option (google.api.http) = {
       get: "/api/team/strategy/metric"
     };
@@ -160,7 +176,7 @@ message ListTeamStrategyGroupReply {
   api.palace.common.PaginationReply pagination = 2;
 }
 
-message SaveTeamStrategyItemRequest {
+message SaveTeamStrategyRequest {
   // Strategy item Id, optional for new items
   uint32 strategyId = 1;
   // Strategy item name
@@ -173,47 +189,65 @@ message SaveTeamStrategyItemRequest {
   repeated uint32 receiverRoutes = 5;
 }
 
-message LabelNotices {
-  string key = 1;
-  string value = 2;
-  repeated uint32 receiverRoutes = 3;
-}
-
 // SaveTeamMetricStrategyRequest represents the request data for saving or updating a team metric strategy
 message SaveTeamMetricStrategyRequest {
-  message MetricStrategyLevelItem {
-    // Level Id
-    uint32 levelId = 1;
-    // Level name
-    string levelName = 2 [(buf.validate.field).string.max_len = 128];
-    // Sample mode
-    api.palace.common.SampleMode sampleMode = 3;
-    // Count
-    int64 count = 4;
-    // Condition
-    api.palace.common.ConditionMetric condition = 5;
-    // Values
-    repeated double values = 6;
-    // Receiver routes
-    repeated uint32 receiverRoutes = 7;
-    // Label notices
-    repeated LabelNotices labelNotices = 8;
-    // Duration
-    google.protobuf.Duration duration = 9;
-    // Status
-    api.palace.common.GlobalStatus status = 10;
-  }
-  SaveTeamStrategyItemRequest strategy = 1;
+  // Strategy id
+  uint32 strategyId = 1 [(buf.validate.field).required = true];
+  // Metric strategy id
+  uint32 metricStrategyId = 2 [(buf.validate.field).required = true];
   // Expression
-  string expr = 2 [(buf.validate.field).string.min_len = 1];
+  string expr = 3 [(buf.validate.field).string.min_len = 1];
   // Labels
-  map<string, string> labels = 3;
+  map<string, string> labels = 4;
   // Annotations
-  map<string, string> annotations = 4;
-  // Levels
-  repeated MetricStrategyLevelItem levels = 5;
+  map<string, string> annotations = 5;
   // Datasource
   repeated uint32 datasource = 6;
+}
+
+message LabelNotices {
+  uint32 labelNoticeId = 1;
+  string key = 2;
+  string value = 3;
+  repeated uint32 receiverRoutes = 4;
+}
+
+message SaveTeamMetricStrategyLevelRequest {
+  // Level Id
+  uint32 levelId = 1;
+  // Level name
+  string levelName = 2 [(buf.validate.field).string.max_len = 128];
+  // Sample mode
+  api.palace.common.SampleMode sampleMode = 3;
+  // Count
+  int64 count = 4;
+  // Condition
+  api.palace.common.ConditionMetric condition = 5;
+  // Values
+  repeated double values = 6;
+  // Receiver routes
+  repeated uint32 receiverRoutes = 7;
+  // Label notices
+  repeated LabelNotices labelNotices = 8;
+  // Duration
+  google.protobuf.Duration duration = 9;
+  // Status
+  api.palace.common.GlobalStatus status = 10;
+  // Id
+  uint32 id = 11;
+}
+
+message SaveTeamMetricStrategyLevelsRequest {
+  // Strategy metric id
+  uint32 strategyMetricId = 1;
+  // Levels
+  repeated SaveTeamMetricStrategyLevelRequest levels = 2;
+}
+
+message SaveTeamMetricStrategyLevelsReply {
+  // Levels
+  repeated api.palace.common.TeamStrategyMetricItem.RuleItem levels = 1;
+  string message = 2;
 }
 
 message UpdateTeamStrategiesStatusRequest {
@@ -223,13 +257,12 @@ message UpdateTeamStrategiesStatusRequest {
   api.palace.common.GlobalStatus status = 2;
 }
 
-message OperateTeamMetricStrategyRequest {
+message OperateTeamStrategyRequest {
   // Strategy id
   uint32 strategyId = 1;
-  // Metric strategy id
-  uint32 metricStrategyId = 2;
+  // strategy type
+  api.palace.common.StrategyType strategyType = 2;
 }
-
 
 message GetTeamMetricStrategyReply {
   api.palace.common.TeamStrategyMetricItem strategy = 1;
@@ -254,10 +287,8 @@ message ListTeamStrategyReply {
 message SubscribeTeamStrategyRequest {
   // Strategy id
   uint32 strategyId = 1;
-  // Metric strategy id
-  uint32 metricStrategyId = 2;
   // subscribe type
-  api.palace.common.NoticeType subscribeType = 3;
+  api.palace.common.NoticeType subscribeType = 2;
 }
 
 message SubscribeTeamStrategiesRequest {
