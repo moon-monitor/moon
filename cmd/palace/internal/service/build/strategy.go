@@ -75,7 +75,6 @@ func ToLabelNoticeParams(request *palace.LabelNotices) *bo.LabelNoticeParams {
 		panic("LabelNotices is nil")
 	}
 	return &bo.LabelNoticeParams{
-		ID:             request.GetLabelNoticeId(),
 		Key:            request.GetKey(),
 		Value:          request.GetValue(),
 		ReceiverRoutes: request.GetReceiverRoutes(),

@@ -133,7 +133,7 @@ type CreateTeamMetricStrategyParams interface {
 
 type UpdateTeamMetricStrategyParams interface {
 	CreateTeamMetricStrategyParams
-	GetID() uint32
+	GetStrategyMetric() do.StrategyMetric
 }
 
 type SaveTeamMetricStrategyParams struct {
@@ -164,9 +164,9 @@ func (s *SaveTeamMetricStrategyParams) GetExpr() string {
 	return s.Expr
 }
 
-// GetID implements UpdateTeamMetricStrategyParams.
-func (s *SaveTeamMetricStrategyParams) GetID() uint32 {
-	return s.ID
+// GetStrategyMetric implements UpdateTeamMetricStrategyParams.
+func (s *SaveTeamMetricStrategyParams) GetStrategyMetric() do.StrategyMetric {
+	return s.strategyMetricDo
 }
 
 // GetLabels implements UpdateTeamMetricStrategyParams.
@@ -222,12 +222,52 @@ func (s *SaveTeamMetricStrategyParams) Validate() error {
 	return nil
 }
 
+type LabelNotice interface {
+	GetKey() string
+	GetValue() string
+	GetReceiverRoutes() []do.NoticeGroup
+}
+
+var _ LabelNotice = (*LabelNoticeParams)(nil)
+
 type LabelNoticeParams struct {
-	ID             uint32
 	Key            string
 	Value          string
 	ReceiverRoutes []uint32
+
+	noticeGroupDos []do.NoticeGroup
 }
+
+// GetKey implements LabelNotice.
+func (l *LabelNoticeParams) GetKey() string {
+	return l.Key
+}
+
+// GetReceiverRoutes implements LabelNotice.
+func (l *LabelNoticeParams) GetReceiverRoutes() []do.NoticeGroup {
+	return l.noticeGroupDos
+}
+
+// GetValue implements LabelNotice.
+func (l *LabelNoticeParams) GetValue() string {
+	return l.Value
+}
+
+type SaveTeamMetricStrategyLevel interface {
+	GetID() uint32
+	GetLevel() do.TeamDict
+	GetAlarmPages() []do.TeamDict
+	GetSampleMode() vobj.SampleMode
+	GetCount() int64
+	GetCondition() vobj.ConditionMetric
+	GetValues() []float64
+	GetReceiverRoutes() []do.NoticeGroup
+	GetLabelNotices() []LabelNotice
+	GetDuration() time.Duration
+	GetStatus() vobj.GlobalStatus
+}
+
+var _ SaveTeamMetricStrategyLevel = (*SaveTeamMetricStrategyLevelParams)(nil)
 
 type SaveTeamMetricStrategyLevelParams struct {
 	ID             uint32
@@ -241,11 +281,167 @@ type SaveTeamMetricStrategyLevelParams struct {
 	LabelNotices   []*LabelNoticeParams
 	Duration       time.Duration
 	Status         vobj.GlobalStatus
+	AlarmPages     []uint32
+
+	noticeGroupDos map[uint32]do.NoticeGroup
+	dicts          map[uint32]do.TeamDict
 }
+
+func (s *SaveTeamMetricStrategyLevelParams) GetNoticeGroupIds() []uint32 {
+	list := make([]uint32, 0, len(s.ReceiverRoutes)+len(s.LabelNotices))
+	list = append(list, s.ReceiverRoutes...)
+	for _, labelNotice := range s.LabelNotices {
+		list = append(list, labelNotice.ReceiverRoutes...)
+	}
+	return slices.Unique(slices.MapFilter(list, func(id uint32) (uint32, bool) {
+		if id > 0 {
+			return id, true
+		}
+		return 0, false
+	}))
+}
+
+func (s *SaveTeamMetricStrategyLevelParams) GetDictIds() []uint32 {
+	list := make([]uint32, 0, len(s.AlarmPages)+1)
+	list = append(list, s.AlarmPages...)
+	list = append(list, s.LevelId)
+	return slices.Unique(slices.MapFilter(list, func(id uint32) (uint32, bool) {
+		if id > 0 {
+			return id, true
+		}
+		return 0, false
+	}))
+}
+
+// GetLevel implements SaveTeamMetricStrategyLevel.
+func (s *SaveTeamMetricStrategyLevelParams) GetLevel() do.TeamDict {
+	return s.dicts[s.LevelId]
+}
+
+func (s *SaveTeamMetricStrategyLevelParams) GetAlarmPages() []do.TeamDict {
+	return slices.Map(s.AlarmPages, func(id uint32) do.TeamDict {
+		return s.dicts[id]
+	})
+}
+
+// GetCondition implements SaveTeamMetricStrategyLevel.
+func (s *SaveTeamMetricStrategyLevelParams) GetCondition() vobj.ConditionMetric {
+	return s.Condition
+}
+
+// GetCount implements SaveTeamMetricStrategyLevel.
+func (s *SaveTeamMetricStrategyLevelParams) GetCount() int64 {
+	return s.Count
+}
+
+// GetDuration implements SaveTeamMetricStrategyLevel.
+func (s *SaveTeamMetricStrategyLevelParams) GetDuration() time.Duration {
+	return s.Duration
+}
+
+// GetID implements SaveTeamMetricStrategyLevel.
+func (s *SaveTeamMetricStrategyLevelParams) GetID() uint32 {
+	return s.ID
+}
+
+// GetLabelNotices implements SaveTeamMetricStrategyLevel.
+func (s *SaveTeamMetricStrategyLevelParams) GetLabelNotices() []LabelNotice {
+	return slices.Map(s.LabelNotices, func(labelNotice *LabelNoticeParams) LabelNotice {
+		labelNotice.noticeGroupDos = slices.Map(labelNotice.ReceiverRoutes, func(receiverRoute uint32) do.NoticeGroup {
+			return s.noticeGroupDos[receiverRoute]
+		})
+		return labelNotice
+	})
+}
+
+// GetLevelId implements SaveTeamMetricStrategyLevel.
+func (s *SaveTeamMetricStrategyLevelParams) GetLevelId() uint32 {
+	return s.LevelId
+}
+
+// GetLevelName implements SaveTeamMetricStrategyLevel.
+func (s *SaveTeamMetricStrategyLevelParams) GetLevelName() string {
+	return s.LevelName
+}
+
+// GetReceiverRoutes implements SaveTeamMetricStrategyLevel.
+func (s *SaveTeamMetricStrategyLevelParams) GetReceiverRoutes() []do.NoticeGroup {
+	return slices.Map(s.ReceiverRoutes, func(receiverRoute uint32) do.NoticeGroup {
+		return s.noticeGroupDos[receiverRoute]
+	})
+}
+
+// GetSampleMode implements SaveTeamMetricStrategyLevel.
+func (s *SaveTeamMetricStrategyLevelParams) GetSampleMode() vobj.SampleMode {
+	return s.SampleMode
+}
+
+// GetStatus implements SaveTeamMetricStrategyLevel.
+func (s *SaveTeamMetricStrategyLevelParams) GetStatus() vobj.GlobalStatus {
+	return s.Status
+}
+
+// GetValues implements SaveTeamMetricStrategyLevel.
+func (s *SaveTeamMetricStrategyLevelParams) GetValues() []float64 {
+	return s.Values
+}
+
+type SaveTeamMetricStrategyLevels interface {
+	GetStrategyMetric() do.StrategyMetric
+	GetLevels() []SaveTeamMetricStrategyLevel
+}
+
+var _ SaveTeamMetricStrategyLevels = (*SaveTeamMetricStrategyLevelsParams)(nil)
 
 type SaveTeamMetricStrategyLevelsParams struct {
 	StrategyMetricID uint32
 	Levels           []*SaveTeamMetricStrategyLevelParams
+
+	strategyMetricDo do.StrategyMetric
+	noticeGroupDos   map[uint32]do.NoticeGroup
+	dicts            map[uint32]do.TeamDict
+}
+
+func (s *SaveTeamMetricStrategyLevelsParams) Validate() error {
+	if s.StrategyMetricID <= 0 {
+		return merr.ErrorParamsError("strategy metric id is required")
+	}
+	if validate.IsNil(s.strategyMetricDo) || s.strategyMetricDo.GetID() != s.StrategyMetricID {
+		return merr.ErrorParamsError("strategy metric is not found")
+	}
+	if len(s.Levels) == 0 {
+		return merr.ErrorParamsError("levels is required")
+	}
+	return nil
+}
+
+// GetLevels implements SaveTeamMetricStrategyLevels.
+func (s *SaveTeamMetricStrategyLevelsParams) GetLevels() []SaveTeamMetricStrategyLevel {
+	return slices.Map(s.Levels, func(level *SaveTeamMetricStrategyLevelParams) SaveTeamMetricStrategyLevel {
+		level.noticeGroupDos = s.noticeGroupDos
+		level.dicts = s.dicts
+		return level
+	})
+}
+
+// GetStrategyMetric implements SaveTeamMetricStrategyLevels.
+func (s *SaveTeamMetricStrategyLevelsParams) GetStrategyMetric() do.StrategyMetric {
+	return s.strategyMetricDo
+}
+
+func (s *SaveTeamMetricStrategyLevelsParams) ToSaveTeamMetricStrategyLevelsParams(
+	strategyMetricDo do.StrategyMetric,
+	noticeGroupDos []do.NoticeGroup,
+	dicts []do.TeamDict,
+) SaveTeamMetricStrategyLevels {
+	s.strategyMetricDo = strategyMetricDo
+	s.noticeGroupDos = slices.ToMap(noticeGroupDos, func(noticeGroup do.NoticeGroup) uint32 {
+		return noticeGroup.GetID()
+	})
+	s.dicts = slices.ToMap(dicts, func(dict do.TeamDict) uint32 {
+		return dict.GetID()
+	})
+	return s
 }
 
 type UpdateTeamStrategiesStatusParams struct {

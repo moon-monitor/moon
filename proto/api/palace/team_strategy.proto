@@ -206,7 +206,6 @@ message SaveTeamMetricStrategyRequest {
 }
 
 message LabelNotices {
-  uint32 labelNoticeId = 1;
   string key = 2;
   string value = 3;
   repeated uint32 receiverRoutes = 4;

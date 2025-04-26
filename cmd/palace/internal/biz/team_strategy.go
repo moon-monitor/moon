@@ -12,18 +12,24 @@ func NewTeamStrategy(
 	teamStrategyGroupRepo repository.TeamStrategyGroup,
 	teamStrategyRepo repository.TeamStrategy,
 	teamNoticeRepo repository.TeamNotice,
+	teamStrategyMetricRepo repository.TeamStrategyMetric,
+	transactionRepo repository.Transaction,
 ) *TeamStrategy {
 	return &TeamStrategy{
-		teamStrategyGroupRepo: teamStrategyGroupRepo,
-		teamStrategyRepo:      teamStrategyRepo,
-		teamNoticeRepo:        teamNoticeRepo,
+		teamStrategyGroupRepo:  teamStrategyGroupRepo,
+		teamStrategyRepo:       teamStrategyRepo,
+		teamNoticeRepo:         teamNoticeRepo,
+		teamStrategyMetricRepo: teamStrategyMetricRepo,
+		transactionRepo:        transactionRepo,
 	}
 }
 
 type TeamStrategy struct {
-	teamStrategyGroupRepo repository.TeamStrategyGroup
-	teamStrategyRepo      repository.TeamStrategy
-	teamNoticeRepo        repository.TeamNotice
+	teamStrategyGroupRepo  repository.TeamStrategyGroup
+	teamStrategyRepo       repository.TeamStrategy
+	teamStrategyMetricRepo repository.TeamStrategyMetric
+	teamNoticeRepo         repository.TeamNotice
+	transactionRepo        repository.Transaction
 }
 
 func (t *TeamStrategy) SaveTeamStrategy(ctx context.Context, params *bo.SaveTeamStrategyParams) (do.Strategy, error) {
@@ -36,31 +42,50 @@ func (t *TeamStrategy) SaveTeamStrategy(ctx context.Context, params *bo.SaveTeam
 		return nil, err
 	}
 
-	if params.ID <= 0 {
-		req := params.ToCreateTeamStrategyParams(strategyGroup, receiverRoutes)
-		if err := req.Validate(); err != nil {
-			return nil, err
+	var strategyDo do.Strategy
+	err = t.transactionRepo.BizExec(ctx, func(ctx context.Context) error {
+		if params.ID <= 0 {
+			req := params.ToCreateTeamStrategyParams(strategyGroup, receiverRoutes)
+			if err := req.Validate(); err != nil {
+				return err
+			}
+			strategyDo, err = t.teamStrategyRepo.Create(ctx, req)
+			return err
 		}
-		return t.teamStrategyRepo.Create(ctx, req)
-	}
+		strategyDo, err = t.teamStrategyRepo.Get(ctx, &bo.OperateTeamStrategyParams{StrategyId: params.ID})
+		if err != nil {
+			return err
+		}
 
-	strategyDo, err := t.teamStrategyRepo.Get(ctx, &bo.OperateTeamStrategyParams{StrategyId: params.ID})
+		req := params.ToUpdateTeamStrategyParams(strategyGroup, strategyDo, receiverRoutes)
+		if err := req.Validate(); err != nil {
+			return err
+		}
+		strategyDo, err = t.teamStrategyRepo.Update(ctx, req)
+		return err
+	})
 	if err != nil {
 		return nil, err
 	}
-
-	req := params.ToUpdateTeamStrategyParams(strategyGroup, strategyDo, receiverRoutes)
-	if err := req.Validate(); err != nil {
-		return nil, err
-	}
-	return t.teamStrategyRepo.Update(ctx, req)
+	return strategyDo, nil
 }
 
 func (t *TeamStrategy) DeleteTeamStrategy(ctx context.Context, params *bo.OperateTeamStrategyParams) error {
 	if err := params.Validate(); err != nil {
 		return err
 	}
-	return t.teamStrategyRepo.Delete(ctx, params)
+	return t.transactionRepo.BizExec(ctx, func(ctx context.Context) error {
+		if err := t.teamStrategyRepo.Delete(ctx, params); err != nil {
+			return err
+		}
+		if err := t.teamStrategyMetricRepo.Delete(ctx, params); err != nil {
+			return err
+		}
+		if err := t.teamStrategyMetricRepo.DeleteLevels(ctx, params); err != nil {
+			return err
+		}
+		return nil
+	})
 }
 
 func (t *TeamStrategy) UpdateTeamStrategiesStatus(ctx context.Context, params *bo.UpdateTeamStrategiesStatusParams) error {

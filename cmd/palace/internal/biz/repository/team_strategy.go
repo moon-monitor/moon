@@ -24,6 +24,7 @@ type TeamStrategyMetric interface {
 	Get(ctx context.Context, params *bo.OperateTeamStrategyParams) (do.StrategyMetric, error)
 	Delete(ctx context.Context, params *bo.OperateTeamStrategyParams) error
 
-	CreateLevels(ctx context.Context, params *bo.SaveTeamMetricStrategyLevelsParams) ([]do.StrategyMetricRule, error)
-	UpdateLevels(ctx context.Context, params *bo.SaveTeamMetricStrategyLevelsParams) ([]do.StrategyMetricRule, error)
+	CreateLevels(ctx context.Context, params bo.SaveTeamMetricStrategyLevels) ([]do.StrategyMetricRule, error)
+	UpdateLevels(ctx context.Context, params bo.SaveTeamMetricStrategyLevels) ([]do.StrategyMetricRule, error)
+	DeleteLevels(ctx context.Context, params *bo.OperateTeamStrategyParams) error
 }

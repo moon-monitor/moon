@@ -2542,9 +2542,6 @@ components:
         api.palace.LabelNotices:
             type: object
             properties:
-                labelNoticeId:
-                    type: integer
-                    format: uint32
                 key:
                     type: string
                 value:
