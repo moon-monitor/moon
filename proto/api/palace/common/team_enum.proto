@@ -14,6 +14,10 @@ enum TeamStatus {
   TEAM_STATUS_FORBIDDEN = 2;
   // TEAM_STATUS_DELETED indicates the team has been deleted.
   TEAM_STATUS_DELETED = 3;
+  // TEAM_STATUS_APPROVAL indicates the team is waiting for approval.
+  TEAM_STATUS_APPROVAL = 4;
+  // TEAM_STATUS_REJECTED indicates the team has been rejected.
+  TEAM_STATUS_REJECTED = 5;
 }
 
 // MemberPosition represents the position of a member in a team.

@@ -2,6 +2,7 @@ package biz
 
 import (
 	"context"
+	"time"
 
 	"github.com/go-kratos/kratos/v2/log"
 
@@ -33,7 +34,11 @@ func NewUserBiz(
 		cacheRepo: cacheRepo,
 		log:       log.NewHelper(log.With(logger, "module", "biz.user")),
 	}
-	do.RegisterGetUserFunc(userBiz.getUser)
+	do.RegisterGetUserFunc(func(id uint32) do.User {
+		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		defer cancel()
+		return userBiz.getUser(ctx, id)
+	})
 	return userBiz
 }
 

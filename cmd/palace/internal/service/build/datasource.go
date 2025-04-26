@@ -66,7 +66,7 @@ func ToTeamMetricDatasourceItem(item do.DatasourceMetric) *common.TeamMetricData
 		Tls:            ToProtoTLS(item.GetTLS()),
 		BasicAuth:      ToProtoBasicAuth(item.GetBasicAuth()),
 		Extra:          item.GetExtra(),
-		Status:         common.GlobalStatus(item.GetStatus()),
+		Status:         common.GlobalStatus(item.GetStatus().GetValue()),
 		Creator:        ToUserBaseItem(item.GetCreator()),
 	}
 }

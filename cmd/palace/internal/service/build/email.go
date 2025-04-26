@@ -41,7 +41,7 @@ func ToEmailConfigItem(config do.TeamEmailConfig) *palacev1.EmailConfigItem {
 		Pass:   config.GetPass(),
 		Host:   config.GetHost(),
 		Port:   config.GetPort(),
-		Status: common.GlobalStatus(config.GetStatus()),
+		Status: common.GlobalStatus(config.GetStatus().GetValue()),
 		Name:   config.GetName(),
 		Remark: config.GetRemark(),
 		Id:     config.GetID(),

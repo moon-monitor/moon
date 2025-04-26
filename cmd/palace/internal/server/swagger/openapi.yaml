@@ -4538,7 +4538,7 @@ components:
                     description: Timestamp indicating when the strategy was last updated.
                 team:
                     allOf:
-                        - $ref: '#/components/schemas/api.palace.common.TeamItem'
+                        - $ref: '#/components/schemas/api.palace.common.TeamBaseItem'
                     description: Information about the team associated with the strategy.
                 notices:
                     type: array

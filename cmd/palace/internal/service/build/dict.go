@@ -19,7 +19,7 @@ func ToDictItem(dictItem do.TeamDict) *common.TeamDictItem {
 		Lang:      dictItem.GetLang(),
 		Color:     dictItem.GetColor(),
 		DictType:  common.DictType(dictItem.GetType()),
-		Status:    common.GlobalStatus(dictItem.GetStatus()),
+		Status:    common.GlobalStatus(dictItem.GetStatus().GetValue()),
 	}
 }
 

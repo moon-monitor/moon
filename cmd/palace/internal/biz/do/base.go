@@ -14,11 +14,11 @@ import (
 	"github.com/moon-monitor/moon/pkg/merr"
 )
 
-type GetUserFun func(ctx context.Context, id uint32) User
+type GetUserFun func(id uint32) User
 
-type GetTeamFun func(ctx context.Context, id uint32) Team
+type GetTeamFun func(id uint32) Team
 
-type GetTeamMemberFun func(ctx context.Context, id uint32) TeamMember
+type GetTeamMemberFun func(id uint32) TeamMember
 
 var registerGetUserFuncOnce sync.Once
 var getUser GetUserFun
@@ -29,8 +29,8 @@ func RegisterGetUserFunc(getUserFunc GetUserFun) {
 	})
 }
 
-func GetUser(ctx context.Context, id uint32) User {
-	return getUser(ctx, id)
+func GetUser(id uint32) User {
+	return getUser(id)
 }
 
 var registerGetTeamFuncOnce sync.Once
@@ -42,8 +42,8 @@ func RegisterGetTeamFunc(getTeamFunc GetTeamFun) {
 	})
 }
 
-func GetTeam(ctx context.Context, id uint32) Team {
-	return getTeam(ctx, id)
+func GetTeam(id uint32) Team {
+	return getTeam(id)
 }
 
 var registerGetTeamMemberFuncOnce sync.Once
@@ -55,8 +55,8 @@ func RegisterGetTeamMemberFunc(getTeamMemberFunc GetTeamMemberFun) {
 	})
 }
 
-func GetTeamMember(ctx context.Context, id uint32) TeamMember {
-	return getTeamMember(ctx, id)
+func GetTeamMember(id uint32) TeamMember {
+	return getTeamMember(id)
 }
 
 type ORMModel interface {
@@ -134,7 +134,7 @@ func (u *BaseModel) WithContext(ctx context.Context) {
 // GetContext get context
 func (u *BaseModel) GetContext() context.Context {
 	if u.ctx == nil {
-		u.ctx = context.Background()
+		panic("context is nil")
 	}
 	return u.ctx
 }
@@ -150,7 +150,7 @@ func (u *CreatorModel) GetCreatorMember() TeamMember {
 	if u == nil {
 		return nil
 	}
-	return getTeamMember(u.GetContext(), u.GetCreatorID())
+	return getTeamMember(u.GetCreatorID())
 }
 
 func (u *CreatorModel) GetCreatorID() uint32 {
@@ -164,7 +164,7 @@ func (u *CreatorModel) GetCreator() User {
 	if u == nil {
 		return nil
 	}
-	return getUser(u.GetContext(), u.GetCreatorID())
+	return getUser(u.GetCreatorID())
 }
 
 func (u *CreatorModel) BeforeCreate(tx *gorm.DB) (err error) {
@@ -188,7 +188,7 @@ func (u *TeamModel) GetTeam() Team {
 	if u == nil {
 		return nil
 	}
-	return getTeam(u.GetContext(), u.GetTeamID())
+	return getTeam(u.GetTeamID())
 }
 
 func (u *TeamModel) GetTeamID() uint32 {

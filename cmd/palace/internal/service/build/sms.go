@@ -12,6 +12,9 @@ import (
 
 // ToSaveSMSConfigRequest converts API request to business object
 func ToSaveSMSConfigRequest(req *palace.SaveSMSConfigRequest) *bo.SaveSMSConfigRequest {
+	if validate.IsNil(req) {
+		return nil
+	}
 	return &bo.SaveSMSConfigRequest{
 		Config: &do.SMS{
 			AccessKeyID:     req.GetAccessKeyId(),
@@ -29,6 +32,9 @@ func ToSaveSMSConfigRequest(req *palace.SaveSMSConfigRequest) *bo.SaveSMSConfigR
 
 // ToListSMSConfigRequest converts API request to business object
 func ToListSMSConfigRequest(req *palace.GetSMSConfigsRequest) *bo.ListSMSConfigRequest {
+	if validate.IsNil(req) {
+		return nil
+	}
 	return &bo.ListSMSConfigRequest{
 		PaginationRequest: ToPaginationRequest(req.GetPagination()),
 		Keyword:           req.GetKeyword(),
@@ -47,7 +53,7 @@ func ToSMSConfigItem(item do.TeamSMSConfig) *palace.SMSConfigItem {
 		return nil
 	}
 	return &palace.SMSConfigItem{
-		ProviderType:    common.SMSProviderType(item.GetProviderType()),
+		ProviderType:    common.SMSProviderType(item.GetProviderType().GetValue()),
 		AccessKeyId:     config.AccessKeyID,
 		AccessKeySecret: config.AccessKeySecret,
 		SignName:        config.SignName,
@@ -55,7 +61,7 @@ func ToSMSConfigItem(item do.TeamSMSConfig) *palace.SMSConfigItem {
 		Name:            item.GetName(),
 		Remark:          item.GetRemark(),
 		Id:              item.GetID(),
-		Status:          common.GlobalStatus(item.GetStatus()),
+		Status:          common.GlobalStatus(item.GetStatus().GetValue()),
 	}
 }
 
@@ -65,6 +71,9 @@ func ToSMSConfigItems(items []do.TeamSMSConfig) []*palace.SMSConfigItem {
 
 // ToSMSConfigReply converts business object to API response
 func ToSMSConfigReply(reply *bo.ListSMSConfigListReply) *palace.GetSMSConfigsReply {
+	if validate.IsNil(reply) {
+		return nil
+	}
 	return &palace.GetSMSConfigsReply{
 		Pagination: ToPaginationReply(reply.PaginationReply),
 		Items:      ToSMSConfigItems(reply.Items),

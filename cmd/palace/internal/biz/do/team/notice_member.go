@@ -21,7 +21,7 @@ func (n *NoticeMember) GetMember() do.TeamMember {
 	if n == nil {
 		return nil
 	}
-	return do.GetTeamMember(n.GetContext(), n.GetUserID())
+	return do.GetTeamMember(n.GetUserID())
 }
 
 func (n *NoticeMember) GetUserID() uint32 {

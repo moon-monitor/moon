@@ -75,7 +75,7 @@ func (r *SaveTeamStrategyItem) GetStrategyType() vobj.StrategyType {
 	if validate.IsNil(r) {
 		return vobj.StrategyTypeUnknown
 	}
-	if validate.IsNotNil(r.strategy) && !r.strategy.GetStrategyType().Check() {
+	if validate.IsNotNil(r.strategy) && !r.strategy.GetStrategyType().Exist() {
 		return r.strategy.GetStrategyType()
 	}
 	return r.StrategyType
@@ -279,7 +279,7 @@ func (r *SaveTeamMetricStrategyRuleItem) GetStatus() vobj.GlobalStatus {
 	if validate.IsNil(r) {
 		return vobj.GlobalStatusUnknown
 	}
-	if validate.IsNotNil(r.metricStrategyRule) && !r.metricStrategyRule.GetStatus().Check() {
+	if validate.IsNotNil(r.metricStrategyRule) && !r.metricStrategyRule.GetStatus().Exist() {
 		return r.metricStrategyRule.GetStatus()
 	}
 	return r.Status

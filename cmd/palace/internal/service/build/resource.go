@@ -20,11 +20,11 @@ func ToResourceItem(resource do.Resource) *common.ResourceItem {
 		Id:        resource.GetID(),
 		Name:      resource.GetName(),
 		Path:      resource.GetPath(),
-		Status:    common.GlobalStatus(resource.GetStatus()),
+		Status:    common.GlobalStatus(resource.GetStatus().GetValue()),
 		Remark:    resource.GetRemark(),
 		CreatedAt: resource.GetCreatedAt().Format(time.DateTime),
 		UpdatedAt: resource.GetUpdatedAt().Format(time.DateTime),
-		Allow:     common.ResourceAllow(resource.GetAllow()),
+		Allow:     common.ResourceAllow(resource.GetAllow().GetValue()),
 		Menus:     ToMenuTree(resource.GetMenus()),
 	}
 }
@@ -59,10 +59,10 @@ func convertMenuToTreeItemWithMap(menu do.Menu, menuMap map[uint32]do.Menu) *com
 		Id:        menu.GetID(),
 		Name:      menu.GetName(),
 		Path:      menu.GetPath(),
-		Status:    common.GlobalStatus(menu.GetStatus()),
+		Status:    common.GlobalStatus(menu.GetStatus().GetValue()),
 		Icon:      menu.GetIcon(),
 		Children:  nil,
-		MenuType:  common.MenuType(menu.GetType()),
+		MenuType:  common.MenuType(menu.GetType().GetValue()),
 		Resources: ToResourceItems(menu.GetResources()),
 	}
 

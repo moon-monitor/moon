@@ -2,6 +2,7 @@ package biz
 
 import (
 	"context"
+	"time"
 
 	"github.com/go-kratos/kratos/v2/log"
 
@@ -43,8 +44,16 @@ func NewTeam(
 		inviteRepo:          inviteRepo,
 		transaction:         transaction,
 	}
-	do.RegisterGetTeamFunc(teamBiz.getTeam)
-	do.RegisterGetTeamMemberFunc(teamBiz.getTeamMember)
+	do.RegisterGetTeamFunc(func(id uint32) do.Team {
+		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		defer cancel()
+		return teamBiz.getTeam(ctx, id)
+	})
+	do.RegisterGetTeamMemberFunc(func(id uint32) do.TeamMember {
+		ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+		defer cancel()
+		return teamBiz.getTeamMember(ctx, id)
+	})
 	return teamBiz
 }
 

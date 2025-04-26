@@ -24,7 +24,7 @@ func ToTeamItem(team do.Team) *common.TeamItem {
 		Name:            team.GetName(),
 		Remark:          team.GetRemark(),
 		Logo:            team.GetLogo(),
-		Status:          common.TeamStatus(team.GetStatus()),
+		Status:          common.TeamStatus(team.GetStatus().GetValue()),
 		Creator:         ToUserBaseItem(team.GetCreator()),
 		Leader:          ToUserBaseItem(team.GetLeader()),
 		Admins:          ToUserBaseItems(team.GetAdmins()),
@@ -91,13 +91,13 @@ func ToTeamMemberItem(member do.TeamMember) *common.TeamMemberItem {
 	}
 	return &common.TeamMemberItem{
 		Id:        member.GetTeamMemberID(),
-		User:      ToUserBaseItem(nil),
-		Position:  common.MemberPosition(member.GetPosition()),
-		Status:    common.MemberStatus(member.GetStatus()),
-		Inviter:   ToUserBaseItem(nil),
+		User:      ToUserBaseItem(member.GetUser()),
+		Position:  common.MemberPosition(member.GetPosition().GetValue()),
+		Status:    common.MemberStatus(member.GetStatus().GetValue()),
+		Inviter:   ToUserBaseItem(member.GetInviter()),
 		Roles:     ToTeamRoleItems(member.GetRoles()),
-		CreatedAt: member.GetCreatedAt().Format(time.RFC3339),
-		UpdatedAt: member.GetUpdatedAt().Format(time.RFC3339),
+		CreatedAt: member.GetCreatedAt().Format(time.DateTime),
+		UpdatedAt: member.GetUpdatedAt().Format(time.DateTime),
 	}
 }
 
@@ -113,8 +113,8 @@ func ToTeamMemberBaseItem(member do.TeamMember) *common.TeamMemberBaseItem {
 		Id:         member.GetID(),
 		MemberName: member.GetMemberName(),
 		Remark:     member.GetRemark(),
-		Position:   common.MemberPosition(member.GetPosition()),
-		Status:     common.MemberStatus(member.GetStatus()),
+		Position:   common.MemberPosition(member.GetPosition().GetValue()),
+		Status:     common.MemberStatus(member.GetStatus().GetValue()),
 		CreatedAt:  member.GetCreatedAt().Format(time.DateTime),
 		UpdatedAt:  member.GetUpdatedAt().Format(time.DateTime),
 		User:       ToUserBaseItem(member.GetUser()),

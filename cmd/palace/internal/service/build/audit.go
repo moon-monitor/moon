@@ -32,11 +32,11 @@ func ToTeamAuditItem(audit do.TeamAudit) *common.TeamAuditItem {
 	return &common.TeamAuditItem{
 		Id:        audit.GetID(),
 		User:      ToUserBaseItem(audit.GetCreator()),
-		Status:    common.TeamAuditStatus(audit.GetStatus()),
+		Status:    common.TeamAuditStatus(audit.GetStatus().GetValue()),
 		Reason:    audit.GetReason(),
 		CreatedAt: audit.GetCreatedAt().Format(time.DateTime),
 		Team:      ToTeamBaseItem(audit.GetTeam()),
-		Action:    common.TeamAuditAction(audit.GetAction()),
+		Action:    common.TeamAuditAction(audit.GetAction().GetValue()),
 	}
 }
 

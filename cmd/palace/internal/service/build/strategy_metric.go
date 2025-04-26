@@ -1,6 +1,8 @@
 package build
 
 import (
+	"time"
+
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/bo"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/vobj"
@@ -8,6 +10,7 @@ import (
 	"github.com/moon-monitor/moon/pkg/api/palace/common"
 	"github.com/moon-monitor/moon/pkg/util/kv"
 	"github.com/moon-monitor/moon/pkg/util/slices"
+	"github.com/moon-monitor/moon/pkg/util/validate"
 )
 
 func ToSaveTeamStrategyItem(request *palacev1.SaveTeamStrategyItemRequest) *bo.SaveTeamStrategyItem {
@@ -78,7 +81,19 @@ func ToOperateTeamMetricStrategyParams(request *palacev1.OperateTeamMetricStrate
 }
 
 func ToTeamMetricStrategyItem(strategy do.StrategyMetric) *common.TeamStrategyMetricItem {
-	return &common.TeamStrategyMetricItem{}
+	if validate.IsNil(strategy) {
+		return nil
+	}
+	return &common.TeamStrategyMetricItem{
+		Base:                &common.TeamStrategyItem{},
+		StrategyMetricId:    strategy.GetID(),
+		Expr:                strategy.GetExpr(),
+		Labels:              strategy.GetLabels(),
+		Annotations:         strategy.GetAnnotations(),
+		StrategyMetricRules: []*common.TeamStrategyMetricItem_RuleItem{},
+		Datasource:          []*common.TeamMetricDatasourceItem{},
+		Creator:             &common.UserBaseItem{},
+	}
 }
 
 func ToTeamMetricStrategyItems(strategies []do.StrategyMetric) []*common.TeamStrategyMetricItem {
@@ -86,6 +101,9 @@ func ToTeamMetricStrategyItems(strategies []do.StrategyMetric) []*common.TeamStr
 }
 
 func ToListTeamStrategyParams(request *palacev1.ListTeamStrategyRequest) *bo.ListTeamStrategyParams {
+	if validate.IsNil(request) {
+		return nil
+	}
 	return &bo.ListTeamStrategyParams{
 		PaginationRequest: ToPaginationRequest(request.GetPagination()),
 		Keyword:           request.GetKeyword(),
@@ -94,9 +112,22 @@ func ToListTeamStrategyParams(request *palacev1.ListTeamStrategyRequest) *bo.Lis
 }
 
 func ToTeamStrategyItem(strategy do.Strategy) *common.TeamStrategyItem {
-	return &common.TeamStrategyItem{}
+	if validate.IsNil(strategy) {
+		return nil
+	}
+	return &common.TeamStrategyItem{
+		Name:       strategy.GetName(),
+		Remark:     strategy.GetRemark(),
+		StrategyId: strategy.GetID(),
+		GroupId:    strategy.GetStrategyGroupID(),
+		Status:     common.GlobalStatus(strategy.GetStatus().GetValue()),
+		Creator:    ToUserBaseItem(strategy.GetCreator()),
+		CreatedAt:  strategy.GetCreatedAt().Format(time.DateTime),
+		UpdatedAt:  strategy.GetUpdatedAt().Format(time.DateTime),
+		Team:       ToTeamBaseItem(strategy.GetTeam()),
+		Notices:    ToNoticeGroupItems(strategy.GetNotices()),
+	}
 }
-
 func ToTeamStrategyItems(strategies []do.Strategy) []*common.TeamStrategyItem {
 	return slices.Map(strategies, ToTeamStrategyItem)
 }

@@ -13,7 +13,7 @@ func ToTeamStrategyGroupItem(group do.StrategyGroup) *common.TeamStrategyGroupIt
 		Name:                group.GetName(),
 		Remark:              group.GetRemark(),
 		GroupId:             group.GetID(),
-		Status:              common.GlobalStatus(group.GetStatus()),
+		Status:              common.GlobalStatus(group.GetStatus().GetValue()),
 		StrategyCount:       0,
 		EnableStrategyCount: 0,
 		CreatedAt:           group.GetCreatedAt().Format(time.DateTime),

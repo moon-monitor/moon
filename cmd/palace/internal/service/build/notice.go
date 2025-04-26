@@ -33,7 +33,7 @@ func ToNoticeGroupItem(noticeGroup do.NoticeGroup) *common.NoticeGroupItem {
 		UpdatedAt:     noticeGroup.GetUpdatedAt().Format(time.DateTime),
 		Name:          noticeGroup.GetName(),
 		Remark:        noticeGroup.GetRemark(),
-		Status:        common.GlobalStatus(noticeGroup.GetStatus()),
+		Status:        common.GlobalStatus(noticeGroup.GetStatus().GetValue()),
 		NoticeMembers: ToNoticeMemberItems(noticeGroup.GetNoticeMembers()),
 		Hooks:         ToNoticeHookItems(noticeGroup.GetHooks()),
 		Creator:       ToUserBaseItem(noticeGroup.GetCreator()),
