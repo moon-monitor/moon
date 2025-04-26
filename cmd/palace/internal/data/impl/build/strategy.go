@@ -1,6 +1,8 @@
 package build
 
 import (
+	"context"
+
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do/team"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/vobj"
@@ -8,27 +10,30 @@ import (
 	"github.com/moon-monitor/moon/pkg/util/validate"
 )
 
-func ToStrategyGroup(strategyGroup do.StrategyGroup) *team.StrategyGroup {
+func ToStrategyGroup(ctx context.Context, strategyGroup do.StrategyGroup) *team.StrategyGroup {
 	if validate.IsNil(strategyGroup) {
 		return nil
 	}
 	if strategyGroup, ok := strategyGroup.(*team.StrategyGroup); ok {
+		strategyGroup.WithContext(ctx)
 		return strategyGroup
 	}
 	return &team.StrategyGroup{
 		Name:       strategyGroup.GetName(),
-		TeamModel:  ToTeamModel(strategyGroup),
+		TeamModel:  ToTeamModel(ctx, strategyGroup),
 		Remark:     strategyGroup.GetRemark(),
 		Status:     vobj.GlobalStatusEnable,
-		Strategies: ToStrategies(strategyGroup.GetStrategies()),
+		Strategies: ToStrategies(ctx, strategyGroup.GetStrategies()),
 	}
 }
 
-func ToStrategy(params do.Strategy) *team.Strategy {
+func ToStrategy(ctx context.Context, params do.Strategy) *team.Strategy {
 	if validate.IsNil(params) {
 		return nil
 	}
 	if strategy, ok := params.(*team.Strategy); ok {
+		strategy.WithContext(ctx)
+		strategy.StrategyGroup = ToStrategyGroup(ctx, params.GetStrategyGroup())
 		return strategy
 	}
 	return &team.Strategy{
@@ -37,21 +42,31 @@ func ToStrategy(params do.Strategy) *team.Strategy {
 		Remark:          params.GetRemark(),
 		Status:          vobj.GlobalStatusEnable,
 		StrategyType:    params.GetStrategyType(),
-		Notices:         ToStrategyNotices(params.GetNotices()),
-		TeamModel:       ToTeamModel(params),
-		StrategyGroup:   ToStrategyGroup(params.GetStrategyGroup()),
+		Notices:         ToStrategyNotices(ctx, params.GetNotices()),
+		TeamModel:       ToTeamModel(ctx, params),
+		StrategyGroup:   ToStrategyGroup(ctx, params.GetStrategyGroup()),
 	}
 }
 
-func ToStrategies(params []do.Strategy) []*team.Strategy {
-	return slices.Map(params, ToStrategy)
+func ToStrategies(ctx context.Context, params []do.Strategy) []*team.Strategy {
+	return slices.MapFilter(params, func(v do.Strategy) (*team.Strategy, bool) {
+		if validate.IsNil(v) {
+			return nil, false
+		}
+		return ToStrategy(ctx, v), true
+	})
 }
 
-func ToStrategyMetric(params do.StrategyMetric) *team.StrategyMetric {
+func ToStrategyMetric(ctx context.Context, params do.StrategyMetric) *team.StrategyMetric {
 	if validate.IsNil(params) {
 		return nil
 	}
 	if strategyMetric, ok := params.(*team.StrategyMetric); ok {
+		strategyMetric.WithContext(ctx)
+		strategyMetric.Strategy = ToStrategy(ctx, params.GetStrategy())
+		for i := range strategyMetric.Datasource {
+			strategyMetric.Datasource[i] = ToDatasourceMetric(ctx, strategyMetric.Datasource[i])
+		}
 		return strategyMetric
 	}
 	return &team.StrategyMetric{
@@ -59,38 +74,44 @@ func ToStrategyMetric(params do.StrategyMetric) *team.StrategyMetric {
 		Expr:                params.GetExpr(),
 		Labels:              params.GetLabels(),
 		Annotations:         params.GetAnnotations(),
-		TeamModel:           ToTeamModel(params),
-		Strategy:            ToStrategy(params.GetStrategy()),
-		StrategyMetricRules: ToStrategyMetricRules(params.GetRules()),
-		Datasource:          ToDatasourceMetrics(params.GetDatasourceList()),
+		TeamModel:           ToTeamModel(ctx, params),
+		Strategy:            ToStrategy(ctx, params.GetStrategy()),
+		StrategyMetricRules: ToStrategyMetricRules(ctx, params.GetRules()),
+		Datasource:          ToDatasourceMetrics(ctx, params.GetDatasourceList()),
 	}
 }
 
-func ToStrategyMetricRules(params []do.StrategyMetricRule) []*team.StrategyMetricRule {
-	return slices.Map(params, ToStrategyMetricRule)
+func ToStrategyMetricRules(ctx context.Context, params []do.StrategyMetricRule) []*team.StrategyMetricRule {
+	return slices.MapFilter(params, func(v do.StrategyMetricRule) (*team.StrategyMetricRule, bool) {
+		if validate.IsNil(v) {
+			return nil, false
+		}
+		return ToStrategyMetricRule(ctx, v), true
+	})
 }
 
-func ToStrategyMetricRule(params do.StrategyMetricRule) *team.StrategyMetricRule {
+func ToStrategyMetricRule(ctx context.Context, params do.StrategyMetricRule) *team.StrategyMetricRule {
 	if validate.IsNil(params) {
 		return nil
 	}
 	if strategyMetricRule, ok := params.(*team.StrategyMetricRule); ok {
+		strategyMetricRule.WithContext(ctx)
 		return strategyMetricRule
 	}
 	return &team.StrategyMetricRule{
-		TeamModel:        ToTeamModel(params),
+		TeamModel:        ToTeamModel(ctx, params),
 		StrategyMetricID: params.GetID(),
-		StrategyMetric:   ToStrategyMetric(params.GetStrategyMetric()),
+		StrategyMetric:   ToStrategyMetric(ctx, params.GetStrategyMetric()),
 		LevelID:          params.GetLevelID(),
-		Level:            ToDict(params.GetLevel()),
+		Level:            ToDict(ctx, params.GetLevel()),
 		SampleMode:       params.GetSampleMode(),
 		Condition:        params.GetCondition(),
 		Count:            params.GetCount(),
 		Values:           params.GetValues(),
 		Duration:         params.GetDuration(),
 		Status:           params.GetStatus(),
-		Notices:          ToStrategyNotices(params.GetNotices()),
-		LabelNotices:     ToStrategyMetricRuleLabelNotices(params.GetLabelNotices()),
-		AlarmPages:       ToDicts(params.GetAlarmPages()),
+		Notices:          ToStrategyNotices(ctx, params.GetNotices()),
+		LabelNotices:     ToStrategyMetricRuleLabelNotices(ctx, params.GetLabelNotices()),
+		AlarmPages:       ToDicts(ctx, params.GetAlarmPages()),
 	}
 }

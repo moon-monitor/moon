@@ -8,7 +8,6 @@ import (
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/vobj"
 	"github.com/moon-monitor/moon/pkg/api/palace"
 	"github.com/moon-monitor/moon/pkg/api/palace/common"
-	"github.com/moon-monitor/moon/pkg/util/kv"
 	"github.com/moon-monitor/moon/pkg/util/slices"
 	"github.com/moon-monitor/moon/pkg/util/validate"
 	"google.golang.org/protobuf/types/known/durationpb"
@@ -19,11 +18,12 @@ func ToSaveTeamStrategyParams(request *palace.SaveTeamStrategyRequest) *bo.SaveT
 		panic("SaveTeamStrategyRequest is nil")
 	}
 	return &bo.SaveTeamStrategyParams{
-		ID:             request.GetStrategyId(),
-		Name:           request.GetName(),
-		Remark:         request.GetRemark(),
-		StrategyType:   vobj.StrategyType(request.GetStrategyType()),
-		ReceiverRoutes: request.GetReceiverRoutes(),
+		ID:              request.GetStrategyId(),
+		Name:            request.GetName(),
+		Remark:          request.GetRemark(),
+		StrategyType:    vobj.StrategyType(request.GetStrategyType()),
+		ReceiverRoutes:  request.GetReceiverRoutes(),
+		StrategyGroupID: request.GetGroupId(),
 	}
 }
 
@@ -35,8 +35,8 @@ func ToSaveTeamMetricStrategyParams(request *palace.SaveTeamMetricStrategyReques
 		StrategyID:  request.GetStrategyId(),
 		ID:          request.GetMetricStrategyId(),
 		Expr:        request.GetExpr(),
-		Labels:      kv.StringMap(request.GetLabels()),
-		Annotations: kv.StringMap(request.GetAnnotations()),
+		Labels:      request.GetLabels(),
+		Annotations: request.GetAnnotations(),
 		Datasource:  request.GetDatasource(),
 	}
 }
@@ -143,9 +143,9 @@ func ToTeamStrategyItem(strategy do.Strategy) *common.TeamStrategyItem {
 		Name:       strategy.GetName(),
 		Remark:     strategy.GetRemark(),
 		Status:     common.GlobalStatus(strategy.GetStatus()),
-		Creator:    &common.UserBaseItem{},
-		CreatedAt:  strategy.GetCreatedAt().Format(time.RFC3339),
-		UpdatedAt:  strategy.GetUpdatedAt().Format(time.RFC3339),
+		Creator:    ToUserBaseItem(strategy.GetCreator()),
+		CreatedAt:  strategy.GetCreatedAt().Format(time.DateTime),
+		UpdatedAt:  strategy.GetUpdatedAt().Format(time.DateTime),
 		Team:       ToTeamBaseItem(strategy.GetTeam()),
 		Notices:    ToNoticeGroupItems(strategy.GetNotices()),
 	}

@@ -409,9 +409,6 @@ func (s *SaveTeamMetricStrategyLevelsParams) Validate() error {
 	if validate.IsNil(s.strategyMetricDo) || s.strategyMetricDo.GetID() != s.StrategyMetricID {
 		return merr.ErrorParamsError("strategy metric is not found")
 	}
-	if len(s.Levels) == 0 {
-		return merr.ErrorParamsError("levels is required")
-	}
 	return nil
 }
 

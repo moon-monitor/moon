@@ -187,6 +187,8 @@ message SaveTeamStrategyRequest {
   api.palace.common.StrategyType strategyType = 4;
   // Receiver routes
   repeated uint32 receiverRoutes = 5;
+  // Group id
+  uint32 groupId = 6 [(buf.validate.field).required = true];
 }
 
 // SaveTeamMetricStrategyRequest represents the request data for saving or updating a team metric strategy
@@ -194,7 +196,7 @@ message SaveTeamMetricStrategyRequest {
   // Strategy id
   uint32 strategyId = 1 [(buf.validate.field).required = true];
   // Metric strategy id
-  uint32 metricStrategyId = 2 [(buf.validate.field).required = true];
+  uint32 metricStrategyId = 2;
   // Expression
   string expr = 3 [(buf.validate.field).string.min_len = 1];
   // Labels

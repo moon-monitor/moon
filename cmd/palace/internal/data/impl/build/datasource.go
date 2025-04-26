@@ -1,6 +1,8 @@
 package build
 
 import (
+	"context"
+
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do/team"
 	"github.com/moon-monitor/moon/pkg/util/crypto"
@@ -8,15 +10,16 @@ import (
 	"github.com/moon-monitor/moon/pkg/util/validate"
 )
 
-func ToDatasourceMetric(datasource do.DatasourceMetric) *team.DatasourceMetric {
+func ToDatasourceMetric(ctx context.Context, datasource do.DatasourceMetric) *team.DatasourceMetric {
 	if validate.IsNil(datasource) {
 		return nil
 	}
 	if datasource, ok := datasource.(*team.DatasourceMetric); ok {
+		datasource.WithContext(ctx)
 		return datasource
 	}
 	return &team.DatasourceMetric{
-		TeamModel:      ToTeamModel(datasource),
+		TeamModel:      ToTeamModel(ctx, datasource),
 		Name:           datasource.GetName(),
 		Status:         datasource.GetStatus(),
 		Remark:         datasource.GetRemark(),
@@ -32,6 +35,11 @@ func ToDatasourceMetric(datasource do.DatasourceMetric) *team.DatasourceMetric {
 		Metrics:        []*team.StrategyMetric{},
 	}
 }
-func ToDatasourceMetrics(datasourceList []do.DatasourceMetric) []*team.DatasourceMetric {
-	return slices.Map(datasourceList, ToDatasourceMetric)
+func ToDatasourceMetrics(ctx context.Context, datasourceList []do.DatasourceMetric) []*team.DatasourceMetric {
+	return slices.MapFilter(datasourceList, func(v do.DatasourceMetric) (*team.DatasourceMetric, bool) {
+		if validate.IsNil(v) {
+			return nil, false
+		}
+		return ToDatasourceMetric(ctx, v), true
+	})
 }

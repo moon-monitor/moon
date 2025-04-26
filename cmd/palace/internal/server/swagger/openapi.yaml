@@ -3477,6 +3477,10 @@ components:
                         type: integer
                         format: uint32
                     description: Receiver routes
+                groupId:
+                    type: integer
+                    description: Group id
+                    format: uint32
         api.palace.SelfInfoReply:
             type: object
             properties:

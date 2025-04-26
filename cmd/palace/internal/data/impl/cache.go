@@ -47,7 +47,7 @@ func (c *cacheReoImpl) CacheTeams(ctx context.Context, teams ...do.Team) error {
 	key := repository.UserCacheKey.Key()
 	teamsMap := make(map[string]any)
 	for _, team := range teams {
-		teamItem := build.ToTeam(team)
+		teamItem := build.ToTeam(ctx, team)
 		if validate.IsNil(teamItem) {
 			continue
 		}
@@ -108,7 +108,7 @@ func (c *cacheReoImpl) CacheTeamMembers(ctx context.Context, members ...do.TeamM
 	key := repository.TeamMemberCacheKey.Key()
 	membersMap := make(map[string]any)
 	for _, member := range members {
-		memberItem := build.ToTeamMember(member)
+		memberItem := build.ToTeamMember(ctx, member)
 		if validate.IsNil(memberItem) {
 			continue
 		}
@@ -166,7 +166,7 @@ func (c *cacheReoImpl) CacheUsers(ctx context.Context, users ...do.User) error {
 	key := repository.UserCacheKey.Key()
 	usersMap := make(map[string]any)
 	for _, user := range users {
-		userItem := build.ToUser(user)
+		userItem := build.ToUser(ctx, user)
 		if validate.IsNil(userItem) {
 			continue
 		}

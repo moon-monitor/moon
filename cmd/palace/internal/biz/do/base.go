@@ -4,6 +4,7 @@ import (
 	"context"
 	"database/sql"
 	"database/sql/driver"
+	"fmt"
 	"sync"
 	"time"
 
@@ -160,7 +161,10 @@ func (u *CreatorModel) GetCreatorID() uint32 {
 	return u.CreatorID
 }
 
-func (u *CreatorModel) GetCreator() User {
+func (u *CreatorModel) GetCreator() (user User) {
+	defer func() {
+		fmt.Println("get creator", user)
+	}()
 	if u == nil {
 		return nil
 	}

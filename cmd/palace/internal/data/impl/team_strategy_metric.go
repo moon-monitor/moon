@@ -34,12 +34,13 @@ func (t *teamStrategyMetricImpl) Create(ctx context.Context, params bo.CreateTea
 
 	strategyMetricDo := &team.StrategyMetric{
 		StrategyID:  params.GetStrategy().GetID(),
-		Strategy:    build.ToStrategy(params.GetStrategy()),
+		Strategy:    build.ToStrategy(ctx, params.GetStrategy()),
 		Expr:        params.GetExpr(),
 		Labels:      params.GetLabels(),
 		Annotations: params.GetAnnotations(),
-		Datasource:  build.ToDatasourceMetrics(params.GetDatasource()),
+		Datasource:  build.ToDatasourceMetrics(ctx, params.GetDatasource()),
 	}
+	strategyMetricDo.WithContext(ctx)
 
 	if err = tx.StrategyMetric.WithContext(ctx).Create(strategyMetricDo); err != nil {
 		return nil, err
@@ -83,8 +84,8 @@ func (t *teamStrategyMetricImpl) Update(ctx context.Context, params bo.UpdateTea
 		return nil, err
 	}
 
-	datasourceDos := build.ToDatasourceMetrics(params.GetDatasource())
-	datasourceMutation := tx.StrategyMetric.Datasource.WithContext(ctx).Model(build.ToStrategyMetric(strategyMetricDo))
+	datasourceDos := build.ToDatasourceMetrics(ctx, params.GetDatasource())
+	datasourceMutation := tx.StrategyMetric.Datasource.WithContext(ctx).Model(build.ToStrategyMetric(ctx, strategyMetricDo))
 	if len(datasourceDos) > 0 {
 		if err := datasourceMutation.Replace(datasourceDos...); err != nil {
 			return nil, err
@@ -129,9 +130,9 @@ func (t *teamStrategyMetricImpl) UpdateLevels(ctx context.Context, params bo.Sav
 			return nil, err
 		}
 		strategyMetricRuleDos = append(strategyMetricRuleDos, ruleDo)
-		ruleDoItem := build.ToStrategyMetricRule(ruleDo)
+		ruleDoItem := build.ToStrategyMetricRule(ctx, ruleDo)
 		ruleDoItem.WithContext(ctx)
-		alarmPages := build.ToDicts(rule.GetAlarmPages())
+		alarmPages := build.ToDicts(ctx, rule.GetAlarmPages())
 		alarmPagesMutation := tx.StrategyMetricRule.AlarmPages.WithContext(ctx).Model(ruleDoItem)
 		if len(alarmPages) > 0 {
 			if err := alarmPagesMutation.Replace(alarmPages...); err != nil {
@@ -142,7 +143,7 @@ func (t *teamStrategyMetricImpl) UpdateLevels(ctx context.Context, params bo.Sav
 				return nil, err
 			}
 		}
-		noticeGroups := build.ToStrategyNotices(rule.GetReceiverRoutes())
+		noticeGroups := build.ToStrategyNotices(ctx, rule.GetReceiverRoutes())
 		noticeGroupsMutation := tx.StrategyMetricRule.Notices.WithContext(ctx).Model(ruleDoItem)
 		if len(noticeGroups) > 0 {
 			if err := noticeGroupsMutation.Replace(noticeGroups...); err != nil {
@@ -157,7 +158,7 @@ func (t *teamStrategyMetricImpl) UpdateLevels(ctx context.Context, params bo.Sav
 			labelNoticeDo := &team.StrategyMetricRuleLabelNotice{
 				LabelKey:             notice.GetKey(),
 				LabelValue:           notice.GetValue(),
-				Notices:              build.ToStrategyNotices(notice.GetReceiverRoutes()),
+				Notices:              build.ToStrategyNotices(ctx, notice.GetReceiverRoutes()),
 				StrategyMetricRuleID: ruleDoItem.GetID(),
 			}
 			labelNoticeDo.WithContext(ctx)
@@ -192,21 +193,21 @@ func (t *teamStrategyMetricImpl) CreateLevels(ctx context.Context, params bo.Sav
 			Count:            rule.GetCount(),
 			Condition:        rule.GetCondition(),
 			Values:           rule.GetValues(),
-			StrategyMetric:   build.ToStrategyMetric(params.GetStrategyMetric()),
-			Level:            build.ToDict(rule.GetLevel()),
+			StrategyMetric:   build.ToStrategyMetric(ctx, params.GetStrategyMetric()),
+			Level:            build.ToDict(ctx, rule.GetLevel()),
 			Duration:         rule.GetDuration(),
 			Status:           rule.GetStatus(),
-			Notices:          build.ToStrategyNotices(rule.GetReceiverRoutes()),
+			Notices:          build.ToStrategyNotices(ctx, rule.GetReceiverRoutes()),
 			LabelNotices: slices.Map(rule.GetLabelNotices(), func(notice bo.LabelNotice) *team.StrategyMetricRuleLabelNotice {
 				item := &team.StrategyMetricRuleLabelNotice{
 					LabelKey:   notice.GetKey(),
 					LabelValue: notice.GetValue(),
-					Notices:    build.ToStrategyNotices(notice.GetReceiverRoutes()),
+					Notices:    build.ToStrategyNotices(ctx, notice.GetReceiverRoutes()),
 				}
 				item.WithContext(ctx)
 				return item
 			}),
-			AlarmPages: build.ToDicts(rule.GetAlarmPages()),
+			AlarmPages: build.ToDicts(ctx, rule.GetAlarmPages()),
 		}
 		ruleItem.WithContext(ctx)
 		return ruleItem
@@ -279,10 +280,18 @@ func (t *teamStrategyMetricImpl) Get(ctx context.Context, params *bo.OperateTeam
 		strategyMetricMutation.TeamID.Eq(teamId),
 	}
 
-	strategyMetricDo, err := strategyMetricMutation.WithContext(ctx).Preload(field.Associations).Where(wrapper...).First()
+	preloads := []field.RelationField{
+		strategyMetricMutation.Strategy.RelationField,
+		strategyMetricMutation.StrategyMetricRules.Level,
+		strategyMetricMutation.StrategyMetricRules.AlarmPages,
+		strategyMetricMutation.StrategyMetricRules.LabelNotices,
+		strategyMetricMutation.StrategyMetricRules.LabelNotices.Notices,
+		strategyMetricMutation.Datasource,
+	}
+	strategyMetricDo, err := strategyMetricMutation.WithContext(ctx).Preload(preloads...).Where(wrapper...).First()
 	if err != nil {
 		return nil, err
 	}
 
-	return build.ToStrategyMetric(strategyMetricDo), nil
+	return build.ToStrategyMetric(ctx, strategyMetricDo), nil
 }

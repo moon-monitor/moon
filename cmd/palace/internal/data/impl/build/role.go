@@ -1,52 +1,66 @@
 package build
 
 import (
+	"context"
+
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do/system"
 	"github.com/moon-monitor/moon/pkg/util/slices"
 	"github.com/moon-monitor/moon/pkg/util/validate"
 )
 
-func ToRole(roleDo do.Role) *system.Role {
+func ToRole(ctx context.Context, roleDo do.Role) *system.Role {
 	if validate.IsNil(roleDo) {
 		return nil
 	}
 	role, ok := roleDo.(*system.Role)
 	if ok {
+		role.WithContext(ctx)
 		return role
 	}
 	return &system.Role{
-		CreatorModel: ToCreatorModel(roleDo),
+		CreatorModel: ToCreatorModel(ctx, roleDo),
 		Name:         role.GetName(),
 		Remark:       role.GetRemark(),
 		Status:       role.GetStatus(),
-		Users:        ToUsers(role.GetUsers()),
+		Users:        ToUsers(ctx, role.GetUsers()),
 		Menus:        nil,
 	}
 }
 
-func ToRoles(roles []do.Role) []*system.Role {
-	return slices.Map(roles, ToRole)
+func ToRoles(ctx context.Context, roles []do.Role) []*system.Role {
+	return slices.MapFilter(roles, func(role do.Role) (*system.Role, bool) {
+		if validate.IsNil(role) {
+			return nil, false
+		}
+		return ToRole(ctx, role), true
+	})
 }
 
-func ToTeamRole(roleDo do.TeamRole) *system.TeamRole {
+func ToTeamRole(ctx context.Context, roleDo do.TeamRole) *system.TeamRole {
 	if validate.IsNil(roleDo) {
 		return nil
 	}
 	role, ok := roleDo.(*system.TeamRole)
 	if ok {
+		role.WithContext(ctx)
 		return role
 	}
 	return &system.TeamRole{
-		TeamModel: ToTeamModel(roleDo),
+		TeamModel: ToTeamModel(ctx, roleDo),
 		Name:      role.GetName(),
 		Remark:    role.GetRemark(),
 		Status:    role.GetStatus(),
-		Members:   nil,
+		Members:   ToTeamMembers(ctx, role.GetMembers()),
 		Menus:     nil,
 	}
 }
 
-func ToTeamRoles(roles []do.TeamRole) []*system.TeamRole {
-	return slices.Map(roles, ToTeamRole)
+func ToTeamRoles(ctx context.Context, roles []do.TeamRole) []*system.TeamRole {
+	return slices.MapFilter(roles, func(role do.TeamRole) (*system.TeamRole, bool) {
+		if validate.IsNil(role) {
+			return nil, false
+		}
+		return ToTeamRole(ctx, role), true
+	})
 }

@@ -6,9 +6,13 @@ import (
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do"
 	"github.com/moon-monitor/moon/pkg/api/palace/common"
 	"github.com/moon-monitor/moon/pkg/util/slices"
+	"github.com/moon-monitor/moon/pkg/util/validate"
 )
 
 func ToDictItem(dictItem do.TeamDict) *common.TeamDictItem {
+	if validate.IsNil(dictItem) {
+		return nil
+	}
 	return &common.TeamDictItem{
 		TeamId:    dictItem.GetTeamID(),
 		DictId:    dictItem.GetID(),

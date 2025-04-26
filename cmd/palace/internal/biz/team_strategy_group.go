@@ -19,7 +19,10 @@ type TeamStrategyGroupBiz struct {
 }
 
 func (t *TeamStrategyGroupBiz) SaveTeamStrategyGroup(ctx context.Context, params *bo.SaveTeamStrategyGroupParams) error {
-	return nil
+	if params.ID <= 0 {
+		return t.teamStrategyGroupRepo.Create(ctx, params)
+	}
+	return t.teamStrategyGroupRepo.Update(ctx, params)
 }
 
 func (t *TeamStrategyGroupBiz) UpdateTeamStrategyGroupStatus(ctx context.Context, params *bo.UpdateTeamStrategyGroupStatusParams) error {
@@ -27,7 +30,7 @@ func (t *TeamStrategyGroupBiz) UpdateTeamStrategyGroupStatus(ctx context.Context
 }
 
 func (t *TeamStrategyGroupBiz) DeleteTeamStrategyGroup(ctx context.Context, id uint32) error {
-	return nil
+	return t.teamStrategyGroupRepo.Delete(ctx, id)
 }
 
 func (t *TeamStrategyGroupBiz) GetTeamStrategyGroup(ctx context.Context, id uint32) (do.StrategyGroup, error) {

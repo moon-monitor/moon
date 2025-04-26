@@ -35,8 +35,8 @@ func (t *teamStrategyImpl) Create(ctx context.Context, params bo.CreateTeamStrat
 		Remark:          params.GetRemark(),
 		Status:          vobj.GlobalStatusDisable,
 		StrategyType:    params.GetStrategyType(),
-		StrategyGroup:   build.ToStrategyGroup(params.GetStrategyGroup()),
-		Notices:         build.ToStrategyNotices(params.GetReceiverRoutes()),
+		StrategyGroup:   build.ToStrategyGroup(ctx, params.GetStrategyGroup()),
+		Notices:         build.ToStrategyNotices(ctx, params.GetReceiverRoutes()),
 	}
 	strategyDo.WithContext(ctx)
 	tx, _, err := getTeamBizQuery(ctx, t)
@@ -78,7 +78,7 @@ func (t *teamStrategyImpl) Subscribe(ctx context.Context, params bo.SubscribeTea
 	}
 	subscriberDo := &team.StrategySubscriber{
 		StrategyID:    params.GetStrategy().GetID(),
-		Strategy:      build.ToStrategy(params.GetStrategy()),
+		Strategy:      build.ToStrategy(ctx, params.GetStrategy()),
 		SubscribeType: params.GetNoticeType(),
 	}
 	subscriberDo.WithContext(ctx)
@@ -141,8 +141,8 @@ func (t *teamStrategyImpl) Update(ctx context.Context, params bo.UpdateTeamStrat
 	if err != nil {
 		return nil, err
 	}
-	notices := build.ToStrategyNotices(params.GetReceiverRoutes())
-	notice := tx.Strategy.Notices.WithContext(ctx).Model(&team.Strategy{TeamModel: build.ToTeamModel(params.GetStrategy())})
+	notices := build.ToStrategyNotices(ctx, params.GetReceiverRoutes())
+	notice := tx.Strategy.Notices.WithContext(ctx).Model(&team.Strategy{TeamModel: build.ToTeamModel(ctx, params.GetStrategy())})
 	if len(notices) > 0 {
 		if err := notice.Replace(notices...); err != nil {
 			return nil, err

@@ -115,6 +115,12 @@ func (t *TeamStrategyMetric) SaveTeamMetricStrategyLevels(ctx context.Context, p
 	}
 	updatedRulesParams.ToSaveTeamMetricStrategyLevelsParams(strategyMetricDo, noticeGroupDos, dicts)
 	createdRulesParams.ToSaveTeamMetricStrategyLevelsParams(strategyMetricDo, noticeGroupDos, dicts)
+	if err := updatedRulesParams.Validate(); err != nil {
+		return nil, err
+	}
+	if err := createdRulesParams.Validate(); err != nil {
+		return nil, err
+	}
 	list := make([]do.StrategyMetricRule, 0, len(updatedRulesParams.Levels))
 	err = t.transaction.BizExec(ctx, func(ctx context.Context) error {
 		if len(updatedRulesParams.Levels) > 0 {
