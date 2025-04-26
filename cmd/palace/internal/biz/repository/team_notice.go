@@ -15,4 +15,6 @@ type TeamNotice interface {
 	Get(ctx context.Context, groupID uint32) (do.NoticeGroup, error)
 	List(ctx context.Context, req *bo.ListNoticeGroupReq) (*bo.ListNoticeGroupReply, error)
 	FindByIds(ctx context.Context, groupIds []uint32) ([]do.NoticeGroup, error)
+
+	FindLabelNotices(ctx context.Context, labelNoticeIds []uint32) ([]do.StrategyMetricRuleLabelNotice, error)
 }

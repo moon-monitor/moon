@@ -267,3 +267,20 @@ func (t *teamNoticeImpl) FindByIds(ctx context.Context, groupIds []uint32) ([]do
 	}
 	return slices.Map(rows, func(row *team.NoticeGroup) do.NoticeGroup { return row }), nil
 }
+
+func (t *teamNoticeImpl) FindLabelNotices(ctx context.Context, labelNoticeIds []uint32) ([]do.StrategyMetricRuleLabelNotice, error) {
+	if len(labelNoticeIds) == 0 {
+		return nil, nil
+	}
+	bizQuery, teamId, err := getTeamBizQuery(ctx, t)
+	if err != nil {
+		return nil, err
+	}
+	mutation := bizQuery.StrategyMetricRuleLabelNotice
+	wrapper := mutation.WithContext(ctx).Where(mutation.TeamID.Eq(teamId), mutation.ID.In(labelNoticeIds...))
+	rows, err := wrapper.Find()
+	if err != nil {
+		return nil, err
+	}
+	return slices.Map(rows, func(row *team.StrategyMetricRuleLabelNotice) do.StrategyMetricRuleLabelNotice { return row }), nil
+}

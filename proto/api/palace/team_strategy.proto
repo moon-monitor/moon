@@ -169,6 +169,8 @@ message SaveTeamStrategyItemRequest {
   string remark = 3 [(buf.validate.field).string.max_len = 255];
   // Strategy item type
   api.palace.common.StrategyType strategyType = 4;
+  // Receiver routes
+  repeated uint32 receiverRoutes = 5;
 }
 
 message LabelNotices {
@@ -208,12 +210,10 @@ message SaveTeamMetricStrategyRequest {
   map<string, string> labels = 3;
   // Annotations
   map<string, string> annotations = 4;
-  // Receiver routes
-  repeated uint32 receiverRoutes = 5;
   // Levels
-  repeated MetricStrategyLevelItem levels = 6;
+  repeated MetricStrategyLevelItem levels = 5;
   // Datasource
-  repeated uint32 datasource = 7;
+  repeated uint32 datasource = 6;
 }
 
 message UpdateTeamStrategiesStatusRequest {

@@ -3220,12 +3220,6 @@ components:
                     additionalProperties:
                         type: string
                     description: Annotations
-                receiverRoutes:
-                    type: array
-                    items:
-                        type: integer
-                        format: uint32
-                    description: Receiver routes
                 levels:
                     type: array
                     items:
@@ -3412,6 +3406,12 @@ components:
                     type: integer
                     description: Strategy item type
                     format: enum
+                receiverRoutes:
+                    type: array
+                    items:
+                        type: integer
+                        format: uint32
+                    description: Receiver routes
         api.palace.SelfInfoReply:
             type: object
             properties:

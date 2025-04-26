@@ -16,8 +16,8 @@ type TeamStrategy interface {
 }
 
 type TeamStrategyMetric interface {
-	Create(ctx context.Context, params *bo.SaveTeamMetricStrategyParams) error
-	Update(ctx context.Context, params *bo.SaveTeamMetricStrategyParams) error
+	Create(ctx context.Context, params bo.SaveTeamMetricStrategy) error
+	Update(ctx context.Context, params bo.SaveTeamMetricStrategy) error
 	Get(ctx context.Context, params *bo.OperateTeamMetricStrategyParams) (do.StrategyMetric, error)
 	Delete(ctx context.Context, params *bo.OperateTeamMetricStrategyParams) error
 }

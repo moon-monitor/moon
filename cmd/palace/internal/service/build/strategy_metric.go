@@ -12,23 +12,24 @@ import (
 
 func ToSaveTeamStrategyItem(request *palacev1.SaveTeamStrategyItemRequest) *bo.SaveTeamStrategyItem {
 	return &bo.SaveTeamStrategyItem{
-		StrategyID:   request.GetStrategyId(),
-		Name:         request.GetName(),
-		Remark:       request.GetRemark(),
-		StrategyType: vobj.StrategyType(request.GetStrategyType()),
+		StrategyID:     request.GetStrategyId(),
+		Name:           request.GetName(),
+		Remark:         request.GetRemark(),
+		StrategyType:   vobj.StrategyType(request.GetStrategyType()),
+		ReceiverRoutes: request.GetReceiverRoutes(),
 	}
 }
 
-func ToSaveLabelNoticesItem(request *palacev1.LabelNotices) *bo.SaveLabelNoticesItem {
-	return &bo.SaveLabelNoticesItem{
+func ToSaveLabelNoticeItem(request *palacev1.LabelNotices) *bo.SaveLabelNoticeItem {
+	return &bo.SaveLabelNoticeItem{
 		LabelKey:       request.GetKey(),
 		LabelValue:     request.GetValue(),
 		ReceiverRoutes: request.GetReceiverRoutes(),
 	}
 }
 
-func ToSaveLabelNoticesItems(request []*palacev1.LabelNotices) []*bo.SaveLabelNoticesItem {
-	return slices.Map(request, ToSaveLabelNoticesItem)
+func ToSaveLabelNoticeItems(request []*palacev1.LabelNotices) []*bo.SaveLabelNoticeItem {
+	return slices.Map(request, ToSaveLabelNoticeItem)
 }
 
 func ToSaveTeamMetricStrategyRuleItem(request *palacev1.SaveTeamMetricStrategyRequest_MetricStrategyLevelItem) *bo.SaveTeamMetricStrategyRuleItem {
@@ -42,7 +43,7 @@ func ToSaveTeamMetricStrategyRuleItem(request *palacev1.SaveTeamMetricStrategyRe
 		Duration:       request.GetDuration().AsDuration(),
 		ReceiverRoutes: request.GetReceiverRoutes(),
 		Status:         vobj.GlobalStatus(request.GetStatus()),
-		LabelNotices:   ToSaveLabelNoticesItems(request.GetLabelNotices()),
+		LabelNotices:   ToSaveLabelNoticeItems(request.GetLabelNotices()),
 	}
 }
 
@@ -56,7 +57,6 @@ func ToSaveTeamMetricStrategyParams(request *palacev1.SaveTeamMetricStrategyRequ
 		Expr:           request.GetExpr(),
 		Labels:         kv.NewStringMap(request.GetLabels()),
 		Annotations:    kv.NewStringMap(request.GetAnnotations()),
-		ReceiverRoutes: request.GetReceiverRoutes(),
 		DatasourceList: request.GetDatasource(),
 		Rules:          ToSaveTeamMetricStrategyRuleItems(request.GetLevels()),
 	}

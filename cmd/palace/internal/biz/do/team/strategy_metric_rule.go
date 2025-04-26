@@ -23,7 +23,7 @@ type StrategyMetricRule struct {
 	SampleMode       vobj.SampleMode                  `gorm:"column:sample_mode;type:tinyint(2);not null;comment:采样方式" json:"sampleMode"`
 	Condition        vobj.ConditionMetric             `gorm:"column:condition;type:tinyint(2);not null;comment:条件" json:"condition"`
 	Count            int64                            `gorm:"column:count;type:bigint;not null;comment:采样数量" json:"count"`
-	Values           *Values                          `gorm:"column:values;type:json;not null;comment:值" json:"values"`
+	Values           Values                           `gorm:"column:values;type:json;not null;comment:值" json:"values"`
 	Duration         time.Duration                    `gorm:"column:duration;type:time;not null;comment:持续时间" json:"duration"`
 	Status           vobj.GlobalStatus                `gorm:"column:status;type:tinyint(2);not null;comment:状态" json:"status"`
 	Notices          []*NoticeGroup                   `gorm:"many2many:team_strategy_metric_rule_notice_groups" json:"notices"`
@@ -84,7 +84,7 @@ func (r *StrategyMetricRule) GetValues() []float64 {
 	if r == nil || r.Values == nil {
 		return nil
 	}
-	return *r.Values
+	return r.Values
 }
 
 func (r *StrategyMetricRule) GetDuration() time.Duration {

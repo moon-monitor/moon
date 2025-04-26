@@ -1,44 +1,45 @@
 package build
 
 import (
-	"context"
-
+	"github.com/moon-monitor/moon/cmd/palace/internal/biz/bo"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do/team"
 	"github.com/moon-monitor/moon/pkg/util/crypto"
 	"github.com/moon-monitor/moon/pkg/util/slices"
+	"github.com/moon-monitor/moon/pkg/util/validate"
 )
 
-func ToStrategyNotice(ctx context.Context, route do.NoticeGroup) *team.NoticeGroup {
+func ToStrategyNotice(route do.NoticeGroup) *team.NoticeGroup {
+	if validate.IsNil(route) {
+		return nil
+	}
 	if notice, ok := route.(*team.NoticeGroup); ok {
-		notice.WithContext(ctx)
 		return notice
 	}
 	item := &team.NoticeGroup{
 		Name:          route.GetName(),
 		Remark:        route.GetRemark(),
 		Status:        route.GetStatus(),
-		Members:       ToStrategyMembers(ctx, route.GetNoticeMembers()),
-		Hooks:         ToStrategyHooks(ctx, route.GetHooks()),
+		Members:       ToStrategyMembers(route.GetNoticeMembers()),
+		Hooks:         ToStrategyHooks(route.GetHooks()),
 		EmailConfigID: route.GetEmailConfig().GetID(),
-		EmailConfig:   ToStrategyEmailConfig(ctx, route.GetEmailConfig()),
+		EmailConfig:   ToStrategyEmailConfig(route.GetEmailConfig()),
 		SMSConfigID:   route.GetSMSConfig().GetID(),
-		SMSConfig:     ToStrategySmsConfig(ctx, route.GetSMSConfig()),
+		SMSConfig:     ToStrategySmsConfig(route.GetSMSConfig()),
 		TeamModel:     ToTeamModel(route),
 	}
-	item.WithContext(ctx)
 	return item
 }
 
-func ToStrategyNotices(ctx context.Context, routes []do.NoticeGroup) []*team.NoticeGroup {
-	return slices.Map(routes, func(route do.NoticeGroup) *team.NoticeGroup {
-		return ToStrategyNotice(ctx, route)
-	})
+func ToStrategyNotices(routes []do.NoticeGroup) []*team.NoticeGroup {
+	return slices.Map(routes, ToStrategyNotice)
 }
 
-func ToStrategyHook(ctx context.Context, hook do.NoticeHook) *team.NoticeHook {
+func ToStrategyHook(hook do.NoticeHook) *team.NoticeHook {
+	if validate.IsNil(hook) {
+		return nil
+	}
 	if hook, ok := hook.(*team.NoticeHook); ok {
-		hook.WithContext(ctx)
 		return hook
 	}
 	item := &team.NoticeHook{
@@ -50,22 +51,21 @@ func ToStrategyHook(ctx context.Context, hook do.NoticeHook) *team.NoticeHook {
 		Method:       hook.GetMethod(),
 		Secret:       hook.GetSecret(),
 		Headers:      hook.GetHeaders(),
-		NoticeGroups: ToStrategyNotices(ctx, hook.GetNoticeGroups()),
+		NoticeGroups: ToStrategyNotices(hook.GetNoticeGroups()),
 		APP:          hook.GetApp(),
 	}
-	item.WithContext(ctx)
 	return item
 }
 
-func ToStrategyHooks(ctx context.Context, hooks []do.NoticeHook) []*team.NoticeHook {
-	return slices.Map(hooks, func(hook do.NoticeHook) *team.NoticeHook {
-		return ToStrategyHook(ctx, hook)
-	})
+func ToStrategyHooks(hooks []do.NoticeHook) []*team.NoticeHook {
+	return slices.Map(hooks, ToStrategyHook)
 }
 
-func ToStrategyEmailConfig(ctx context.Context, config do.TeamEmailConfig) *team.EmailConfig {
+func ToStrategyEmailConfig(config do.TeamEmailConfig) *team.EmailConfig {
+	if validate.IsNil(config) {
+		return nil
+	}
 	if config, ok := config.(*team.EmailConfig); ok {
-		config.WithContext(ctx)
 		return config
 	}
 
@@ -76,13 +76,14 @@ func ToStrategyEmailConfig(ctx context.Context, config do.TeamEmailConfig) *team
 		Status:    config.GetStatus(),
 		Email:     crypto.NewObject(config.GetEmailConfig()),
 	}
-	item.WithContext(ctx)
 	return item
 }
 
-func ToStrategySmsConfig(ctx context.Context, config do.TeamSMSConfig) *team.SmsConfig {
+func ToStrategySmsConfig(config do.TeamSMSConfig) *team.SmsConfig {
+	if validate.IsNil(config) {
+		return nil
+	}
 	if config, ok := config.(*team.SmsConfig); ok {
-		config.WithContext(ctx)
 		return config
 	}
 	item := &team.SmsConfig{
@@ -93,6 +94,43 @@ func ToStrategySmsConfig(ctx context.Context, config do.TeamSMSConfig) *team.Sms
 		Sms:       crypto.NewObject(config.GetSMSConfig()),
 		Provider:  config.GetProviderType(),
 	}
-	item.WithContext(ctx)
 	return item
+}
+
+func ToStrategyMetricRuleLabelNotice(notice do.StrategyMetricRuleLabelNotice) *team.StrategyMetricRuleLabelNotice {
+	if validate.IsNil(notice) {
+		return nil
+	}
+	if notice, ok := notice.(*team.StrategyMetricRuleLabelNotice); ok {
+		return notice
+	}
+	item := &team.StrategyMetricRuleLabelNotice{
+		TeamModel:            ToTeamModel(notice),
+		StrategyMetricRuleID: notice.GetStrategyMetricRuleID(),
+		LabelKey:             notice.GetLabelKey(),
+		LabelValue:           notice.GetLabelValue(),
+		Notices:              ToStrategyNotices(notice.GetNotices()),
+	}
+	return item
+}
+
+func ToStrategyMetricRuleLabelNotices(notices []do.StrategyMetricRuleLabelNotice) []*team.StrategyMetricRuleLabelNotice {
+	return slices.Map(notices, ToStrategyMetricRuleLabelNotice)
+}
+
+func ToStrategyMetricRuleLabelNoticesDo(notices []bo.SaveLabelNotice) []*team.StrategyMetricRuleLabelNotice {
+	return slices.Map(notices, ToStrategyMetricRuleLabelNoticeDo)
+}
+
+func ToStrategyMetricRuleLabelNoticeDo(notice bo.SaveLabelNotice) *team.StrategyMetricRuleLabelNotice {
+	if validate.IsNil(notice) {
+		return nil
+	}
+	return &team.StrategyMetricRuleLabelNotice{
+		TeamModel:            ToTeamModel(notice.GetLabelNotice()),
+		StrategyMetricRuleID: notice.GetStrategyMetricRuleID(),
+		LabelKey:             notice.GetLabelKey(),
+		LabelValue:           notice.GetLabelValue(),
+		Notices:              ToStrategyNotices(notice.GetReceiverRoutes()),
+	}
 }
