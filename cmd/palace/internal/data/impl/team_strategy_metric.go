@@ -161,7 +161,7 @@ func (t *teamStrategyMetricImpl) UpdateLevels(ctx context.Context, params bo.Sav
 		mutations := []field.AssignExpr{
 			strategyMetricRuleMutation.LevelID.Value(rule.GetLevel().GetID()),
 			strategyMetricRuleMutation.SampleMode.Value(rule.GetSampleMode().GetValue()),
-			strategyMetricRuleMutation.Count_.Value(rule.GetCount()),
+			strategyMetricRuleMutation.Total.Value(rule.GetTotal()),
 			strategyMetricRuleMutation.Condition.Value(rule.GetCondition().GetValue()),
 			strategyMetricRuleMutation.Values.Value(team.Values(rule.GetValues())),
 			strategyMetricRuleMutation.Status.Value(rule.GetStatus().GetValue()),
@@ -235,7 +235,7 @@ func (t *teamStrategyMetricImpl) CreateLevels(ctx context.Context, params bo.Sav
 			StrategyMetricID: params.GetStrategyMetric().GetID(),
 			LevelID:          rule.GetLevel().GetID(),
 			SampleMode:       rule.GetSampleMode(),
-			Count:            rule.GetCount(),
+			Total:            rule.GetTotal(),
 			Condition:        rule.GetCondition(),
 			Values:           rule.GetValues(),
 			StrategyMetric:   build.ToStrategyMetric(ctx, params.GetStrategyMetric()),

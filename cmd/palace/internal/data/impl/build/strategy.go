@@ -106,7 +106,7 @@ func ToStrategyMetricRule(ctx context.Context, params do.StrategyMetricRule) *te
 		Level:            ToDict(ctx, params.GetLevel()),
 		SampleMode:       params.GetSampleMode(),
 		Condition:        params.GetCondition(),
-		Count:            params.GetCount(),
+		Total:            params.GetTotal(),
 		Values:           params.GetValues(),
 		Duration:         params.GetDuration(),
 		Status:           params.GetStatus(),

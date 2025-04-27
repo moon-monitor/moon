@@ -258,7 +258,7 @@ type SaveTeamMetricStrategyLevel interface {
 	GetLevel() do.TeamDict
 	GetAlarmPages() []do.TeamDict
 	GetSampleMode() vobj.SampleMode
-	GetCount() int64
+	GetTotal() int64
 	GetCondition() vobj.ConditionMetric
 	GetValues() []float64
 	GetReceiverRoutes() []do.NoticeGroup
@@ -274,7 +274,7 @@ type SaveTeamMetricStrategyLevelParams struct {
 	LevelId        uint32
 	LevelName      string
 	SampleMode     vobj.SampleMode
-	Count          int64
+	Total          int64
 	Condition      vobj.ConditionMetric
 	Values         []float64
 	ReceiverRoutes []uint32
@@ -329,9 +329,9 @@ func (s *SaveTeamMetricStrategyLevelParams) GetCondition() vobj.ConditionMetric 
 	return s.Condition
 }
 
-// GetCount implements SaveTeamMetricStrategyLevel.
-func (s *SaveTeamMetricStrategyLevelParams) GetCount() int64 {
-	return s.Count
+// GetTotal implements SaveTeamMetricStrategyLevel.
+func (s *SaveTeamMetricStrategyLevelParams) GetTotal() int64 {
+	return s.Total
 }
 
 // GetDuration implements SaveTeamMetricStrategyLevel.

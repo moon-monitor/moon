@@ -3254,9 +3254,9 @@ components:
                     type: integer
                     description: Sample mode
                     format: enum
-                count:
+                total:
                     type: string
-                    description: Count
+                    description: Total
                 condition:
                     type: integer
                     description: Condition
@@ -4658,7 +4658,7 @@ components:
                 condition:
                     type: integer
                     format: enum
-                count:
+                total:
                     type: string
                 values:
                     type: array

@@ -63,7 +63,7 @@ message TeamStrategyMetricItem {
     uint32 ruleId = 3;
     SampleMode sampleMode = 4;
     ConditionMetric condition = 5;
-    int64 count = 6;
+    int64 total = 6;
     repeated double values = 7;
     google.protobuf.Duration duration = 8;
     GlobalStatus status = 9;

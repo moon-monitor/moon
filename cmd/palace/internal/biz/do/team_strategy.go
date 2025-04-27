@@ -45,7 +45,7 @@ type StrategyMetricRule interface {
 	GetLevel() TeamDict
 	GetSampleMode() vobj.SampleMode
 	GetCondition() vobj.ConditionMetric
-	GetCount() int64
+	GetTotal() int64
 	GetValues() []float64
 	GetDuration() time.Duration
 	GetStatus() vobj.GlobalStatus
