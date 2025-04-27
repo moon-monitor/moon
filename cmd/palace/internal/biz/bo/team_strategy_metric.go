@@ -409,6 +409,15 @@ func (s *SaveTeamMetricStrategyLevelsParams) Validate() error {
 	if validate.IsNil(s.strategyMetricDo) || s.strategyMetricDo.GetID() != s.StrategyMetricID {
 		return merr.ErrorParamsError("strategy metric is not found")
 	}
+	if len(s.Levels) > 5 {
+		return merr.ErrorParamsError("levels is too many")
+	}
+	levelMap := slices.ToMap(s.Levels, func(level *SaveTeamMetricStrategyLevelParams) uint32 {
+		return level.GetLevelId()
+	})
+	if len(levelMap) != len(s.Levels) {
+		return merr.ErrorParamsError("level id is duplicate")
+	}
 	return nil
 }
 
