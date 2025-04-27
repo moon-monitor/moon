@@ -48,7 +48,7 @@ service System {
   }
 
   // GetUser retrieves a user by Id
-  rpc GetUser (GetUserRequest) returns (GetUserReply) {
+  rpc GetUser (GetUserRequest) returns (api.palace.common.UserItem) {
     option (google.api.http) = {
       get: "/api/system/user/detail"
     };
@@ -71,7 +71,7 @@ service System {
   }
 
   // GetSystemRole retrieves a system role by Id
-  rpc GetSystemRole (GetSystemRoleRequest) returns (GetSystemRoleReply) {
+  rpc GetSystemRole (GetSystemRoleRequest) returns (api.palace.common.SystemRoleItem) {
     option (google.api.http) = {
       get: "/api/system/role"
     };
@@ -187,12 +187,6 @@ message GetUserRequest {
   uint32 userId = 1 [(buf.validate.field).required = true];
 }
 
-// GetUserReply contains the response data for retrieving a user
-message GetUserReply {
-  // Detailed information about the user
-  api.palace.common.UserItem user = 1;
-}
-
 // GetUserListRequest represents the request data for listing users
 message GetUserListRequest {
   // List of statuses to filter users by
@@ -297,12 +291,6 @@ message UpdateRoleUsersRequest {
 message GetSystemRoleRequest {
   // Role Id
   uint32 roleId = 1 [(buf.validate.field).required = true];
-}
-
-// GetSystemRoleReply contains the response data for retrieving a system role
-message GetSystemRoleReply {
-  // Detailed information about the system role
-  api.palace.common.SystemRoleItem role = 1;
 }
 
 // GetTeamAuditListRequest represents the request data for listing team audit records

@@ -15,7 +15,7 @@ option go_package = "github.com/moon-monitor/moon/pkg/api/palace;palace";
 // User service provides operations for managing user information, teams, and subscriptions
 service User {
   // SelfInfo retrieves the current user's information
-  rpc SelfInfo (api.palace.common.EmptyRequest) returns (SelfInfoReply) {
+  rpc SelfInfo (api.palace.common.EmptyRequest) returns (api.palace.common.UserItem) {
     option (google.api.http) = {
       get: "/api/user/self"
     };
@@ -75,12 +75,6 @@ service User {
       body: "*"
     };
   }
-}
-
-// SelfInfoReply contains the response data for retrieving the current user's information
-message SelfInfoReply {
-  // Detailed information about the user
-  api.palace.common.UserItem user = 1;
 }
 
 // UpdateSelfInfoRequest represents the request data for updating the current user's information

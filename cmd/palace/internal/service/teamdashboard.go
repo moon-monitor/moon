@@ -49,14 +49,12 @@ func (s *TeamDashboardService) DeleteTeamDashboard(ctx context.Context, req *pal
 	return &common.EmptyReply{Message: "删除团队图表看板成功"}, nil
 }
 
-func (s *TeamDashboardService) GetTeamDashboard(ctx context.Context, req *palacev1.GetTeamDashboardRequest) (*palacev1.GetTeamDashboardReply, error) {
+func (s *TeamDashboardService) GetTeamDashboard(ctx context.Context, req *palacev1.GetTeamDashboardRequest) (*common.TeamDashboardItem, error) {
 	dashboard, err := s.dashboard.GetDashboard(ctx, req.GetDashboardId())
 	if err != nil {
 		return nil, err
 	}
-	return &palacev1.GetTeamDashboardReply{
-		Dashboard: build.ToDashboardItem(dashboard),
-	}, nil
+	return build.ToDashboardItem(dashboard), nil
 }
 
 func (s *TeamDashboardService) ListTeamDashboard(ctx context.Context, req *palacev1.ListTeamDashboardRequest) (*palacev1.ListTeamDashboardReply, error) {
@@ -115,7 +113,7 @@ func (s *TeamDashboardService) DeleteTeamDashboardChart(ctx context.Context, req
 	return &common.EmptyReply{Message: "删除团队图表成功"}, nil
 }
 
-func (s *TeamDashboardService) GetTeamDashboardChart(ctx context.Context, req *palacev1.GetTeamDashboardChartRequest) (*palacev1.GetTeamDashboardChartReply, error) {
+func (s *TeamDashboardService) GetTeamDashboardChart(ctx context.Context, req *palacev1.GetTeamDashboardChartRequest) (*common.TeamDashboardChartItem, error) {
 	params := &bo.OperateOneDashboardChartReq{
 		ID:          req.GetChartId(),
 		DashboardID: req.GetDashboardId(),
@@ -124,9 +122,7 @@ func (s *TeamDashboardService) GetTeamDashboardChart(ctx context.Context, req *p
 	if err != nil {
 		return nil, err
 	}
-	return &palacev1.GetTeamDashboardChartReply{
-		Chart: build.ToDashboardChartItem(chart),
-	}, nil
+	return build.ToDashboardChartItem(chart), nil
 }
 
 func (s *TeamDashboardService) ListTeamDashboardChart(ctx context.Context, req *palacev1.ListTeamDashboardChartRequest) (*palacev1.ListTeamDashboardChartReply, error) {

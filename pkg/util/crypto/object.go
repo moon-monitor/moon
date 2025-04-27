@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 
 	"github.com/moon-monitor/moon/pkg/merr"
+	"github.com/moon-monitor/moon/pkg/util/validate"
 )
 
 var _ sql.Scanner = (*Object[any])(nil)
@@ -55,6 +56,9 @@ func (o *Object[T]) Scan(value interface{}) error {
 }
 
 func (o Object[T]) Value() (driver.Value, error) {
+	if validate.IsNil(o) || validate.IsNil(o.Data) {
+		return "", nil
+	}
 	aes, err := WithAes()
 	if err != nil {
 		return "", err

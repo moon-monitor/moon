@@ -16,9 +16,11 @@ import (
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/repository"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/vobj"
 	"github.com/moon-monitor/moon/cmd/palace/internal/data"
+	"github.com/moon-monitor/moon/cmd/palace/internal/data/impl/build"
 	"github.com/moon-monitor/moon/pkg/config"
 	"github.com/moon-monitor/moon/pkg/merr"
 	"github.com/moon-monitor/moon/pkg/plugin/gorm"
+	"github.com/moon-monitor/moon/pkg/util/crypto"
 	"github.com/moon-monitor/moon/pkg/util/slices"
 	"github.com/moon-monitor/moon/pkg/util/validate"
 )
@@ -35,19 +37,21 @@ type teamRepoImpl struct {
 	helper *log.Helper
 }
 
-func (r *teamRepoImpl) Create(ctx context.Context, team do.Team) (do.Team, error) {
+func (r *teamRepoImpl) Create(ctx context.Context, team bo.CreateTeamRequest) (do.Team, error) {
 	teamMutation := getMainQuery(ctx, r).Team
 	teamDo := &system.Team{
-		Name:      team.GetName(),
-		Status:    team.GetStatus(),
-		Remark:    team.GetRemark(),
-		Logo:      team.GetLogo(),
-		LeaderID:  team.GetLeaderID(),
-		UUID:      team.GetUUID(),
-		Capacity:  team.GetCapacity(),
-		Leader:    nil,
-		Admins:    nil,
-		Resources: nil,
+		Name:          team.GetName(),
+		Status:        team.GetStatus(),
+		Remark:        team.GetRemark(),
+		Logo:          team.GetLogo(),
+		LeaderID:      team.GetLeader().GetID(),
+		UUID:          team.GetUUID(),
+		Capacity:      team.GetCapacity(),
+		Leader:        build.ToUser(ctx, team.GetLeader()),
+		Admins:        nil,
+		Resources:     nil,
+		BizDBConfig:   crypto.NewObject(team.GetBizDBConfig()),
+		AlarmDBConfig: crypto.NewObject(team.GetAlarmDBConfig()),
 	}
 	teamDo.WithContext(ctx)
 	if err := teamMutation.WithContext(ctx).Create(teamDo); err != nil {
@@ -56,10 +60,10 @@ func (r *teamRepoImpl) Create(ctx context.Context, team do.Team) (do.Team, error
 	return teamDo, nil
 }
 
-func (r *teamRepoImpl) Update(ctx context.Context, team do.Team) (do.Team, error) {
+func (r *teamRepoImpl) Update(ctx context.Context, team bo.UpdateTeamRequest) (do.Team, error) {
 	teamMutation := getMainQuery(ctx, r).Team
 	wrappers := []gen.Condition{
-		teamMutation.ID.Eq(team.GetID()),
+		teamMutation.ID.Eq(team.GetTeam().GetID()),
 	}
 	mutations := []field.AssignExpr{
 		teamMutation.Name.Value(team.GetName()),
@@ -70,7 +74,7 @@ func (r *teamRepoImpl) Update(ctx context.Context, team do.Team) (do.Team, error
 	if err != nil {
 		return nil, err
 	}
-	return r.FindByID(ctx, team.GetID())
+	return r.FindByID(ctx, team.GetTeam().GetID())
 }
 
 func (r *teamRepoImpl) Delete(ctx context.Context, id uint32) error {

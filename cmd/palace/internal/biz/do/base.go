@@ -204,9 +204,11 @@ func (u *TeamModel) GetTeamID() uint32 {
 
 func (u *TeamModel) BeforeCreate(tx *gorm.DB) (err error) {
 	var exist bool
-	u.TeamID, exist = permission.GetTeamIDByContext(u.GetContext())
-	if !exist || u.TeamID == 0 {
-		return merr.ErrorInternalServerError("team id not found")
+	if u.TeamID <= 0 {
+		u.TeamID, exist = permission.GetTeamIDByContext(u.GetContext())
+		if !exist || u.TeamID == 0 {
+			return merr.ErrorInternalServerError("team id not found")
+		}
 	}
 	u.CreatorID, exist = permission.GetUserIDByContext(u.GetContext())
 	if !exist || u.CreatorID == 0 {

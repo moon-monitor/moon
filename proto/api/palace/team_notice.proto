@@ -27,7 +27,7 @@ service TeamNotice {
       delete: "/api/team/notice/hook"
     };
   }
-  rpc GetTeamNoticeHook (GetTeamNoticeHookRequest) returns (GetTeamNoticeHookReply) {
+  rpc GetTeamNoticeHook (GetTeamNoticeHookRequest) returns (api.palace.common.NoticeHookItem) {
     option (google.api.http) = {
       get: "/api/team/notice/hook"
     };
@@ -55,7 +55,7 @@ service TeamNotice {
       delete: "/api/team/notice/group"
     };
   }
-  rpc GetTeamNoticeGroup (GetTeamNoticeGroupRequest) returns (GetTeamNoticeGroupReply) {
+  rpc GetTeamNoticeGroup (GetTeamNoticeGroupRequest) returns (api.palace.common.NoticeGroupItem) {
     option (google.api.http) = {
       get: "/api/team/notice/group"
     };
@@ -91,9 +91,6 @@ message DeleteTeamNoticeHookRequest {
 
 message GetTeamNoticeHookRequest {
   uint32 hookId = 1;
-}
-message GetTeamNoticeHookReply {
-  api.palace.common.NoticeHookItem hook = 1;
 }
 
 message ListTeamNoticeHookRequest {
@@ -133,9 +130,6 @@ message DeleteTeamNoticeGroupRequest {
 
 message GetTeamNoticeGroupRequest {
   uint32 groupId = 1;
-}
-message GetTeamNoticeGroupReply {
-  api.palace.common.NoticeGroupItem noticeGroup = 1;
 }
 
 message ListTeamNoticeGroupRequest {

@@ -41,15 +41,13 @@ func (s *ResourceService) BatchUpdateResourceStatus(ctx context.Context, req *pa
 	return &common.EmptyReply{Message: "更改资源接口状态成功"}, nil
 }
 
-func (s *ResourceService) GetResource(ctx context.Context, req *palacev1.GetResourceRequest) (*palacev1.GetResourceReply, error) {
+func (s *ResourceService) GetResource(ctx context.Context, req *palacev1.GetResourceRequest) (*common.ResourceItem, error) {
 	resource, err := s.resourceBiz.GetResource(ctx, req.GetResourceId())
 	if err != nil {
 		return nil, err
 	}
 
-	return &palacev1.GetResourceReply{
-		Resource: build.ToResourceItem(resource),
-	}, nil
+	return build.ToResourceItem(resource), nil
 }
 
 func (s *ResourceService) ListResource(ctx context.Context, req *palacev1.ListResourceRequest) (*palacev1.ListResourceReply, error) {
@@ -108,13 +106,11 @@ func (s *ResourceService) SaveMenu(ctx context.Context, req *palacev1.SaveMenuRe
 	return &common.EmptyReply{Message: "保存系统菜单成功"}, nil
 }
 
-func (s *ResourceService) GetMenu(ctx context.Context, req *palacev1.GetMenuRequest) (*palacev1.GetMenuReply, error) {
+func (s *ResourceService) GetMenu(ctx context.Context, req *palacev1.GetMenuRequest) (*common.MenuTreeItem, error) {
 	menu, err := s.resourceBiz.GetMenu(ctx, req.GetMenuId())
 	if err != nil {
 		return nil, err
 	}
 
-	return &palacev1.GetMenuReply{
-		Menu: build.ToMenuTreeItem(menu),
-	}, nil
+	return build.ToMenuTreeItem(menu), nil
 }

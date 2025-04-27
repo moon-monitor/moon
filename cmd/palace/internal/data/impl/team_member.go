@@ -12,6 +12,7 @@ import (
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/repository"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/vobj"
 	"github.com/moon-monitor/moon/cmd/palace/internal/data"
+	"github.com/moon-monitor/moon/cmd/palace/internal/data/impl/build"
 	"github.com/moon-monitor/moon/cmd/palace/internal/helper/permission"
 	"github.com/moon-monitor/moon/pkg/merr"
 	"github.com/moon-monitor/moon/pkg/util/slices"
@@ -28,6 +29,25 @@ func NewMemberRepo(data *data.Data, logger log.Logger) repository.Member {
 type memberImpl struct {
 	*data.Data
 	helper *log.Helper
+}
+
+// Create implements repository.Member.
+func (m *memberImpl) Create(ctx context.Context, req *bo.CreateTeamMemberReq) error {
+	memberQuery := getMainQuery(ctx, m).TeamMember
+	memberDo := &system.TeamMember{
+		TeamModel:  do.TeamModel{TeamID: req.Team.GetID()},
+		MemberName: req.User.GetUsername(),
+		Remark:     req.User.GetRemark(),
+		UserID:     req.User.GetID(),
+		Position:   req.Position,
+		Status:     req.Status,
+		User:       build.ToUser(ctx, req.User),
+	}
+	memberDo.WithContext(ctx)
+	if err := memberQuery.WithContext(ctx).Create(memberDo); err != nil {
+		return err
+	}
+	return nil
 }
 
 func (m *memberImpl) List(ctx context.Context, req *bo.TeamMemberListRequest) (*bo.TeamMemberListReply, error) {

@@ -1,14 +1,13 @@
 package build
 
 import (
-	"time"
-
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/bo"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/vobj"
 	"github.com/moon-monitor/moon/pkg/api/palace"
 	"github.com/moon-monitor/moon/pkg/api/palace/common"
 	"github.com/moon-monitor/moon/pkg/util/slices"
+	"github.com/moon-monitor/moon/pkg/util/timex"
 	"github.com/moon-monitor/moon/pkg/util/validate"
 )
 
@@ -34,7 +33,7 @@ func ToTeamAuditItem(audit do.TeamAudit) *common.TeamAuditItem {
 		User:      ToUserBaseItem(audit.GetCreator()),
 		Status:    common.TeamAuditStatus(audit.GetStatus().GetValue()),
 		Reason:    audit.GetReason(),
-		CreatedAt: audit.GetCreatedAt().Format(time.DateTime),
+		CreatedAt: timex.Format(audit.GetCreatedAt()),
 		Team:      ToTeamBaseItem(audit.GetTeam()),
 		Action:    common.TeamAuditAction(audit.GetAction().GetValue()),
 	}

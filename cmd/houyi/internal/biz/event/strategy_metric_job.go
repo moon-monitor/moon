@@ -14,6 +14,7 @@ import (
 	"github.com/moon-monitor/moon/pkg/merr"
 	"github.com/moon-monitor/moon/pkg/plugin/server"
 	"github.com/moon-monitor/moon/pkg/util/slices"
+	"github.com/moon-monitor/moon/pkg/util/timex"
 )
 
 func NewStrategyMetricJob(key string, opts ...StrategyMetricJobOption) (bo.StrategyJob, error) {
@@ -220,7 +221,7 @@ func (s *strategyMetricJob) Run() {
 		return
 	}
 
-	end := time.Now()
+	end := timex.Now()
 	start := end.Add(-metricStrategy.GetDuration())
 	queryRangeParams := &bo.MetricRangeQueryRequest{
 		Expr:      metricStrategy.GetExpr(),

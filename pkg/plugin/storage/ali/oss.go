@@ -10,6 +10,7 @@ import (
 	alioss "github.com/aliyun/aliyun-oss-go-sdk/oss"
 
 	"github.com/moon-monitor/moon/pkg/plugin/storage"
+	"github.com/moon-monitor/moon/pkg/util/timex"
 )
 
 var _ storage.FileManager = (*aliCloud)(nil)
@@ -53,7 +54,7 @@ type aliCloud struct {
 }
 
 func generateObjectKey(originalName, group string) string {
-	return fmt.Sprintf("uploads/%s/%s/%d_%s", group, time.Now().Format("2006_01_02"), time.Now().UnixNano(), originalName)
+	return fmt.Sprintf("uploads/%s/%s/%d_%s", group, timex.Now().Format("2006_01_02"), timex.Now().UnixNano(), originalName)
 }
 
 func (a *aliCloud) InitiateMultipartUpload(originalName, group string) (*storage.InitiateMultipartUploadResult, error) {
@@ -79,7 +80,7 @@ func (a *aliCloud) GenerateUploadPartURL(uploadID, objectKey string, partNumber 
 		alioss.AddParam("uploadId", uploadID),
 		alioss.AddParam("partNumber", strconv.Itoa(partNumber)),
 		alioss.ACReqMethod("PUT"),
-		alioss.Expires(time.Now().Add(time.Duration(sec) * time.Second)),
+		alioss.Expires(timex.Now().Add(time.Duration(sec) * time.Second)),
 		alioss.ContentType("application/octet-stream"),
 	}
 
@@ -94,7 +95,7 @@ func (a *aliCloud) GenerateUploadPartURL(uploadID, objectKey string, partNumber 
 		ObjectKey:      objectKey,
 		PartNumber:     partNumber,
 		UploadURL:      signedURL,
-		ExpirationTime: time.Now().Add(time.Duration(sec) * time.Second).Unix(),
+		ExpirationTime: timex.Now().Add(time.Duration(sec) * time.Second).Unix(),
 	}, nil
 }
 
@@ -143,7 +144,7 @@ func (a *aliCloud) GeneratePublicURL(objectKey string, exp time.Duration) (strin
 	options := []alioss.Option{
 		alioss.ResponseContentDisposition(fmt.Sprintf("attachment; filename=\"%s\"", objectKey)),
 	}
-	expires := time.Now().Add(exp)
+	expires := timex.Now().Add(exp)
 	signedURL, err := a.bucket.SignURL(objectKey, alioss.HTTPGet, int64(expires.Second()), options...)
 	if err != nil {
 		return "", err

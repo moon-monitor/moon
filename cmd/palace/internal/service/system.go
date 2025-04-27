@@ -74,15 +74,13 @@ func (s *SystemService) UpdateUserPosition(ctx context.Context, req *palacev1.Up
 	return &common.EmptyReply{Message: "更新用户职位成功"}, nil
 }
 
-func (s *SystemService) GetUser(ctx context.Context, req *palacev1.GetUserRequest) (*palacev1.GetUserReply, error) {
+func (s *SystemService) GetUser(ctx context.Context, req *palacev1.GetUserRequest) (*common.UserItem, error) {
 	userDo, err := s.userBiz.GetUser(ctx, req.GetUserId())
 	if err != nil {
 		return nil, err
 	}
 
-	return &palacev1.GetUserReply{
-		User: build.ToUserItem(userDo),
-	}, nil
+	return build.ToUserItem(userDo), nil
 }
 
 func (s *SystemService) GetUserList(ctx context.Context, req *palacev1.GetUserListRequest) (*palacev1.GetUserListReply, error) {
@@ -110,14 +108,12 @@ func (s *SystemService) GetTeamList(ctx context.Context, req *palacev1.GetTeamLi
 	}, nil
 }
 
-func (s *SystemService) GetSystemRole(ctx context.Context, req *palacev1.GetSystemRoleRequest) (*palacev1.GetSystemRoleReply, error) {
+func (s *SystemService) GetSystemRole(ctx context.Context, req *palacev1.GetSystemRoleRequest) (*common.SystemRoleItem, error) {
 	roleDo, err := s.systemBiz.GetRole(ctx, req.GetRoleId())
 	if err != nil {
 		return nil, err
 	}
-	return &palacev1.GetSystemRoleReply{
-		Role: build.ToSystemRoleItem(roleDo),
-	}, nil
+	return build.ToSystemRoleItem(roleDo), nil
 }
 
 func (s *SystemService) GetSystemRoles(ctx context.Context, req *palacev1.GetSystemRolesRequest) (*palacev1.GetSystemRolesReply, error) {

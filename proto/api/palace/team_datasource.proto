@@ -29,7 +29,7 @@ service TeamDatasource {
       delete: "/api/team/metric/datasource"
     };
   }
-  rpc GetTeamMetricDatasource (GetTeamMetricDatasourceRequest) returns (GetTeamMetricDatasourceReply) {
+  rpc GetTeamMetricDatasource (GetTeamMetricDatasourceRequest) returns (api.palace.common.TeamMetricDatasourceItem) {
     option (google.api.http) = {
       get: "/api/team/metric/datasource"
     };
@@ -83,9 +83,6 @@ message GetTeamMetricDatasourceRequest {
   uint32 datasourceId = 1 [(buf.validate.field).uint32 = {
     gt: 0,
   }];
-}
-message GetTeamMetricDatasourceReply {
-  api.palace.common.TeamMetricDatasourceItem datasource = 1;
 }
 
 message ListTeamMetricDatasourceRequest {

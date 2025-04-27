@@ -1,106 +1,96 @@
 package bo
 
 import (
-	"context"
-
 	"github.com/google/uuid"
-
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do/system"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/vobj"
-	"github.com/moon-monitor/moon/cmd/palace/internal/helper/permission"
+	"github.com/moon-monitor/moon/pkg/config"
 	"github.com/moon-monitor/moon/pkg/merr"
 	"github.com/moon-monitor/moon/pkg/util/slices"
 	"github.com/moon-monitor/moon/pkg/util/validate"
 )
 
-type SaveTeamRequest interface {
+type CreateTeamRequest interface {
+	GetName() string
+	GetRemark() string
+	GetLogo() string
+	GetLeader() do.User
+	GetCapacity() vobj.TeamCapacity
+	GetBizDBConfig() *config.Database
+	GetAlarmDBConfig() *config.Database
+	GetUUID() uuid.UUID
+	GetStatus() vobj.TeamStatus
+}
+
+type UpdateTeamRequest interface {
+	GetTeam() do.Team
 	GetName() string
 	GetRemark() string
 	GetLogo() string
 }
 
-func NewSaveOneTeamRequest(req SaveTeamRequest, id ...uint32) *SaveOneTeamRequest {
-	s := &SaveOneTeamRequest{
-		name:     req.GetName(),
-		remark:   req.GetRemark(),
-		logo:     req.GetLogo(),
-		leaderID: 0,
-	}
-	if len(id) > 0 {
-		s.id = id[0]
-	}
-	return s
+func (o *SaveOneTeamRequest) WithCreateTeamRequest(leader do.User) CreateTeamRequest {
+	o.leader = leader
+	return o
 }
 
-func (o *SaveOneTeamRequest) WithCreateTeamRequest(ctx context.Context) (do.Team, error) {
-	leaderID, ok := permission.GetUserIDByContext(ctx)
-	if !ok {
-		return nil, merr.ErrorPermissionDenied("user id not found in context")
-	}
-	o.leaderID = leaderID
-	return o, nil
-}
-
-func (o *SaveOneTeamRequest) WithUpdateTeamRequest(team do.Team) do.Team {
-	o.Team = team
+func (o *SaveOneTeamRequest) WithUpdateTeamRequest(team do.Team) UpdateTeamRequest {
+	o.teamDo = team
 	return o
 }
 
 type SaveOneTeamRequest struct {
-	do.Team
-	id       uint32
-	name     string
-	remark   string
-	logo     string
-	leaderID uint32
-}
+	TeamID     uint32
+	TeamName   string
+	TeamRemark string
+	TeamLogo   string
 
-func (o *SaveOneTeamRequest) GetID() uint32 {
-	if o == nil || o.Team == nil {
-		return o.id
-	}
-	return o.Team.GetID()
-}
-
-func (o *SaveOneTeamRequest) GetName() string {
-	return o.name
-}
-
-func (o *SaveOneTeamRequest) GetRemark() string {
-	return o.remark
-}
-
-func (o *SaveOneTeamRequest) GetLogo() string {
-	return o.logo
-}
-
-func (o *SaveOneTeamRequest) GetStatus() vobj.TeamStatus {
-	if o == nil || o.Team == nil {
-		return vobj.TeamStatusApproval
-	}
-	return o.Team.GetStatus()
-}
-
-func (o *SaveOneTeamRequest) GetLeaderID() uint32 {
-	if o == nil || o.Team == nil {
-		return o.leaderID
-	}
-	return o.Team.GetLeaderID()
-}
-
-func (o *SaveOneTeamRequest) GetUUID() uuid.UUID {
-	if o == nil || o.Team == nil {
-		return uuid.New()
-	}
-	return o.Team.GetUUID()
+	leader do.User
+	teamDo do.Team
 }
 
 func (o *SaveOneTeamRequest) GetCapacity() vobj.TeamCapacity {
-	if o == nil || o.Team == nil {
-		return vobj.TeamCapacityDefault
+	if o == nil {
+		return vobj.TeamCapacityUnknown
 	}
-	return o.Team.GetCapacity()
+	return vobj.TeamCapacityDefault
+}
+
+func (o *SaveOneTeamRequest) GetBizDBConfig() *config.Database {
+	return nil
+}
+
+func (o *SaveOneTeamRequest) GetAlarmDBConfig() *config.Database {
+	return nil
+}
+
+func (o *SaveOneTeamRequest) GetUUID() uuid.UUID {
+	return uuid.New()
+}
+
+func (o *SaveOneTeamRequest) GetStatus() vobj.TeamStatus {
+	return vobj.TeamStatusNormal
+}
+
+func (o *SaveOneTeamRequest) GetLeader() do.User {
+	return o.leader
+}
+
+func (o *SaveOneTeamRequest) GetTeam() do.Team {
+	return o.teamDo
+}
+
+func (o *SaveOneTeamRequest) GetName() string {
+	return o.TeamName
+}
+
+func (o *SaveOneTeamRequest) GetRemark() string {
+	return o.TeamRemark
+}
+
+func (o *SaveOneTeamRequest) GetLogo() string {
+	return o.TeamLogo
 }
 
 type TeamListRequest struct {
@@ -460,4 +450,11 @@ func (r *InviteMemberReq) WithRoles(roles []do.TeamRole) *InviteMemberReq {
 		return role, true
 	})
 	return r
+}
+
+type CreateTeamMemberReq struct {
+	Team     do.Team
+	User     do.User
+	Status   vobj.MemberStatus
+	Position vobj.Role
 }

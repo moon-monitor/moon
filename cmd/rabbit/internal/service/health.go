@@ -2,13 +2,13 @@ package service
 
 import (
 	"context"
-	"time"
 
 	"github.com/go-kratos/kratos/v2/log"
 
 	"github.com/moon-monitor/moon/cmd/rabbit/internal/biz"
 	"github.com/moon-monitor/moon/pkg/api/common"
 	"github.com/moon-monitor/moon/pkg/hello"
+	"github.com/moon-monitor/moon/pkg/util/timex"
 )
 
 type HealthService struct {
@@ -34,7 +34,7 @@ func (s *HealthService) Check(ctx context.Context, req *common.CheckRequest) (*c
 	return &common.CheckReply{
 		Healthy: true,
 		Version: hello.GetEnv().Version(),
-		Time:    time.Now().Format(time.DateTime),
+		Time:    timex.Format(timex.Now()),
 	}, nil
 }
 

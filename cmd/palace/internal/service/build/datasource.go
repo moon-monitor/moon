@@ -1,8 +1,6 @@
 package build
 
 import (
-	"time"
-
 	"google.golang.org/protobuf/types/known/durationpb"
 
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/bo"
@@ -11,6 +9,7 @@ import (
 	palacev1 "github.com/moon-monitor/moon/pkg/api/palace"
 	"github.com/moon-monitor/moon/pkg/api/palace/common"
 	"github.com/moon-monitor/moon/pkg/util/slices"
+	"github.com/moon-monitor/moon/pkg/util/timex"
 	"github.com/moon-monitor/moon/pkg/util/validate"
 )
 
@@ -53,8 +52,8 @@ func ToTeamMetricDatasourceItem(item do.DatasourceMetric) *common.TeamMetricData
 	return &common.TeamMetricDatasourceItem{
 		TeamId:         item.GetTeamID(),
 		DatasourceId:   item.GetID(),
-		CreatedAt:      item.GetCreatedAt().Format(time.DateTime),
-		UpdatedAt:      item.GetUpdatedAt().Format(time.DateTime),
+		CreatedAt:      timex.Format(item.GetCreatedAt()),
+		UpdatedAt:      timex.Format(item.GetUpdatedAt()),
 		Name:           item.GetName(),
 		Remark:         item.GetRemark(),
 		Driver:         common.DatasourceDriverMetric(item.GetDriver()),

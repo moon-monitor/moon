@@ -1,14 +1,13 @@
 package build
 
 import (
-	"time"
-
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/bo"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/vobj"
 	palacev1 "github.com/moon-monitor/moon/pkg/api/palace"
 	"github.com/moon-monitor/moon/pkg/api/palace/common"
 	"github.com/moon-monitor/moon/pkg/util/slices"
+	"github.com/moon-monitor/moon/pkg/util/timex"
 	"github.com/moon-monitor/moon/pkg/util/validate"
 )
 
@@ -28,8 +27,8 @@ func ToUserItem(user do.User) *common.UserItem {
 		Remark:    user.GetRemark(),
 		Position:  common.UserPosition(user.GetPosition().GetValue()),
 		Status:    common.UserStatus(user.GetStatus().GetValue()),
-		CreatedAt: user.GetCreatedAt().Format(time.DateTime),
-		UpdatedAt: user.GetUpdatedAt().Format(time.DateTime),
+		CreatedAt: timex.Format(user.GetCreatedAt()),
+		UpdatedAt: timex.Format(user.GetUpdatedAt()),
 		UserId:    user.GetID(),
 	}
 }
@@ -60,7 +59,7 @@ func ToUserBaseItems(users []do.User) []*common.UserBaseItem {
 
 func ToSelfUpdateInfo(req *palacev1.UpdateSelfInfoRequest) *bo.UserUpdateInfo {
 	if req == nil {
-		return nil
+		panic("UpdateSelfInfoRequest is nil")
 	}
 
 	return &bo.UserUpdateInfo{
@@ -72,7 +71,7 @@ func ToSelfUpdateInfo(req *palacev1.UpdateSelfInfoRequest) *bo.UserUpdateInfo {
 
 func ToUserUpdateInfo(req *palacev1.UpdateUserRequest) *bo.UserUpdateInfo {
 	if req == nil {
-		return nil
+		panic("UpdateUserRequest is nil")
 	}
 
 	return &bo.UserUpdateInfo{
@@ -86,7 +85,7 @@ func ToUserUpdateInfo(req *palacev1.UpdateUserRequest) *bo.UserUpdateInfo {
 // ToPasswordUpdateInfo converts an API password update request to a business object
 func ToPasswordUpdateInfo(req *palacev1.UpdateSelfPasswordRequest, sendEmailFun bo.SendEmailFun) *bo.PasswordUpdateInfo {
 	if req == nil {
-		return nil
+		panic("UpdateSelfPasswordRequest is nil")
 	}
 
 	return &bo.PasswordUpdateInfo{
@@ -97,6 +96,9 @@ func ToPasswordUpdateInfo(req *palacev1.UpdateSelfPasswordRequest, sendEmailFun 
 }
 
 func ToUserListRequest(req *palacev1.GetUserListRequest) *bo.UserListRequest {
+	if validate.IsNil(req) {
+		panic("GetUserListRequest is nil")
+	}
 	return &bo.UserListRequest{
 		PaginationRequest: ToPaginationRequest(req.GetPagination()),
 		Status:            slices.Map(req.GetStatus(), func(status common.UserStatus) vobj.UserStatus { return vobj.UserStatus(status) }),

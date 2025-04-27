@@ -10,6 +10,7 @@ import (
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/job"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/repository"
+	"github.com/moon-monitor/moon/cmd/palace/internal/biz/vobj"
 	"github.com/moon-monitor/moon/cmd/palace/internal/helper/permission"
 	"github.com/moon-monitor/moon/pkg/merr"
 	"github.com/moon-monitor/moon/pkg/plugin/server"
@@ -121,16 +122,31 @@ func (t *Team) SaveTeam(ctx context.Context, req *bo.SaveOneTeamRequest) error {
 				t.helper.Errorw("msg", "append team to user fail", "err", err)
 				return
 			}
+			createMemberParams := &bo.CreateTeamMemberReq{
+				Team:     teamDo,
+				User:     teamDo.GetLeader(),
+				Status:   vobj.MemberStatusNormal,
+				Position: vobj.RoleSuperAdmin,
+			}
+			if err := t.memberRepo.Create(ctx, createMemberParams); err != nil {
+				t.helper.Errorw("msg", "create team member fail", "err", err)
+				return
+			}
 		}()
-		if req.GetID() <= 0 {
-			createParams, err := req.WithCreateTeamRequest(ctx)
+		if req.TeamID <= 0 {
+			leaderId, ok := permission.GetUserIDByContext(ctx)
+			if !ok {
+				return merr.ErrorUnauthorized("user not found in context")
+			}
+			leaderDo, err := t.userRepo.FindByID(ctx, leaderId)
 			if err != nil {
 				return err
 			}
+			createParams := req.WithCreateTeamRequest(leaderDo)
 			teamDo, err = t.teamRepo.Create(ctx, createParams)
 			return err
 		}
-		teamInfo, err := t.teamRepo.FindByID(ctx, req.GetID())
+		teamInfo, err := t.teamRepo.FindByID(ctx, req.TeamID)
 		if err != nil {
 			return err
 		}

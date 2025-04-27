@@ -23,6 +23,7 @@ import (
 	"github.com/moon-monitor/moon/pkg/util/hash"
 	"github.com/moon-monitor/moon/pkg/util/slices"
 	"github.com/moon-monitor/moon/pkg/util/template"
+	"github.com/moon-monitor/moon/pkg/util/timex"
 	"github.com/moon-monitor/moon/pkg/util/validate"
 )
 
@@ -231,7 +232,7 @@ func (c *cacheReoImpl) BanToken(ctx context.Context, token string) error {
 	if err != nil {
 		return err
 	}
-	expiration := jwtClaims.ExpiresAt.Sub(time.Now())
+	expiration := jwtClaims.ExpiresAt.Sub(timex.Now())
 	if expiration <= 0 {
 		return merr.ErrorInvalidToken("token is invalid")
 	}
@@ -294,7 +295,7 @@ func (c *cacheReoImpl) SendVerifyEmailCode(ctx context.Context, email string) (*
 	if err := validate.CheckEmail(email); err != nil {
 		return nil, err
 	}
-	code := strings.ToUpper(hash.MD5(time.Now().String())[:6])
+	code := strings.ToUpper(hash.MD5(timex.Now().String())[:6])
 	err := c.GetCache().Client().Set(ctx, repository.EmailCodeKey.Key(email), code, 5*time.Minute).Err()
 	if err != nil {
 		return nil, err

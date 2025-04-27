@@ -1,13 +1,12 @@
 package build
 
 import (
-	"time"
-
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/bo"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/vobj"
 	"github.com/moon-monitor/moon/pkg/api/palace/common"
 	"github.com/moon-monitor/moon/pkg/util/slices"
+	"github.com/moon-monitor/moon/pkg/util/timex"
 	"github.com/moon-monitor/moon/pkg/util/validate"
 )
 
@@ -36,8 +35,8 @@ func ToTeamRoleItem(role do.TeamRole) *common.TeamRoleItem {
 		Status:    common.GlobalStatus(role.GetStatus().GetValue()),
 		Resources: nil,
 		Members:   nil,
-		CreatedAt: role.GetCreatedAt().Format(time.DateTime),
-		UpdatedAt: role.GetUpdatedAt().Format(time.DateTime),
+		CreatedAt: timex.Format(role.GetCreatedAt()),
+		UpdatedAt: timex.Format(role.GetUpdatedAt()),
 		Creator:   ToUserBaseItem(role.GetCreator()),
 	}
 }
@@ -55,8 +54,8 @@ func ToSystemRoleItem(role do.Role) *common.SystemRoleItem {
 		Name:      role.GetName(),
 		Remark:    role.GetRemark(),
 		Status:    common.GlobalStatus(role.GetStatus().GetValue()),
-		CreatedAt: role.GetCreatedAt().Format(time.DateTime),
-		UpdatedAt: role.GetUpdatedAt().Format(time.DateTime),
+		CreatedAt: timex.Format(role.GetCreatedAt()),
+		UpdatedAt: timex.Format(role.GetUpdatedAt()),
 		Resources: nil,
 		Users:     nil,
 		Creator:   ToUserBaseItem(role.GetCreator()),

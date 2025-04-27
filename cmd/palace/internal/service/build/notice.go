@@ -1,11 +1,10 @@
 package build
 
 import (
-	"time"
-
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do"
 	"github.com/moon-monitor/moon/pkg/api/palace/common"
 	"github.com/moon-monitor/moon/pkg/util/slices"
+	"github.com/moon-monitor/moon/pkg/util/timex"
 	"github.com/moon-monitor/moon/pkg/util/validate"
 )
 
@@ -29,8 +28,8 @@ func ToNoticeMemberItems(noticeMembers []do.NoticeMember) []*common.NoticeMember
 func ToNoticeGroupItem(noticeGroup do.NoticeGroup) *common.NoticeGroupItem {
 	return &common.NoticeGroupItem{
 		NoticeGroupId: noticeGroup.GetID(),
-		CreatedAt:     noticeGroup.GetCreatedAt().Format(time.DateTime),
-		UpdatedAt:     noticeGroup.GetUpdatedAt().Format(time.DateTime),
+		CreatedAt:     timex.Format(noticeGroup.GetCreatedAt()),
+		UpdatedAt:     timex.Format(noticeGroup.GetUpdatedAt()),
 		Name:          noticeGroup.GetName(),
 		Remark:        noticeGroup.GetRemark(),
 		Status:        common.GlobalStatus(noticeGroup.GetStatus().GetValue()),

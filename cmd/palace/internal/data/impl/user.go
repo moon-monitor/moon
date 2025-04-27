@@ -5,6 +5,7 @@ import (
 	_ "embed"
 
 	"github.com/go-kratos/kratos/v2/log"
+	"github.com/moon-monitor/moon/cmd/palace/internal/data/impl/build"
 	"gorm.io/gen"
 	"gorm.io/gen/field"
 
@@ -90,15 +91,8 @@ func (u *userRepoImpl) AppendTeam(ctx context.Context, team do.Team) error {
 			ID: team.GetLeaderID(),
 		},
 	}
-	teamDo := &system.Team{
-		CreatorModel: do.CreatorModel{
-			BaseModel: do.BaseModel{
-				ID: team.GetID(),
-			},
-		},
-	}
+	teamDo := build.ToTeam(ctx, team)
 	userDo.WithContext(ctx)
-	teamDo.WithContext(ctx)
 	return userMutation.Teams.WithContext(ctx).Model(userDo).Append(teamDo)
 }
 

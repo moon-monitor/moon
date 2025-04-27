@@ -1,14 +1,13 @@
 package build
 
 import (
-	"time"
-
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/bo"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/vobj"
 	"github.com/moon-monitor/moon/pkg/api/palace"
 	"github.com/moon-monitor/moon/pkg/api/palace/common"
 	"github.com/moon-monitor/moon/pkg/util/slices"
+	"github.com/moon-monitor/moon/pkg/util/timex"
 	"github.com/moon-monitor/moon/pkg/util/validate"
 	"google.golang.org/protobuf/types/known/durationpb"
 )
@@ -144,8 +143,8 @@ func ToTeamStrategyItem(strategy do.Strategy) *common.TeamStrategyItem {
 		Remark:     strategy.GetRemark(),
 		Status:     common.GlobalStatus(strategy.GetStatus()),
 		Creator:    ToUserBaseItem(strategy.GetCreator()),
-		CreatedAt:  strategy.GetCreatedAt().Format(time.DateTime),
-		UpdatedAt:  strategy.GetUpdatedAt().Format(time.DateTime),
+		CreatedAt:  timex.Format(strategy.GetCreatedAt()),
+		UpdatedAt:  timex.Format(strategy.GetUpdatedAt()),
 		Team:       ToTeamBaseItem(strategy.GetTeam()),
 		Notices:    ToNoticeGroupItems(strategy.GetNotices()),
 	}
@@ -209,8 +208,8 @@ func ToLabelNoticeItem(labelNotice do.StrategyMetricRuleLabelNotice) *common.Str
 	}
 	return &common.StrategyMetricRuleLabelNotice{
 		LabelNoticeId:        labelNotice.GetID(),
-		CreatedAt:            labelNotice.GetCreatedAt().Format(time.DateTime),
-		UpdatedAt:            labelNotice.GetUpdatedAt().Format(time.DateTime),
+		CreatedAt:            timex.Format(labelNotice.GetCreatedAt()),
+		UpdatedAt:            timex.Format(labelNotice.GetUpdatedAt()),
 		StrategyMetricRuleId: labelNotice.GetStrategyMetricRuleID(),
 		LabelKey:             labelNotice.GetLabelKey(),
 		LabelValue:           labelNotice.GetLabelValue(),
@@ -230,6 +229,6 @@ func ToSubscribeTeamStrategyItem(subscriber do.TeamStrategySubscriber) *common.S
 		User:          ToUserBaseItem(subscriber.GetCreator()),
 		SubscribeType: common.NoticeType(subscriber.GetSubscribeType().GetValue()),
 		Strategy:      ToTeamStrategyItem(subscriber.GetStrategy()),
-		SubscribeTime: subscriber.GetCreatedAt().Format(time.DateTime),
+		SubscribeTime: timex.Format(subscriber.GetCreatedAt()),
 	}
 }

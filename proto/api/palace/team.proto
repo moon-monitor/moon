@@ -23,7 +23,7 @@ service Team {
   }
 
   // GetTeam retrieves the details of the current team
-  rpc GetTeam (api.palace.common.EmptyRequest) returns (GetTeamReply) {
+  rpc GetTeam (api.palace.common.EmptyRequest) returns (api.palace.common.TeamItem) {
     option (google.api.http) = {
       get: "/api/team/detail"
     };
@@ -185,12 +185,6 @@ message SaveTeamRequest {
     expression: "this.size() <= 255"
   }];
   uint32 id = 4;
-}
-
-// GetTeamReply contains the response data for retrieving a team
-message GetTeamReply {
-  // Detailed information about the team
-  api.palace.common.TeamItem team = 1;
 }
 
 // GetTeamResourcesReply contains the response data for retrieving team resources

@@ -15,4 +15,5 @@ type Member interface {
 	UpdateRoles(ctx context.Context, req bo.UpdateMemberRoles) error
 	Get(ctx context.Context, id uint32) (do.TeamMember, error)
 	Find(ctx context.Context, ids []uint32) ([]do.TeamMember, error)
+	Create(ctx context.Context, req *bo.CreateTeamMemberReq) error
 }

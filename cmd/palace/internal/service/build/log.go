@@ -1,13 +1,12 @@
 package build
 
 import (
-	"time"
-
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/bo"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/vobj"
 	"github.com/moon-monitor/moon/pkg/api/palace/common"
 	"github.com/moon-monitor/moon/pkg/util/slices"
+	"github.com/moon-monitor/moon/pkg/util/timex"
 	"github.com/moon-monitor/moon/pkg/util/validate"
 )
 
@@ -41,7 +40,7 @@ func ToOperateLogItem(log do.OperateLog) *common.OperateLogItem {
 		Module:      common.ResourceModule(log.GetOperateModule().GetValue()),
 		DataId:      log.GetOperateDataID(),
 		DataName:    log.GetOperateDataName(),
-		OperateTime: log.GetCreatedAt().Format(time.DateTime),
+		OperateTime: timex.Format(log.GetCreatedAt()),
 		Title:       log.GetTitle(),
 		Before:      log.GetBefore(),
 		After:       log.GetAfter(),

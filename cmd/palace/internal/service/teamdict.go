@@ -59,15 +59,13 @@ func (s *TeamDictService) DeleteTeamDict(ctx context.Context, req *palacev1.Dele
 	return &common.EmptyReply{Message: "删除团队字典成功"}, nil
 }
 
-func (s *TeamDictService) GetTeamDict(ctx context.Context, req *palacev1.GetTeamDictRequest) (*palacev1.GetTeamDictReply, error) {
+func (s *TeamDictService) GetTeamDict(ctx context.Context, req *palacev1.GetTeamDictRequest) (*common.TeamDictItem, error) {
 	params := &bo.OperateOneDictReq{DictID: req.GetDictId()}
 	dict, err := s.dictBiz.GetDict(ctx, params)
 	if err != nil {
 		return nil, err
 	}
-	return &palacev1.GetTeamDictReply{
-		Dict: build.ToDictItem(dict),
-	}, nil
+	return build.ToDictItem(dict), nil
 }
 
 func (s *TeamDictService) ListTeamDict(ctx context.Context, req *palacev1.ListTeamDictRequest) (*palacev1.ListTeamDictReply, error) {

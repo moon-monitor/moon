@@ -6,7 +6,6 @@ import (
 	"github.com/go-kratos/kratos/v2/log"
 
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz"
-	"github.com/moon-monitor/moon/cmd/palace/internal/biz/bo"
 	"github.com/moon-monitor/moon/cmd/palace/internal/service/build"
 	"github.com/moon-monitor/moon/pkg/api/palace"
 	"github.com/moon-monitor/moon/pkg/api/palace/common"
@@ -38,15 +37,13 @@ func NewUserService(
 }
 
 // SelfInfo retrieves the current user's information.
-func (s *UserService) SelfInfo(ctx context.Context, _ *common.EmptyRequest) (*palace.SelfInfoReply, error) {
+func (s *UserService) SelfInfo(ctx context.Context, _ *common.EmptyRequest) (*common.UserItem, error) {
 	user, err := s.userBiz.GetSelfInfo(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	return &palace.SelfInfoReply{
-		User: build.ToUserItem(user),
-	}, nil
+	return build.ToUserItem(user), nil
 }
 
 // UpdateSelfInfo updates the current user's information.
@@ -83,7 +80,7 @@ func (s *UserService) JoinTeam(ctx context.Context, req *palace.JoinTeamRequest)
 
 // CreateTeam allows the current user to create a new team.
 func (s *UserService) CreateTeam(ctx context.Context, req *palace.CreateTeamRequest) (*common.EmptyReply, error) {
-	if err := s.teamBiz.SaveTeam(ctx, bo.NewSaveOneTeamRequest(req)); err != nil {
+	if err := s.teamBiz.SaveTeam(ctx, build.ToSaveOneTeamRequestByCreate(req)); err != nil {
 		return nil, err
 	}
 	return &common.EmptyReply{Message: "创建团队成功"}, nil

@@ -4,9 +4,9 @@ import (
 	html "html/template"
 	"strings"
 	text "text/template"
-	"time"
 
 	"github.com/moon-monitor/moon/pkg/merr"
+	"github.com/moon-monitor/moon/pkg/util/timex"
 )
 
 func TextFormatterX(format string, data any) (s string) {
@@ -70,7 +70,7 @@ func HtmlFormatter(format string, data any) (s string, err error) {
 }
 
 var templateFuncMap = map[string]any{
-	"now":        time.Now,
+	"now":        timex.Now,
 	"hasPrefix":  strings.HasPrefix,
 	"hasSuffix":  strings.HasSuffix,
 	"contains":   strings.Contains,

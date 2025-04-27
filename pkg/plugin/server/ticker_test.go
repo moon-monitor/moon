@@ -7,6 +7,7 @@ import (
 	"time"
 
 	"github.com/moon-monitor/moon/pkg/plugin/server"
+	"github.com/moon-monitor/moon/pkg/util/timex"
 )
 
 // TestNewTicker verifies that TestNewTicker correctly initializes a Ticker with the given interval and task.
@@ -14,14 +15,14 @@ func TestNewTicker(t *testing.T) {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 	interval := 1 * time.Second
-	start := time.Now()
+	start := timex.Now()
 	task := &server.TickTask{
 		Fn: func(ctx context.Context, isStop bool) error {
 			if isStop {
 				t.Logf("Task stopped")
 				return nil
 			}
-			diff := time.Now().Sub(start)
+			diff := timex.Now().Sub(start)
 			diff = diff.Round(time.Second)
 			if diff < interval {
 				t.Errorf("Expected task to be executed after %v, but it was executed after %v", interval, diff)
@@ -54,7 +55,7 @@ func TestTestNewTickers(t *testing.T) {
 		4 * time.Second,
 		5 * time.Second,
 	}
-	start := time.Now()
+	start := timex.Now()
 	task := make([]*server.TickTask, len(list))
 	for i, v := range list {
 		task[i] = &server.TickTask{
@@ -63,7 +64,7 @@ func TestTestNewTickers(t *testing.T) {
 					t.Logf("Task stopped")
 					return nil
 				}
-				diff := time.Now().Sub(start)
+				diff := timex.Now().Sub(start)
 				diff = diff.Round(time.Second)
 				if diff < v {
 					t.Errorf("Expected task to be executed after %v, but it was executed after %v", v, diff)

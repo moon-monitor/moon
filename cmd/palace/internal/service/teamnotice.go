@@ -57,14 +57,12 @@ func (s *TeamNoticeService) DeleteTeamNoticeHook(ctx context.Context, req *palac
 }
 
 // GetTeamNoticeHook 获取钩子详情
-func (s *TeamNoticeService) GetTeamNoticeHook(ctx context.Context, req *palace.GetTeamNoticeHookRequest) (*palace.GetTeamNoticeHookReply, error) {
+func (s *TeamNoticeService) GetTeamNoticeHook(ctx context.Context, req *palace.GetTeamNoticeHookRequest) (*common.NoticeHookItem, error) {
 	hook, err := s.teamHookBiz.GetHook(ctx, req.GetHookId())
 	if err != nil {
 		return nil, err
 	}
-	return &palace.GetTeamNoticeHookReply{
-		Hook: build.ToNoticeHookItem(hook),
-	}, nil
+	return build.ToNoticeHookItem(hook), nil
 }
 
 // ListTeamNoticeHook 获取钩子列表
@@ -121,14 +119,12 @@ func (s *TeamNoticeService) DeleteTeamNoticeGroup(ctx context.Context, req *pala
 	return &common.EmptyReply{Message: "删除团队通知组成功"}, nil
 }
 
-func (s *TeamNoticeService) GetTeamNoticeGroup(ctx context.Context, req *palace.GetTeamNoticeGroupRequest) (*palace.GetTeamNoticeGroupReply, error) {
+func (s *TeamNoticeService) GetTeamNoticeGroup(ctx context.Context, req *palace.GetTeamNoticeGroupRequest) (*common.NoticeGroupItem, error) {
 	noticeGroup, err := s.teamNoticeBiz.GetNoticeGroup(ctx, req.GetGroupId())
 	if err != nil {
 		return nil, err
 	}
-	return &palace.GetTeamNoticeGroupReply{
-		NoticeGroup: build.ToNoticeGroupItem(noticeGroup),
-	}, nil
+	return build.ToNoticeGroupItem(noticeGroup), nil
 }
 
 func (s *TeamNoticeService) ListTeamNoticeGroup(ctx context.Context, req *palace.ListTeamNoticeGroupRequest) (*palace.ListTeamNoticeGroupReply, error) {

@@ -10,13 +10,13 @@ import (
 	"io"
 	"net/url"
 	"strings"
-	"time"
 
 	"github.com/go-kratos/kratos/v2/log"
 
 	"github.com/moon-monitor/moon/pkg/api/rabbit/common"
 	"github.com/moon-monitor/moon/pkg/merr"
 	"github.com/moon-monitor/moon/pkg/util/httpx"
+	"github.com/moon-monitor/moon/pkg/util/timex"
 )
 
 var _ Sender = (*dingTalkHook)(nil)
@@ -68,7 +68,7 @@ func (d *dingTalkHook) Send(ctx context.Context, message Message) (err error) {
 			d.helper.Warnw("msg", "send dingtalk hook failed", "error", err, "req", string(message))
 		}
 	}()
-	timestamp := time.Now().UnixMilli()
+	timestamp := timex.Now().UnixMilli()
 	sign := d.sign(timestamp)
 	query := d.parseQuery(map[string]any{
 		"timestamp": timestamp,

@@ -2,8 +2,8 @@ package server
 
 import (
 	"testing"
-	"time"
 
+	"github.com/moon-monitor/moon/pkg/util/timex"
 	"github.com/robfig/cron/v3"
 )
 
@@ -14,25 +14,25 @@ func Test_CronSpecCustom(t *testing.T) {
 	spec4 := CronSpecCustom("0", "0", "*", "1", "1", "*")
 	c := cron.New(cron.WithSeconds())
 	_, err := c.AddFunc(string(spec1), func() {
-		t.Logf("spec1: %s, ts: %v", spec1, time.Now())
+		t.Logf("spec1: %s, ts: %v", spec1, timex.Now())
 	})
 	if err != nil {
 		t.Errorf("Expected no error, but got: %v", err)
 	}
 	_, err = c.AddFunc(string(spec2), func() {
-		t.Logf("spec2: %s, ts: %v", spec2, time.Now())
+		t.Logf("spec2: %s, ts: %v", spec2, timex.Now())
 	})
 	if err != nil {
 		t.Errorf("Expected no error, but got: %v", err)
 	}
 	_, err = c.AddFunc(string(spec3), func() {
-		t.Logf("spec3: %s, ts: %v", spec3, time.Now())
+		t.Logf("spec3: %s, ts: %v", spec3, timex.Now())
 	})
 	if err != nil {
 		t.Errorf("Expected no error, but got: %v", err)
 	}
 	_, err = c.AddFunc(string(spec4), func() {
-		t.Logf("spec4: %s, ts: %v", spec4, time.Now())
+		t.Logf("spec4: %s, ts: %v", spec4, timex.Now())
 	})
 	if err != nil {
 		t.Errorf("Expected no error, but got: %v", err)

@@ -21,7 +21,7 @@ service Resource {
   }
 
   // GetResource retrieves a resource by Id
-  rpc GetResource (GetResourceRequest) returns (GetResourceReply) {
+  rpc GetResource (GetResourceRequest) returns (api.palace.common.ResourceItem) {
     option (google.api.http) = {
       get: "/api/resource/detail"
     };
@@ -52,7 +52,7 @@ service Resource {
   }
 
   // GetMenu retrieves a menu by Id
-  rpc GetMenu (GetMenuRequest) returns (GetMenuReply) {
+  rpc GetMenu (GetMenuRequest) returns (api.palace.common.MenuTreeItem) {
     option (google.api.http) = {
       get: "/api/menu/detail"
     };
@@ -85,12 +85,6 @@ message BatchUpdateResourceStatusRequest {
 message GetResourceRequest {
   // Id of the resource to retrieve
   uint32 resourceId = 1 [(buf.validate.field).required = true];
-}
-
-// GetResourceReply contains the response data for retrieving a resource
-message GetResourceReply {
-  // Detailed information about the resource
-  api.palace.common.ResourceItem resource = 1;
 }
 
 // ListResourceRequest represents the request data for listing resources
@@ -135,12 +129,6 @@ message SaveResourceRequest {
 message GetMenuRequest {
   // Id of the menu to retrieve
   uint32 menuId = 1 [(buf.validate.field).required = true];
-}
-
-// GetMenuReply contains the response data for retrieving a menu
-message GetMenuReply {
-  // Detailed information about the menu
-  api.palace.common.MenuTreeItem menu = 1;
 }
 
 // SaveMenuRequest represents the request data for creating or updating a system menu

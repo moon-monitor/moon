@@ -27,7 +27,7 @@ service TeamDict {
       delete: "/api/team/dict"
     };
   }
-  rpc GetTeamDict (GetTeamDictRequest) returns (GetTeamDictReply) {
+  rpc GetTeamDict (GetTeamDictRequest) returns (api.palace.common.TeamDictItem) {
     option (google.api.http) = {
       get: "/api/team/dict"
     };
@@ -60,9 +60,6 @@ message DeleteTeamDictRequest {
 
 message GetTeamDictRequest {
   uint32 dictId = 1;
-}
-message GetTeamDictReply {
-  api.palace.common.TeamDictItem dict = 1;
 }
 
 message ListTeamDictRequest {

@@ -22,7 +22,7 @@ service TeamDashboard {
 			delete: "/api/team/dashboard"
 		};
 	}
-	rpc GetTeamDashboard (GetTeamDashboardRequest) returns (GetTeamDashboardReply) {
+	rpc GetTeamDashboard (GetTeamDashboardRequest) returns (api.palace.common.TeamDashboardItem) {
 		option (google.api.http) = {
 			get: "/api/team/dashboard"
 		};
@@ -50,7 +50,7 @@ service TeamDashboard {
 			delete: "/api/team/dashboard/chart"
 		};
 	}
-	rpc GetTeamDashboardChart (GetTeamDashboardChartRequest) returns (GetTeamDashboardChartReply) {
+	rpc GetTeamDashboardChart (GetTeamDashboardChartRequest) returns (api.palace.common.TeamDashboardChartItem) {
 		option (google.api.http) = {
 			get: "/api/team/dashboard/chart"
 		};
@@ -99,9 +99,6 @@ message DeleteTeamDashboardRequest {
 
 message GetTeamDashboardRequest {
 	uint32 dashboardId = 1;
-}
-message GetTeamDashboardReply {
-	api.palace.common.TeamDashboardItem dashboard = 1;
 }
 
 message ListTeamDashboardRequest {
@@ -153,9 +150,6 @@ message DeleteTeamDashboardChartRequest {
 message GetTeamDashboardChartRequest {
 	uint32 chartId = 1 [(buf.validate.field).required = true, (buf.validate.field).uint32.gt = 0];
 	uint32 dashboardId = 2 [(buf.validate.field).required = true, (buf.validate.field).uint32.gt = 0];
-}
-message GetTeamDashboardChartReply {
-	api.palace.common.TeamDashboardChartItem chart = 1;
 }
 
 message ListTeamDashboardChartRequest {

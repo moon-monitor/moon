@@ -12,6 +12,7 @@ import (
 	"github.com/moon-monitor/moon/cmd/houyi/internal/biz/repository"
 	"github.com/moon-monitor/moon/pkg/merr"
 	"github.com/moon-monitor/moon/pkg/plugin/server"
+	"github.com/moon-monitor/moon/pkg/util/timex"
 )
 
 func NewAlertJob(alert bo.Alert, opts ...AlertJobOption) (bo.AlertJob, error) {
@@ -105,7 +106,7 @@ func (a *alertJob) isSustaining() (alert bo.Alert, sustaining bool) {
 	if !ok {
 		return a.alert, false
 	}
-	return alertInfo, alertInfo.GetLastUpdated().Add(a.alert.GetDuration()).After(time.Now())
+	return alertInfo, alertInfo.GetLastUpdated().Add(a.alert.GetDuration()).After(timex.Now())
 }
 
 func (a *alertJob) Run() {

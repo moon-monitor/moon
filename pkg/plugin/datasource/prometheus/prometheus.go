@@ -15,6 +15,7 @@ import (
 	"github.com/moon-monitor/moon/pkg/merr"
 	"github.com/moon-monitor/moon/pkg/plugin/datasource"
 	"github.com/moon-monitor/moon/pkg/util/httpx"
+	"github.com/moon-monitor/moon/pkg/util/timex"
 	"github.com/moon-monitor/moon/pkg/util/validate"
 )
 
@@ -99,7 +100,7 @@ func (p *Prometheus) sendMetadata(send chan<- *datasource.MetricMetadata, metric
 		metricNameMap[metricName] = metrics[metricName][0]
 	}
 
-	now := time.Now()
+	now := timex.Now()
 	batchNum := 20
 	namesLen := len(metricNames)
 	eg := new(errgroup.Group)
@@ -132,7 +133,7 @@ func (p *Prometheus) sendMetadata(send chan<- *datasource.MetricMetadata, metric
 			}
 			send <- &datasource.MetricMetadata{
 				Metric:    metricsTmp,
-				Timestamp: time.Now().Unix(),
+				Timestamp: timex.Now().Unix(),
 			}
 			return nil
 		})

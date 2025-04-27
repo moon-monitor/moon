@@ -19,6 +19,7 @@ import (
 	"github.com/moon-monitor/moon/pkg/util/kv"
 	"github.com/moon-monitor/moon/pkg/util/pointer"
 	"github.com/moon-monitor/moon/pkg/util/template"
+	"github.com/moon-monitor/moon/pkg/util/timex"
 )
 
 func NewJudgeRepo(bc *conf.Bootstrap, data *data.Data, logger log.Logger) repository.Judge {
@@ -80,7 +81,7 @@ func (j *judgeImpl) generateAlert(rule bo.MetricJudgeRule, value bo.MetricJudgeD
 	stringMap := kv.NewStringMap(originLabels)
 	fingerprint := hash.MD5(kv.SortString(stringMap))
 
-	now := time.Now()
+	now := timex.Now()
 	alert := &do.Alert{
 		Status:       common.EventStatus_pending,
 		Labels:       labels,

@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"strings"
-	"time"
 
 	"github.com/go-kratos/kratos/v2/middleware"
 	"github.com/go-kratos/kratos/v2/middleware/auth/jwt"
@@ -15,6 +14,7 @@ import (
 	"github.com/moon-monitor/moon/cmd/palace/internal/helper/permission"
 	"github.com/moon-monitor/moon/pkg/config"
 	"github.com/moon-monitor/moon/pkg/merr"
+	"github.com/moon-monitor/moon/pkg/util/timex"
 )
 
 // JwtBaseInfo jwt base info
@@ -119,7 +119,7 @@ func NewJwtClaims(c *config.JWT, base *JwtBaseInfo) *JwtClaims {
 		signKey:     c.GetSignKey(),
 		JwtBaseInfo: base,
 		RegisteredClaims: &jwtv5.RegisteredClaims{
-			ExpiresAt: jwtv5.NewNumericDate(time.Now().Add(c.GetExpire().AsDuration())),
+			ExpiresAt: jwtv5.NewNumericDate(timex.Now().Add(c.GetExpire().AsDuration())),
 			Issuer:    c.GetIssuer(),
 		},
 	}

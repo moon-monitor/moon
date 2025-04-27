@@ -61,14 +61,12 @@ func (t *TeamStrategyService) DeleteTeamStrategyGroup(ctx context.Context, reque
 	return &common.EmptyReply{Message: "删除策略组成功"}, nil
 }
 
-func (t *TeamStrategyService) GetTeamStrategyGroup(ctx context.Context, request *palacev1.GetTeamStrategyGroupRequest) (*palacev1.GetTeamStrategyGroupReply, error) {
+func (t *TeamStrategyService) GetTeamStrategyGroup(ctx context.Context, request *palacev1.GetTeamStrategyGroupRequest) (*common.TeamStrategyGroupItem, error) {
 	group, err := t.teamStrategyGroupBiz.GetTeamStrategyGroup(ctx, request.GetGroupId())
 	if err != nil {
 		return nil, err
 	}
-	return &palacev1.GetTeamStrategyGroupReply{
-		StrategyGroup: build.ToTeamStrategyGroupItem(group),
-	}, nil
+	return build.ToTeamStrategyGroupItem(group), nil
 }
 
 func (t *TeamStrategyService) ListTeamStrategyGroup(ctx context.Context, request *palacev1.ListTeamStrategyGroupRequest) (*palacev1.ListTeamStrategyGroupReply, error) {
@@ -133,15 +131,13 @@ func (t *TeamStrategyService) DeleteTeamStrategy(ctx context.Context, request *p
 	return &common.EmptyReply{Message: "删除策略成功"}, nil
 }
 
-func (t *TeamStrategyService) GetTeamMetricStrategy(ctx context.Context, request *palacev1.OperateTeamStrategyRequest) (*palacev1.GetTeamMetricStrategyReply, error) {
+func (t *TeamStrategyService) GetTeamMetricStrategy(ctx context.Context, request *palacev1.OperateTeamStrategyRequest) (*common.TeamStrategyMetricItem, error) {
 	params := build.ToOperateTeamStrategyParams(request)
 	strategy, err := t.teamStrategyMetricBiz.GetTeamMetricStrategy(ctx, params)
 	if err != nil {
 		return nil, err
 	}
-	return &palacev1.GetTeamMetricStrategyReply{
-		Strategy: build.ToTeamMetricStrategyItem(strategy),
-	}, nil
+	return build.ToTeamMetricStrategyItem(strategy), nil
 }
 
 func (t *TeamStrategyService) ListTeamStrategy(ctx context.Context, request *palacev1.ListTeamStrategyRequest) (*palacev1.ListTeamStrategyReply, error) {

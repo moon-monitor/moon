@@ -15,6 +15,7 @@ import (
 
 	"github.com/moon-monitor/moon/pkg/plugin/storage"
 	"github.com/moon-monitor/moon/pkg/util/safety"
+	"github.com/moon-monitor/moon/pkg/util/timex"
 )
 
 var _ storage.FileManager = (*Local)(nil)
@@ -64,7 +65,7 @@ func (l *Local) GetConfig() Config {
 }
 
 func (l *Local) generateObjectKey(originalName, group string) string {
-	return fmt.Sprintf("%s/%s/%d_%s", group, time.Now().Format("2006_01_02"), time.Now().UnixNano(), originalName)
+	return fmt.Sprintf("%s/%s/%d_%s", group, timex.Now().Format("2006_01_02"), timex.Now().UnixNano(), originalName)
 }
 
 func (l *Local) InitiateMultipartUpload(originalName, group string) (*storage.InitiateMultipartUploadResult, error) {
@@ -74,7 +75,7 @@ func (l *Local) InitiateMultipartUpload(originalName, group string) (*storage.In
 	l.uploads.Set(uploadID, &uploadSession{
 		objectKey: objectKey,
 		parts:     safety.NewMap[int, string](),
-		createdAt: time.Now(),
+		createdAt: timex.Now(),
 	})
 
 	return &storage.InitiateMultipartUploadResult{
@@ -96,7 +97,7 @@ func (l *Local) GenerateUploadPartURL(uploadID, objectKey string, partNumber int
 		ObjectKey:      objectKey,
 		PartNumber:     partNumber,
 		UploadURL:      localURL,
-		ExpirationTime: time.Now().Add(expires).Unix(),
+		ExpirationTime: timex.Now().Add(expires).Unix(),
 	}, nil
 }
 
@@ -191,6 +192,6 @@ func (l *Local) DeleteObject(objectKey string) error {
 func generateUploadID(objectKey string) string {
 	h := md5.New()
 	h.Write([]byte(objectKey))
-	h.Write([]byte(time.Now().String()))
+	h.Write([]byte(timex.Now().String()))
 	return hex.EncodeToString(h.Sum(nil))
 }

@@ -9,13 +9,13 @@ import (
 	"io"
 	"net/http"
 	"strconv"
-	"time"
 
 	"github.com/go-kratos/kratos/v2/log"
 
 	"github.com/moon-monitor/moon/pkg/api/rabbit/common"
 	"github.com/moon-monitor/moon/pkg/merr"
 	"github.com/moon-monitor/moon/pkg/util/httpx"
+	"github.com/moon-monitor/moon/pkg/util/timex"
 )
 
 var _ Sender = (*feishuHook)(nil)
@@ -73,7 +73,7 @@ func (f *feishuHook) Send(ctx context.Context, message Message) (err error) {
 		f.helper.Warnf("unmarshal feishu hook message failed: %v", err)
 		return err
 	}
-	requestTime := time.Now().Unix()
+	requestTime := timex.Now().Unix()
 	msg["timestamp"] = strconv.FormatInt(requestTime, 10)
 	sign, err := f.sign(requestTime)
 	if err != nil {

@@ -247,7 +247,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/api.palace.GetMenuReply'
+                                $ref: '#/components/schemas/api.palace.common.MenuTreeItem'
     /api/menu/save:
         put:
             tags:
@@ -318,7 +318,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/api.palace.GetResourceReply'
+                                $ref: '#/components/schemas/api.palace.common.ResourceItem'
     /api/resource/list:
         post:
             tags:
@@ -395,7 +395,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/api.palace.GetSystemRoleReply'
+                                $ref: '#/components/schemas/api.palace.common.SystemRoleItem'
         post:
             tags:
                 - System
@@ -566,7 +566,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/api.palace.GetUserReply'
+                                $ref: '#/components/schemas/api.palace.common.UserItem'
     /api/system/user/list:
         post:
             tags:
@@ -679,7 +679,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/api.palace.GetTeamDashboardReply'
+                                $ref: '#/components/schemas/api.palace.common.TeamDashboardItem'
         put:
             tags:
                 - TeamDashboard
@@ -736,7 +736,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/api.palace.GetTeamDashboardChartReply'
+                                $ref: '#/components/schemas/api.palace.common.TeamDashboardChartItem'
         put:
             tags:
                 - TeamDashboard
@@ -860,7 +860,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/api.palace.GetTeamReply'
+                                $ref: '#/components/schemas/api.palace.common.TeamItem'
     /api/team/dict:
         get:
             tags:
@@ -878,7 +878,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/api.palace.GetTeamDictReply'
+                                $ref: '#/components/schemas/api.palace.common.TeamDictItem'
         post:
             tags:
                 - TeamDict
@@ -1055,7 +1055,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/api.palace.GetTeamMetricDatasourceReply'
+                                $ref: '#/components/schemas/api.palace.common.TeamMetricDatasourceItem'
         post:
             tags:
                 - TeamDatasource
@@ -1143,7 +1143,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/api.palace.GetTeamNoticeGroupReply'
+                                $ref: '#/components/schemas/api.palace.common.NoticeGroupItem'
         post:
             tags:
                 - TeamNotice
@@ -1231,7 +1231,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/api.palace.GetTeamNoticeHookReply'
+                                $ref: '#/components/schemas/api.palace.common.NoticeHookItem'
         post:
             tags:
                 - TeamNotice
@@ -1548,7 +1548,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/api.palace.GetTeamStrategyGroupReply'
+                                $ref: '#/components/schemas/api.palace.common.TeamStrategyGroupItem'
         post:
             tags:
                 - TeamStrategy
@@ -1668,7 +1668,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/api.palace.GetTeamMetricStrategyReply'
+                                $ref: '#/components/schemas/api.palace.common.TeamStrategyMetricItem'
         post:
             tags:
                 - TeamStrategy
@@ -1851,7 +1851,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/api.palace.SelfInfoReply'
+                                $ref: '#/components/schemas/api.palace.common.UserItem'
         put:
             tags:
                 - User
@@ -2177,14 +2177,6 @@ components:
                     type: string
                     description: Filing information
             description: GetFilingInformationReply contains the response data for getting the filing information
-        api.palace.GetMenuReply:
-            type: object
-            properties:
-                menu:
-                    allOf:
-                        - $ref: '#/components/schemas/api.palace.common.MenuTreeItem'
-                    description: Detailed information about the menu
-            description: GetMenuReply contains the response data for retrieving a menu
         api.palace.GetResourceMenuTreeReply:
             type: object
             properties:
@@ -2194,14 +2186,6 @@ components:
                         $ref: '#/components/schemas/api.palace.common.MenuTreeItem'
                     description: List of menu items
             description: GetMenuTreeReply contains the response data for retrieving the menu tree
-        api.palace.GetResourceReply:
-            type: object
-            properties:
-                resource:
-                    allOf:
-                        - $ref: '#/components/schemas/api.palace.common.ResourceItem'
-                    description: Detailed information about the resource
-            description: GetResourceReply contains the response data for retrieving a resource
         api.palace.GetSMSConfigsReply:
             type: object
             properties:
@@ -2241,14 +2225,6 @@ components:
                         $ref: '#/components/schemas/api.palace.common.MenuTreeItem'
                     description: Menu tree data
             description: GetSelfMenuTreeReply contains the response data for getting the menu tree
-        api.palace.GetSystemRoleReply:
-            type: object
-            properties:
-                role:
-                    allOf:
-                        - $ref: '#/components/schemas/api.palace.common.SystemRoleItem'
-                    description: Detailed information about the system role
-            description: GetSystemRoleReply contains the response data for retrieving a system role
         api.palace.GetSystemRolesReply:
             type: object
             properties:
@@ -2316,21 +2292,6 @@ components:
                         type: integer
                         format: enum
             description: GetTeamAuditListRequest represents the request data for listing team audit records
-        api.palace.GetTeamDashboardChartReply:
-            type: object
-            properties:
-                chart:
-                    $ref: '#/components/schemas/api.palace.common.TeamDashboardChartItem'
-        api.palace.GetTeamDashboardReply:
-            type: object
-            properties:
-                dashboard:
-                    $ref: '#/components/schemas/api.palace.common.TeamDashboardItem'
-        api.palace.GetTeamDictReply:
-            type: object
-            properties:
-                dict:
-                    $ref: '#/components/schemas/api.palace.common.TeamDictItem'
         api.palace.GetTeamListReply:
             type: object
             properties:
@@ -2395,34 +2356,6 @@ components:
                     items:
                         type: integer
                         format: enum
-        api.palace.GetTeamMetricDatasourceReply:
-            type: object
-            properties:
-                datasource:
-                    $ref: '#/components/schemas/api.palace.common.TeamMetricDatasourceItem'
-        api.palace.GetTeamMetricStrategyReply:
-            type: object
-            properties:
-                strategy:
-                    $ref: '#/components/schemas/api.palace.common.TeamStrategyMetricItem'
-        api.palace.GetTeamNoticeGroupReply:
-            type: object
-            properties:
-                noticeGroup:
-                    $ref: '#/components/schemas/api.palace.common.NoticeGroupItem'
-        api.palace.GetTeamNoticeHookReply:
-            type: object
-            properties:
-                hook:
-                    $ref: '#/components/schemas/api.palace.common.NoticeHookItem'
-        api.palace.GetTeamReply:
-            type: object
-            properties:
-                team:
-                    allOf:
-                        - $ref: '#/components/schemas/api.palace.common.TeamItem'
-                    description: Detailed information about the team
-            description: GetTeamReply contains the response data for retrieving a team
         api.palace.GetTeamResourcesReply:
             type: object
             properties:
@@ -2460,14 +2393,6 @@ components:
                     description: Status to filter roles by
                     format: enum
             description: GetTeamRolesRequest represents the request data for retrieving team roles
-        api.palace.GetTeamStrategyGroupReply:
-            type: object
-            properties:
-                strategyGroup:
-                    allOf:
-                        - $ref: '#/components/schemas/api.palace.common.TeamStrategyGroupItem'
-                    description: Detailed information about the strategy group
-            description: GetTeamStrategyGroupReply contains the response data for retrieving a team strategy group
         api.palace.GetUserListReply:
             type: object
             properties:
@@ -2504,14 +2429,6 @@ components:
                     type: string
                     description: Keyword to search users by
             description: GetUserListRequest represents the request data for listing users
-        api.palace.GetUserReply:
-            type: object
-            properties:
-                user:
-                    allOf:
-                        - $ref: '#/components/schemas/api.palace.common.UserItem'
-                    description: Detailed information about the user
-            description: GetUserReply contains the response data for retrieving a user
         api.palace.InviteMemberRequest:
             type: object
             properties:
@@ -3481,14 +3398,6 @@ components:
                     type: integer
                     description: Group id
                     format: uint32
-        api.palace.SelfInfoReply:
-            type: object
-            properties:
-                user:
-                    allOf:
-                        - $ref: '#/components/schemas/api.palace.common.UserItem'
-                    description: Detailed information about the user
-            description: SelfInfoReply contains the response data for retrieving the current user's information
         api.palace.SelfSubscribeTeamStrategiesReply:
             type: object
             properties:

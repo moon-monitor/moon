@@ -1,11 +1,10 @@
 package build
 
 import (
-	"time"
-
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do"
 	"github.com/moon-monitor/moon/pkg/api/palace/common"
 	"github.com/moon-monitor/moon/pkg/util/slices"
+	"github.com/moon-monitor/moon/pkg/util/timex"
 )
 
 // ToDashboardItem converts a business object to a proto object
@@ -20,8 +19,8 @@ func ToDashboardItem(dashboard do.Dashboard) *common.TeamDashboardItem {
 		Remark:    dashboard.GetRemark(),
 		Status:    common.GlobalStatus(dashboard.GetStatus().GetValue()),
 		ColorHex:  dashboard.GetColorHex(),
-		CreatedAt: dashboard.GetCreatedAt().Format(time.DateTime),
-		UpdatedAt: dashboard.GetUpdatedAt().Format(time.DateTime),
+		CreatedAt: timex.Format(dashboard.GetCreatedAt()),
+		UpdatedAt: timex.Format(dashboard.GetUpdatedAt()),
 	}
 }
 
@@ -45,8 +44,8 @@ func ToDashboardChartItem(chart do.DashboardChart) *common.TeamDashboardChartIte
 		Url:         chart.GetUrl(),
 		Width:       chart.GetWidth(),
 		Height:      chart.GetHeight(),
-		CreatedAt:   chart.GetCreatedAt().Format(time.DateTime),
-		UpdatedAt:   chart.GetUpdatedAt().Format(time.DateTime),
+		CreatedAt:   timex.Format(chart.GetCreatedAt()),
+		UpdatedAt:   timex.Format(chart.GetUpdatedAt()),
 	}
 }
 

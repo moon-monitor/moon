@@ -10,6 +10,7 @@ import (
 	"github.com/moon-monitor/moon/pkg/api/houyi/common"
 	"github.com/moon-monitor/moon/pkg/plugin/datasource"
 	"github.com/moon-monitor/moon/pkg/plugin/datasource/prometheus"
+	"github.com/moon-monitor/moon/pkg/util/timex"
 )
 
 var _ prometheus.Config = (*config)(nil)
@@ -61,7 +62,7 @@ func Test_Query(t *testing.T) {
 	expr := `rate(process_cpu_seconds_total[1m])`
 	resp, err := prom.Query(ctx, &datasource.MetricQueryRequest{
 		Expr:      expr,
-		Time:      time.Now().Add(-time.Second * 30).Unix(),
+		Time:      timex.Now().Add(-time.Second * 30).Unix(),
 		StartTime: 0,
 		EndTime:   0,
 		Step:      0,
@@ -87,7 +88,7 @@ func Test_QueryRange(t *testing.T) {
 	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
 	defer cancel()
 	expr := `rate(process_cpu_seconds_total[1m])`
-	now := time.Now()
+	now := timex.Now()
 	resp, err := prom.Query(ctx, &datasource.MetricQueryRequest{
 		Expr:      expr,
 		Time:      0,

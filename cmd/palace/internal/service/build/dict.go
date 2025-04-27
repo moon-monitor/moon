@@ -1,11 +1,10 @@
 package build
 
 import (
-	"time"
-
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do"
 	"github.com/moon-monitor/moon/pkg/api/palace/common"
 	"github.com/moon-monitor/moon/pkg/util/slices"
+	"github.com/moon-monitor/moon/pkg/util/timex"
 	"github.com/moon-monitor/moon/pkg/util/validate"
 )
 
@@ -16,8 +15,8 @@ func ToDictItem(dictItem do.TeamDict) *common.TeamDictItem {
 	return &common.TeamDictItem{
 		TeamId:    dictItem.GetTeamID(),
 		DictId:    dictItem.GetID(),
-		CreatedAt: dictItem.GetCreatedAt().Format(time.DateTime),
-		UpdatedAt: dictItem.GetUpdatedAt().Format(time.DateTime),
+		CreatedAt: timex.Format(dictItem.GetCreatedAt()),
+		UpdatedAt: timex.Format(dictItem.GetUpdatedAt()),
 		Key:       dictItem.GetKey(),
 		Value:     dictItem.GetValue(),
 		Lang:      dictItem.GetLang(),

@@ -1,14 +1,13 @@
 package build
 
 import (
-	"time"
-
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/bo"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/vobj"
 	palacev1 "github.com/moon-monitor/moon/pkg/api/palace"
 	"github.com/moon-monitor/moon/pkg/api/palace/common"
 	"github.com/moon-monitor/moon/pkg/util/slices"
+	"github.com/moon-monitor/moon/pkg/util/timex"
 	"github.com/moon-monitor/moon/pkg/util/validate"
 )
 
@@ -22,8 +21,8 @@ func ToResourceItem(resource do.Resource) *common.ResourceItem {
 		Path:      resource.GetPath(),
 		Status:    common.GlobalStatus(resource.GetStatus().GetValue()),
 		Remark:    resource.GetRemark(),
-		CreatedAt: resource.GetCreatedAt().Format(time.DateTime),
-		UpdatedAt: resource.GetUpdatedAt().Format(time.DateTime),
+		CreatedAt: timex.Format(resource.GetCreatedAt()),
+		UpdatedAt: timex.Format(resource.GetUpdatedAt()),
 		Allow:     common.ResourceAllow(resource.GetAllow().GetValue()),
 		Menus:     ToMenuTree(resource.GetMenus()),
 	}

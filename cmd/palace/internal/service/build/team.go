@@ -1,18 +1,39 @@
 package build
 
 import (
-	"time"
-
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/bo"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/vobj"
 	"github.com/moon-monitor/moon/pkg/api/palace"
 	"github.com/moon-monitor/moon/pkg/api/palace/common"
 	"github.com/moon-monitor/moon/pkg/util/slices"
+	"github.com/moon-monitor/moon/pkg/util/timex"
 	"github.com/moon-monitor/moon/pkg/util/validate"
 )
 
-// ToTeamItem 将系统Team对象转换为TeamItem proto对象
+func ToSaveOneTeamRequest(req *palace.SaveTeamRequest) *bo.SaveOneTeamRequest {
+	if validate.IsNil(req) {
+		panic("SaveOneTeamRequest is nil")
+	}
+	return &bo.SaveOneTeamRequest{
+		TeamID:     req.GetId(),
+		TeamName:   req.GetName(),
+		TeamRemark: req.GetRemark(),
+		TeamLogo:   req.GetLogo(),
+	}
+}
+
+func ToSaveOneTeamRequestByCreate(req *palace.CreateTeamRequest) *bo.SaveOneTeamRequest {
+	if validate.IsNil(req) {
+		panic("CreateTeamRequest is nil")
+	}
+	return &bo.SaveOneTeamRequest{
+		TeamName:   req.GetName(),
+		TeamRemark: req.GetRemark(),
+		TeamLogo:   req.GetLogo(),
+	}
+}
+
 func ToTeamItem(team do.Team) *common.TeamItem {
 	if validate.IsNil(team) {
 		return nil
@@ -28,8 +49,8 @@ func ToTeamItem(team do.Team) *common.TeamItem {
 		Creator:         ToUserBaseItem(team.GetCreator()),
 		Leader:          ToUserBaseItem(team.GetLeader()),
 		Admins:          ToUserBaseItems(team.GetAdmins()),
-		CreatedAt:       team.GetCreatedAt().Format(time.DateTime),
-		UpdatedAt:       team.GetUpdatedAt().Format(time.DateTime),
+		CreatedAt:       timex.Format(team.GetCreatedAt()),
+		UpdatedAt:       timex.Format(team.GetUpdatedAt()),
 		MemberCount:     0,
 		StrategyCount:   0,
 		DatasourceCount: 0,
@@ -96,8 +117,8 @@ func ToTeamMemberItem(member do.TeamMember) *common.TeamMemberItem {
 		Status:    common.MemberStatus(member.GetStatus().GetValue()),
 		Inviter:   ToUserBaseItem(member.GetInviter()),
 		Roles:     ToTeamRoleItems(member.GetRoles()),
-		CreatedAt: member.GetCreatedAt().Format(time.DateTime),
-		UpdatedAt: member.GetUpdatedAt().Format(time.DateTime),
+		CreatedAt: timex.Format(member.GetCreatedAt()),
+		UpdatedAt: timex.Format(member.GetUpdatedAt()),
 	}
 }
 
@@ -115,8 +136,8 @@ func ToTeamMemberBaseItem(member do.TeamMember) *common.TeamMemberBaseItem {
 		Remark:     member.GetRemark(),
 		Position:   common.MemberPosition(member.GetPosition().GetValue()),
 		Status:     common.MemberStatus(member.GetStatus().GetValue()),
-		CreatedAt:  member.GetCreatedAt().Format(time.DateTime),
-		UpdatedAt:  member.GetUpdatedAt().Format(time.DateTime),
+		CreatedAt:  timex.Format(member.GetCreatedAt()),
+		UpdatedAt:  timex.Format(member.GetUpdatedAt()),
 		User:       ToUserBaseItem(member.GetUser()),
 	}
 }

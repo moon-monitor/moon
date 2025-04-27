@@ -31,14 +31,14 @@ func NewTeamService(
 }
 
 func (s *TeamService) SaveTeam(ctx context.Context, req *palacev1.SaveTeamRequest) (*common.EmptyReply, error) {
-	params := bo.NewSaveOneTeamRequest(req, req.GetId())
+	params := build.ToSaveOneTeamRequest(req)
 	if err := s.teamBiz.SaveTeam(ctx, params); err != nil {
 		return nil, err
 	}
 	return &common.EmptyReply{Message: "保存团队信息成功"}, nil
 }
 
-func (s *TeamService) GetTeam(ctx context.Context, _ *common.EmptyRequest) (*palacev1.GetTeamReply, error) {
+func (s *TeamService) GetTeam(ctx context.Context, _ *common.EmptyRequest) (*common.TeamItem, error) {
 	teamId, ok := permission.GetTeamIDByContext(ctx)
 	if !ok {
 		return nil, merr.ErrorPermissionDenied("please select team")
@@ -47,9 +47,7 @@ func (s *TeamService) GetTeam(ctx context.Context, _ *common.EmptyRequest) (*pal
 	if err != nil {
 		return nil, err
 	}
-	return &palacev1.GetTeamReply{
-		Team: build.ToTeamItem(teamDo),
-	}, nil
+	return build.ToTeamItem(teamDo), nil
 }
 
 func (s *TeamService) GetTeamResources(ctx context.Context, req *common.EmptyRequest) (*palacev1.GetTeamResourcesReply, error) {

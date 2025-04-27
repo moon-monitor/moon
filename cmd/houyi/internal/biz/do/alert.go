@@ -9,6 +9,7 @@ import (
 	"github.com/moon-monitor/moon/pkg/util/hash"
 	"github.com/moon-monitor/moon/pkg/util/kv"
 	"github.com/moon-monitor/moon/pkg/util/kv/label"
+	"github.com/moon-monitor/moon/pkg/util/timex"
 )
 
 var _ cache.Object = (*Alert)(nil)
@@ -73,13 +74,13 @@ func (a *Alert) GetFingerprint() string {
 
 func (a *Alert) Resolved() {
 	a.Status = common.EventStatus_resolved
-	a.LastUpdated = time.Now()
+	a.LastUpdated = timex.Now()
 	a.EndsAt = &a.LastUpdated
 }
 
 func (a *Alert) Firing() {
 	a.Status = common.EventStatus_firing
-	a.LastUpdated = time.Now()
+	a.LastUpdated = timex.Now()
 }
 
 func (a *Alert) GetValue() float64 {

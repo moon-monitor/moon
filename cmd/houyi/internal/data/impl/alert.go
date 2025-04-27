@@ -2,7 +2,6 @@ package impl
 
 import (
 	"context"
-	"time"
 
 	"github.com/go-kratos/kratos/v2/log"
 
@@ -12,6 +11,7 @@ import (
 	"github.com/moon-monitor/moon/cmd/houyi/internal/biz/vobj"
 	"github.com/moon-monitor/moon/cmd/houyi/internal/data"
 	"github.com/moon-monitor/moon/pkg/api/houyi/common"
+	"github.com/moon-monitor/moon/pkg/util/timex"
 )
 
 func NewAlertRepo(data *data.Data, logger log.Logger) repository.Alert {
@@ -98,7 +98,7 @@ func (a *alertImpl) Save(ctx context.Context, alerts ...bo.Alert) error {
 			Fingerprint:  fingerprint,
 			Value:        alert.GetValue(),
 			Duration:     alert.GetDuration(),
-			LastUpdated:  time.Now(),
+			LastUpdated:  timex.Now(),
 		}
 
 		alertMap[fingerprint] = a.oldAlert(ctx, item)

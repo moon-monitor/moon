@@ -55,15 +55,13 @@ func (s *TeamDatasourceService) DeleteTeamMetricDatasource(ctx context.Context, 
 	return &common.EmptyReply{Message: "删除团队数据源成功"}, nil
 }
 
-func (s *TeamDatasourceService) GetTeamMetricDatasource(ctx context.Context, req *palacev1.GetTeamMetricDatasourceRequest) (*palacev1.GetTeamMetricDatasourceReply, error) {
+func (s *TeamDatasourceService) GetTeamMetricDatasource(ctx context.Context, req *palacev1.GetTeamMetricDatasourceRequest) (*common.TeamMetricDatasourceItem, error) {
 	datasource, err := s.teamDatasourceBiz.GetMetricDatasource(ctx, req.GetDatasourceId())
 	if err != nil {
 		return nil, err
 	}
 
-	return &palacev1.GetTeamMetricDatasourceReply{
-		Datasource: build.ToTeamMetricDatasourceItem(datasource),
-	}, nil
+	return build.ToTeamMetricDatasourceItem(datasource), nil
 }
 
 func (s *TeamDatasourceService) ListTeamMetricDatasource(ctx context.Context, req *palacev1.ListTeamMetricDatasourceRequest) (*palacev1.ListTeamMetricDatasourceReply, error) {

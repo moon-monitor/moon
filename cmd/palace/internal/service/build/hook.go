@@ -1,14 +1,13 @@
 package build
 
 import (
-	"time"
-
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/bo"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/vobj"
 	"github.com/moon-monitor/moon/pkg/api/palace"
 	"github.com/moon-monitor/moon/pkg/api/palace/common"
 	"github.com/moon-monitor/moon/pkg/util/slices"
+	"github.com/moon-monitor/moon/pkg/util/timex"
 )
 
 // ToSaveTeamNoticeHookRequest 转换保存钩子请求
@@ -49,8 +48,8 @@ func ToNoticeHookItem(hook do.NoticeHook) *common.NoticeHookItem {
 	}
 	return &common.NoticeHookItem{
 		NoticeHookId: hook.GetID(),
-		CreatedAt:    hook.GetCreatedAt().Format(time.DateTime),
-		UpdatedAt:    hook.GetUpdatedAt().Format(time.DateTime),
+		CreatedAt:    timex.Format(hook.GetCreatedAt()),
+		UpdatedAt:    timex.Format(hook.GetUpdatedAt()),
 		Name:         hook.GetName(),
 		Remark:       hook.GetRemark(),
 		Status:       common.GlobalStatus(hook.GetStatus().GetValue()),
