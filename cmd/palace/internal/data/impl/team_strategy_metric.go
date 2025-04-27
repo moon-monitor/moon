@@ -25,6 +25,51 @@ type teamStrategyMetricImpl struct {
 	*data.Data
 }
 
+// DeleteUnUsedLevels implements repository.TeamStrategyMetric.
+func (t *teamStrategyMetricImpl) DeleteUnUsedLevels(ctx context.Context, params *bo.DeleteUnUsedLevelsParams) error {
+	if params.StrategyMetricID <= 0 || len(params.RuleIds) == 0 {
+		return nil
+	}
+	tx, teamId, err := getTeamBizQuery(ctx, t)
+	if err != nil {
+		return err
+	}
+	strategyMetricRuleMutation := tx.StrategyMetricRule
+	wrapper := []gen.Condition{
+		strategyMetricRuleMutation.StrategyMetricID.Eq(params.StrategyMetricID),
+		strategyMetricRuleMutation.TeamID.Eq(teamId),
+		strategyMetricRuleMutation.ID.In(params.RuleIds...),
+	}
+	_, err = strategyMetricRuleMutation.WithContext(ctx).Where(wrapper...).Delete()
+	return err
+}
+
+// FindLevels implements repository.TeamStrategyMetric.
+func (t *teamStrategyMetricImpl) FindLevels(ctx context.Context, params *bo.FindTeamMetricStrategyLevelsParams) ([]do.StrategyMetricRule, error) {
+	if params.StrategyMetricID <= 0 {
+		return nil, nil
+	}
+	tx, teamId, err := getTeamBizQuery(ctx, t)
+	if err != nil {
+		return nil, err
+	}
+	strategyMetricRuleMutation := tx.StrategyMetricRule
+	wrapper := []gen.Condition{
+		strategyMetricRuleMutation.StrategyMetricID.Eq(params.StrategyMetricID),
+		strategyMetricRuleMutation.TeamID.Eq(teamId),
+	}
+	if len(params.RuleIds) > 0 {
+		wrapper = append(wrapper, strategyMetricRuleMutation.ID.In(params.RuleIds...))
+	}
+	strategyMetricRuleDos, err := strategyMetricRuleMutation.WithContext(ctx).Where(wrapper...).Find()
+	if err != nil {
+		return nil, err
+	}
+	return slices.Map(strategyMetricRuleDos, func(v *team.StrategyMetricRule) do.StrategyMetricRule {
+		return v
+	}), nil
+}
+
 // Create implements repository.TeamStrategyMetric.
 func (t *teamStrategyMetricImpl) Create(ctx context.Context, params bo.CreateTeamMetricStrategyParams) (do.StrategyMetric, error) {
 	tx, _, err := getTeamBizQuery(ctx, t)

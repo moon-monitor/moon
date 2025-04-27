@@ -559,3 +559,13 @@ func (s *SubscribeTeamStrategiesParams) ToSubscribeTeamStrategiesReply(items []*
 }
 
 type SubscribeTeamStrategiesReply = ListReply[do.TeamStrategySubscriber]
+
+type DeleteUnUsedLevelsParams struct {
+	StrategyMetricID uint32
+	RuleIds          []uint32
+}
+
+type FindTeamMetricStrategyLevelsParams struct {
+	StrategyMetricID uint32
+	RuleIds          []uint32
+}

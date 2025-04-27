@@ -6,6 +6,7 @@ import (
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/bo"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/repository"
+	"github.com/moon-monitor/moon/pkg/util/slices"
 )
 
 func NewTeamStrategyMetric(
@@ -121,6 +122,13 @@ func (t *TeamStrategyMetric) SaveTeamMetricStrategyLevels(ctx context.Context, p
 	if err := createdRulesParams.Validate(); err != nil {
 		return nil, err
 	}
+	levels, err := t.teamStrategyMetricRepo.FindLevels(ctx, &bo.FindTeamMetricStrategyLevelsParams{
+		StrategyMetricID: params.StrategyMetricID,
+	})
+	if err != nil {
+		return nil, err
+	}
+	levelIds := slices.Map(levels, func(v do.StrategyMetricRule) uint32 { return v.GetID() })
 	list := make([]do.StrategyMetricRule, 0, len(updatedRulesParams.Levels))
 	err = t.transaction.BizExec(ctx, func(ctx context.Context) error {
 		if len(updatedRulesParams.Levels) > 0 {
@@ -137,7 +145,17 @@ func (t *TeamStrategyMetric) SaveTeamMetricStrategyLevels(ctx context.Context, p
 			}
 			list = append(list, createdRules...)
 		}
-		return nil
+		deleteIds := make([]uint32, 0, len(levelIds))
+		existingMap := slices.ToMap(list, func(v do.StrategyMetricRule) uint32 { return v.GetID() })
+		for _, ruleId := range levelIds {
+			if _, ok := existingMap[ruleId]; !ok {
+				deleteIds = append(deleteIds, ruleId)
+			}
+		}
+		return t.teamStrategyMetricRepo.DeleteUnUsedLevels(ctx, &bo.DeleteUnUsedLevelsParams{
+			StrategyMetricID: params.StrategyMetricID,
+			RuleIds:          deleteIds,
+		})
 	})
 	if err != nil {
 		return nil, err
