@@ -6,6 +6,7 @@ func Models() []any {
 		&Menu{},
 		&Resource{},
 		&Role{},
+		&SendMessageLog{},
 		&Team{},
 		&TeamAudit{},
 		&TeamInviteLink{},

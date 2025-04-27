@@ -1,6 +1,8 @@
 package bo
 
 import (
+	"encoding/json"
+
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do/team"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/vobj"
@@ -95,4 +97,9 @@ type SendEmailParams struct {
 	Body        string `json:"body"`
 	Subject     string `json:"subject"`
 	ContentType string `json:"content_type"`
+}
+
+func (s *SendEmailParams) String() string {
+	bs, _ := json.Marshal(s)
+	return string(bs)
 }

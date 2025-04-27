@@ -12,6 +12,7 @@ func Models() []any {
 		&NoticeGroup{},
 		&NoticeHook{},
 		&NoticeMember{},
+		&SendMessageLog{},
 		&Strategy{},
 		&StrategyGroup{},
 		&StrategyMetric{},

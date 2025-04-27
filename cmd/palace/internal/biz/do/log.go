@@ -15,3 +15,14 @@ type OperateLog interface {
 	GetAfter() string
 	GetIP() string
 }
+
+type SendMessageLog interface {
+	Base
+	GetTeamID() uint32
+	GetMessageType() vobj.MessageType
+	GetMessage() string
+	GetRequestID() string
+	GetStatus() vobj.SendMessageStatus
+	GetRetryCount() int32
+	GetError() string
+}

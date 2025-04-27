@@ -3,6 +3,7 @@ syntax = "proto3";
 package api.palace.common;
 
 import "buf/validate/validate.proto";
+import "palace/common/common_enum.proto";
 
 option go_package = "github.com/moon-monitor/moon/pkg/api/palace/common;common";
 
@@ -53,4 +54,15 @@ message TLS {
   string serverName = 1;
   string clientCert = 2;
   string clientKey = 3;
+}
+
+message SendMessageLog {
+  string requestId = 1;
+  string message = 2;
+  common.MessageType messageType = 3;
+  common.SendMessageStatus status = 4;
+  string error = 5;
+  int32 retryCount = 6;
+  string createdAt = 7;
+  string updatedAt = 8;
 }

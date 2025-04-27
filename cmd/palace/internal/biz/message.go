@@ -4,19 +4,27 @@ import (
 	"context"
 
 	"github.com/go-kratos/kratos/v2/log"
-	
+	"github.com/google/uuid"
+
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/bo"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/repository"
+	"github.com/moon-monitor/moon/cmd/palace/internal/biz/vobj"
 	"github.com/moon-monitor/moon/cmd/palace/internal/conf"
 	"github.com/moon-monitor/moon/pkg/api/rabbit/common"
 	rabbitv1 "github.com/moon-monitor/moon/pkg/api/rabbit/v1"
 	"github.com/moon-monitor/moon/pkg/plugin/email"
 )
 
-func NewMessage(bc *conf.Bootstrap, rabbitRepo repository.Rabbit, logger log.Logger) *Message {
+func NewMessage(
+	bc *conf.Bootstrap,
+	sendMessageLogRepo repository.SendMessageLog,
+	rabbitRepo repository.Rabbit,
+	logger log.Logger,
+) *Message {
 	emailConfig := bc.GetEmail()
 	return &Message{
-		rabbitRepo: rabbitRepo,
+		sendMessageLogRepo: sendMessageLogRepo,
+		rabbitRepo:         rabbitRepo,
 		emailConfig: &common.EmailConfig{
 			User:   emailConfig.GetUser(),
 			Pass:   emailConfig.GetPass(),
@@ -30,12 +38,23 @@ func NewMessage(bc *conf.Bootstrap, rabbitRepo repository.Rabbit, logger log.Log
 }
 
 type Message struct {
-	rabbitRepo  repository.Rabbit
-	helper      *log.Helper
-	emailConfig *common.EmailConfig
+	sendMessageLogRepo repository.SendMessageLog
+	rabbitRepo         repository.Rabbit
+	helper             *log.Helper
+	emailConfig        *common.EmailConfig
 }
 
 func (a *Message) SendEmail(ctx context.Context, sendEmailParams *bo.SendEmailParams) error {
+	sendMessageLogParams := &bo.CreateSendMessageLogParams{
+		TeamID:      0,
+		MessageType: vobj.MessageTypeEmail,
+		Message:     sendEmailParams,
+		RequestID:   uuid.New().String(),
+	}
+	if err := a.sendMessageLogRepo.Create(ctx, sendMessageLogParams); err != nil {
+		a.helper.Warnw("method", "create send message log error", "params", sendMessageLogParams, "error", err)
+		return err
+	}
 	sendClient, ok := a.rabbitRepo.Send()
 	if !ok {
 		// call local send email

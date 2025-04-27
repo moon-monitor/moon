@@ -1006,6 +1006,58 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/api.palace.common.EmptyReply'
+    /api/team/log/send/message:
+        get:
+            tags:
+                - TeamLog
+            operationId: TeamLog_GetSendMessageLog
+            parameters:
+                - name: requestId
+                  in: query
+                  schema:
+                    type: string
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.palace.common.SendMessageLog'
+        post:
+            tags:
+                - TeamLog
+            operationId: TeamLog_SendMessageLogs
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/api.palace.SendMessageLogsRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.palace.SendMessageLogsReply'
+    /api/team/log/send/message/retry:
+        post:
+            tags:
+                - TeamLog
+            operationId: TeamLog_RetrySendMessage
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/api.palace.OperateOneSendMessageRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.palace.common.EmptyReply'
     /api/team/members:
         post:
             tags:
@@ -2852,6 +2904,11 @@ components:
                     description: User Id, optional for filtering logs by user
                     format: uint32
             description: OperateLogListRequest represents the request data for listing operation logs
+        api.palace.OperateOneSendMessageRequest:
+            type: object
+            properties:
+                requestId:
+                    type: string
         api.palace.RemoveMemberRequest:
             type: object
             properties:
@@ -3428,6 +3485,32 @@ components:
                         $ref: '#/components/schemas/api.palace.common.TeamItem'
                     description: List of team items
             description: SelfTeamListReply contains the response data for retrieving the list of teams the current user is a member of
+        api.palace.SendMessageLogsReply:
+            type: object
+            properties:
+                items:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/api.palace.common.SendMessageLog'
+                pagination:
+                    $ref: '#/components/schemas/api.palace.common.PaginationReply'
+        api.palace.SendMessageLogsRequest:
+            type: object
+            properties:
+                requestId:
+                    type: string
+                message:
+                    type: string
+                messageType:
+                    type: integer
+                    format: enum
+                status:
+                    type: integer
+                    format: enum
+                keyword:
+                    type: string
+                pagination:
+                    $ref: '#/components/schemas/api.palace.common.PaginationRequest'
         api.palace.SendMsgCallbackReply:
             type: object
             properties:
@@ -4056,6 +4139,28 @@ components:
                     items:
                         $ref: '#/components/schemas/api.palace.common.MenuTreeItem'
             description: system-api
+        api.palace.common.SendMessageLog:
+            type: object
+            properties:
+                requestId:
+                    type: string
+                message:
+                    type: string
+                messageType:
+                    type: integer
+                    format: enum
+                status:
+                    type: integer
+                    format: enum
+                error:
+                    type: string
+                retryCount:
+                    type: integer
+                    format: int32
+                createdAt:
+                    type: string
+                updatedAt:
+                    type: string
         api.palace.common.StrategyMetricRuleLabelNotice:
             type: object
             properties:
@@ -4746,6 +4851,7 @@ tags:
     - name: TeamDashboard
     - name: TeamDatasource
     - name: TeamDict
+    - name: TeamLog
     - name: TeamNotice
     - name: TeamStrategy
       description: TeamStrategy service provides operations for managing team strategy groups and strategies

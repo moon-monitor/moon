@@ -153,3 +153,10 @@ func auditNotFound(err error) error {
 	}
 	return err
 }
+
+func sendMessageLogNotFound(err error) error {
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return merr.ErrorNotFound("send message log not found").WithCause(err)
+	}
+	return err
+}
