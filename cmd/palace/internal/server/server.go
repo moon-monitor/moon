@@ -39,6 +39,7 @@ func RegisterService(
 	strategyService *service.TeamStrategyService,
 	teamService *service.TeamService,
 	systemService *service.SystemService,
+	teamLogService *service.TeamLogService,
 ) server.Servers {
 	commonv1.RegisterHealthServer(rpcSrv, healthService)
 	commonv1.RegisterServerServer(rpcSrv, serverService)
@@ -56,5 +57,6 @@ func RegisterService(
 	palacev1.RegisterTeamStrategyHTTPServer(httpSrv, strategyService)
 	palacev1.RegisterTeamHTTPServer(httpSrv, teamService)
 	palacev1.RegisterSystemHTTPServer(httpSrv, systemService)
+	palacev1.RegisterTeamLogHTTPServer(httpSrv, teamLogService)
 	return server.Servers{rpcSrv, httpSrv, tickerSrv}
 }

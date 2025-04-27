@@ -28,6 +28,34 @@ type sendMessageLogImpl struct {
 	*data.Data
 }
 
+func (s *sendMessageLogImpl) Retry(ctx context.Context, params *bo.RetrySendMessageParams) error {
+	if params.TeamID > 0 {
+		return s.retryTeamSendMessageLog(ctx, params)
+	}
+	return s.retrySystemSendMessageLog(ctx, params)
+}
+
+func (s *sendMessageLogImpl) retryTeamSendMessageLog(ctx context.Context, params *bo.RetrySendMessageParams) error {
+	tx, teamId, err := getTeamBizQuery(ctx, s)
+	if err != nil {
+		return err
+	}
+	sendMessageLogTx := tx.SendMessageLog
+	wrapper := sendMessageLogTx.WithContext(ctx)
+	wrapper = wrapper.Where(sendMessageLogTx.TeamID.Eq(teamId), sendMessageLogTx.RequestID.Eq(params.RequestID))
+	_, err = wrapper.UpdateSimple(sendMessageLogTx.RetryCount.Add(1))
+	return err
+}
+
+func (s *sendMessageLogImpl) retrySystemSendMessageLog(ctx context.Context, params *bo.RetrySendMessageParams) error {
+	tx := getMainQuery(ctx, s)
+	sendMessageLogTx := tx.SendMessageLog
+	wrapper := sendMessageLogTx.WithContext(ctx)
+	wrapper = wrapper.Where(sendMessageLogTx.RequestID.Eq(params.RequestID))
+	_, err := wrapper.UpdateSimple(sendMessageLogTx.RetryCount.Add(1))
+	return err
+}
+
 // List implements repository.SendMessageLog.
 func (s *sendMessageLogImpl) List(ctx context.Context, params *bo.ListSendMessageLogParams) (*bo.ListSendMessageLogReply, error) {
 	if params.TeamID > 0 {

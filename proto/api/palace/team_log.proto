@@ -9,18 +9,18 @@ import "palace/common/common_enum.proto";
 option go_package = "github.com/moon-monitor/moon/pkg/api/palace;palace";
 
 service TeamLog {
-  rpc SendMessageLogs (SendMessageLogsRequest) returns (SendMessageLogsReply) {
+  rpc GetSendMessageLogs (GetTeamSendMessageLogsRequest) returns (GetTeamSendMessageLogsReply) {
     option (google.api.http) = {
       post: "/api/team/log/send/message"
       body: "*"
     };
   }
-  rpc GetSendMessageLog (OperateOneSendMessageRequest) returns (api.palace.common.SendMessageLog) {
+  rpc GetSendMessageLog (OperateOneTeamSendMessageRequest) returns (api.palace.common.SendMessageLogItem) {
     option (google.api.http) = {
       get: "/api/team/log/send/message"
     };
   }
-  rpc RetrySendMessage (OperateOneSendMessageRequest) returns (api.palace.common.EmptyReply) {
+  rpc RetrySendMessage (OperateOneTeamSendMessageRequest) returns (api.palace.common.EmptyReply) {
     option (google.api.http) = {
       post: "/api/team/log/send/message/retry"
       body: "*"
@@ -28,7 +28,7 @@ service TeamLog {
   }
 }
 
-message SendMessageLogsRequest {
+message GetTeamSendMessageLogsRequest {
   string requestId = 1;
   string message = 2;
   common.MessageType messageType = 3;
@@ -37,11 +37,11 @@ message SendMessageLogsRequest {
   common.PaginationRequest pagination = 6;
 }
 
-message SendMessageLogsReply {
-  repeated common.SendMessageLog items = 1;
+message GetTeamSendMessageLogsReply {
+  repeated common.SendMessageLogItem items = 1;
   common.PaginationReply pagination = 2;
 }
 
-message OperateOneSendMessageRequest {
+message OperateOneTeamSendMessageRequest {
   string requestId = 1;
 }

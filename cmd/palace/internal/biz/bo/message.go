@@ -32,6 +32,29 @@ type GetSendMessageLogParams struct {
 	RequestID string
 }
 
+func (p *GetSendMessageLogParams) WithTeamID(ctx context.Context) (*GetSendMessageLogParams, error) {
+	teamId, ok := permission.GetTeamIDByContext(ctx)
+	if !ok {
+		return nil, merr.ErrorUnauthorized("team id is not found")
+	}
+	p.TeamID = teamId
+	return p, nil
+}
+
+type RetrySendMessageParams struct {
+	TeamID    uint32
+	RequestID string
+}
+
+func (p *RetrySendMessageParams) WithTeamID(ctx context.Context) (*RetrySendMessageParams, error) {
+	teamId, ok := permission.GetTeamIDByContext(ctx)
+	if !ok {
+		return nil, merr.ErrorUnauthorized("team id is not found")
+	}
+	p.TeamID = teamId
+	return p, nil
+}
+
 type ListSendMessageLogParams struct {
 	*PaginationRequest
 	TeamID      uint32

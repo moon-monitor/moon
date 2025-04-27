@@ -56,7 +56,7 @@ message TLS {
   string clientKey = 3;
 }
 
-message SendMessageLog {
+message SendMessageLogItem {
   string requestId = 1;
   string message = 2;
   common.MessageType messageType = 3;

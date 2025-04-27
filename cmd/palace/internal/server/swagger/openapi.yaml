@@ -1022,16 +1022,16 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/api.palace.common.SendMessageLog'
+                                $ref: '#/components/schemas/api.palace.common.SendMessageLogItem'
         post:
             tags:
                 - TeamLog
-            operationId: TeamLog_SendMessageLogs
+            operationId: TeamLog_GetSendMessageLogs
             requestBody:
                 content:
                     application/json:
                         schema:
-                            $ref: '#/components/schemas/api.palace.SendMessageLogsRequest'
+                            $ref: '#/components/schemas/api.palace.GetTeamSendMessageLogsRequest'
                 required: true
             responses:
                 "200":
@@ -1039,7 +1039,7 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/api.palace.SendMessageLogsReply'
+                                $ref: '#/components/schemas/api.palace.GetTeamSendMessageLogsReply'
     /api/team/log/send/message/retry:
         post:
             tags:
@@ -1049,7 +1049,7 @@ paths:
                 content:
                     application/json:
                         schema:
-                            $ref: '#/components/schemas/api.palace.OperateOneSendMessageRequest'
+                            $ref: '#/components/schemas/api.palace.OperateOneTeamSendMessageRequest'
                 required: true
             responses:
                 "200":
@@ -2277,6 +2277,32 @@ components:
                         $ref: '#/components/schemas/api.palace.common.MenuTreeItem'
                     description: Menu tree data
             description: GetSelfMenuTreeReply contains the response data for getting the menu tree
+        api.palace.GetSendMessageLogsReply:
+            type: object
+            properties:
+                items:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/api.palace.common.SendMessageLogItem'
+                pagination:
+                    $ref: '#/components/schemas/api.palace.common.PaginationReply'
+        api.palace.GetSendMessageLogsRequest:
+            type: object
+            properties:
+                requestId:
+                    type: string
+                message:
+                    type: string
+                messageType:
+                    type: integer
+                    format: enum
+                status:
+                    type: integer
+                    format: enum
+                keyword:
+                    type: string
+                pagination:
+                    $ref: '#/components/schemas/api.palace.common.PaginationRequest'
         api.palace.GetSystemRolesReply:
             type: object
             properties:
@@ -2445,6 +2471,32 @@ components:
                     description: Status to filter roles by
                     format: enum
             description: GetTeamRolesRequest represents the request data for retrieving team roles
+        api.palace.GetTeamSendMessageLogsReply:
+            type: object
+            properties:
+                items:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/api.palace.common.SendMessageLogItem'
+                pagination:
+                    $ref: '#/components/schemas/api.palace.common.PaginationReply'
+        api.palace.GetTeamSendMessageLogsRequest:
+            type: object
+            properties:
+                requestId:
+                    type: string
+                message:
+                    type: string
+                messageType:
+                    type: integer
+                    format: enum
+                status:
+                    type: integer
+                    format: enum
+                keyword:
+                    type: string
+                pagination:
+                    $ref: '#/components/schemas/api.palace.common.PaginationRequest'
         api.palace.GetUserListReply:
             type: object
             properties:
@@ -2905,6 +2957,11 @@ components:
                     format: uint32
             description: OperateLogListRequest represents the request data for listing operation logs
         api.palace.OperateOneSendMessageRequest:
+            type: object
+            properties:
+                requestId:
+                    type: string
+        api.palace.OperateOneTeamSendMessageRequest:
             type: object
             properties:
                 requestId:
@@ -3485,32 +3542,6 @@ components:
                         $ref: '#/components/schemas/api.palace.common.TeamItem'
                     description: List of team items
             description: SelfTeamListReply contains the response data for retrieving the list of teams the current user is a member of
-        api.palace.SendMessageLogsReply:
-            type: object
-            properties:
-                items:
-                    type: array
-                    items:
-                        $ref: '#/components/schemas/api.palace.common.SendMessageLog'
-                pagination:
-                    $ref: '#/components/schemas/api.palace.common.PaginationReply'
-        api.palace.SendMessageLogsRequest:
-            type: object
-            properties:
-                requestId:
-                    type: string
-                message:
-                    type: string
-                messageType:
-                    type: integer
-                    format: enum
-                status:
-                    type: integer
-                    format: enum
-                keyword:
-                    type: string
-                pagination:
-                    $ref: '#/components/schemas/api.palace.common.PaginationRequest'
         api.palace.SendMsgCallbackReply:
             type: object
             properties:
@@ -4139,7 +4170,7 @@ components:
                     items:
                         $ref: '#/components/schemas/api.palace.common.MenuTreeItem'
             description: system-api
-        api.palace.common.SendMessageLog:
+        api.palace.common.SendMessageLogItem:
             type: object
             properties:
                 requestId:

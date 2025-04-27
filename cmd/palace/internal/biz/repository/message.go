@@ -12,4 +12,5 @@ type SendMessageLog interface {
 	Create(ctx context.Context, params *bo.CreateSendMessageLogParams) error
 	UpdateStatus(ctx context.Context, params *bo.UpdateSendMessageLogStatusParams) error
 	List(ctx context.Context, params *bo.ListSendMessageLogParams) (*bo.ListSendMessageLogReply, error)
+	Retry(ctx context.Context, params *bo.RetrySendMessageParams) error
 }
