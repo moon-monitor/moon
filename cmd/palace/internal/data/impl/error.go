@@ -69,3 +69,87 @@ func teamMenuNotFound(err error) error {
 	}
 	return err
 }
+
+func strategyNotFound(err error) error {
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return merr.ErrorNotFound("strategy not found").WithCause(err)
+	}
+	return err
+}
+
+func strategyMetricNotFound(err error) error {
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return merr.ErrorNotFound("metric strategy not found").WithCause(err)
+	}
+	return err
+}
+
+func strategyGroupNotFound(err error) error {
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return merr.ErrorNotFound("strategy group not found").WithCause(err)
+	}
+	return err
+}
+
+func teamRoleNotFound(err error) error {
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return merr.ErrorNotFound("team role not found").WithCause(err)
+	}
+	return err
+}
+
+func noticeGroupNotFound(err error) error {
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return merr.ErrorNotFound("notice group not found").WithCause(err)
+	}
+	return err
+}
+
+func hookNotFound(err error) error {
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return merr.ErrorNotFound("hook not found").WithCause(err)
+	}
+	return err
+}
+
+func teamDictNotFound(err error) error {
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return merr.ErrorNotFound("team dict not found").WithCause(err)
+	}
+	return err
+}
+
+func datasourceNotFound(err error) error {
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return merr.ErrorNotFound("datasource not found").WithCause(err)
+	}
+	return err
+}
+
+func teamSMSConfigNotFound(err error) error {
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return merr.ErrorNotFound("team sms config not found").WithCause(err)
+	}
+	return err
+}
+
+func teamEmailConfigNotFound(err error) error {
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return merr.ErrorNotFound("team email config not found").WithCause(err)
+	}
+	return err
+}
+
+func roleNotFound(err error) error {
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return merr.ErrorNotFound("role not found").WithCause(err)
+	}
+	return err
+}
+
+func auditNotFound(err error) error {
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return merr.ErrorNotFound("audit not found").WithCause(err)
+	}
+	return err
+}

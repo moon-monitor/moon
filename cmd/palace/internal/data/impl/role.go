@@ -42,7 +42,11 @@ func (r *roleImpl) Find(ctx context.Context, ids []uint32) ([]do.Role, error) {
 
 func (r *roleImpl) Get(ctx context.Context, id uint32) (do.Role, error) {
 	roleQuery := getMainQuery(ctx, r).Role
-	return roleQuery.WithContext(ctx).Where(roleQuery.ID.Eq(id)).First()
+	role, err := roleQuery.WithContext(ctx).Where(roleQuery.ID.Eq(id)).First()
+	if err != nil {
+		return nil, roleNotFound(err)
+	}
+	return role, nil
 }
 
 func (r *roleImpl) List(ctx context.Context, req *bo.ListRoleReq) (*bo.ListRoleReply, error) {

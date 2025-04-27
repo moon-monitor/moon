@@ -142,7 +142,11 @@ func (t *teamHookImpl) Get(ctx context.Context, hookID uint32) (do.NoticeHook, e
 		hookQuery.TeamID.Eq(teamID),
 	}
 
-	return hookQuery.WithContext(ctx).Where(wrapper...).First()
+	hook, err := hookQuery.WithContext(ctx).Where(wrapper...).First()
+	if err != nil {
+		return nil, hookNotFound(err)
+	}
+	return hook, nil
 }
 
 func (t *teamHookImpl) List(ctx context.Context, req *bo.ListTeamNoticeHookRequest) (*bo.ListTeamNoticeHookReply, error) {
@@ -152,18 +156,15 @@ func (t *teamHookImpl) List(ctx context.Context, req *bo.ListTeamNoticeHookReque
 	}
 
 	hookQuery := query.NoticeHook
-
 	wrapper := hookQuery.WithContext(ctx).Where(hookQuery.TeamID.Eq(teamID))
-	// Build conditions
-	conditions := make([]gen.Condition, 0)
 	if !req.Status.IsUnknown() {
-		conditions = append(conditions, hookQuery.Status.Eq(req.Status.GetValue()))
+		wrapper = wrapper.Where(hookQuery.Status.Eq(req.Status.GetValue()))
 	}
 	if len(req.Apps) > 0 {
-		conditions = append(conditions, hookQuery.APP.In(slices.Map(req.Apps, func(app vobj.HookApp) int8 { return app.GetValue() })...))
+		wrapper = wrapper.Where(hookQuery.APP.In(slices.Map(req.Apps, func(app vobj.HookApp) int8 { return app.GetValue() })...))
 	}
 	if !validate.TextIsNull(req.Keyword) {
-		conditions = append(conditions, hookQuery.Name.Like(req.Keyword))
+		wrapper = wrapper.Where(hookQuery.Name.Like(req.Keyword))
 	}
 
 	if validate.IsNotNil(req.PaginationRequest) {

@@ -59,7 +59,11 @@ func (t *teamRoleImpl) Get(ctx context.Context, id uint32) (do.TeamRole, error) 
 		roleQuery.TeamID.Eq(teamID),
 		roleQuery.ID.Eq(id),
 	}
-	return roleQuery.WithContext(ctx).Where(wrapper...).First()
+	role, err := roleQuery.WithContext(ctx).Where(wrapper...).First()
+	if err != nil {
+		return nil, teamRoleNotFound(err)
+	}
+	return role, nil
 }
 
 func (t *teamRoleImpl) List(ctx context.Context, req *bo.ListRoleReq) (*bo.ListTeamRoleReply, error) {

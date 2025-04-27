@@ -5,7 +5,6 @@ import (
 	_ "embed"
 
 	"github.com/go-kratos/kratos/v2/log"
-	"github.com/moon-monitor/moon/cmd/palace/internal/data/impl/build"
 	"gorm.io/gen"
 	"gorm.io/gen/field"
 
@@ -16,6 +15,7 @@ import (
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/vobj"
 	"github.com/moon-monitor/moon/cmd/palace/internal/conf"
 	"github.com/moon-monitor/moon/cmd/palace/internal/data"
+	"github.com/moon-monitor/moon/cmd/palace/internal/data/impl/build"
 	"github.com/moon-monitor/moon/pkg/merr"
 	"github.com/moon-monitor/moon/pkg/util/crypto"
 	"github.com/moon-monitor/moon/pkg/util/password"

@@ -104,8 +104,13 @@ func (t *teamConfigSMSImpl) Get(ctx context.Context, id uint32) (do.TeamSMSConfi
 		return nil, err
 	}
 	bizSMSConfigQuery := bizQuery.SmsConfig
-	return bizSMSConfigQuery.WithContext(ctx).Where(
+	wrapper := []gen.Condition{
 		bizSMSConfigQuery.TeamID.Eq(teamID),
 		bizSMSConfigQuery.ID.Eq(id),
-	).First()
+	}
+	smsConfig, err := bizSMSConfigQuery.WithContext(ctx).Where(wrapper...).First()
+	if err != nil {
+		return nil, teamSMSConfigNotFound(err)
+	}
+	return smsConfig, nil
 }

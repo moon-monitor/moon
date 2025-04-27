@@ -119,7 +119,11 @@ func (t *teamMetricDatasourceImpl) Get(ctx context.Context, datasourceID uint32)
 		mutation.TeamID.Eq(teamId),
 		mutation.ID.Eq(datasourceID),
 	}
-	return mutation.WithContext(ctx).Where(wrapper...).First()
+	datasource, err := mutation.WithContext(ctx).Where(wrapper...).First()
+	if err != nil {
+		return nil, datasourceNotFound(err)
+	}
+	return datasource, nil
 }
 
 func (t *teamMetricDatasourceImpl) List(ctx context.Context, req *bo.ListTeamMetricDatasource) (*bo.ListTeamMetricDatasourceReply, error) {

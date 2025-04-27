@@ -38,7 +38,11 @@ func (t *teamConfigEmailImpl) Get(ctx context.Context, id uint32) (do.TeamEmailC
 		bizEmailConfigQuery.TeamID.Eq(teamID),
 		bizEmailConfigQuery.ID.Eq(id),
 	}
-	return bizEmailConfigQuery.WithContext(ctx).Where(wrappers...).First()
+	emailConfig, err := bizEmailConfigQuery.WithContext(ctx).Where(wrappers...).First()
+	if err != nil {
+		return nil, teamEmailConfigNotFound(err)
+	}
+	return emailConfig, nil
 }
 
 func (t *teamConfigEmailImpl) List(ctx context.Context, req *bo.ListEmailConfigRequest) (*bo.ListEmailConfigListReply, error) {

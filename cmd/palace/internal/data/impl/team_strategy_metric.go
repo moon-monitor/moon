@@ -335,7 +335,7 @@ func (t *teamStrategyMetricImpl) Get(ctx context.Context, params *bo.OperateTeam
 	}
 	strategyMetricDo, err := strategyMetricMutation.WithContext(ctx).Preload(preloads...).Where(wrapper...).First()
 	if err != nil {
-		return nil, err
+		return nil, strategyMetricNotFound(err)
 	}
 
 	return build.ToStrategyMetric(ctx, strategyMetricDo), nil

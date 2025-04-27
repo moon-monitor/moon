@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/go-kratos/kratos/v2/log"
-	
+
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/bo"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/repository"
@@ -28,7 +28,11 @@ type auditImpl struct {
 
 func (a *auditImpl) Get(ctx context.Context, id uint32) (do.TeamAudit, error) {
 	auditQuery := getMainQuery(ctx, a).TeamAudit
-	return auditQuery.WithContext(ctx).Where(auditQuery.ID.Eq(id)).First()
+	audit, err := auditQuery.WithContext(ctx).Where(auditQuery.ID.Eq(id)).First()
+	if err != nil {
+		return nil, auditNotFound(err)
+	}
+	return audit, nil
 }
 
 func (a *auditImpl) TeamAuditList(ctx context.Context, req *bo.TeamAuditListRequest) (*bo.TeamAuditListReply, error) {

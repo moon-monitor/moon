@@ -248,7 +248,11 @@ func (t *teamNoticeImpl) Get(ctx context.Context, groupID uint32) (do.NoticeGrou
 		bizQuery.NoticeGroup.TeamID.Eq(teamId),
 		bizQuery.NoticeGroup.ID.Eq(groupID),
 	}
-	return bizQuery.NoticeGroup.WithContext(ctx).Where(wrapper...).Preload(field.Associations).First()
+	noticeGroup, err := bizQuery.NoticeGroup.WithContext(ctx).Where(wrapper...).Preload(field.Associations).First()
+	if err != nil {
+		return nil, noticeGroupNotFound(err)
+	}
+	return noticeGroup, nil
 }
 
 func (t *teamNoticeImpl) FindByIds(ctx context.Context, groupIds []uint32) ([]do.NoticeGroup, error) {

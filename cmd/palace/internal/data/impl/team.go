@@ -2,13 +2,10 @@ package impl
 
 import (
 	"context"
-	"fmt"
 
-	"github.com/go-kratos/kratos/v2/errors"
 	"github.com/go-kratos/kratos/v2/log"
 	"gorm.io/gen"
 	"gorm.io/gen/field"
-	ggorm "gorm.io/gorm"
 
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/bo"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do"
@@ -17,9 +14,6 @@ import (
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/vobj"
 	"github.com/moon-monitor/moon/cmd/palace/internal/data"
 	"github.com/moon-monitor/moon/cmd/palace/internal/data/impl/build"
-	"github.com/moon-monitor/moon/pkg/config"
-	"github.com/moon-monitor/moon/pkg/merr"
-	"github.com/moon-monitor/moon/pkg/plugin/gorm"
 	"github.com/moon-monitor/moon/pkg/util/crypto"
 	"github.com/moon-monitor/moon/pkg/util/slices"
 	"github.com/moon-monitor/moon/pkg/util/validate"
@@ -143,22 +137,4 @@ func (r *teamRepoImpl) List(ctx context.Context, req *bo.TeamListRequest) (*bo.T
 		return nil, err
 	}
 	return req.ToTeamListReply(teamDos), nil
-}
-
-func (r *teamRepoImpl) createDatabase(ctx context.Context, c *config.Database, teamID uint32) (gorm.DB, error) {
-	teamQuery := getMainQuery(ctx, r).Team
-	teamDo, err := teamQuery.WithContext(ctx).Where(teamQuery.ID.Eq(teamID)).First()
-	if err != nil {
-		if errors.Is(err, ggorm.ErrRecordNotFound) {
-			return nil, merr.ErrorNotFound("team %d not found", teamID)
-		}
-		return nil, err
-	}
-
-	dbName := c.GetDbName()
-	if teamDo.Capacity.AllowGroup() {
-		dbName = fmt.Sprintf("%s_%d", dbName, teamID)
-	}
-	c.DbName = dbName
-	return gorm.NewDB(c)
 }

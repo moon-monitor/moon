@@ -153,7 +153,11 @@ func (t *teamStrategyImpl) Update(ctx context.Context, params bo.UpdateTeamStrat
 		}
 	}
 
-	return tx.Strategy.WithContext(ctx).Where(wrappers...).First()
+	strategy, err := tx.Strategy.WithContext(ctx).Where(wrappers...).First()
+	if err != nil {
+		return nil, strategyNotFound(err)
+	}
+	return strategy, nil
 }
 
 // List implements repository.TeamStrategy.
@@ -226,5 +230,9 @@ func (t *teamStrategyImpl) Get(ctx context.Context, params *bo.OperateTeamStrate
 		return nil, err
 	}
 	wrapper := bizQuery.Strategy.WithContext(ctx).Where(bizQuery.Strategy.TeamID.Eq(teamId), bizQuery.Strategy.ID.Eq(params.StrategyId))
-	return wrapper.First()
+	strategy, err := wrapper.First()
+	if err != nil {
+		return nil, strategyNotFound(err)
+	}
+	return strategy, nil
 }

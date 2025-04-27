@@ -79,7 +79,7 @@ func (t *teamStrategyGroupRepo) Get(ctx context.Context, id uint32) (do.Strategy
 	}
 	group, err := mutation.WithContext(ctx).Preload(field.Associations).Where(wrappers...).First()
 	if err != nil {
-		return nil, err
+		return nil, strategyGroupNotFound(err)
 	}
 	return group, nil
 }

@@ -40,7 +40,11 @@ func (t *teamDictImpl) Get(ctx context.Context, dictID uint32) (do.TeamDict, err
 		bizDictQuery.TeamID.Eq(teamID),
 		bizDictQuery.ID.Eq(dictID),
 	}
-	return bizDictQuery.WithContext(ctx).Where(wrappers...).First()
+	dict, err := bizDictQuery.WithContext(ctx).Where(wrappers...).First()
+	if err != nil {
+		return nil, teamDictNotFound(err)
+	}
+	return dict, nil
 }
 
 func (t *teamDictImpl) Delete(ctx context.Context, dictID uint32) error {
