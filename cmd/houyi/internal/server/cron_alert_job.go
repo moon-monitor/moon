@@ -20,7 +20,6 @@ func NewCronAlertJobServer(
 	return &CronAlertJobServer{
 		evaluateService: evaluateService,
 		alertService:    alertService,
-		logger:          logger,
 		helper:          log.NewHelper(log.With(logger, "module", "server.cron.alert.job")),
 		CronJobServer:   server.NewCronJobServer("Alert", logger),
 	}
@@ -30,7 +29,6 @@ type CronAlertJobServer struct {
 	evaluateService *service.EventBusService
 	alertService    *service.AlertService
 
-	logger log.Logger
 	helper *log.Helper
 	*server.CronJobServer
 }

@@ -15,7 +15,6 @@ var _ transport.Server = (*CronStrategyJobServer)(nil)
 func NewCronStrategyJobServer(evaluateService *service.EventBusService, logger log.Logger) *CronStrategyJobServer {
 	return &CronStrategyJobServer{
 		evaluateService: evaluateService,
-		logger:          logger,
 		helper:          log.NewHelper(log.With(logger, "module", "server.cron.strategy.job")),
 		CronJobServer:   server.NewCronJobServer("Strategy", logger),
 	}
@@ -23,7 +22,6 @@ func NewCronStrategyJobServer(evaluateService *service.EventBusService, logger l
 
 type CronStrategyJobServer struct {
 	evaluateService *service.EventBusService
-	logger          log.Logger
 	helper          *log.Helper
 	*server.CronJobServer
 }

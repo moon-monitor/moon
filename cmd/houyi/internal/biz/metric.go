@@ -26,7 +26,6 @@ func NewMetric(
 	evaluateConf := bc.GetEvaluate()
 	syncConfig := bc.GetConfig()
 	return &Metric{
-		logger:           logger,
 		helper:           log.NewHelper(log.With(logger, "module", "biz.metric")),
 		judgeRepo:        judgeRepo,
 		alertRepo:        alertRepo,
@@ -42,7 +41,6 @@ func NewMetric(
 }
 
 type Metric struct {
-	logger log.Logger
 	helper *log.Helper
 
 	judgeRepo        repository.Judge
@@ -113,7 +111,7 @@ func (m *Metric) SaveMetricRules(ctx context.Context, rules ...bo.MetricRule) er
 
 func (m *Metric) newStrategyJob(_ context.Context, metric bo.MetricRule) (bo.StrategyJob, error) {
 	opts := []event.StrategyMetricJobOption{
-		event.WithStrategyMetricJobHelper(m.logger),
+		event.WithStrategyMetricJobHelper(m.helper.Logger()),
 		event.WithStrategyMetricJobMetric(metric.UniqueKey(), metric.GetEnable()),
 		event.WithStrategyMetricJobConfigRepo(m.configRepo),
 		event.WithStrategyMetricJobJudgeRepo(m.judgeRepo),

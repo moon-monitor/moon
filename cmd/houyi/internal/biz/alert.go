@@ -19,7 +19,6 @@ func NewAlert(
 	syncConfig := bc.GetAlert()
 	return &Alert{
 		helper:       log.NewHelper(log.With(logger, "module", "biz.alert")),
-		logger:       logger,
 		alertRepo:    alertRepo,
 		eventBusRepo: eventBusRepo,
 		syncInterval: syncConfig.GetSyncInterval().AsDuration(),
@@ -29,7 +28,6 @@ func NewAlert(
 
 type Alert struct {
 	helper *log.Helper
-	logger log.Logger
 
 	alertRepo    repository.Alert
 	eventBusRepo repository.EventBus

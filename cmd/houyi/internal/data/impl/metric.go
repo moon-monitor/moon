@@ -17,16 +17,14 @@ import (
 
 func NewMetricRepo(d *data.Data, logger log.Logger) repository.MetricInit {
 	return &metricImpl{
-		Data:   d,
-		logger: logger,
-		help:   log.NewHelper(log.With(logger, "module", "data.repo.metric")),
+		Data: d,
+		help: log.NewHelper(log.With(logger, "module", "data.repo.metric")),
 	}
 }
 
 type metricImpl struct {
 	*data.Data
-	help   *log.Helper
-	logger log.Logger
+	help *log.Helper
 }
 
 type metricInstance struct {
@@ -48,18 +46,18 @@ func (m *metricImpl) Init(config bo.MetricDatasourceConfig) (repository.Metric, 
 	switch config.GetDriver() {
 	case common.MetricDatasourceDriver_PROMETHEUS:
 		if !ok {
-			metricDatasource = prometheus.New(config, m.logger)
+			metricDatasource = prometheus.New(config, m.help.Logger())
 		}
 	case common.MetricDatasourceDriver_VICTORIAMETRICS:
 		if !ok {
-			metricDatasource = prometheus.New(config, m.logger)
+			metricDatasource = prometheus.New(config, m.help.Logger())
 		}
 	default:
 		return nil, merr.ErrorParamsError("invalid metric datasource driver: %s", config.GetDriver())
 	}
 	return &metricInstance{
 		metric: metricDatasource,
-		helper: log.NewHelper(log.With(m.logger, "module", "data.repo.metric.instance")),
+		helper: log.NewHelper(log.With(m.help.Logger(), "module", "data.repo.metric.instance")),
 	}, nil
 }
 

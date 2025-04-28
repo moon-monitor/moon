@@ -22,14 +22,12 @@ func NewSendRepo(d *data.Data, logger log.Logger) repository.Send {
 	return &sendImpl{
 		Data:   d,
 		helper: log.NewHelper(log.With(logger, "module", "data.repo.send")),
-		logger: logger,
 	}
 }
 
 type sendImpl struct {
 	*data.Data
 	helper *log.Helper
-	logger log.Logger
 }
 
 func (s *sendImpl) Email(_ context.Context, params bo.SendEmailParams) error {
@@ -114,7 +112,7 @@ func (s *sendImpl) Hook(ctx context.Context, params bo.SendHookParams) error {
 func (s *sendImpl) newSms(config bo.SMSConfig) (sms.Sender, error) {
 	switch config.GetType() {
 	case common.SMSConfig_ALIYUN:
-		return ali.NewAliyun(config, ali.WithAliyunLogger(s.logger))
+		return ali.NewAliyun(config, ali.WithAliyunLogger(s.helper.Logger()))
 	default:
 		return nil, merr.ErrorParamsError("No SMS configuration is available")
 	}
@@ -125,23 +123,23 @@ func (s *sendImpl) newHook(config bo.HookConfig) (hook.Sender, error) {
 	case common.HookAPP_OTHER:
 		opts := []hook.OtherHookOption{
 			hook.WithOtherBasicAuth(config.GetUsername(), config.GetPassword()),
-			hook.WithOtherLogger(s.logger),
+			hook.WithOtherLogger(s.helper.Logger()),
 			hook.WithOtherHeader(config.GetHeaders()),
 		}
 		return hook.NewOtherHook(config.GetUrl(), opts...), nil
 	case common.HookAPP_DINGTALK:
 		opts := []hook.DingTalkHookOption{
-			hook.WithDingTalkLogger(s.logger),
+			hook.WithDingTalkLogger(s.helper.Logger()),
 		}
 		return hook.NewDingTalkHook(config.GetUrl(), config.GetSecret(), opts...), nil
 	case common.HookAPP_WECHAT:
 		opts := []hook.WechatHookOption{
-			hook.WithWechatLogger(s.logger),
+			hook.WithWechatLogger(s.helper.Logger()),
 		}
 		return hook.NewWechatHook(config.GetUrl(), opts...), nil
 	case common.HookAPP_FEISHU:
 		opts := []hook.FeishuHookOption{
-			hook.WithFeishuLogger(s.logger),
+			hook.WithFeishuLogger(s.helper.Logger()),
 		}
 		return hook.NewFeishuHook(config.GetUrl(), config.GetSecret(), opts...), nil
 	default:

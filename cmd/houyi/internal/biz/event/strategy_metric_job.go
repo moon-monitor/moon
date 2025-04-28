@@ -48,7 +48,6 @@ func WithStrategyMetricJobHelper(logger log.Logger) StrategyMetricJobOption {
 			return merr.ErrorInternalServerError("logger is nil")
 		}
 		s.helper = log.NewHelper(log.With(logger, "module", "event.strategy.metric", "jobKey", s.key))
-		s.logger = logger
 		return nil
 	}
 }
@@ -150,7 +149,6 @@ func WithStrategyMetricJobCacheRepo(cacheRepo repository.Cache) StrategyMetricJo
 }
 
 type strategyMetricJob struct {
-	logger log.Logger
 	helper *log.Helper
 	key    string
 	id     cron.EntryID
@@ -257,7 +255,7 @@ func (s *strategyMetricJob) Run() {
 	}
 	alertJobEventBus := s.eventBusRepo.InAlertJobEventBus()
 	alertJobOpts := []AlertJobOption{
-		WithAlertJobHelper(s.logger),
+		WithAlertJobHelper(s.helper.Logger()),
 		WithAlertJobEventBusRepo(s.eventBusRepo),
 		WithAlertJobAlertRepo(s.alertRepo),
 		WithAlertJobCacheRepo(s.cacheRepo),
