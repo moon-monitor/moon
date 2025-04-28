@@ -65,7 +65,7 @@ func WithDingTalkLogger(logger log.Logger) DingTalkHookOption {
 func (d *dingTalkHook) Send(ctx context.Context, message Message) (err error) {
 	defer func() {
 		if err != nil {
-			d.helper.Warnw("msg", "send dingtalk hook failed", "error", err, "req", string(message))
+			d.helper.WithContext(ctx).Warnw("msg", "send dingtalk hook failed", "error", err, "req", string(message))
 		}
 	}()
 	timestamp := timex.Now().UnixMilli()
@@ -78,14 +78,14 @@ func (d *dingTalkHook) Send(ctx context.Context, message Message) (err error) {
 	api := d.parseApi(d.api, query)
 	response, err := httpx.PostJson(ctx, api, message)
 	if err != nil {
-		d.helper.Warnf("send dingtalk hook failed: %v", err)
+		d.helper.WithContext(ctx).Warnf("send dingtalk hook failed: %v", err)
 		return err
 	}
 	defer response.Body.Close()
 
 	var resp dingTalkHookResp
 	if err := json.NewDecoder(response.Body).Decode(&resp); err != nil {
-		d.helper.Warnf("unmarshal dingtalk hook response failed: %v", err)
+		d.helper.WithContext(ctx).Warnf("unmarshal dingtalk hook response failed: %v", err)
 		body, _ := io.ReadAll(response.Body)
 		return merr.ErrorBadRequest("unmarshal dingtalk hook response failed: %v, response: %s", err, string(body))
 	}

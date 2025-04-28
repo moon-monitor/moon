@@ -28,7 +28,7 @@ func (c *configImpl) GetEmailConfig(ctx context.Context, name string) (bo.EmailC
 	key := vobj.EmailCacheKey.Key()
 	exist, err := c.Data.GetCache().Client().HExists(ctx, key, name).Result()
 	if err != nil {
-		c.helper.Errorw("method", "GetEmailConfig", "err", err)
+		c.helper.WithContext(ctx).Errorw("method", "GetEmailConfig", "err", err)
 		return nil, false
 	}
 	if !exist {
@@ -36,7 +36,7 @@ func (c *configImpl) GetEmailConfig(ctx context.Context, name string) (bo.EmailC
 	}
 	var emailConfig do.EmailConfig
 	if err := c.Data.GetCache().Client().HGet(ctx, key, name).Scan(&emailConfig); err != nil {
-		c.helper.Errorw("method", "GetEmailConfig", "err", err)
+		c.helper.WithContext(ctx).Errorw("method", "GetEmailConfig", "err", err)
 		return nil, false
 	}
 
@@ -64,7 +64,7 @@ func (c *configImpl) GetSMSConfig(ctx context.Context, name string) (bo.SMSConfi
 	key := vobj.SmsCacheKey.Key()
 	exist, err := c.Data.GetCache().Client().HExists(ctx, key, name).Result()
 	if err != nil {
-		c.helper.Errorw("method", "GetSMSConfig", "err", err)
+		c.helper.WithContext(ctx).Errorw("method", "GetSMSConfig", "err", err)
 		return nil, false
 	}
 	if !exist {
@@ -72,7 +72,7 @@ func (c *configImpl) GetSMSConfig(ctx context.Context, name string) (bo.SMSConfi
 	}
 	var smsConfig do.SMSConfig
 	if err := c.Data.GetCache().Client().HGet(ctx, key, name).Scan(&smsConfig); err != nil {
-		c.helper.Errorw("method", "GetSMSConfig", "err", err)
+		c.helper.WithContext(ctx).Errorw("method", "GetSMSConfig", "err", err)
 		return nil, false
 	}
 	return &smsConfig, true
@@ -99,7 +99,7 @@ func (c *configImpl) GetHookConfig(ctx context.Context, name string) (bo.HookCon
 	key := vobj.HookCacheKey.Key()
 	exist, err := c.Data.GetCache().Client().HExists(ctx, key, name).Result()
 	if err != nil {
-		c.helper.Errorw("method", "GetHookConfig", "err", err)
+		c.helper.WithContext(ctx).Errorw("method", "GetHookConfig", "err", err)
 		return nil, false
 	}
 	if !exist {
@@ -107,7 +107,7 @@ func (c *configImpl) GetHookConfig(ctx context.Context, name string) (bo.HookCon
 	}
 	var hookConfig do.HookConfig
 	if err := c.Data.GetCache().Client().HGet(ctx, key, name).Scan(&hookConfig); err != nil {
-		c.helper.Errorw("method", "GetHookConfig", "err", err)
+		c.helper.WithContext(ctx).Errorw("method", "GetHookConfig", "err", err)
 		return nil, false
 	}
 	return &hookConfig, true

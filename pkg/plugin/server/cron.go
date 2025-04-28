@@ -102,14 +102,14 @@ func (c *CronJobServer) RemoveJob(job CronJob) {
 	}
 }
 
-func (c *CronJobServer) Start(_ context.Context) error {
-	defer c.helper.Infof("[CronJob] %s server started", c.name)
+func (c *CronJobServer) Start(ctx context.Context) error {
+	defer c.helper.WithContext(ctx).Infof("[CronJob] %s server started", c.name)
 	c.cron.Start()
 	return nil
 }
 
-func (c *CronJobServer) Stop(_ context.Context) error {
-	defer c.helper.Infof("[CronJob] %s server stopped", c.name)
+func (c *CronJobServer) Stop(ctx context.Context) error {
+	defer c.helper.WithContext(ctx).Infof("[CronJob] %s server stopped", c.name)
 	c.cron.Stop()
 	c.tasks.Clear()
 	return nil

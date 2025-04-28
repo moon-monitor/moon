@@ -4,7 +4,7 @@ import (
 	"context"
 
 	"github.com/go-kratos/kratos/v2/log"
-	
+
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/bo"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/repository"
 	"github.com/moon-monitor/moon/cmd/palace/internal/data"
@@ -24,7 +24,8 @@ type serverRepository struct {
 	helper *log.Helper
 }
 
-func (s *serverRepository) DeregisterRabbit(_ context.Context, req *bo.ServerRegisterReq) error {
+func (s *serverRepository) DeregisterRabbit(ctx context.Context, req *bo.ServerRegisterReq) error {
+	s.helper.WithContext(ctx).Debugf("deregister rabbit server: %v", req)
 	rabbitConn, ok := s.data.GetRabbitConn(req.Uuid)
 	if !ok {
 		return nil
@@ -36,7 +37,8 @@ func (s *serverRepository) DeregisterRabbit(_ context.Context, req *bo.ServerReg
 	return nil
 }
 
-func (s *serverRepository) DeregisterHouyi(_ context.Context, req *bo.ServerRegisterReq) error {
+func (s *serverRepository) DeregisterHouyi(ctx context.Context, req *bo.ServerRegisterReq) error {
+	s.helper.WithContext(ctx).Debugf("deregister houyi server: %v", req)
 	houyiConn, ok := s.data.GetHouyiConn(req.Uuid)
 	if !ok {
 		return nil
@@ -48,8 +50,8 @@ func (s *serverRepository) DeregisterHouyi(_ context.Context, req *bo.ServerRegi
 	return nil
 }
 
-func (s *serverRepository) RegisterRabbit(_ context.Context, req *bo.ServerRegisterReq) error {
-	s.helper.Debugf("register rabbit server: %v", req)
+func (s *serverRepository) RegisterRabbit(ctx context.Context, req *bo.ServerRegisterReq) error {
+	s.helper.WithContext(ctx).Debugf("register rabbit server: %v", req)
 	initConfig := &server.InitConfig{
 		MicroConfig: req.Server,
 		Registry:    (*config.Registry)(req.Discovery),
@@ -74,8 +76,8 @@ func (s *serverRepository) RegisterRabbit(_ context.Context, req *bo.ServerRegis
 	return nil
 }
 
-func (s *serverRepository) RegisterHouyi(_ context.Context, req *bo.ServerRegisterReq) error {
-	s.helper.Debugf("register houyi server: %v", req)
+func (s *serverRepository) RegisterHouyi(ctx context.Context, req *bo.ServerRegisterReq) error {
+	s.helper.WithContext(ctx).Debugf("register houyi server: %v", req)
 	initConfig := &server.InitConfig{
 		MicroConfig: req.Server,
 		Registry:    (*config.Registry)(req.Discovery),

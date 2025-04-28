@@ -5,6 +5,7 @@ import (
 	"time"
 
 	"github.com/go-kratos/kratos/v2/log"
+
 	"github.com/moon-monitor/moon/cmd/houyi/internal/biz/repository"
 	"github.com/moon-monitor/moon/cmd/houyi/internal/conf"
 	"github.com/moon-monitor/moon/pkg/plugin/server"
@@ -54,7 +55,7 @@ func (a *Alert) syncAlerts(ctx context.Context, isStop bool) error {
 	}
 	alerts, err := a.alertRepo.GetAll(ctx)
 	if err != nil {
-		a.helper.Warnw("method", "syncAlerts", "err", err)
+		a.helper.WithContext(ctx).Warnw("method", "syncAlerts", "err", err)
 		return err
 	}
 	inAlertEventBus := a.eventBusRepo.InAlertEventBus()

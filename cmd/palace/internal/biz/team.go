@@ -79,10 +79,10 @@ func (t *Team) getTeam(ctx context.Context, id uint32) do.Team {
 		if merr.IsNotFound(err) {
 			team, err = t.teamRepo.FindByID(ctx, id)
 			if err != nil {
-				t.helper.Errorw("msg", "get team fail", "err", err)
+				t.helper.WithContext(ctx).Errorw("msg", "get team fail", "err", err)
 			} else {
 				if err := t.cacheRepo.CacheTeams(ctx, team); err != nil {
-					t.helper.Errorw("msg", "cache team fail", "err", err)
+					t.helper.WithContext(ctx).Errorw("msg", "cache team fail", "err", err)
 				}
 			}
 		}
@@ -96,10 +96,10 @@ func (t *Team) getTeamMember(ctx context.Context, id uint32) do.TeamMember {
 		if merr.IsNotFound(err) {
 			teamMember, err = t.memberRepo.Get(ctx, id)
 			if err != nil {
-				t.helper.Errorw("msg", "get team member fail", "err", err)
+				t.helper.WithContext(ctx).Errorw("msg", "get team member fail", "err", err)
 			} else {
 				if err := t.cacheRepo.CacheTeamMembers(ctx, teamMember); err != nil {
-					t.helper.Errorw("msg", "cache team member fail", "err", err)
+					t.helper.WithContext(ctx).Errorw("msg", "cache team member fail", "err", err)
 				}
 			}
 		}
@@ -115,11 +115,11 @@ func (t *Team) SaveTeam(ctx context.Context, req *bo.SaveOneTeamRequest) error {
 		)
 		defer func() {
 			if err != nil {
-				t.helper.Errorw("msg", "save team fail", "err", err)
+				t.helper.WithContext(ctx).Errorw("msg", "save team fail", "err", err)
 				return
 			}
 			if err = t.userRepo.AppendTeam(ctx, teamDo); err != nil {
-				t.helper.Errorw("msg", "append team to user fail", "err", err)
+				t.helper.WithContext(ctx).Errorw("msg", "append team to user fail", "err", err)
 				return
 			}
 			createMemberParams := &bo.CreateTeamMemberReq{
@@ -129,7 +129,7 @@ func (t *Team) SaveTeam(ctx context.Context, req *bo.SaveOneTeamRequest) error {
 				Position: vobj.RoleSuperAdmin,
 			}
 			if err := t.memberRepo.Create(ctx, createMemberParams); err != nil {
-				t.helper.Errorw("msg", "create team member fail", "err", err)
+				t.helper.WithContext(ctx).Errorw("msg", "create team member fail", "err", err)
 				return
 			}
 		}()

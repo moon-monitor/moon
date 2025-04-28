@@ -5,7 +5,7 @@ import (
 	"time"
 
 	"github.com/go-kratos/kratos/v2/log"
-	
+
 	"github.com/moon-monitor/moon/cmd/rabbit/internal/biz/repository"
 	"github.com/moon-monitor/moon/cmd/rabbit/internal/biz/vobj"
 )
@@ -26,7 +26,7 @@ func (l *Lock) LockByAPP(ctx context.Context, requestId string, app vobj.APP) bo
 	key := vobj.SendLockKey.Key(requestId, app.String())
 	locked, err := l.cacheRepo.Lock(ctx, key, 2*time.Hour)
 	if err != nil {
-		l.helper.Warnw("msg", "failed to lock", "key", key, "err", err)
+		l.helper.WithContext(ctx).Warnw("msg", "failed to lock", "key", key, "err", err)
 		return false
 	}
 	return locked
@@ -36,6 +36,6 @@ func (l *Lock) UnlockByAPP(ctx context.Context, requestId string, app vobj.APP) 
 	key := vobj.SendLockKey.Key(requestId, app.String())
 	err := l.cacheRepo.Unlock(ctx, key)
 	if err != nil {
-		l.helper.Warnw("msg", "failed to unlock", "key", key, "err", err)
+		l.helper.WithContext(ctx).Warnw("msg", "failed to unlock", "key", key, "err", err)
 	}
 }

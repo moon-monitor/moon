@@ -77,7 +77,7 @@ func (s *SyncService) MetricDatasource(ctx context.Context, req *houyiv1.MetricD
 	metricDatasourceItems := slices.MapFilter(req.GetItems(), func(datasourceItem *common.MetricDatasourceItem) (bo.MetricDatasourceConfig, bool) {
 		datasourceConfig, err := build.ToMetricDatasourceConfig(datasourceItem)
 		if err != nil {
-			s.helper.Warnw("method", "ToMetricDatasourceConfig", "params", datasourceItem, "error", err)
+			s.helper.WithContext(ctx).Warnw("method", "ToMetricDatasourceConfig", "params", datasourceItem, "error", err)
 			return nil, false
 		}
 		return datasourceConfig, true

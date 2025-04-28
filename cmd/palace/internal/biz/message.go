@@ -44,11 +44,11 @@ func (a *Message) SendEmail(ctx context.Context, sendEmailParams *bo.SendEmailPa
 	}
 	return transactionExecFun(ctx, func(ctx context.Context) error {
 		if err := a.sendMessageLogRepo.Create(ctx, sendMessageLogParams); err != nil {
-			a.helper.Warnw("method", "create send message log error", "params", sendMessageLogParams, "error", err)
+			a.helper.WithContext(ctx).Warnw("method", "create send message log error", "params", sendMessageLogParams, "error", err)
 			return err
 		}
 		if err := a.sendMessageRepo.SendEmail(ctx, sendEmailParams); err != nil {
-			a.helper.Warnw("method", "send email error", "params", sendEmailParams, "error", err)
+			a.helper.WithContext(ctx).Warnw("method", "send email error", "params", sendEmailParams, "error", err)
 			return err
 		}
 		return nil

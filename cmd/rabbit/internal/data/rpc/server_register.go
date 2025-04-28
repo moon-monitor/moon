@@ -68,7 +68,7 @@ func (r *serverRegisterRepo) Register(ctx context.Context, server *common.Server
 		reply, err = r.httpClient.Register(ctx, server)
 	}
 	if err != nil {
-		r.helper.Errorw("msg", "Register failed", "error", err, "reply", reply)
+		r.helper.WithContext(ctx).Errorw("msg", "Register failed", "error", err, "reply", reply)
 		return err
 	}
 	return nil

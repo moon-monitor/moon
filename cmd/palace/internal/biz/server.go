@@ -46,7 +46,7 @@ func (b *ServerBiz) Register(ctx context.Context, req *bo.ServerRegisterReq) err
 		return merr.ErrorInternalServerError("failed to register server: %v", err)
 	}
 
-	b.helper.Debugf("registered server type: %v, uuid: %s", req.ServerType, req.Uuid)
+	b.helper.WithContext(ctx).Debugf("registered server type: %v, uuid: %s", req.ServerType, req.Uuid)
 	return nil
 }
 
@@ -69,6 +69,6 @@ func (b *ServerBiz) Deregister(ctx context.Context, req *bo.ServerRegisterReq) e
 	if err != nil {
 		return merr.ErrorInternalServerError("failed to deregister server: %v", err)
 	}
-	b.helper.Debugf("deregistered server type: %v, uuid: %s", req.ServerType, req.Uuid)
+	b.helper.WithContext(ctx).Debugf("deregistered server type: %v, uuid: %s", req.ServerType, req.Uuid)
 	return nil
 }

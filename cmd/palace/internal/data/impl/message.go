@@ -50,13 +50,13 @@ func (s *sendMessageImpl) SendEmail(ctx context.Context, params *bo.SendEmailPar
 	return s.rabbitSendEmail(ctx, sendClient, params)
 }
 
-func (s *sendMessageImpl) localSendEmail(_ context.Context, params *bo.SendEmailParams) error {
+func (s *sendMessageImpl) localSendEmail(ctx context.Context, params *bo.SendEmailParams) error {
 	emailInstance := email.New(s.emailConfig)
 	emailInstance.SetTo(params.Email).
 		SetSubject(params.Subject).
 		SetBody(params.Body, params.ContentType)
 	if err := emailInstance.Send(); err != nil {
-		s.helper.Warnw("method", "local send email error", "params", params, "error", err)
+		s.helper.WithContext(ctx).Warnw("method", "local send email error", "params", params, "error", err)
 		return err
 	}
 	return nil
@@ -76,9 +76,9 @@ func (s *sendMessageImpl) rabbitSendEmail(ctx context.Context, client repository
 		TeamId:      "",
 	})
 	if err != nil {
-		s.helper.Warnw("method", "rabbit send email error", "params", params, "error", err)
+		s.helper.WithContext(ctx).Warnw("method", "rabbit send email error", "params", params, "error", err)
 		return err
 	}
-	s.helper.Debugf("send email reply: %v", reply)
+	s.helper.WithContext(ctx).Debugf("send email reply: %v", reply)
 	return nil
 }

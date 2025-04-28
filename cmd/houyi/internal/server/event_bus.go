@@ -29,7 +29,7 @@ type EventBusServer struct {
 }
 
 func (e *EventBusServer) Start(ctx context.Context) error {
-	defer e.helper.Info("[EventBus] server is started")
+	defer e.helper.WithContext(ctx).Info("[EventBus] server is started")
 	go func() {
 		defer func() {
 			if err := recover(); err != nil {
@@ -52,8 +52,8 @@ func (e *EventBusServer) Start(ctx context.Context) error {
 	return nil
 }
 
-func (e *EventBusServer) Stop(_ context.Context) error {
-	defer e.helper.Info("[EventBus] server is stopped")
+func (e *EventBusServer) Stop(ctx context.Context) error {
+	defer e.helper.WithContext(ctx).Info("[EventBus] server is stopped")
 	close(e.stop)
 	return nil
 }

@@ -139,7 +139,7 @@ func (a *AuthBiz) RefreshToken(ctx context.Context, req *bo.RefreshToken) (*bo.L
 	}
 	defer func() {
 		if err := a.cacheRepo.BanToken(ctx, req.Token); err != nil {
-			a.helper.Errorf("refresh token unban err: %v", err)
+			a.helper.WithContext(ctx).Errorf("refresh token unban err: %v", err)
 		}
 	}()
 	return a.login(userDo)

@@ -68,7 +68,7 @@ func (o *otherHook) Type() common.HookAPP {
 func (o *otherHook) Send(ctx context.Context, message Message) (err error) {
 	defer func() {
 		if err != nil {
-			o.helper.Warnw("msg", "send other hook failed", "error", err, "req", string(message))
+			o.helper.WithContext(ctx).Warnw("msg", "send other hook failed", "error", err, "req", string(message))
 		}
 	}()
 	opts := []httpx.Option{
@@ -79,18 +79,18 @@ func (o *otherHook) Send(ctx context.Context, message Message) (err error) {
 	}
 	response, err := httpx.PostJsonWithOptions(ctx, o.api, message, opts...)
 	if err != nil {
-		o.helper.Warnf("send other hook failed: %v", err)
+		o.helper.WithContext(ctx).Warnf("send other hook failed: %v", err)
 		return err
 	}
 	defer response.Body.Close()
 
 	body, err := io.ReadAll(response.Body)
 	if err != nil {
-		o.helper.Warnf("read other hook response body failed: %v", err)
+		o.helper.WithContext(ctx).Warnf("read other hook response body failed: %v", err)
 		return merr.ErrorBadRequest("read other hook response body failed: %v", err)
 	}
 	if response.StatusCode != http.StatusOK {
-		o.helper.Warnf("send other hook failed: status code: %d, response: %s", response.StatusCode, string(body))
+		o.helper.WithContext(ctx).Warnf("send other hook failed: status code: %d, response: %s", response.StatusCode, string(body))
 		return merr.ErrorBadRequest("status code: %d, response: %s", response.StatusCode, string(body))
 	}
 

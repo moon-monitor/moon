@@ -73,7 +73,7 @@ func (m *Metric) syncMetricRuleConfigs(ctx context.Context, isStop bool) error {
 	}
 	metricRules, err := m.configRepo.GetMetricRules(ctx)
 	if err != nil {
-		m.helper.Errorw("method", "syncMetricRuleConfigs", "err", err)
+		m.helper.WithContext(ctx).Errorw("method", "syncMetricRuleConfigs", "err", err)
 		return err
 	}
 
@@ -86,13 +86,13 @@ func (m *Metric) syncMetricJob(ctx context.Context, rules ...bo.MetricRule) erro
 		rule.Renovate()
 		strategyJob, err := m.newStrategyJob(ctx, rule)
 		if err != nil {
-			m.helper.Warnw("msg", "new strategy job error", "err", err)
+			m.helper.WithContext(ctx).Warnw("msg", "new strategy job error", "err", err)
 			continue
 		}
 		inStrategyJobEventBus <- strategyJob
 	}
 
-	m.helper.Debug("save metric rules success")
+	m.helper.WithContext(ctx).Debug("save metric rules success")
 	return nil
 }
 
@@ -102,7 +102,7 @@ func (m *Metric) SaveMetricRules(ctx context.Context, rules ...bo.MetricRule) er
 	}
 
 	if err := m.configRepo.SetMetricRules(ctx, rules...); err != nil {
-		m.helper.Errorw("msg", "save metric rules error", "err", err)
+		m.helper.WithContext(ctx).Errorw("msg", "save metric rules error", "err", err)
 		return err
 	}
 

@@ -302,7 +302,7 @@ func (u *userRepoImpl) UpdatePassword(ctx context.Context, updateUserPasswordInf
 		}
 		body, err := template.HtmlFormatter(passwordChangedEmailBody, bodyParams)
 		if err != nil {
-			u.helper.Errorw("msg", "format email body error", "error", err)
+			u.helper.WithContext(ctx).Errorw("msg", "format email body error", "error", err)
 			return
 		}
 
@@ -314,7 +314,7 @@ func (u *userRepoImpl) UpdatePassword(ctx context.Context, updateUserPasswordInf
 			RequestID:   uuid.New().String(),
 		}
 		if err := updateUserPasswordInfo.SendEmailFun(ctx, sendEmailParams); err != nil {
-			u.helper.Errorw("msg", "send email error", "error", err)
+			u.helper.WithContext(ctx).Errorw("msg", "send email error", "error", err)
 			return
 		}
 	}()

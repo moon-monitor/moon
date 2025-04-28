@@ -68,7 +68,7 @@ func (m *metricInstance) Query(ctx context.Context, req *bo.MetricQueryRequest) 
 	}
 	metricQueryResponse, err := m.metric.Query(ctx, queryParams)
 	if err != nil {
-		m.helper.Warnw("msg", "query metric failed", "err", err)
+		m.helper.WithContext(ctx).Warnw("msg", "query metric failed", "err", err)
 		return nil, err
 	}
 	list := make([]*do.MetricQueryReply, 0, len(metricQueryResponse.Data.Result))

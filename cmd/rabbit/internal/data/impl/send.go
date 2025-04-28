@@ -82,7 +82,7 @@ func (s *sendImpl) Hook(ctx context.Context, params bo.SendHookParams) error {
 		if !ok {
 			hookInstance, err = s.newHook(configItem)
 			if err != nil {
-				s.helper.Errorw("method", "newHook", "err", err)
+				s.helper.WithContext(ctx).Errorw("method", "newHook", "err", err)
 				return nil, false
 			}
 			s.SetHook(configItem.GetName(), hookInstance)

@@ -30,7 +30,7 @@ func (c *configImpl) GetMetricDatasourceConfig(ctx context.Context, id string) (
 	key := vobj.DatasourceCacheKey.Key()
 	exist, err := c.Data.GetCache().Client().HExists(ctx, key, id).Result()
 	if err != nil {
-		c.helper.Errorw("method", "GetMetricDatasourceConfig", "err", err)
+		c.helper.WithContext(ctx).Errorw("method", "GetMetricDatasourceConfig", "err", err)
 		return nil, false
 	}
 	if !exist {
@@ -38,7 +38,7 @@ func (c *configImpl) GetMetricDatasourceConfig(ctx context.Context, id string) (
 	}
 	var metricDatasourceConfig do.DatasourceMetricConfig
 	if err := c.Data.GetCache().Client().HGet(ctx, key, id).Scan(&metricDatasourceConfig); err != nil {
-		c.helper.Errorw("method", "GetMetricDatasourceConfig", "err", err)
+		c.helper.WithContext(ctx).Errorw("method", "GetMetricDatasourceConfig", "err", err)
 		return nil, false
 	}
 	return &metricDatasourceConfig, true
@@ -119,7 +119,7 @@ func (c *configImpl) GetMetricRules(ctx context.Context) ([]bo.MetricRule, error
 	key := vobj.MetricRuleCacheKey.Key()
 	exist, err := c.Data.GetCache().Client().Exists(ctx, key).Result()
 	if err != nil {
-		c.helper.Errorw("method", "GetMetricRules", "err", err)
+		c.helper.WithContext(ctx).Errorw("method", "GetMetricRules", "err", err)
 		return nil, err
 	}
 	if exist == 0 {
@@ -128,7 +128,7 @@ func (c *configImpl) GetMetricRules(ctx context.Context) ([]bo.MetricRule, error
 
 	metricRulesMap, err := c.Data.GetCache().Client().HGetAll(ctx, key).Result()
 	if err != nil {
-		c.helper.Errorw("method", "GetMetricRules", "err", err)
+		c.helper.WithContext(ctx).Errorw("method", "GetMetricRules", "err", err)
 		return nil, err
 	}
 	metricRules := make([]bo.MetricRule, 0, len(metricRulesMap))
@@ -146,7 +146,7 @@ func (c *configImpl) GetMetricRule(ctx context.Context, id string) (bo.MetricRul
 	key := vobj.MetricRuleCacheKey.Key()
 	exist, err := c.Data.GetCache().Client().HExists(ctx, key, id).Result()
 	if err != nil {
-		c.helper.Errorw("method", "GetMetricRule", "err", err)
+		c.helper.WithContext(ctx).Errorw("method", "GetMetricRule", "err", err)
 		return nil, false
 	}
 	if !exist {
@@ -154,7 +154,7 @@ func (c *configImpl) GetMetricRule(ctx context.Context, id string) (bo.MetricRul
 	}
 	var metricRule do.MetricRule
 	if err := c.Data.GetCache().Client().HGet(ctx, key, id).Scan(&metricRule); err != nil {
-		c.helper.Errorw("method", "GetMetricRule", "err", err)
+		c.helper.WithContext(ctx).Errorw("method", "GetMetricRule", "err", err)
 		return nil, false
 	}
 	return &metricRule, true

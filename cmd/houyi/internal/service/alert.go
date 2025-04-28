@@ -25,9 +25,9 @@ func (s *AlertService) Push(ctx context.Context, req *houyiv1.PushAlertRequest) 
 	return &houyiv1.PushAlertReply{}, nil
 }
 
-func (s *AlertService) InnerPush(_ context.Context, req bo.Alert) {
+func (s *AlertService) InnerPush(ctx context.Context, req bo.Alert) {
 	bs, err := json.Marshal(req)
 	if err == nil {
-		s.helper.Debugw("status", req.GetStatus().String(), "alert", string(bs))
+		s.helper.WithContext(ctx).Debugw("status", req.GetStatus().String(), "alert", string(bs))
 	}
 }

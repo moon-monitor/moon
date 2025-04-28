@@ -29,7 +29,7 @@ type alertImpl struct {
 func (a *alertImpl) Delete(ctx context.Context, fingerprint string) error {
 	key := vobj.AlertEventCacheKey.Key()
 	if err := a.GetCache().Client().HDel(ctx, key, fingerprint).Err(); err != nil {
-		a.helper.Warnw("method", "DeleteAlert", "err", err)
+		a.helper.WithContext(ctx).Warnw("method", "DeleteAlert", "err", err)
 		return err
 	}
 	return nil
@@ -39,7 +39,7 @@ func (a *alertImpl) GetAll(ctx context.Context) ([]bo.Alert, error) {
 	key := vobj.AlertEventCacheKey.Key()
 	exist, err := a.GetCache().Client().Exists(ctx, key).Result()
 	if err != nil {
-		a.helper.Warnw("method", "GetAllAlerts", "err", err)
+		a.helper.WithContext(ctx).Warnw("method", "GetAllAlerts", "err", err)
 		return nil, err
 	}
 	if exist == 0 {
@@ -47,14 +47,14 @@ func (a *alertImpl) GetAll(ctx context.Context) ([]bo.Alert, error) {
 	}
 	alertMap, err := a.GetCache().Client().HGetAll(ctx, key).Result()
 	if err != nil {
-		a.helper.Warnw("method", "GetAllAlerts", "err", err)
+		a.helper.WithContext(ctx).Warnw("method", "GetAllAlerts", "err", err)
 		return nil, err
 	}
 	alerts := make([]bo.Alert, 0, len(alertMap))
 	for _, v := range alertMap {
 		var alert do.Alert
 		if err := alert.UnmarshalBinary([]byte(v)); err != nil {
-			a.helper.Warnw("method", "UnmarshalBinary", "err", err)
+			a.helper.WithContext(ctx).Warnw("method", "UnmarshalBinary", "err", err)
 			continue
 		}
 		alerts = append(alerts, &alert)
@@ -66,7 +66,7 @@ func (a *alertImpl) Get(ctx context.Context, fingerprint string) (bo.Alert, bool
 	key := vobj.AlertEventCacheKey.Key()
 	exist, err := a.GetCache().Client().HExists(ctx, key, fingerprint).Result()
 	if err != nil {
-		a.helper.Warnw("method", "GetAlert", "err", err)
+		a.helper.WithContext(ctx).Warnw("method", "GetAlert", "err", err)
 		return nil, false
 	}
 	if !exist {
@@ -74,7 +74,7 @@ func (a *alertImpl) Get(ctx context.Context, fingerprint string) (bo.Alert, bool
 	}
 	var alert do.Alert
 	if err := a.GetCache().Client().HGet(ctx, key, fingerprint).Scan(&alert); err != nil {
-		a.helper.Warnw("method", "GetAlert", "err", err)
+		a.helper.WithContext(ctx).Warnw("method", "GetAlert", "err", err)
 		return nil, false
 	}
 	return &alert, true
@@ -104,7 +104,7 @@ func (a *alertImpl) Save(ctx context.Context, alerts ...bo.Alert) error {
 		alertMap[fingerprint] = a.oldAlert(ctx, item)
 	}
 	if err := a.GetCache().Client().HSet(ctx, key, alertMap).Err(); err != nil {
-		a.helper.Warnw("method", "SaveAlert", "err", err)
+		a.helper.WithContext(ctx).Warnw("method", "SaveAlert", "err", err)
 		return err
 	}
 	return nil
@@ -114,7 +114,7 @@ func (a *alertImpl) oldAlert(ctx context.Context, newAlert *do.Alert) *do.Alert 
 	key := vobj.AlertEventCacheKey.Key()
 	exist, err := a.GetCache().Client().HExists(ctx, key, newAlert.GetFingerprint()).Result()
 	if err != nil {
-		a.helper.Warnw("method", "SaveAlert", "err", err)
+		a.helper.WithContext(ctx).Warnw("method", "SaveAlert", "err", err)
 		return newAlert
 	}
 	if !exist {
@@ -122,7 +122,7 @@ func (a *alertImpl) oldAlert(ctx context.Context, newAlert *do.Alert) *do.Alert 
 	}
 	var oldAlert do.Alert
 	if err := a.GetCache().Client().HGet(ctx, key, newAlert.GetFingerprint()).Scan(&oldAlert); err != nil {
-		a.helper.Warnw("method", "SaveAlert", "err", err)
+		a.helper.WithContext(ctx).Warnw("method", "SaveAlert", "err", err)
 		return newAlert
 	}
 	newAlert.Status = common.EventStatus_firing
