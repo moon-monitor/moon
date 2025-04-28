@@ -97,6 +97,8 @@ type SendEmailParams struct {
 	Body        string `json:"body"`
 	Subject     string `json:"subject"`
 	ContentType string `json:"content_type"`
+	RequestID   string `json:"request_id"`
+	TeamID      uint32 `json:"team_id"`
 }
 
 func (s *SendEmailParams) String() string {

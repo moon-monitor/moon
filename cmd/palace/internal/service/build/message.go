@@ -6,6 +6,7 @@ import (
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/bo"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/vobj"
+	"github.com/moon-monitor/moon/pkg/api/palace"
 	"github.com/moon-monitor/moon/pkg/api/palace/common"
 	"github.com/moon-monitor/moon/pkg/util/slices"
 	"github.com/moon-monitor/moon/pkg/util/timex"
@@ -47,6 +48,20 @@ func ToRetrySendMessageParams(requestId string) *bo.RetrySendMessageParams {
 		TeamID:    0,
 		RequestID: requestId,
 	}
+}
+
+func ToUpdateSendMessageLogStatusParams(req *palace.SendMsgCallbackRequest) *bo.UpdateSendMessageLogStatusParams {
+	item := &bo.UpdateSendMessageLogStatusParams{
+		TeamID:    req.GetTeamId(),
+		RequestID: req.GetRequestId(),
+	}
+	if req.GetCode() == 0 {
+		item.Status = vobj.SendMessageStatusSuccess
+	} else {
+		item.Status = vobj.SendMessageStatusFailed
+		item.Error = req.GetMsg()
+	}
+	return item
 }
 
 func ToSendMessageLog(logDo do.SendMessageLog) *common.SendMessageLogItem {

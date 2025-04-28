@@ -6,6 +6,7 @@ import (
 	"strings"
 
 	"github.com/go-kratos/kratos/v2/log"
+	"github.com/google/uuid"
 
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/bo"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do"
@@ -76,6 +77,7 @@ func (i *inviteImpl) TeamInviteUser(ctx context.Context, req bo.InviteMember) er
 		Body:        body,
 		Subject:     "Welcome to the Moon Monitoring System.",
 		ContentType: "text/html",
+		RequestID:   uuid.New().String(),
 	}
 	return sendEmail(ctx, sendParams)
 }

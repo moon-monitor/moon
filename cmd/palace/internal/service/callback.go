@@ -3,17 +3,29 @@ package service
 import (
 	"context"
 
-	pb "github.com/moon-monitor/moon/pkg/api/palace"
+	"github.com/moon-monitor/moon/cmd/palace/internal/biz"
+	"github.com/moon-monitor/moon/cmd/palace/internal/service/build"
+	"github.com/moon-monitor/moon/pkg/api/palace"
 )
 
+func NewCallbackService(logsBiz *biz.Logs) *CallbackService {
+	return &CallbackService{
+		logsBiz: logsBiz,
+	}
+}
+
 type CallbackService struct {
-	pb.UnimplementedCallbackServer
+	palace.UnimplementedCallbackServer
+	logsBiz *biz.Logs
 }
 
-func NewCallbackService() *CallbackService {
-	return &CallbackService{}
-}
-
-func (s *CallbackService) SendMsgCallback(ctx context.Context, req *pb.SendMsgCallbackRequest) (*pb.SendMsgCallbackReply, error) {
-	return &pb.SendMsgCallbackReply{}, nil
+func (s *CallbackService) SendMsgCallback(ctx context.Context, req *palace.SendMsgCallbackRequest) (*palace.SendMsgCallbackReply, error) {
+	params := build.ToUpdateSendMessageLogStatusParams(req)
+	if err := s.logsBiz.UpdateSendMessageLogStatus(ctx, params); err != nil {
+		return nil, err
+	}
+	return &palace.SendMsgCallbackReply{
+		Code: 0,
+		Msg:  "success",
+	}, nil
 }

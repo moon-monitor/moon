@@ -3564,6 +3564,9 @@ components:
                 msg:
                     type: string
                     description: Message of the callback, only when code is not 0, it is not empty
+                teamId:
+                    type: integer
+                    format: uint32
         api.palace.SubscribeTeamStrategiesReply:
             type: object
             properties:

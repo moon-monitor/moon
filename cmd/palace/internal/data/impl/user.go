@@ -5,6 +5,7 @@ import (
 	_ "embed"
 
 	"github.com/go-kratos/kratos/v2/log"
+	"github.com/google/uuid"
 	"gorm.io/gen"
 	"gorm.io/gen/field"
 
@@ -231,6 +232,7 @@ func (u *userRepoImpl) sendUserPassword(ctx context.Context, user do.User, pass 
 		Body:        emailBody,
 		Subject:     "Welcome to the Moon Monitoring System.",
 		ContentType: "text/html",
+		RequestID:   uuid.New().String(),
 	}
 	// send email to user
 	return sendEmailFunc(ctx, sendEmailParams)
@@ -309,6 +311,7 @@ func (u *userRepoImpl) UpdatePassword(ctx context.Context, updateUserPasswordInf
 			Body:        body,
 			Subject:     "Password reset.",
 			ContentType: "text/html",
+			RequestID:   uuid.New().String(),
 		}
 		if err := updateUserPasswordInfo.SendEmailFun(ctx, sendEmailParams); err != nil {
 			u.helper.Errorw("msg", "send email error", "error", err)

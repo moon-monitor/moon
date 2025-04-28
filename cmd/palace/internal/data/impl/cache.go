@@ -9,6 +9,7 @@ import (
 
 	"github.com/go-kratos/kratos/v2/errors"
 	"github.com/go-kratos/kratos/v2/log"
+	"github.com/google/uuid"
 	"github.com/redis/go-redis/v9"
 
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/bo"
@@ -315,6 +316,7 @@ func (c *cacheReoImpl) SendVerifyEmailCode(ctx context.Context, email string) (*
 		Body:        emailBody,
 		Subject:     "Email verification code.",
 		ContentType: "text/html",
+		RequestID:   uuid.New().String(),
 	}
 	return params, nil
 }

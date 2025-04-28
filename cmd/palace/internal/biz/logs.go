@@ -32,6 +32,10 @@ func (l *Logs) GetSendMessageLog(ctx context.Context, params *bo.GetSendMessageL
 	return l.sendMessageLogRepo.Get(ctx, params)
 }
 
+func (l *Logs) UpdateSendMessageLogStatus(ctx context.Context, params *bo.UpdateSendMessageLogStatusParams) error {
+	return l.sendMessageLogRepo.UpdateStatus(ctx, params)
+}
+
 func (l *Logs) RetrySendMessage(ctx context.Context, params *bo.RetrySendMessageParams) error {
 	req := &bo.GetSendMessageLogParams{
 		TeamID:    params.TeamID,

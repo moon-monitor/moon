@@ -4,90 +4,53 @@ import (
 	"context"
 
 	"github.com/go-kratos/kratos/v2/log"
-	"github.com/google/uuid"
 
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/bo"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/repository"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/vobj"
-	"github.com/moon-monitor/moon/cmd/palace/internal/conf"
-	"github.com/moon-monitor/moon/pkg/api/rabbit/common"
-	rabbitv1 "github.com/moon-monitor/moon/pkg/api/rabbit/v1"
-	"github.com/moon-monitor/moon/pkg/plugin/email"
 )
 
 func NewMessage(
-	bc *conf.Bootstrap,
+	sendMessageRepo repository.SendMessage,
 	sendMessageLogRepo repository.SendMessageLog,
-	rabbitRepo repository.Rabbit,
+	transaction repository.Transaction,
 	logger log.Logger,
 ) *Message {
-	emailConfig := bc.GetEmail()
 	return &Message{
+		sendMessageRepo:    sendMessageRepo,
 		sendMessageLogRepo: sendMessageLogRepo,
-		rabbitRepo:         rabbitRepo,
-		emailConfig: &common.EmailConfig{
-			User:   emailConfig.GetUser(),
-			Pass:   emailConfig.GetPass(),
-			Host:   emailConfig.GetHost(),
-			Port:   emailConfig.GetPort(),
-			Enable: true,
-			Name:   emailConfig.GetName(),
-		},
-		helper: log.NewHelper(log.With(logger, "module", "biz.message")),
+		helper:             log.NewHelper(log.With(logger, "module", "biz.message")),
+		transaction:        transaction,
 	}
 }
 
 type Message struct {
+	sendMessageRepo    repository.SendMessage
 	sendMessageLogRepo repository.SendMessageLog
-	rabbitRepo         repository.Rabbit
 	helper             *log.Helper
-	emailConfig        *common.EmailConfig
+	transaction        repository.Transaction
 }
 
 func (a *Message) SendEmail(ctx context.Context, sendEmailParams *bo.SendEmailParams) error {
 	sendMessageLogParams := &bo.CreateSendMessageLogParams{
-		TeamID:      0,
+		TeamID:      sendEmailParams.TeamID,
 		MessageType: vobj.MessageTypeEmail,
 		Message:     sendEmailParams,
-		RequestID:   uuid.New().String(),
+		RequestID:   sendEmailParams.RequestID,
 	}
-	if err := a.sendMessageLogRepo.Create(ctx, sendMessageLogParams); err != nil {
-		a.helper.Warnw("method", "create send message log error", "params", sendMessageLogParams, "error", err)
-		return err
+	transactionExecFun := a.transaction.MainExec
+	if sendEmailParams.TeamID > 0 {
+		transactionExecFun = a.transaction.BizExec
 	}
-	sendClient, ok := a.rabbitRepo.Send()
-	if !ok {
-		// call local send email
-		return a.localSendEmail(ctx, sendEmailParams)
-	}
-	// call rabbit server send email
-	return a.rabbitSendEmail(ctx, sendClient, sendEmailParams)
-}
-
-func (a *Message) localSendEmail(_ context.Context, params *bo.SendEmailParams) error {
-	emailInstance := email.New(a.emailConfig)
-	emailInstance.SetTo(params.Email).
-		SetSubject(params.Subject).
-		SetBody(params.Body, params.ContentType)
-	if err := emailInstance.Send(); err != nil {
-		a.helper.Warnw("method", "local send email error", "params", params, "error", err)
-		return err
-	}
-	return nil
-}
-
-func (a *Message) rabbitSendEmail(ctx context.Context, client repository.SendClient, params *bo.SendEmailParams) error {
-	reply, err := client.Email(ctx, &rabbitv1.SendEmailRequest{
-		Emails:      []string{params.Email},
-		Body:        params.Body,
-		Subject:     params.Subject,
-		ContentType: params.ContentType,
-		EmailConfig: a.emailConfig,
+	return transactionExecFun(ctx, func(ctx context.Context) error {
+		if err := a.sendMessageLogRepo.Create(ctx, sendMessageLogParams); err != nil {
+			a.helper.Warnw("method", "create send message log error", "params", sendMessageLogParams, "error", err)
+			return err
+		}
+		if err := a.sendMessageRepo.SendEmail(ctx, sendEmailParams); err != nil {
+			a.helper.Warnw("method", "send email error", "params", sendEmailParams, "error", err)
+			return err
+		}
+		return nil
 	})
-	if err != nil {
-		a.helper.Warnw("method", "rabbit send email error", "params", params, "error", err)
-		return err
-	}
-	a.helper.Debugf("send email reply: %v", reply)
-	return nil
 }

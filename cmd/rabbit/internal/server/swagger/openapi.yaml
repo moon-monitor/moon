@@ -271,6 +271,8 @@ components:
                     $ref: '#/components/schemas/api.rabbit.common.EmailConfig'
                 configName:
                     type: string
+                teamId:
+                    type: string
         api.rabbit.v1.SendHookRequest:
             type: object
             properties:
@@ -284,6 +286,8 @@ components:
                     type: array
                     items:
                         $ref: '#/components/schemas/api.rabbit.v1.SendHookRequest_Body'
+                teamId:
+                    type: string
         api.rabbit.v1.SendHookRequest_Body:
             type: object
             properties:
@@ -309,6 +313,8 @@ components:
                     $ref: '#/components/schemas/api.rabbit.common.SMSConfig'
                 configName:
                     type: string
+                teamId:
+                    type: string
         api.rabbit.v1.SyncEmailRequest:
             type: object
             properties:
@@ -316,6 +322,8 @@ components:
                     type: array
                     items:
                         $ref: '#/components/schemas/api.rabbit.common.EmailConfig'
+                teamId:
+                    type: string
         api.rabbit.v1.SyncHookRequest:
             type: object
             properties:
@@ -323,6 +331,8 @@ components:
                     type: array
                     items:
                         $ref: '#/components/schemas/api.rabbit.common.HookConfig'
+                teamId:
+                    type: string
         api.rabbit.v1.SyncSmsRequest:
             type: object
             properties:
@@ -330,6 +340,8 @@ components:
                     type: array
                     items:
                         $ref: '#/components/schemas/api.rabbit.common.SMSConfig'
+                teamId:
+                    type: string
         config.Discovery:
             type: object
             properties:

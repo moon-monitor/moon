@@ -103,7 +103,7 @@ func (t *teamStrategyImpl) SubscribeList(ctx context.Context, params *bo.Subscri
 	if len(params.Subscribers) > 0 {
 		wrappers = wrappers.Where(query.CreatorID.In(params.Subscribers...))
 	}
-	if !params.NoticeType.Exist() {
+	if !params.NoticeType.IsUnknown() {
 		wrappers = wrappers.Where(query.SubscribeType.Eq(params.NoticeType.GetValue()))
 	}
 	if validate.IsNotNil(params.PaginationRequest) {

@@ -22,6 +22,7 @@ message SendMsgCallbackRequest {
 	int32 code = 2 [(buf.validate.field).required = true];
 	// Message of the callback, only when code is not 0, it is not empty
 	string msg = 3;
+	uint32 teamId = 4;
 }
 message SendMsgCallbackReply {
 	// Code of the reply 0 is success, other is failed
