@@ -71,6 +71,12 @@ func (s *SaveTeamStrategyParams) GetRemark() string {
 
 // GetStrategyType implements TeamStrategyParams.
 func (s *SaveTeamStrategyParams) GetStrategyType() vobj.StrategyType {
+	if validate.IsNil(s.strategyDo) {
+		return s.StrategyType
+	}
+	if s.strategyDo.GetStatus().IsEnable() {
+		return s.strategyDo.GetStrategyType()
+	}
 	return s.StrategyType
 }
 
@@ -96,6 +102,12 @@ func (s *SaveTeamStrategyParams) Validate() error {
 	if s.ID > 0 && s.strategyDo.GetID() != s.ID {
 		return merr.ErrorParamsError("strategy is not found")
 	}
+	if validate.IsNotNil(s.strategyDo) {
+		if s.strategyDo.GetStatus().IsEnable() && s.strategyDo.GetStrategyGroupID() != s.StrategyGroupID {
+			return merr.ErrorBadRequest("启用中的策略不能修改策略组")
+		}
+	}
+
 	return nil
 }
 
@@ -217,6 +229,9 @@ func (s *SaveTeamMetricStrategyParams) Validate() error {
 	}
 	if len(s.Datasource) != len(s.datasourceDos) {
 		return merr.ErrorParamsError("datasource is not found")
+	}
+	if s.strategyDo.GetStatus().IsEnable() {
+		return merr.ErrorBadRequest("启用中的策略不能修改")
 	}
 
 	return nil

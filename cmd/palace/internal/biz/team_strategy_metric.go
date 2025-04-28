@@ -6,6 +6,7 @@ import (
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/bo"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/repository"
+	"github.com/moon-monitor/moon/pkg/merr"
 	"github.com/moon-monitor/moon/pkg/util/slices"
 )
 
@@ -44,6 +45,9 @@ func (t *TeamStrategyMetric) SaveTeamMetricStrategy(ctx context.Context, params 
 	if err != nil {
 		return nil, err
 	}
+	if strategyDo.GetStatus().IsEnable() {
+		return nil, merr.ErrorBadRequest("策略已启用，不能修改")
+	}
 	datasourceDos, err := t.datasourceRepo.FindByIds(ctx, params.Datasource)
 	if err != nil {
 		return nil, err
@@ -79,6 +83,9 @@ func (t *TeamStrategyMetric) SaveTeamMetricStrategyLevels(ctx context.Context, p
 	strategyMetricDo, err := t.teamStrategyMetricRepo.Get(ctx, &bo.OperateTeamStrategyParams{StrategyId: params.StrategyMetricID})
 	if err != nil {
 		return nil, err
+	}
+	if strategyMetricDo.GetStrategy().GetStatus().IsEnable() {
+		return nil, merr.ErrorBadRequest("策略已启用，不能修改")
 	}
 	noticeGroupIds := make([]uint32, 0, len(params.Levels))
 	dictIds := make([]uint32, 0, len(params.Levels))

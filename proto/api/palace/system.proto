@@ -70,6 +70,13 @@ service System {
     };
   }
 
+  // GetTeam retrieves a team by Id
+  rpc GetTeam (GetTeamRequest) returns (api.palace.common.TeamItem) {
+    option (google.api.http) = {
+      get: "/api/system/team/detail"
+    };
+  }
+
   // GetSystemRole retrieves a system role by Id
   rpc GetSystemRole (GetSystemRoleRequest) returns (api.palace.common.SystemRoleItem) {
     option (google.api.http) = {
@@ -303,6 +310,12 @@ message UpdateRoleUsersRequest {
   uint32 roleId = 1 [(buf.validate.field).required = true];
   // List of user Ids to assign to the role
   repeated uint32 userIds = 2 [(buf.validate.field).required = true];
+}
+
+// GetTeamRequest represents the request data for retrieving a team
+message GetTeamRequest {
+  // Team Id
+  uint32 teamId = 1 [(buf.validate.field).required = true];
 }
 
 // GetSystemRoleRequest represents the request data for retrieving a system role

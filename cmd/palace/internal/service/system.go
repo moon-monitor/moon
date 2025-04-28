@@ -111,6 +111,14 @@ func (s *SystemService) GetTeamList(ctx context.Context, req *palace.GetTeamList
 	}, nil
 }
 
+func (s *SystemService) GetTeam(ctx context.Context, req *palace.GetTeamRequest) (*common.TeamItem, error) {
+	teamDo, err := s.teamBiz.GetTeamByID(ctx, req.GetTeamId())
+	if err != nil {
+		return nil, err
+	}
+	return build.ToTeamItem(teamDo), nil
+}
+
 func (s *SystemService) GetSystemRole(ctx context.Context, req *palace.GetSystemRoleRequest) (*common.SystemRoleItem, error) {
 	roleDo, err := s.systemBiz.GetRole(ctx, req.GetRoleId())
 	if err != nil {
