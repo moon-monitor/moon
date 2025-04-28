@@ -7,7 +7,7 @@ import (
 
 	"github.com/moon-monitor/moon/cmd/houyi/internal/conf"
 	"github.com/moon-monitor/moon/cmd/houyi/internal/service"
-	commonv1 "github.com/moon-monitor/moon/pkg/api/common"
+	"github.com/moon-monitor/moon/pkg/api/common"
 	houyiv1 "github.com/moon-monitor/moon/pkg/api/houyi/v1"
 	"github.com/moon-monitor/moon/pkg/plugin/server"
 )
@@ -36,8 +36,8 @@ func RegisterService(
 	syncService *service.SyncService,
 	alertService *service.AlertService,
 ) server.Servers {
-	commonv1.RegisterHealthServer(rpcSrv, healthService)
-	commonv1.RegisterHealthHTTPServer(httpSrv, healthService)
+	common.RegisterHealthServer(rpcSrv, healthService)
+	common.RegisterHealthHTTPServer(httpSrv, healthService)
 	houyiv1.RegisterSyncServer(rpcSrv, syncService)
 	houyiv1.RegisterSyncHTTPServer(httpSrv, syncService)
 	houyiv1.RegisterAlertHTTPServer(httpSrv, alertService)

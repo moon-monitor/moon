@@ -13,6 +13,7 @@ import (
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/repository"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/vobj"
 	"github.com/moon-monitor/moon/cmd/palace/internal/data"
+	"github.com/moon-monitor/moon/pkg/util/crypto"
 	"github.com/moon-monitor/moon/pkg/util/slices"
 	"github.com/moon-monitor/moon/pkg/util/validate"
 )
@@ -55,10 +56,10 @@ func (t *teamHookImpl) Create(ctx context.Context, hook bo.NoticeHook) error {
 		Name:    hook.GetName(),
 		Remark:  hook.GetRemark(),
 		Status:  hook.GetStatus(),
-		URL:     hook.GetURL(),
+		URL:     crypto.String(hook.GetURL()),
 		Method:  hook.GetMethod(),
-		Secret:  hook.GetSecret(),
-		Headers: hook.GetHeaders(),
+		Secret:  crypto.String(hook.GetSecret()),
+		Headers: crypto.NewObject(hook.GetHeaders()),
 		APP:     hook.GetApp(),
 	}
 	noticeHook.WithContext(ctx)
@@ -86,12 +87,17 @@ func (t *teamHookImpl) Update(ctx context.Context, hook bo.NoticeHook) error {
 		hookQuery.Name.Value(hook.GetName()),
 		hookQuery.Remark.Value(hook.GetRemark()),
 		hookQuery.Status.Value(hook.GetStatus().GetValue()),
-		hookQuery.URL.Value(hook.GetURL()),
 		hookQuery.Method.Value(hook.GetMethod().GetValue()),
-		hookQuery.Secret.Value(hook.GetSecret()),
-		hookQuery.Headers.Value(hook.GetHeaders()),
+		hookQuery.Headers.Value(crypto.NewObject(hook.GetHeaders())),
 		hookQuery.APP.Value(hook.GetApp().GetValue()),
 	}
+	if validate.TextIsNotNull(hook.GetSecret()) {
+		mutations = append(mutations, hookQuery.Secret.Value(crypto.String(hook.GetSecret())))
+	}
+	if validate.TextIsNotNull(hook.GetURL()) {
+		mutations = append(mutations, hookQuery.URL.Value(crypto.String(hook.GetURL())))
+	}
+
 	_, err = hookQuery.WithContext(ctx).Where(wrapper...).UpdateSimple(mutations...)
 	return err
 }

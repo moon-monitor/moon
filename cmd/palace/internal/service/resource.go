@@ -9,12 +9,12 @@ import (
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/bo"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/vobj"
 	"github.com/moon-monitor/moon/cmd/palace/internal/service/build"
-	palacev1 "github.com/moon-monitor/moon/pkg/api/palace"
+	"github.com/moon-monitor/moon/pkg/api/palace"
 	"github.com/moon-monitor/moon/pkg/api/palace/common"
 )
 
 type ResourceService struct {
-	palacev1.UnimplementedResourceServer
+	palace.UnimplementedResourceServer
 
 	resourceBiz *biz.ResourceBiz
 	helper      *log.Helper
@@ -27,7 +27,7 @@ func NewResourceService(resourceBiz *biz.ResourceBiz, logger log.Logger) *Resour
 	}
 }
 
-func (s *ResourceService) BatchUpdateResourceStatus(ctx context.Context, req *palacev1.BatchUpdateResourceStatusRequest) (*common.EmptyReply, error) {
+func (s *ResourceService) BatchUpdateResourceStatus(ctx context.Context, req *palace.BatchUpdateResourceStatusRequest) (*common.EmptyReply, error) {
 	updateReq := &bo.BatchUpdateResourceStatusReq{
 		IDs:    req.GetResourceIds(),
 		Status: vobj.GlobalStatus(req.GetStatus()),
@@ -41,7 +41,7 @@ func (s *ResourceService) BatchUpdateResourceStatus(ctx context.Context, req *pa
 	return &common.EmptyReply{Message: "更改资源接口状态成功"}, nil
 }
 
-func (s *ResourceService) GetResource(ctx context.Context, req *palacev1.GetResourceRequest) (*common.ResourceItem, error) {
+func (s *ResourceService) GetResource(ctx context.Context, req *palace.GetResourceRequest) (*common.ResourceItem, error) {
 	resource, err := s.resourceBiz.GetResource(ctx, req.GetResourceId())
 	if err != nil {
 		return nil, err
@@ -50,7 +50,7 @@ func (s *ResourceService) GetResource(ctx context.Context, req *palacev1.GetReso
 	return build.ToResourceItem(resource), nil
 }
 
-func (s *ResourceService) ListResource(ctx context.Context, req *palacev1.ListResourceRequest) (*palacev1.ListResourceReply, error) {
+func (s *ResourceService) ListResource(ctx context.Context, req *palace.ListResourceRequest) (*palace.ListResourceReply, error) {
 	listReq := &bo.ListResourceReq{
 		Statuses:          build.Statuses(req.GetStatus()),
 		Keyword:           req.GetKeyword(),
@@ -62,33 +62,33 @@ func (s *ResourceService) ListResource(ctx context.Context, req *palacev1.ListRe
 		return nil, err
 	}
 
-	return &palacev1.ListResourceReply{
+	return &palace.ListResourceReply{
 		Items:      build.ToResourceItems(resourcesReply.Items),
 		Pagination: build.ToPaginationReply(resourcesReply.PaginationReply),
 	}, nil
 }
 
-func (s *ResourceService) GetResourceMenuTree(ctx context.Context, _ *common.EmptyRequest) (*palacev1.GetResourceMenuTreeReply, error) {
+func (s *ResourceService) GetResourceMenuTree(ctx context.Context, _ *common.EmptyRequest) (*palace.GetResourceMenuTreeReply, error) {
 	menus, err := s.resourceBiz.Menus(ctx, vobj.MenuTypeMenuSystem)
 	if err != nil {
 		return nil, err
 	}
-	return &palacev1.GetResourceMenuTreeReply{
+	return &palace.GetResourceMenuTreeReply{
 		Menus: build.ToMenuTree(menus),
 	}, nil
 }
 
-func (s *ResourceService) GetTeamResourceMenuTree(ctx context.Context, _ *common.EmptyRequest) (*palacev1.GetResourceMenuTreeReply, error) {
+func (s *ResourceService) GetTeamResourceMenuTree(ctx context.Context, _ *common.EmptyRequest) (*palace.GetResourceMenuTreeReply, error) {
 	menus, err := s.resourceBiz.Menus(ctx, vobj.MenuTypeMenuTeam)
 	if err != nil {
 		return nil, err
 	}
-	return &palacev1.GetResourceMenuTreeReply{
+	return &palace.GetResourceMenuTreeReply{
 		Menus: build.ToMenuTree(menus),
 	}, nil
 }
 
-func (s *ResourceService) SaveResource(ctx context.Context, req *palacev1.SaveResourceRequest) (*common.EmptyReply, error) {
+func (s *ResourceService) SaveResource(ctx context.Context, req *palace.SaveResourceRequest) (*common.EmptyReply, error) {
 	saveReq := build.ToSaveResourceReq(req)
 	if err := s.resourceBiz.SaveResource(ctx, saveReq); err != nil {
 		return nil, err
@@ -97,7 +97,7 @@ func (s *ResourceService) SaveResource(ctx context.Context, req *palacev1.SaveRe
 	return &common.EmptyReply{Message: "保存资源成功"}, nil
 }
 
-func (s *ResourceService) SaveMenu(ctx context.Context, req *palacev1.SaveMenuRequest) (*common.EmptyReply, error) {
+func (s *ResourceService) SaveMenu(ctx context.Context, req *palace.SaveMenuRequest) (*common.EmptyReply, error) {
 	saveReq := build.ToSaveMenuReq(req)
 	if err := s.resourceBiz.SaveMenu(ctx, saveReq); err != nil {
 		return nil, err
@@ -106,7 +106,7 @@ func (s *ResourceService) SaveMenu(ctx context.Context, req *palacev1.SaveMenuRe
 	return &common.EmptyReply{Message: "保存系统菜单成功"}, nil
 }
 
-func (s *ResourceService) GetMenu(ctx context.Context, req *palacev1.GetMenuRequest) (*common.MenuTreeItem, error) {
+func (s *ResourceService) GetMenu(ctx context.Context, req *palace.GetMenuRequest) (*common.MenuTreeItem, error) {
 	menu, err := s.resourceBiz.GetMenu(ctx, req.GetMenuId())
 	if err != nil {
 		return nil, err

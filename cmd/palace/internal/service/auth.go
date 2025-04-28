@@ -18,7 +18,7 @@ import (
 	"github.com/moon-monitor/moon/cmd/palace/internal/conf"
 	"github.com/moon-monitor/moon/cmd/palace/internal/helper/permission"
 	"github.com/moon-monitor/moon/cmd/palace/internal/service/build"
-	palacev1 "github.com/moon-monitor/moon/pkg/api/palace"
+	"github.com/moon-monitor/moon/pkg/api/palace"
 	"github.com/moon-monitor/moon/pkg/api/palace/common"
 	"github.com/moon-monitor/moon/pkg/merr"
 	"github.com/moon-monitor/moon/pkg/util/crypto"
@@ -43,23 +43,23 @@ func NewAuthService(
 }
 
 type AuthService struct {
-	palacev1.UnimplementedAuthServer
+	palace.UnimplementedAuthServer
 	authBiz       *biz.AuthBiz
 	permissionBiz *biz.PermissionBiz
 	resourceBiz   *biz.ResourceBiz
 	messageBiz    *biz.Message
-	oauth2List    []*palacev1.OAuth2ListReply_OAuthItem
+	oauth2List    []*palace.OAuth2ListReply_OAuthItem
 	helper        *log.Helper
 }
 
-func builderOAuth2List(oauth2 *conf.Auth_OAuth2) []*palacev1.OAuth2ListReply_OAuthItem {
+func builderOAuth2List(oauth2 *conf.Auth_OAuth2) []*palace.OAuth2ListReply_OAuthItem {
 	if !oauth2.GetEnable() {
 		return nil
 	}
 	list := oauth2.GetConfigs()
-	oauthList := make([]*palacev1.OAuth2ListReply_OAuthItem, 0, len(list))
+	oauthList := make([]*palace.OAuth2ListReply_OAuthItem, 0, len(list))
 	for _, oauth := range list {
-		oauthList = append(oauthList, &palacev1.OAuth2ListReply_OAuthItem{
+		oauthList = append(oauthList, &palace.OAuth2ListReply_OAuthItem{
 			Icon:     oauth.GetApp().String(),
 			Label:    strings.Title(strings.ToLower(oauth.GetApp().String()) + " login"),
 			Redirect: oauth.GetLoginUrl(),
@@ -68,26 +68,26 @@ func builderOAuth2List(oauth2 *conf.Auth_OAuth2) []*palacev1.OAuth2ListReply_OAu
 	return oauthList
 }
 
-func login(loginSign *bo.LoginSign, err error) (*palacev1.LoginReply, error) {
+func login(loginSign *bo.LoginSign, err error) (*palace.LoginReply, error) {
 	if err != nil {
 		return nil, err
 	}
 	return build.LoginReply(loginSign), nil
 }
 
-func (s *AuthService) GetCaptcha(ctx context.Context, _ *common.EmptyRequest) (*palacev1.GetCaptchaReply, error) {
+func (s *AuthService) GetCaptcha(ctx context.Context, _ *common.EmptyRequest) (*palace.GetCaptchaReply, error) {
 	captchaBo, err := s.authBiz.GetCaptcha(ctx)
 	if err != nil {
 		return nil, err
 	}
-	return &palacev1.GetCaptchaReply{
+	return &palace.GetCaptchaReply{
 		CaptchaId:      captchaBo.Id,
 		CaptchaImg:     captchaBo.B64s,
 		ExpiredSeconds: int32(captchaBo.ExpiredSeconds),
 	}, nil
 }
 
-func (s *AuthService) LoginByPassword(ctx context.Context, req *palacev1.LoginByPasswordRequest) (*palacev1.LoginReply, error) {
+func (s *AuthService) LoginByPassword(ctx context.Context, req *palace.LoginByPasswordRequest) (*palace.LoginReply, error) {
 	captchaReq := req.GetCaptcha()
 	captchaVerify := &bo.CaptchaVerify{
 		Id:     captchaReq.GetCaptchaId(),
@@ -105,7 +105,7 @@ func (s *AuthService) LoginByPassword(ctx context.Context, req *palacev1.LoginBy
 	return login(s.authBiz.LoginByPassword(ctx, loginReq))
 }
 
-func (s *AuthService) Logout(ctx context.Context, req *palacev1.LogoutRequest) (*palacev1.LogoutReply, error) {
+func (s *AuthService) Logout(ctx context.Context, req *palace.LogoutRequest) (*palace.LogoutReply, error) {
 	token, ok := permission.GetTokenByContext(ctx)
 	if !ok {
 		return nil, merr.ErrorUnauthorized("token error")
@@ -113,10 +113,10 @@ func (s *AuthService) Logout(ctx context.Context, req *palacev1.LogoutRequest) (
 	if err := s.authBiz.Logout(ctx, token); err != nil {
 		return nil, err
 	}
-	return &palacev1.LogoutReply{Redirect: req.GetRedirect()}, nil
+	return &palace.LogoutReply{Redirect: req.GetRedirect()}, nil
 }
 
-func (s *AuthService) VerifyEmail(ctx context.Context, req *palacev1.VerifyEmailRequest) (*palacev1.VerifyEmailReply, error) {
+func (s *AuthService) VerifyEmail(ctx context.Context, req *palace.VerifyEmailRequest) (*palace.VerifyEmailReply, error) {
 	captchaReq := req.GetCaptcha()
 	captchaVerify := &bo.CaptchaVerify{
 		Id:     captchaReq.GetCaptchaId(),
@@ -134,10 +134,10 @@ func (s *AuthService) VerifyEmail(ctx context.Context, req *palacev1.VerifyEmail
 	if err := s.authBiz.VerifyEmail(ctx, params); err != nil {
 		return nil, err
 	}
-	return &palacev1.VerifyEmailReply{ExpiredSeconds: int32(5 * time.Minute.Seconds())}, nil
+	return &palace.VerifyEmailReply{ExpiredSeconds: int32(5 * time.Minute.Seconds())}, nil
 }
 
-func (s *AuthService) LoginByEmail(ctx context.Context, req *palacev1.LoginByEmailRequest) (*palacev1.LoginReply, error) {
+func (s *AuthService) LoginByEmail(ctx context.Context, req *palace.LoginByEmailRequest) (*palace.LoginReply, error) {
 	userDo := &system.User{
 		BaseModel: do.BaseModel{},
 		Username:  req.GetUsername(),
@@ -156,7 +156,7 @@ func (s *AuthService) LoginByEmail(ctx context.Context, req *palacev1.LoginByEma
 	return login(s.authBiz.LoginWithEmail(ctx, params))
 }
 
-func (s *AuthService) OAuthLoginByEmail(ctx context.Context, req *palacev1.OAuthLoginByEmailRequest) (*palacev1.LoginReply, error) {
+func (s *AuthService) OAuthLoginByEmail(ctx context.Context, req *palace.OAuthLoginByEmailRequest) (*palace.LoginReply, error) {
 	oauthParams := &bo.OAuthLoginParams{
 		APP:     vobj.OAuthAPP(req.GetApp()),
 		Code:    req.GetCode(),
@@ -179,7 +179,7 @@ func (s *AuthService) VerifyPermission(ctx context.Context) error {
 	return s.permissionBiz.VerifyPermission(ctx)
 }
 
-func (s *AuthService) RefreshToken(ctx context.Context, _ *common.EmptyRequest) (*palacev1.LoginReply, error) {
+func (s *AuthService) RefreshToken(ctx context.Context, _ *common.EmptyRequest) (*palace.LoginReply, error) {
 	token, ok := permission.GetTokenByContext(ctx)
 	if !ok {
 		return nil, merr.ErrorUnauthorized("token error")
@@ -195,32 +195,32 @@ func (s *AuthService) RefreshToken(ctx context.Context, _ *common.EmptyRequest) 
 	return login(s.authBiz.RefreshToken(ctx, refreshReq))
 }
 
-func (s *AuthService) OAuth2List(_ context.Context, _ *common.EmptyRequest) (*palacev1.OAuth2ListReply, error) {
-	return &palacev1.OAuth2ListReply{Items: s.oauth2List}, nil
+func (s *AuthService) OAuth2List(_ context.Context, _ *common.EmptyRequest) (*palace.OAuth2ListReply, error) {
+	return &palace.OAuth2ListReply{Items: s.oauth2List}, nil
 }
 
-func (s *AuthService) GetFilingInformation(ctx context.Context, _ *common.EmptyRequest) (*palacev1.GetFilingInformationReply, error) {
+func (s *AuthService) GetFilingInformation(ctx context.Context, _ *common.EmptyRequest) (*palace.GetFilingInformationReply, error) {
 	filingInfo, err := s.authBiz.GetFilingInformation(ctx)
 	if err != nil {
 		return nil, err
 	}
-	return &palacev1.GetFilingInformationReply{
+	return &palace.GetFilingInformationReply{
 		Url:               filingInfo.URL,
 		FilingInformation: filingInfo.Information,
 	}, nil
 }
 
-func (s *AuthService) GetSelfMenuTree(ctx context.Context, _ *common.EmptyRequest) (*palacev1.GetSelfMenuTreeReply, error) {
+func (s *AuthService) GetSelfMenuTree(ctx context.Context, _ *common.EmptyRequest) (*palace.GetSelfMenuTreeReply, error) {
 	menus, err := s.resourceBiz.SelfMenus(ctx)
 	if err != nil {
 		return nil, err
 	}
-	return &palacev1.GetSelfMenuTreeReply{
+	return &palace.GetSelfMenuTreeReply{
 		Items: build.ToMenuTree(menus),
 	}, nil
 }
 
-func (s *AuthService) ReplaceUserRole(ctx context.Context, req *palacev1.ReplaceUserRoleRequest) (*common.EmptyReply, error) {
+func (s *AuthService) ReplaceUserRole(ctx context.Context, req *palace.ReplaceUserRoleRequest) (*common.EmptyReply, error) {
 	updateReq := &bo.ReplaceUserRoleReq{
 		UserID: req.GetUserId(),
 		Roles:  req.GetRoleIds(),
@@ -231,7 +231,7 @@ func (s *AuthService) ReplaceUserRole(ctx context.Context, req *palacev1.Replace
 	return &common.EmptyReply{Message: "success"}, nil
 }
 
-func (s *AuthService) ReplaceMemberRole(ctx context.Context, req *palacev1.ReplaceMemberRoleRequest) (*common.EmptyReply, error) {
+func (s *AuthService) ReplaceMemberRole(ctx context.Context, req *palace.ReplaceMemberRoleRequest) (*common.EmptyReply, error) {
 	updateReq := &bo.ReplaceMemberRoleReq{
 		MemberID: req.GetMemberId(),
 		Roles:    req.GetRoleIds(),

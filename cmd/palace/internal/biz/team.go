@@ -158,6 +158,9 @@ func (t *Team) SaveTeam(ctx context.Context, req *bo.SaveOneTeamRequest) error {
 
 // SaveEmailConfig saves the email configuration for a team
 func (t *Team) SaveEmailConfig(ctx context.Context, req *bo.SaveEmailConfigRequest) error {
+	if err := req.Validate(); err != nil {
+		return err
+	}
 	return t.transaction.BizExec(ctx, func(ctx context.Context) error {
 		if req.ID <= 0 {
 			return t.teamEmailConfigRepo.Create(ctx, req)
@@ -182,6 +185,9 @@ func (t *Team) GetEmailConfigs(ctx context.Context, req *bo.ListEmailConfigReque
 
 // SaveSMSConfig saves the SMS configuration for a team
 func (t *Team) SaveSMSConfig(ctx context.Context, req *bo.SaveSMSConfigRequest) error {
+	if err := req.Validate(); err != nil {
+		return err
+	}
 	return t.transaction.BizExec(ctx, func(ctx context.Context) error {
 		if req.ID <= 0 {
 			return t.teamSMSConfigRepo.Create(ctx, req)

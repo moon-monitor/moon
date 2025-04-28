@@ -35,11 +35,11 @@ func (t *teamMetricDatasourceImpl) Create(ctx context.Context, req *bo.SaveTeamM
 		Status:         req.Status,
 		Remark:         req.Remark,
 		Driver:         req.Driver,
-		Endpoint:       req.Endpoint,
+		Endpoint:       crypto.String(req.Endpoint),
 		ScrapeInterval: req.ScrapeInterval,
-		Headers:        req.Headers,
+		Headers:        crypto.NewObject(req.Headers),
 		QueryMethod:    req.QueryMethod,
-		CA:             req.CA,
+		CA:             crypto.String(req.CA),
 		TLS:            crypto.NewObject(req.TLS),
 		BasicAuth:      crypto.NewObject(req.BasicAuth),
 		Extra:          req.Extra,
@@ -67,18 +67,23 @@ func (t *teamMetricDatasourceImpl) Update(ctx context.Context, req *bo.SaveTeamM
 		mutation.Status.Value(req.Status.GetValue()),
 		mutation.Remark.Value(req.Remark),
 		mutation.Driver.Value(req.Driver.GetValue()),
-		mutation.Endpoint.Value(req.Endpoint),
+		mutation.Endpoint.Value(crypto.String(req.Endpoint)),
 		mutation.ScrapeInterval.Value(int64(req.ScrapeInterval)),
-		mutation.Headers.Value(req.Headers),
+		mutation.Headers.Value(crypto.NewObject(req.Headers)),
 		mutation.QueryMethod.Value(req.QueryMethod.GetValue()),
-		mutation.CA.Value(req.CA),
-		mutation.TLS.Value(crypto.NewObject(req.TLS)),
-		mutation.BasicAuth.Value(crypto.NewObject(req.BasicAuth)),
 		mutation.Extra.Value(req.Extra),
+	}
+	if validate.TextIsNotNull(req.CA) {
+		mutations = append(mutations, mutation.CA.Value(crypto.String(req.CA)))
+	}
+	if validate.IsNotNil(req.TLS) {
+		mutations = append(mutations, mutation.TLS.Value(crypto.NewObject(req.TLS)))
+	}
+	if validate.IsNotNil(req.BasicAuth) {
+		mutations = append(mutations, mutation.BasicAuth.Value(crypto.NewObject(req.BasicAuth)))
 	}
 	_, err = mutation.WithContext(ctx).Where(wrapper...).UpdateSimple(mutations...)
 	return err
-
 }
 
 func (t *teamMetricDatasourceImpl) UpdateStatus(ctx context.Context, req *bo.UpdateTeamMetricDatasourceStatusRequest) error {
@@ -141,7 +146,7 @@ func (t *teamMetricDatasourceImpl) List(ctx context.Context, req *bo.ListTeamMet
 		ors := []gen.Condition{
 			mutation.Name.Like(req.Keyword),
 			mutation.Remark.Like(req.Keyword),
-			mutation.Endpoint.Like(req.Keyword),
+			mutation.Endpoint.Eq(crypto.String(req.Keyword)),
 		}
 		wrapper = wrapper.Where(mutation.Or(ors...))
 	}

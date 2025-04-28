@@ -7,6 +7,7 @@ import (
 	"github.com/moon-monitor/moon/pkg/api/palace"
 	"github.com/moon-monitor/moon/pkg/api/palace/common"
 	"github.com/moon-monitor/moon/pkg/util/slices"
+	"github.com/moon-monitor/moon/pkg/util/strutil"
 	"github.com/moon-monitor/moon/pkg/util/validate"
 )
 
@@ -15,19 +16,28 @@ func ToSaveSMSConfigRequest(req *palace.SaveSMSConfigRequest) *bo.SaveSMSConfigR
 	if validate.IsNil(req) {
 		return nil
 	}
-	return &bo.SaveSMSConfigRequest{
-		Config: &do.SMS{
-			AccessKeyID:     req.GetAccessKeyId(),
-			AccessKeySecret: req.GetAccessKeySecret(),
-			SignName:        req.GetSignName(),
-			Endpoint:        req.GetEndpoint(),
-		},
+
+	isSetConfig := validate.TextIsNotNull(req.GetAccessKeyId()) &&
+		validate.TextIsNotNull(req.GetAccessKeySecret()) &&
+		validate.TextIsNotNull(req.GetSignName()) &&
+		validate.TextIsNotNull(req.GetEndpoint())
+	item := &bo.SaveSMSConfigRequest{
+		Config:   nil,
 		ID:       req.GetId(),
 		Name:     req.GetName(),
 		Remark:   req.GetRemark(),
 		Status:   vobj.GlobalStatus(req.GetStatus()),
 		Provider: vobj.SMSProviderType(req.GetProvider()),
 	}
+	if isSetConfig {
+		item.Config = &do.SMS{
+			AccessKeyID:     req.GetAccessKeyId(),
+			AccessKeySecret: req.GetAccessKeySecret(),
+			SignName:        req.GetSignName(),
+			Endpoint:        req.GetEndpoint(),
+		}
+	}
+	return item
 }
 
 // ToListSMSConfigRequest converts API request to business object
@@ -54,9 +64,9 @@ func ToSMSConfigItem(item do.TeamSMSConfig) *palace.SMSConfigItem {
 	}
 	return &palace.SMSConfigItem{
 		ProviderType:    common.SMSProviderType(item.GetProviderType().GetValue()),
-		AccessKeyId:     config.AccessKeyID,
-		AccessKeySecret: config.AccessKeySecret,
-		SignName:        config.SignName,
+		AccessKeyId:     strutil.MaskString(config.AccessKeyID, 2, 4),
+		AccessKeySecret: strutil.MaskString(config.AccessKeySecret, 2, 4),
+		SignName:        strutil.MaskString(config.SignName, 0, 2),
 		Endpoint:        config.Endpoint,
 		Name:            item.GetName(),
 		Remark:          item.GetRemark(),

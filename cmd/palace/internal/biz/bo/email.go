@@ -6,7 +6,9 @@ import (
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do/team"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/vobj"
+	"github.com/moon-monitor/moon/pkg/merr"
 	"github.com/moon-monitor/moon/pkg/util/slices"
+	"github.com/moon-monitor/moon/pkg/util/validate"
 )
 
 type TeamEmailConfig interface {
@@ -25,6 +27,13 @@ type SaveEmailConfigRequest struct {
 	Name        string
 	Remark      string
 	Status      vobj.GlobalStatus
+}
+
+func (s *SaveEmailConfigRequest) Validate() error {
+	if s.ID <= 0 && validate.IsNil(s.Config) {
+		return merr.ErrorParamsError("email config is nil")
+	}
+	return nil
 }
 
 func (s *SaveEmailConfigRequest) GetID() uint32 {
@@ -67,6 +76,9 @@ func (s *SaveEmailConfigRequest) GetStatus() vobj.GlobalStatus {
 func (s *SaveEmailConfigRequest) GetEmailConfig() *do.Email {
 	if s == nil {
 		return nil
+	}
+	if s.Config == nil && s.emailConfig != nil {
+		return s.emailConfig.GetEmailConfig()
 	}
 	return s.Config
 }

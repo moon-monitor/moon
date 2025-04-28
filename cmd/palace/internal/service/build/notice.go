@@ -26,6 +26,9 @@ func ToNoticeMemberItems(noticeMembers []do.NoticeMember) []*common.NoticeMember
 }
 
 func ToNoticeGroupItem(noticeGroup do.NoticeGroup) *common.NoticeGroupItem {
+	if validate.IsNil(noticeGroup) {
+		return nil
+	}
 	return &common.NoticeGroupItem{
 		NoticeGroupId: noticeGroup.GetID(),
 		CreatedAt:     timex.Format(noticeGroup.GetCreatedAt()),

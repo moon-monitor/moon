@@ -4,9 +4,10 @@ import (
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/bo"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/vobj"
-	palacev1 "github.com/moon-monitor/moon/pkg/api/palace"
+	"github.com/moon-monitor/moon/pkg/api/palace"
 	"github.com/moon-monitor/moon/pkg/api/palace/common"
 	"github.com/moon-monitor/moon/pkg/util/slices"
+	"github.com/moon-monitor/moon/pkg/util/strutil"
 	"github.com/moon-monitor/moon/pkg/util/timex"
 	"github.com/moon-monitor/moon/pkg/util/validate"
 )
@@ -22,8 +23,8 @@ func ToUserItem(user do.User) *common.UserItem {
 		Nickname:  user.GetNickname(),
 		Avatar:    user.GetAvatar(),
 		Gender:    common.Gender(user.GetGender().GetValue()),
-		Email:     string(user.GetEmail()),
-		Phone:     string(user.GetPhone()),
+		Email:     strutil.MaskEmail(string(user.GetEmail())),
+		Phone:     strutil.MaskPhone(string(user.GetPhone())),
 		Remark:    user.GetRemark(),
 		Position:  common.UserPosition(user.GetPosition().GetValue()),
 		Status:    common.UserStatus(user.GetStatus().GetValue()),
@@ -57,7 +58,7 @@ func ToUserBaseItems(users []do.User) []*common.UserBaseItem {
 	return slices.Map(users, ToUserBaseItem)
 }
 
-func ToSelfUpdateInfo(req *palacev1.UpdateSelfInfoRequest) *bo.UserUpdateInfo {
+func ToSelfUpdateInfo(req *palace.UpdateSelfInfoRequest) *bo.UserUpdateInfo {
 	if req == nil {
 		panic("UpdateSelfInfoRequest is nil")
 	}
@@ -69,7 +70,7 @@ func ToSelfUpdateInfo(req *palacev1.UpdateSelfInfoRequest) *bo.UserUpdateInfo {
 	}
 }
 
-func ToUserUpdateInfo(req *palacev1.UpdateUserRequest) *bo.UserUpdateInfo {
+func ToUserUpdateInfo(req *palace.UpdateUserRequest) *bo.UserUpdateInfo {
 	if req == nil {
 		panic("UpdateUserRequest is nil")
 	}
@@ -83,7 +84,7 @@ func ToUserUpdateInfo(req *palacev1.UpdateUserRequest) *bo.UserUpdateInfo {
 }
 
 // ToPasswordUpdateInfo converts an API password update request to a business object
-func ToPasswordUpdateInfo(req *palacev1.UpdateSelfPasswordRequest, sendEmailFun bo.SendEmailFun) *bo.PasswordUpdateInfo {
+func ToPasswordUpdateInfo(req *palace.UpdateSelfPasswordRequest, sendEmailFun bo.SendEmailFun) *bo.PasswordUpdateInfo {
 	if req == nil {
 		panic("UpdateSelfPasswordRequest is nil")
 	}
@@ -95,7 +96,7 @@ func ToPasswordUpdateInfo(req *palacev1.UpdateSelfPasswordRequest, sendEmailFun 
 	}
 }
 
-func ToUserListRequest(req *palacev1.GetUserListRequest) *bo.UserListRequest {
+func ToUserListRequest(req *palace.GetUserListRequest) *bo.UserListRequest {
 	if validate.IsNil(req) {
 		panic("GetUserListRequest is nil")
 	}

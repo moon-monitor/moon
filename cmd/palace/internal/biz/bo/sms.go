@@ -4,6 +4,7 @@ import (
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do/team"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/vobj"
+	"github.com/moon-monitor/moon/pkg/merr"
 	"github.com/moon-monitor/moon/pkg/util/slices"
 	"github.com/moon-monitor/moon/pkg/util/validate"
 )
@@ -25,6 +26,14 @@ type SaveSMSConfigRequest struct {
 	Remark    string
 	Status    vobj.GlobalStatus
 	Provider  vobj.SMSProviderType
+}
+
+func (s *SaveSMSConfigRequest) Validate() error {
+	if s.ID <= 0 && validate.IsNil(s.Config) {
+		return merr.ErrorParamsError("sms config is nil")
+	}
+
+	return nil
 }
 
 func (s *SaveSMSConfigRequest) GetID() uint32 {
@@ -64,6 +73,9 @@ func (s *SaveSMSConfigRequest) GetStatus() vobj.GlobalStatus {
 func (s *SaveSMSConfigRequest) GetSMSConfig() *do.SMS {
 	if s == nil {
 		return nil
+	}
+	if s.Config == nil && s.smsConfig != nil {
+		return s.smsConfig.GetSMSConfig()
 	}
 	return s.Config
 }

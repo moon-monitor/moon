@@ -11,7 +11,7 @@ import (
 
 	"github.com/moon-monitor/moon/cmd/rabbit/internal/conf"
 	"github.com/moon-monitor/moon/cmd/rabbit/internal/service"
-	commonv1 "github.com/moon-monitor/moon/pkg/api/common"
+	"github.com/moon-monitor/moon/pkg/api/common"
 	rabbitv1 "github.com/moon-monitor/moon/pkg/api/rabbit/v1"
 	"github.com/moon-monitor/moon/pkg/merr"
 	"github.com/moon-monitor/moon/pkg/plugin/server"
@@ -30,8 +30,8 @@ func RegisterService(
 	sendService *service.SendService,
 	syncService *service.SyncService,
 ) server.Servers {
-	commonv1.RegisterHealthServer(rpcSrv, healthService)
-	commonv1.RegisterHealthHTTPServer(httpSrv, healthService)
+	common.RegisterHealthServer(rpcSrv, healthService)
+	common.RegisterHealthHTTPServer(httpSrv, healthService)
 	rabbitv1.RegisterSendServer(rpcSrv, sendService)
 	rabbitv1.RegisterSyncServer(rpcSrv, syncService)
 	rabbitv1.RegisterSendHTTPServer(httpSrv, sendService)

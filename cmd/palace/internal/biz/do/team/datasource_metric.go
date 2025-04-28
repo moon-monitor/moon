@@ -20,11 +20,11 @@ type DatasourceMetric struct {
 	Status         vobj.GlobalStatus             `gorm:"column:status;type:tinyint(2);not null;comment:状态" json:"status"`
 	Remark         string                        `gorm:"column:remark;type:varchar(255);not null;comment:备注" json:"remark"`
 	Driver         vobj.DatasourceDriverMetric   `gorm:"column:type;type:tinyint(2);not null;comment:类型" json:"type"`
-	Endpoint       string                        `gorm:"column:endpoint;type:varchar(255);not null;comment:数据源地址" json:"endpoint"`
+	Endpoint       crypto.String                 `gorm:"column:endpoint;type:varchar(255);not null;comment:数据源地址" json:"endpoint"`
 	ScrapeInterval time.Duration                 `gorm:"column:scrape_interval;type:bigint(20);not null;comment:抓取间隔" json:"scrapeInterval"`
-	Headers        kv.StringMap                  `gorm:"column:headers;type:text;not null;comment:请求头" json:"headers"`
+	Headers        *crypto.Object[kv.StringMap]  `gorm:"column:headers;type:text;not null;comment:请求头" json:"headers"`
 	QueryMethod    vobj.HTTPMethod               `gorm:"column:query_method;type:tinyint(2);not null;comment:请求方法" json:"queryMethod"`
-	CA             string                        `gorm:"column:ca;type:text;not null;comment:ca" json:"ca"`
+	CA             crypto.String                 `gorm:"column:ca;type:text;not null;comment:ca" json:"ca"`
 	TLS            *crypto.Object[*do.TLS]       `gorm:"column:tls;type:text;not null;comment:tls" json:"tls"`
 	BasicAuth      *crypto.Object[*do.BasicAuth] `gorm:"column:basic_auth;type:text;not null;comment:basic_auth" json:"basicAuth"`
 	Extra          kv.StringMap                  `gorm:"column:extra;type:text;not null;comment:额外信息" json:"extra"`
@@ -63,7 +63,7 @@ func (d *DatasourceMetric) GetEndpoint() string {
 	if d == nil {
 		return ""
 	}
-	return d.Endpoint
+	return string(d.Endpoint)
 }
 
 func (d *DatasourceMetric) GetScrapeInterval() time.Duration {
@@ -77,7 +77,7 @@ func (d *DatasourceMetric) GetHeaders() kv.StringMap {
 	if d == nil {
 		return nil
 	}
-	return d.Headers
+	return d.Headers.Get()
 }
 
 func (d *DatasourceMetric) GetQueryMethod() vobj.HTTPMethod {
@@ -91,7 +91,7 @@ func (d *DatasourceMetric) GetCA() string {
 	if d == nil {
 		return ""
 	}
-	return d.CA
+	return string(d.CA)
 }
 
 func (d *DatasourceMetric) GetTLS() *do.TLS {

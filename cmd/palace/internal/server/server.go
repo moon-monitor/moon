@@ -7,8 +7,8 @@ import (
 
 	"github.com/moon-monitor/moon/cmd/palace/internal/conf"
 	"github.com/moon-monitor/moon/cmd/palace/internal/service"
-	commonv1 "github.com/moon-monitor/moon/pkg/api/common"
-	palacev1 "github.com/moon-monitor/moon/pkg/api/palace"
+	"github.com/moon-monitor/moon/pkg/api/common"
+	"github.com/moon-monitor/moon/pkg/api/palace"
 	"github.com/moon-monitor/moon/pkg/plugin/server"
 )
 
@@ -41,22 +41,22 @@ func RegisterService(
 	systemService *service.SystemService,
 	teamLogService *service.TeamLogService,
 ) server.Servers {
-	commonv1.RegisterHealthServer(rpcSrv, healthService)
-	commonv1.RegisterServerServer(rpcSrv, serverService)
+	common.RegisterHealthServer(rpcSrv, healthService)
+	common.RegisterServerServer(rpcSrv, serverService)
 
-	commonv1.RegisterHealthHTTPServer(httpSrv, healthService)
-	commonv1.RegisterServerHTTPServer(httpSrv, serverService)
-	palacev1.RegisterAuthHTTPServer(httpSrv, authService)
-	palacev1.RegisterResourceHTTPServer(httpSrv, resourceService)
-	palacev1.RegisterUserHTTPServer(httpSrv, userService)
-	palacev1.RegisterCallbackHTTPServer(httpSrv, callbackService)
-	palacev1.RegisterTeamDashboardHTTPServer(httpSrv, teamDashboardService)
-	palacev1.RegisterTeamDatasourceHTTPServer(httpSrv, datasourceService)
-	palacev1.RegisterTeamDictHTTPServer(httpSrv, dictService)
-	palacev1.RegisterTeamNoticeHTTPServer(httpSrv, noticeService)
-	palacev1.RegisterTeamStrategyHTTPServer(httpSrv, strategyService)
-	palacev1.RegisterTeamHTTPServer(httpSrv, teamService)
-	palacev1.RegisterSystemHTTPServer(httpSrv, systemService)
-	palacev1.RegisterTeamLogHTTPServer(httpSrv, teamLogService)
+	common.RegisterHealthHTTPServer(httpSrv, healthService)
+	common.RegisterServerHTTPServer(httpSrv, serverService)
+	palace.RegisterAuthHTTPServer(httpSrv, authService)
+	palace.RegisterResourceHTTPServer(httpSrv, resourceService)
+	palace.RegisterUserHTTPServer(httpSrv, userService)
+	palace.RegisterCallbackHTTPServer(httpSrv, callbackService)
+	palace.RegisterTeamDashboardHTTPServer(httpSrv, teamDashboardService)
+	palace.RegisterTeamDatasourceHTTPServer(httpSrv, datasourceService)
+	palace.RegisterTeamDictHTTPServer(httpSrv, dictService)
+	palace.RegisterTeamNoticeHTTPServer(httpSrv, noticeService)
+	palace.RegisterTeamStrategyHTTPServer(httpSrv, strategyService)
+	palace.RegisterTeamHTTPServer(httpSrv, teamService)
+	palace.RegisterSystemHTTPServer(httpSrv, systemService)
+	palace.RegisterTeamLogHTTPServer(httpSrv, teamLogService)
 	return server.Servers{rpcSrv, httpSrv, tickerSrv}
 }

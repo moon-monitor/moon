@@ -4,7 +4,7 @@ import (
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/bo"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/vobj"
-	palacev1 "github.com/moon-monitor/moon/pkg/api/palace"
+	"github.com/moon-monitor/moon/pkg/api/palace"
 	"github.com/moon-monitor/moon/pkg/api/palace/common"
 	"github.com/moon-monitor/moon/pkg/util/slices"
 	"github.com/moon-monitor/moon/pkg/util/timex"
@@ -78,7 +78,7 @@ func convertMenuToTreeItemWithMap(menu do.Menu, menuMap map[uint32]do.Menu) *com
 	return treeItem
 }
 
-func ToSaveMenuReq(req *palacev1.SaveMenuRequest) *bo.SaveMenuReq {
+func ToSaveMenuReq(req *palace.SaveMenuRequest) *bo.SaveMenuReq {
 	if validate.IsNil(req) {
 		return nil
 	}
@@ -94,7 +94,7 @@ func ToSaveMenuReq(req *palacev1.SaveMenuRequest) *bo.SaveMenuReq {
 	}
 }
 
-func ToSaveResourceReq(req *palacev1.SaveResourceRequest) *bo.SaveResourceReq {
+func ToSaveResourceReq(req *palace.SaveResourceRequest) *bo.SaveResourceReq {
 	if validate.IsNil(req) {
 		return nil
 	}

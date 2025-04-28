@@ -6,14 +6,14 @@ import (
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/bo"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/vobj"
-	palacev1 "github.com/moon-monitor/moon/pkg/api/palace"
+	"github.com/moon-monitor/moon/pkg/api/palace"
 	"github.com/moon-monitor/moon/pkg/api/palace/common"
 	"github.com/moon-monitor/moon/pkg/util/slices"
 	"github.com/moon-monitor/moon/pkg/util/timex"
 	"github.com/moon-monitor/moon/pkg/util/validate"
 )
 
-func ToSaveTeamMetricDatasourceRequest(req *palacev1.SaveTeamMetricDatasourceRequest) *bo.SaveTeamMetricDatasource {
+func ToSaveTeamMetricDatasourceRequest(req *palace.SaveTeamMetricDatasourceRequest) *bo.SaveTeamMetricDatasource {
 	if validate.IsNil(req) {
 		return nil
 	}
@@ -34,7 +34,7 @@ func ToSaveTeamMetricDatasourceRequest(req *palacev1.SaveTeamMetricDatasourceReq
 	}
 }
 
-func ToListTeamMetricDatasourceRequest(req *palacev1.ListTeamMetricDatasourceRequest) *bo.ListTeamMetricDatasource {
+func ToListTeamMetricDatasourceRequest(req *palace.ListTeamMetricDatasourceRequest) *bo.ListTeamMetricDatasource {
 	if validate.IsNil(req) {
 		return nil
 	}
@@ -62,8 +62,8 @@ func ToTeamMetricDatasourceItem(item do.DatasourceMetric) *common.TeamMetricData
 		Headers:        item.GetHeaders(),
 		QueryMethod:    common.HTTPMethod(item.GetQueryMethod()),
 		Ca:             item.GetCA(),
-		Tls:            ToProtoTLS(item.GetTLS()),
-		BasicAuth:      ToProtoBasicAuth(item.GetBasicAuth()),
+		Tls:            ToTLSItem(item.GetTLS()),
+		BasicAuth:      ToBasicAuthItem(item.GetBasicAuth()),
 		Extra:          item.GetExtra(),
 		Status:         common.GlobalStatus(item.GetStatus().GetValue()),
 		Creator:        ToUserBaseItem(item.GetCreator()),

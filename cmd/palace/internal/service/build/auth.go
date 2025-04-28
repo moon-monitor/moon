@@ -41,7 +41,7 @@ func ToTLS(tls *common.TLS) *do.TLS {
 	}
 }
 
-func ToProtoTLS(tls *do.TLS) *common.TLS {
+func ToTLSItem(tls *do.TLS) *common.TLS {
 	if validate.IsNil(tls) {
 		return nil
 	}
@@ -62,7 +62,7 @@ func ToBasicAuth(basicAuth *common.BasicAuth) *do.BasicAuth {
 	}
 }
 
-func ToProtoBasicAuth(basicAuth *do.BasicAuth) *common.BasicAuth {
+func ToBasicAuthItem(basicAuth *do.BasicAuth) *common.BasicAuth {
 	if validate.IsNil(basicAuth) {
 		return nil
 	}
