@@ -11,13 +11,13 @@ import (
 	"github.com/moon-monitor/moon/cmd/rabbit/internal/biz/vobj"
 	"github.com/moon-monitor/moon/cmd/rabbit/internal/service/build"
 	"github.com/moon-monitor/moon/pkg/api/rabbit/common"
-	apiv1 "github.com/moon-monitor/moon/pkg/api/rabbit/v1"
+	rabbitv1 "github.com/moon-monitor/moon/pkg/api/rabbit/v1"
 	"github.com/moon-monitor/moon/pkg/util/pointer"
 	"github.com/moon-monitor/moon/pkg/util/slices"
 )
 
 type SendService struct {
-	apiv1.UnimplementedSendServer
+	rabbitv1.UnimplementedSendServer
 	configBiz *biz.Config
 	emailBiz  *biz.Email
 	smsBiz    *biz.SMS
@@ -45,7 +45,7 @@ func NewSendService(
 	}
 }
 
-func (s *SendService) Email(ctx context.Context, req *apiv1.SendEmailRequest) (*common.EmptyReply, error) {
+func (s *SendService) Email(ctx context.Context, req *rabbitv1.SendEmailRequest) (*common.EmptyReply, error) {
 	if !s.lockBiz.LockByAPP(ctx, req.GetRequestId(), vobj.APPEmail) {
 		return &common.EmptyReply{}, nil
 	}
@@ -68,7 +68,7 @@ func (s *SendService) Email(ctx context.Context, req *apiv1.SendEmailRequest) (*
 	return &common.EmptyReply{}, nil
 }
 
-func (s *SendService) Sms(ctx context.Context, req *apiv1.SendSmsRequest) (*common.EmptyReply, error) {
+func (s *SendService) Sms(ctx context.Context, req *rabbitv1.SendSmsRequest) (*common.EmptyReply, error) {
 	if !s.lockBiz.LockByAPP(ctx, req.GetRequestId(), vobj.APPSms) {
 		return &common.EmptyReply{}, nil
 	}
@@ -89,7 +89,7 @@ func (s *SendService) Sms(ctx context.Context, req *apiv1.SendSmsRequest) (*comm
 	return &common.EmptyReply{}, nil
 }
 
-func (s *SendService) Hook(ctx context.Context, req *apiv1.SendHookRequest) (*common.EmptyReply, error) {
+func (s *SendService) Hook(ctx context.Context, req *rabbitv1.SendHookRequest) (*common.EmptyReply, error) {
 	hookConfigs := slices.MapFilter(req.GetHooks(), func(hookItem *common.HookConfig) (bo.HookConfig, bool) {
 		if !s.lockBiz.LockByAPP(ctx, req.GetRequestId(), build.ToSendHookAPP(hookItem.GetApp())) {
 			return nil, false

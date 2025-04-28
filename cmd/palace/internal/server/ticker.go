@@ -3,8 +3,8 @@ package server
 import (
 	"github.com/go-kratos/kratos/v2/log"
 	"github.com/go-kratos/kratos/v2/transport"
-	"github.com/moon-monitor/moon/cmd/palace/internal/service"
 
+	"github.com/moon-monitor/moon/cmd/palace/internal/service"
 	"github.com/moon-monitor/moon/pkg/plugin/server"
 )
 

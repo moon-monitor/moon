@@ -40,8 +40,8 @@ func NewHTTPServer(bc *conf.Bootstrap, authService *service.AuthService, logger 
 		http.Filter(middler.Cors(httpConf)),
 		http.Middleware(
 			recovery.Recovery(),
-			logging.Server(logger),
 			tracing.Server(),
+			logging.Server(logger),
 			authMiddleware,
 			middler.Validate(),
 		),
