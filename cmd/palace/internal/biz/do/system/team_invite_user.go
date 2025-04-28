@@ -74,11 +74,11 @@ type RoleSlice []uint32
 
 func (t *RoleSlice) Scan(src any) error {
 	val := ""
-	switch src.(type) {
+	switch origin := src.(type) {
 	case string:
-		val = src.(string)
+		val = origin
 	case []byte:
-		val = string(src.([]byte))
+		val = string(origin)
 	}
 	return json.Unmarshal([]byte(val), t)
 }

@@ -2,7 +2,6 @@ package data
 
 import (
 	"context"
-	"database/sql"
 	"fmt"
 	"time"
 
@@ -13,7 +12,6 @@ import (
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do/system"
 	"github.com/moon-monitor/moon/cmd/palace/internal/conf"
 	"github.com/moon-monitor/moon/cmd/palace/internal/data/query/systemgen"
-	"github.com/moon-monitor/moon/pkg/config"
 	"github.com/moon-monitor/moon/pkg/merr"
 	"github.com/moon-monitor/moon/pkg/plugin/cache"
 	"github.com/moon-monitor/moon/pkg/plugin/gorm"
@@ -82,16 +80,6 @@ func New(c *conf.Bootstrap, logger log.Logger) (*Data, func(), error) {
 	}, nil
 }
 
-func newSqlDB(c *config.Database) (*sql.DB, error) {
-	dsn := fmt.Sprintf("%s:%s@tcp(%s:%d)/%s?%s", c.GetUser(), c.GetPassword(), c.GetHost(), c.GetPort(), c.GetDbName(), c.GetParams())
-	switch c.GetDriver() {
-	case config.Database_MYSQL:
-		return sql.Open("mysql", dsn)
-	default:
-		return nil, fmt.Errorf("unknown driver: %s", c.GetDriver())
-	}
-}
-
 type Data struct {
 	dataConf             *conf.Data
 	mainDB               gorm.DB
@@ -147,7 +135,7 @@ func (d *Data) GetBizDB(teamID uint32) (gorm.DB, error) {
 	if ok {
 		return db, nil
 	}
-	teamDo, err := d.queryTeam(context.Background(), teamID)
+	teamDo, err := d.queryTeam(teamID)
 	if err != nil {
 		return nil, err
 	}
@@ -169,7 +157,7 @@ func (d *Data) GetEventDB(teamID uint32) (gorm.DB, error) {
 	if ok {
 		return db, nil
 	}
-	teamDo, err := d.queryTeam(context.Background(), teamID)
+	teamDo, err := d.queryTeam(teamID)
 	if err != nil {
 		return nil, err
 	}
@@ -185,7 +173,7 @@ func (d *Data) GetEventDB(teamID uint32) (gorm.DB, error) {
 	return db, nil
 }
 
-func (d *Data) queryTeam(ctx context.Context, teamID uint32) (*system.Team, error) {
+func (d *Data) queryTeam(teamID uint32) (*system.Team, error) {
 	teamQuery := systemgen.Use(d.GetMainDB().GetDB()).Team
 	ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
 	defer cancel()
