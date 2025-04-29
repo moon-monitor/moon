@@ -15,6 +15,7 @@ type SendEmailFun func(ctx context.Context, params *SendEmailParams) error
 
 type CreateSendMessageLogParams struct {
 	TeamID      uint32
+	SendAt      time.Time
 	MessageType vobj.MessageType
 	Message     fmt.Stringer
 	RequestID   string
@@ -23,6 +24,7 @@ type CreateSendMessageLogParams struct {
 type UpdateSendMessageLogStatusParams struct {
 	TeamID    uint32
 	RequestID string
+	SendAt    time.Time
 	Status    vobj.SendMessageStatus
 	Error     string
 }
@@ -30,6 +32,7 @@ type UpdateSendMessageLogStatusParams struct {
 type GetSendMessageLogParams struct {
 	TeamID    uint32
 	RequestID string
+	SendAt    time.Time
 }
 
 func (p *GetSendMessageLogParams) WithTeamID(ctx context.Context) (*GetSendMessageLogParams, error) {
@@ -44,6 +47,7 @@ func (p *GetSendMessageLogParams) WithTeamID(ctx context.Context) (*GetSendMessa
 type RetrySendMessageParams struct {
 	TeamID    uint32
 	RequestID string
+	SendAt    time.Time
 }
 
 func (p *RetrySendMessageParams) WithTeamID(ctx context.Context) (*RetrySendMessageParams, error) {

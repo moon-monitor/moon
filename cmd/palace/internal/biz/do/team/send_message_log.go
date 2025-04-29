@@ -1,6 +1,11 @@
 package team
 
 import (
+	"fmt"
+	"time"
+
+	"gorm.io/gorm"
+
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/vobj"
 )
@@ -12,6 +17,7 @@ const tableNameSendMessageLog = "team_send_message_logs"
 type SendMessageLog struct {
 	do.BaseModel
 	TeamID      uint32                 `gorm:"column:team_id;type:int unsigned;not null;comment:团队ID" json:"team_id,omitempty"`
+	SendedAt    time.Time              `gorm:"column:sended_at;type:datetime;not null;comment:发送时间" json:"sended_at,omitempty"`
 	MessageType vobj.MessageType       `gorm:"column:message_type;type:tinyint(2);not null;comment:消息类型" json:"message_type,omitempty"`
 	Message     string                 `gorm:"column:message;type:text;not null;comment:消息内容" json:"message,omitempty"`
 	RequestID   string                 `gorm:"column:request_id;type:varchar(64);not null;comment:请求ID;uniqueIndex:idx__request_id" json:"request_id,omitempty"`
@@ -77,5 +83,43 @@ func (s *SendMessageLog) GetTeamID() uint32 {
 }
 
 func (s *SendMessageLog) TableName() string {
-	return tableNameSendMessageLog
+	return genSendMessageLogTableName(s.SendedAt, s.TeamID)
+}
+
+func createSendMessageLogTable(tx *gorm.DB, t time.Time, teamId uint32) (err error) {
+	tableName := genSendMessageLogTableName(t, teamId)
+	if do.HasTable(tx, tableName) {
+		return
+	}
+	s := &SendMessageLog{
+		TeamID:   teamId,
+		SendedAt: t,
+	}
+	if err := do.CreateTable(tx, tableName, s); err != nil {
+		return err
+	}
+	return
+}
+
+func genSendMessageLogTableName(t time.Time, teamId uint32) string {
+	offset := time.Monday - t.Weekday()
+	weekStart := t.AddDate(0, 0, int(offset))
+
+	return fmt.Sprintf("%s_%d_%s", tableNameSendMessageLog, teamId, weekStart.Format("20060102"))
+}
+
+func GetSendMessageLogTableName(tx *gorm.DB, t time.Time, teamId uint32) (string, error) {
+	tableName := genSendMessageLogTableName(t, teamId)
+	if !do.HasTable(tx, tableName) {
+		return tableName, createSendMessageLogTable(tx, t, teamId)
+	}
+	return tableName, nil
+}
+
+func GetSendMessageLogTableNameByRequestID(tx *gorm.DB, t time.Time, teamId uint32) (string, error) {
+	tableName := genSendMessageLogTableName(t, teamId)
+	if !do.HasTable(tx, tableName) {
+		return tableName, createSendMessageLogTable(tx, t, teamId)
+	}
+	return tableName, nil
 }

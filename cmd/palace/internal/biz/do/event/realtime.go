@@ -97,11 +97,11 @@ func (r *Realtime) GetValue() string {
 }
 
 func (r *Realtime) TableName() string {
-	return GenRealtimeTableName(r.StartsAt, r.TeamID)
+	return genRealtimeTableName(r.StartsAt, r.TeamID)
 }
 
-func CreateRealtimeTable(tx *gorm.DB, t time.Time, teamId uint32) (err error) {
-	tableName := GenRealtimeTableName(t, teamId)
+func createRealtimeTable(tx *gorm.DB, t time.Time, teamId uint32) (err error) {
+	tableName := genRealtimeTableName(t, teamId)
 	if do.HasTable(tx, tableName) {
 		return
 	}
@@ -116,9 +116,17 @@ func CreateRealtimeTable(tx *gorm.DB, t time.Time, teamId uint32) (err error) {
 	return
 }
 
-func GenRealtimeTableName(t time.Time, teamId uint32) string {
+func genRealtimeTableName(t time.Time, teamId uint32) string {
 	offset := time.Monday - t.Weekday()
 	weekStart := t.AddDate(0, 0, int(offset))
 
 	return fmt.Sprintf("%s_%d_%s", tableNameRealtime, teamId, weekStart.Format("20060102"))
+}
+
+func GetRealtimeTableName(tx *gorm.DB, t time.Time, teamId uint32) (string, error) {
+	tableName := genRealtimeTableName(t, teamId)
+	if !do.HasTable(tx, tableName) {
+		return tableName, createRealtimeTable(tx, t, teamId)
+	}
+	return tableName, nil
 }
