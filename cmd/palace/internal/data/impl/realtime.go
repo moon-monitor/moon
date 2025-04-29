@@ -2,6 +2,7 @@ package impl
 
 import (
 	"context"
+	"time"
 
 	"gorm.io/gen"
 	"gorm.io/gen/field"
@@ -12,6 +13,7 @@ import (
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/repository"
 	"github.com/moon-monitor/moon/cmd/palace/internal/data"
 	"github.com/moon-monitor/moon/cmd/palace/internal/helper/permission"
+	"github.com/moon-monitor/moon/pkg/merr"
 )
 
 func NewRealtime(data *data.Data) repository.Realtime {
@@ -24,6 +26,18 @@ type realtimeImpl struct {
 	*data.Data
 }
 
+func (r *realtimeImpl) createRealtimeTable(ctx context.Context, startsAt time.Time) error {
+	teamId, ok := permission.GetTeamIDByContext(ctx)
+	if !ok {
+		return merr.ErrorPermissionDenied("team id not found")
+	}
+	eventDB, err := r.GetEventDB(teamId)
+	if err != nil {
+		return err
+	}
+	return event.CreateRealtimeTable(eventDB.GetDB(), startsAt, teamId)
+}
+
 // Exists implements repository.Realtime.
 func (r *realtimeImpl) Exists(ctx context.Context, alert *bo.GetAlertParams) (bool, error) {
 	ctx = permission.WithTeamIDContext(ctx, alert.TeamID)
@@ -31,12 +45,17 @@ func (r *realtimeImpl) Exists(ctx context.Context, alert *bo.GetAlertParams) (bo
 	if err != nil {
 		return false, err
 	}
-	realtimeQuery := tx.Realtime
+	tableName := event.GenRealtimeTableName(alert.StartsAt, teamId)
+	realtimeQuery := tx.Realtime.Table(tableName)
 	wrappers := []gen.Condition{
 		realtimeQuery.Fingerprint.Eq(alert.Fingerprint),
 		realtimeQuery.TeamID.Eq(teamId),
 	}
-	count, err := realtimeQuery.Table(event.GenRealtimeTableName(alert.StartsAt, teamId)).WithContext(ctx).
+
+	if err := r.createRealtimeTable(ctx, alert.StartsAt); err != nil {
+		return false, err
+	}
+	count, err := realtimeQuery.WithContext(ctx).
 		Where(wrappers...).
 		Limit(1).
 		Count()
@@ -53,12 +72,16 @@ func (r *realtimeImpl) GetAlert(ctx context.Context, alert *bo.GetAlertParams) (
 	if err != nil {
 		return nil, err
 	}
-	realtimeQuery := tx.Realtime
+	tableName := event.GenRealtimeTableName(alert.StartsAt, teamId)
+	realtimeQuery := tx.Realtime.Table(tableName)
 	wrappers := []gen.Condition{
 		realtimeQuery.Fingerprint.Eq(alert.Fingerprint),
 		realtimeQuery.TeamID.Eq(teamId),
 	}
-	realtimeDo, err := realtimeQuery.Table(event.GenRealtimeTableName(alert.StartsAt, teamId)).WithContext(ctx).
+	if err := r.createRealtimeTable(ctx, alert.StartsAt); err != nil {
+		return nil, err
+	}
+	realtimeDo, err := realtimeQuery.WithContext(ctx).
 		Where(wrappers...).
 		First()
 	if err != nil {
@@ -74,7 +97,9 @@ func (r *realtimeImpl) CreateAlert(ctx context.Context, alert *bo.Alert) error {
 	if err != nil {
 		return err
 	}
-	realtimeMutation := tx.Realtime
+
+	tableName := event.GenRealtimeTableName(alert.StartsAt, teamId)
+	realtimeMutation := tx.Realtime.Table(tableName)
 	realtimeDo := &event.Realtime{
 		TeamID:       teamId,
 		Fingerprint:  alert.Fingerprint,
@@ -97,7 +122,8 @@ func (r *realtimeImpl) UpdateAlert(ctx context.Context, alert *bo.Alert) error {
 	if err != nil {
 		return err
 	}
-	realtimeMutation := tx.Realtime
+	tableName := event.GenRealtimeTableName(alert.StartsAt, teamId)
+	realtimeMutation := tx.Realtime.Table(tableName)
 	wrappers := []gen.Condition{
 		realtimeMutation.Fingerprint.Eq(alert.Fingerprint),
 		realtimeMutation.TeamID.Eq(teamId),
@@ -105,9 +131,11 @@ func (r *realtimeImpl) UpdateAlert(ctx context.Context, alert *bo.Alert) error {
 	mutations := []field.AssignExpr{
 		realtimeMutation.Status.Value(alert.Status.GetValue()),
 		realtimeMutation.GeneratorURL.Value(alert.GeneratorURL),
-		realtimeMutation.EndsAt.Value(alert.EndsAt),
 	}
-	_, err = realtimeMutation.Table(event.GenRealtimeTableName(alert.StartsAt, teamId)).WithContext(ctx).
+	if alert.Status.IsResolved() {
+		mutations = append(mutations, realtimeMutation.EndsAt.Value(alert.EndsAt))
+	}
+	_, err = realtimeMutation.WithContext(ctx).
 		Where(wrappers...).
 		UpdateSimple(mutations...)
 	if err != nil {

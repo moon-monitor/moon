@@ -9,7 +9,6 @@ import (
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/vobj"
 	"github.com/moon-monitor/moon/pkg/util/kv"
-	"github.com/moon-monitor/moon/pkg/util/validate"
 )
 
 var _ do.Realtime = (*Realtime)(nil)
@@ -18,8 +17,8 @@ const tableNameRealtime = "team_realtime_alerts"
 
 type Realtime struct {
 	ID           uint32           `gorm:"column:id;primaryKey;autoIncrement" json:"id,omitempty"`
-	CreatedAt    time.Time        `gorm:"column:created_at;type:timestamp;not null;default:CURRENT_TIMESTAMP;comment:创建时间" json:"createdAt"`
-	UpdatedAt    time.Time        `gorm:"column:updated_at;type:timestamp;not null;default:CURRENT_TIMESTAMP;comment:更新时间" json:"updatedAt"`
+	CreatedAt    time.Time        `gorm:"column:created_at;type:datetime;not null;default:CURRENT_TIMESTAMP;comment:创建时间" json:"createdAt"`
+	UpdatedAt    time.Time        `gorm:"column:updated_at;type:datetime;not null;default:CURRENT_TIMESTAMP;comment:更新时间" json:"updatedAt"`
 	TeamID       uint32           `gorm:"column:team_id;type:int;not null;comment:团队ID;uniqueIndex:uk__team_id__fingerprint" json:"teamId"`
 	Status       vobj.AlertStatus `gorm:"column:status;type:tinyint;not null;comment:状态" json:"status"`
 	Fingerprint  string           `gorm:"column:fingerprint;type:varchar(255);not null;comment:指纹;uniqueIndex:uk__team_id__fingerprint" json:"fingerprint"`
@@ -28,8 +27,8 @@ type Realtime struct {
 	Description  string           `gorm:"column:description;type:text;not null;comment:描述" json:"description"`
 	Value        string           `gorm:"column:value;type:text;not null;comment:值" json:"value"`
 	GeneratorURL string           `gorm:"column:generator_url;type:text;not null;comment:生成URL" json:"generatorURL"`
-	StartsAt     time.Time        `gorm:"column:starts_at;type:timestamp;not null;comment:开始时间" json:"startsAt"`
-	EndsAt       time.Time        `gorm:"column:ends_at;type:timestamp;not null;comment:结束时间" json:"endsAt"`
+	StartsAt     time.Time        `gorm:"column:starts_at;type:datetime;not null;default:'0001-01-01 00:00:00';comment:开始时间" json:"startsAt"`
+	EndsAt       time.Time        `gorm:"column:ends_at;type:datetime;not null;default:'0001-01-01 00:00:00';comment:结束时间" json:"endsAt"`
 }
 
 // GetCreatedAt implements do.Realtime.
@@ -101,10 +100,9 @@ func (r *Realtime) TableName() string {
 	return GenRealtimeTableName(r.StartsAt, r.TeamID)
 }
 
-// createTable 创建表
-func (r *Realtime) createTable(tx *gorm.DB) (err error) {
-	tableName := r.TableName()
-	if !validate.IsNil(hasTable) {
+func CreateRealtimeTable(tx *gorm.DB, t time.Time, teamId uint32) (err error) {
+	tableName := GenRealtimeTableName(t, teamId)
+	if hasTable != nil {
 		if hasTable(tableName) {
 			return
 		}
@@ -114,39 +112,17 @@ func (r *Realtime) createTable(tx *gorm.DB) (err error) {
 		}
 	}
 
+	r := &Realtime{
+		TeamID:   teamId,
+		StartsAt: t,
+	}
+	tx.Statement.Table = tableName
 	if err := tx.Migrator().CreateTable(r); err != nil {
 		return err
 	}
-	if !validate.IsNil(setTableFun) {
+	if setTableFun != nil {
 		setTableFun(tableName)
 	}
-	return
-}
-
-// BeforeSave 在保存之前设置表名
-func (r *Realtime) BeforeSave(tx *gorm.DB) (err error) {
-	if err := r.createTable(tx); err != nil {
-		return err
-	}
-	tx.Statement.Table = r.TableName()
-	return
-}
-
-// BeforeCreate 在创建之前设置表名
-func (r *Realtime) BeforeCreate(tx *gorm.DB) (err error) {
-	if err := r.createTable(tx); err != nil {
-		return err
-	}
-	tx.Statement.Table = r.TableName()
-	return
-}
-
-// BeforeUpdate 在更新之前设置表名
-func (r *Realtime) BeforeUpdate(tx *gorm.DB) (err error) {
-	if err := r.createTable(tx); err != nil {
-		return err
-	}
-	tx.Statement.Table = r.TableName()
 	return
 }
 

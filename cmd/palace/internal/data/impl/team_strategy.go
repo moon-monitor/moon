@@ -182,7 +182,7 @@ func (t *teamStrategyImpl) List(ctx context.Context, params *bo.ListTeamStrategy
 		params.WithTotal(total)
 		wrappers = wrappers.Limit(int(params.Limit)).Offset(params.Offset())
 	}
-	strategies, err := wrappers.Find()
+	strategies, err := wrappers.Preload(query.StrategyGroup).Find()
 	if err != nil {
 		return nil, err
 	}

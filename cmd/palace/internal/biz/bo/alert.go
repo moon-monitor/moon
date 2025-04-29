@@ -35,6 +35,14 @@ func (a *Alert) Validate() error {
 	if a.TeamID <= 0 {
 		return merr.ErrorParamsError("teamId is required")
 	}
+	if a.Status.IsResolved() {
+		if a.EndsAt.IsZero() {
+			return merr.ErrorParamsError("endsAt is required")
+		}
+		if a.EndsAt.Before(a.StartsAt) {
+			return merr.ErrorParamsError("endsAt must be after startsAt")
+		}
+	}
 
 	return nil
 }
