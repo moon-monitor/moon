@@ -3,13 +3,13 @@ package bo
 import (
 	"time"
 
-	"github.com/moon-monitor/moon/pkg/api/houyi/common"
+	"github.com/moon-monitor/moon/pkg/api/common"
 	"github.com/moon-monitor/moon/pkg/plugin/server"
 	"github.com/moon-monitor/moon/pkg/util/kv/label"
 )
 
 type Alert interface {
-	GetStatus() common.EventStatus
+	GetStatus() common.AlertStatus
 	GetLabels() *label.Label
 	GetAnnotations() *label.Annotation
 	GetStartsAt() *time.Time

@@ -10,7 +10,7 @@ import (
 	"github.com/moon-monitor/moon/cmd/houyi/internal/biz/repository"
 	"github.com/moon-monitor/moon/cmd/houyi/internal/biz/vobj"
 	"github.com/moon-monitor/moon/cmd/houyi/internal/data"
-	"github.com/moon-monitor/moon/pkg/api/houyi/common"
+	"github.com/moon-monitor/moon/pkg/api/common"
 	"github.com/moon-monitor/moon/pkg/util/timex"
 )
 
@@ -125,7 +125,7 @@ func (a *alertImpl) oldAlert(ctx context.Context, newAlert *do.Alert) *do.Alert 
 		a.helper.WithContext(ctx).Warnw("method", "SaveAlert", "err", err)
 		return newAlert
 	}
-	newAlert.Status = common.EventStatus_firing
+	newAlert.Status = common.AlertStatus_firing
 	newAlert.StartsAt = oldAlert.StartsAt
 
 	return newAlert

@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"time"
 
-	"github.com/moon-monitor/moon/pkg/api/houyi/common"
+	"github.com/moon-monitor/moon/pkg/api/common"
 	"github.com/moon-monitor/moon/pkg/plugin/cache"
 	"github.com/moon-monitor/moon/pkg/util/hash"
 	"github.com/moon-monitor/moon/pkg/util/kv"
@@ -15,7 +15,7 @@ import (
 var _ cache.Object = (*Alert)(nil)
 
 type Alert struct {
-	Status       common.EventStatus `json:"status,omitempty"`
+	Status       common.AlertStatus `json:"status,omitempty"`
 	Labels       *label.Label       `json:"labels,omitempty"`
 	Annotations  *label.Annotation  `json:"annotations,omitempty"`
 	StartsAt     *time.Time         `json:"startsAt,omitempty"`
@@ -40,7 +40,7 @@ func (a *Alert) UniqueKey() string {
 	return a.GetFingerprint()
 }
 
-func (a *Alert) GetStatus() common.EventStatus {
+func (a *Alert) GetStatus() common.AlertStatus {
 	return a.Status
 }
 
@@ -73,13 +73,13 @@ func (a *Alert) GetFingerprint() string {
 }
 
 func (a *Alert) Resolved() {
-	a.Status = common.EventStatus_resolved
+	a.Status = common.AlertStatus_resolved
 	a.LastUpdated = timex.Now()
 	a.EndsAt = &a.LastUpdated
 }
 
 func (a *Alert) Firing() {
-	a.Status = common.EventStatus_firing
+	a.Status = common.AlertStatus_firing
 	a.LastUpdated = timex.Now()
 }
 
@@ -96,13 +96,13 @@ func (a *Alert) GetLastUpdated() time.Time {
 }
 
 func (a *Alert) IsPending() bool {
-	return a.Status == common.EventStatus_pending
+	return a.Status == common.AlertStatus_pending
 }
 
 func (a *Alert) IsFiring() bool {
-	return a.Status == common.EventStatus_firing
+	return a.Status == common.AlertStatus_firing
 }
 
 func (a *Alert) IsResolved() bool {
-	return a.Status == common.EventStatus_resolved
+	return a.Status == common.AlertStatus_resolved
 }

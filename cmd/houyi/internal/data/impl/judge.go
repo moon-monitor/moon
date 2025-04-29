@@ -13,7 +13,7 @@ import (
 	"github.com/moon-monitor/moon/cmd/houyi/internal/data"
 	"github.com/moon-monitor/moon/cmd/houyi/internal/data/impl/judge"
 	"github.com/moon-monitor/moon/cmd/houyi/internal/data/impl/judge/condition"
-	"github.com/moon-monitor/moon/pkg/api/houyi/common"
+	"github.com/moon-monitor/moon/pkg/api/common"
 	"github.com/moon-monitor/moon/pkg/util/cnst"
 	"github.com/moon-monitor/moon/pkg/util/hash"
 	"github.com/moon-monitor/moon/pkg/util/kv"
@@ -83,7 +83,7 @@ func (j *judgeImpl) generateAlert(rule bo.MetricJudgeRule, value bo.MetricJudgeD
 
 	now := timex.Now()
 	alert := &do.Alert{
-		Status:       common.EventStatus_pending,
+		Status:       common.AlertStatus_pending,
 		Labels:       labels,
 		Annotations:  annotations,
 		StartsAt:     pointer.Of(time.Unix(value.GetTimestamp(), 0)),
