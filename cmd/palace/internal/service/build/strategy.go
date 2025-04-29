@@ -137,16 +137,18 @@ func ToTeamStrategyItem(strategy do.Strategy) *common.TeamStrategyItem {
 		return nil
 	}
 	return &common.TeamStrategyItem{
-		StrategyId: strategy.GetID(),
-		GroupId:    strategy.GetStrategyGroupID(),
-		Name:       strategy.GetName(),
-		Remark:     strategy.GetRemark(),
-		Status:     common.GlobalStatus(strategy.GetStatus()),
-		Creator:    ToUserBaseItem(strategy.GetCreator()),
-		CreatedAt:  timex.Format(strategy.GetCreatedAt()),
-		UpdatedAt:  timex.Format(strategy.GetUpdatedAt()),
-		Team:       ToTeamBaseItem(strategy.GetTeam()),
-		Notices:    ToNoticeGroupItems(strategy.GetNotices()),
+		StrategyId:   strategy.GetID(),
+		GroupId:      strategy.GetStrategyGroupID(),
+		Name:         strategy.GetName(),
+		Remark:       strategy.GetRemark(),
+		Status:       common.GlobalStatus(strategy.GetStatus()),
+		Creator:      ToUserBaseItem(strategy.GetCreator()),
+		CreatedAt:    timex.Format(strategy.GetCreatedAt()),
+		UpdatedAt:    timex.Format(strategy.GetUpdatedAt()),
+		Team:         ToTeamBaseItem(strategy.GetTeam()),
+		Notices:      ToNoticeGroupItems(strategy.GetNotices()),
+		StrategyType: common.StrategyType(strategy.GetStrategyType().GetValue()),
+		Group:        ToTeamStrategyGroupItem(strategy.GetStrategyGroup()),
 	}
 }
 

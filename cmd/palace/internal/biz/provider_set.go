@@ -23,4 +23,5 @@ var ProviderSetBiz = wire.NewSet(
 	NewTeamStrategyGroupBiz,
 	NewTeamStrategyMetric,
 	NewLogs,
+	NewRealtime,
 )

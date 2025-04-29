@@ -160,3 +160,10 @@ func sendMessageLogNotFound(err error) error {
 	}
 	return err
 }
+
+func realtimeNotFound(err error) error {
+	if errors.Is(err, gorm.ErrRecordNotFound) {
+		return merr.ErrorNotFound("realtime not found").WithCause(err)
+	}
+	return err
+}

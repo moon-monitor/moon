@@ -54,6 +54,8 @@ message TeamStrategyItem {
   // Information about the team associated with the strategy.
   api.palace.common.TeamBaseItem team = 9;
   repeated NoticeGroupItem notices = 10;
+  api.palace.common.StrategyType strategyType = 11;
+  TeamStrategyGroupItem group = 12;
 }
 
 message TeamStrategyMetricItem {

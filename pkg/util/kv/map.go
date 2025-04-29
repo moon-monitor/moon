@@ -43,6 +43,15 @@ func (m Map[K, V]) Get(key K) (V, bool) {
 	return v, ok
 }
 
+func (m Map[K, V]) GetX(key K) V {
+	v, ok := m[key]
+	if !ok {
+		var zero V
+		return zero
+	}
+	return v
+}
+
 func (m Map[K, V]) Set(key K, value V) {
 	m[key] = value
 }

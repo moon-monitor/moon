@@ -20,6 +20,12 @@ func NewAnnotation(summary, description string) *Annotation {
 	}
 }
 
+func NewAnnotationFromMap(annotations map[string]string) *Annotation {
+	return &Annotation{
+		kvMap: annotations,
+	}
+}
+
 type Annotation struct {
 	kvMap kv.StringMap
 }
