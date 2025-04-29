@@ -3,7 +3,7 @@ syntax = "proto3";
 package api.houyi.v1;
 
 import "google/api/annotations.proto";
-import "houyi/common/event.proto";
+import "common/alert.proto";
 
 option go_package = "github.com/moon-monitor/moon/pkg/api/houyi/v1;v1";
 
@@ -18,7 +18,7 @@ service Alert {
 
 message PushAlertRequest {
   string receiver = 1;
-  common.EventStatus status = 2;
+  common.AlertStatus status = 2;
   repeated common.AlertItem alerts = 3;
   map<string, string> groupLabels = 4;
   map<string, string> commonLabels = 5;

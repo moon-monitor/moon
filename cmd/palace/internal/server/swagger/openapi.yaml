@@ -6,6 +6,24 @@ info:
     title: ""
     version: 0.0.1
 paths:
+    /api/alert/push:
+        post:
+            tags:
+                - Alert
+            operationId: Alert_PushAlert
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/api.common.AlertItem'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.palace.common.EmptyReply'
     /api/auth/captcha:
         get:
             tags:
@@ -2100,6 +2118,38 @@ paths:
                                 $ref: '#/components/schemas/api.palace.SendMsgCallbackReply'
 components:
     schemas:
+        api.common.AlertItem:
+            type: object
+            properties:
+                status:
+                    type: integer
+                    description: status of the alert
+                    format: enum
+                labels:
+                    type: object
+                    additionalProperties:
+                        type: string
+                    description: labels of the alert
+                annotations:
+                    type: object
+                    additionalProperties:
+                        type: string
+                    description: annotations of the alert
+                startsAt:
+                    type: string
+                    description: startsAt of the alert
+                endsAt:
+                    type: string
+                    description: endsAt of the alert
+                generatorURL:
+                    type: string
+                    description: generatorURL of the alert
+                fingerprint:
+                    type: string
+                    description: fingerprint of the alert
+                value:
+                    type: string
+                    description: value of the alert
         api.common.CheckReply:
             type: object
             properties:
@@ -4890,6 +4940,7 @@ components:
                     description: name service name
             description: micro server config
 tags:
+    - name: Alert
     - name: Auth
       description: Auth service provides authentication related operations
     - name: Callback

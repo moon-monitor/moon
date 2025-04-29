@@ -254,6 +254,38 @@ paths:
                                 $ref: '#/components/schemas/api.houyi.v1.SyncReply'
 components:
     schemas:
+        api.common.AlertItem:
+            type: object
+            properties:
+                status:
+                    type: integer
+                    description: status of the alert
+                    format: enum
+                labels:
+                    type: object
+                    additionalProperties:
+                        type: string
+                    description: labels of the alert
+                annotations:
+                    type: object
+                    additionalProperties:
+                        type: string
+                    description: annotations of the alert
+                startsAt:
+                    type: string
+                    description: startsAt of the alert
+                endsAt:
+                    type: string
+                    description: endsAt of the alert
+                generatorURL:
+                    type: string
+                    description: generatorURL of the alert
+                fingerprint:
+                    type: string
+                    description: fingerprint of the alert
+                value:
+                    type: string
+                    description: value of the alert
         api.common.CheckReply:
             type: object
             properties:
@@ -284,28 +316,6 @@ components:
                 isOnline:
                     type: boolean
                 uuid:
-                    type: string
-        api.houyi.common.AlertItem:
-            type: object
-            properties:
-                status:
-                    type: integer
-                    format: enum
-                labels:
-                    type: object
-                    additionalProperties:
-                        type: string
-                annotations:
-                    type: object
-                    additionalProperties:
-                        type: string
-                startsAt:
-                    type: string
-                endsAt:
-                    type: string
-                generatorURL:
-                    type: string
-                fingerprint:
                     type: string
         api.houyi.common.BasicAuth:
             type: object
@@ -1056,7 +1066,7 @@ components:
                 alerts:
                     type: array
                     items:
-                        $ref: '#/components/schemas/api.houyi.common.AlertItem'
+                        $ref: '#/components/schemas/api.common.AlertItem'
                 groupLabels:
                     type: object
                     additionalProperties:
