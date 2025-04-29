@@ -4,9 +4,12 @@ import (
 	"strings"
 	"time"
 
+	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do"
+	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do/event"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/vobj"
 	"github.com/moon-monitor/moon/pkg/merr"
 	"github.com/moon-monitor/moon/pkg/util/kv"
+	"github.com/moon-monitor/moon/pkg/util/slices"
 )
 
 type Alert struct {
@@ -52,3 +55,20 @@ type GetAlertParams struct {
 	Fingerprint string    `json:"fingerprint"`
 	StartsAt    time.Time `json:"startsAt"`
 }
+
+type ListAlertParams struct {
+	*PaginationRequest
+	TeamID      uint32       `json:"teamId"`
+	Fingerprint string       `json:"fingerprint"`
+	Keyword     string       `json:"keyword"`
+	TimeRange   [2]time.Time `json:"timeRange"`
+}
+
+func (p *ListAlertParams) ToListAlertReply(items []*event.Realtime) *ListAlertReply {
+	return &ListAlertReply{
+		PaginationReply: p.ToReply(),
+		Items:           slices.Map(items, func(item *event.Realtime) do.Realtime { return item }),
+	}
+}
+
+type ListAlertReply = ListReply[do.Realtime]

@@ -12,4 +12,5 @@ type Realtime interface {
 	GetAlert(ctx context.Context, alert *bo.GetAlertParams) (do.Realtime, error)
 	CreateAlert(ctx context.Context, alert *bo.Alert) error
 	UpdateAlert(ctx context.Context, alert *bo.Alert) error
+	ListAlerts(ctx context.Context, params *bo.ListAlertParams) (*bo.ListAlertReply, error)
 }

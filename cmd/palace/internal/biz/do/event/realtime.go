@@ -117,9 +117,7 @@ func createRealtimeTable(teamId uint32, t time.Time, tx *gorm.DB) (err error) {
 }
 
 func genRealtimeTableName(teamId uint32, t time.Time) string {
-	offset := time.Monday - t.Weekday()
-	weekStart := t.AddDate(0, 0, int(offset))
-
+	weekStart := getPreviousMonday(t)
 	return fmt.Sprintf("%s_%d_%s", tableNameRealtime, teamId, weekStart.Format("20060102"))
 }
 
@@ -129,4 +127,37 @@ func GetRealtimeTableName(teamId uint32, t time.Time, tx *gorm.DB) (string, erro
 		return tableName, createRealtimeTable(teamId, t, tx)
 	}
 	return tableName, nil
+}
+
+func GetRealtimeTableNames(teamId uint32, start, end time.Time) []string {
+	// 验证时间范围
+	if start.After(end) {
+		return nil
+	}
+
+	var tableNames []string
+
+	// 找到第一个周一（包含或早于start的周一）
+	firstMonday := getPreviousMonday(start)
+
+	// 从第一个周一开始，每周增加7天，直到超过end时间
+	for currentMonday := firstMonday; !currentMonday.After(end); currentMonday = currentMonday.AddDate(0, 0, 7) {
+		// 确保生成的表名在时间范围内（周一+6天不超过start）
+		if currentMonday.AddDate(0, 0, 6).Before(start) {
+			continue
+		}
+		tableNames = append(tableNames, genRealtimeTableName(teamId, currentMonday))
+	}
+
+	return tableNames
+}
+
+// getPreviousMonday 返回给定日期所在周的周一
+func getPreviousMonday(t time.Time) time.Time {
+	// 计算与周一的偏移量
+	offset := int(time.Monday - t.Weekday())
+	if offset > 0 { // 如果当天是周日(Weekday=0)，则 offset=1，需要减去7天
+		offset -= 7
+	}
+	return t.AddDate(0, 0, offset)
 }
