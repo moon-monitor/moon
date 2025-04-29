@@ -493,9 +493,9 @@ func (s *OperateTeamStrategyParams) Validate() error {
 
 type ListTeamStrategyParams struct {
 	*PaginationRequest
-	Keyword string
-	Status  []vobj.GlobalStatus
-	GroupId uint32
+	Keyword  string
+	Status   []vobj.GlobalStatus
+	GroupIds []uint32
 }
 
 func (l *ListTeamStrategyParams) Validate() error {

@@ -174,8 +174,8 @@ func (t *teamStrategyImpl) List(ctx context.Context, params *bo.ListTeamStrategy
 	if len(params.Status) > 0 {
 		wrappers = wrappers.Where(query.Status.In(slices.Map(params.Status, func(status vobj.GlobalStatus) int8 { return status.GetValue() })...))
 	}
-	if params.GroupId > 0 {
-		wrappers = wrappers.Where(query.StrategyGroupID.Eq(params.GroupId))
+	if len(params.GroupIds) > 0 {
+		wrappers = wrappers.Where(query.StrategyGroupID.In(params.GroupIds...))
 	}
 	if validate.IsNotNil(params.PaginationRequest) {
 		total, err := wrappers.Count()

@@ -267,7 +267,7 @@ message ListTeamStrategyRequest {
   // List of statuses to filter strategies by
   repeated api.palace.common.GlobalStatus status = 3;
   // Group id
-  uint32 groupId = 4;
+  repeated uint32 groupIds = 4;
 }
 
 message ListTeamStrategyReply {
