@@ -102,26 +102,16 @@ func (r *Realtime) TableName() string {
 
 func CreateRealtimeTable(tx *gorm.DB, t time.Time, teamId uint32) (err error) {
 	tableName := GenRealtimeTableName(t, teamId)
-	if do.HasTable != nil {
-		if do.HasTable(tableName) {
-			return
-		}
-	} else {
-		if tx.Migrator().HasTable(tableName) {
-			return
-		}
+	if do.HasTable(tx, tableName) {
+		return
 	}
-
 	r := &Realtime{
 		TeamID:   teamId,
 		StartsAt: t,
 	}
 
-	if err := tx.Table(tableName).AutoMigrate(r); err != nil {
+	if err := do.CreateTable(tx, tableName, r); err != nil {
 		return err
-	}
-	if do.SetTable != nil {
-		do.SetTable(tableName)
 	}
 	return
 }

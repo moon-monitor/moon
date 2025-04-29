@@ -218,20 +218,14 @@ func (u *TeamModel) BeforeCreate(tx *gorm.DB) (err error) {
 	return
 }
 
-var HasTable func(tableName string) bool = nil
-var SetTable func(tableName string) = nil
-
-var setHasTableFunOnce sync.Once
-var setTableFunOnce sync.Once
-
-func SetHasTableFun(f func(tableName string) bool) {
-	setHasTableFunOnce.Do(func() {
-		HasTable = f
-	})
+func HasTable(tx *gorm.DB, tableName string) bool {
+	return tx.Migrator().HasTable(tableName)
 }
 
-func SetTableFun(f func(tableName string)) {
-	setTableFunOnce.Do(func() {
-		SetTable = f
-	})
+func CreateTable(tx *gorm.DB, tableName string, model any) error {
+	if err := tx.Table(tableName).AutoMigrate(model); err != nil {
+		return err
+	}
+
+	return nil
 }
