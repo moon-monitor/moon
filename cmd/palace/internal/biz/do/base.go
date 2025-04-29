@@ -217,3 +217,21 @@ func (u *TeamModel) BeforeCreate(tx *gorm.DB) (err error) {
 	tx.WithContext(u.GetContext())
 	return
 }
+
+var HasTable func(tableName string) bool = nil
+var SetTable func(tableName string) = nil
+
+var setHasTableFunOnce sync.Once
+var setTableFunOnce sync.Once
+
+func SetHasTableFun(f func(tableName string) bool) {
+	setHasTableFunOnce.Do(func() {
+		HasTable = f
+	})
+}
+
+func SetTableFun(f func(tableName string)) {
+	setTableFunOnce.Do(func() {
+		SetTable = f
+	})
+}

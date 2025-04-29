@@ -2883,6 +2883,10 @@ components:
                         type: integer
                         format: enum
                     description: List of statuses to filter strategies by
+                groupId:
+                    type: integer
+                    description: Group id
+                    format: uint32
         api.palace.LoginByEmailRequest:
             type: object
             properties:
