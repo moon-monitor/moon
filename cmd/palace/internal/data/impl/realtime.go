@@ -35,7 +35,7 @@ func (r *realtimeImpl) getRealtimeTableName(ctx context.Context, alertStartsAt t
 	if err != nil {
 		return "", err
 	}
-	tableName, err := event.GetRealtimeTableName(eventDB.GetDB(), alertStartsAt, teamId)
+	tableName, err := event.GetRealtimeTableName(teamId, alertStartsAt, eventDB.GetDB())
 	if err != nil {
 		return "", err
 	}

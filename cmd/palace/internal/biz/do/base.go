@@ -21,6 +21,10 @@ type GetTeamFun func(id uint32) Team
 
 type GetTeamMemberFun func(id uint32) TeamMember
 
+type HasTableFun func(teamId uint32, tableName string) bool
+
+type CacheTableFlag func(teamId uint32, tableName string) error
+
 var registerGetUserFuncOnce sync.Once
 var getUser GetUserFun
 
@@ -58,6 +62,24 @@ func RegisterGetTeamMemberFunc(getTeamMemberFunc GetTeamMemberFun) {
 
 func GetTeamMember(id uint32) TeamMember {
 	return getTeamMember(id)
+}
+
+var registerHasTableFuncOnce sync.Once
+var hasTable HasTableFun = nil
+
+func RegisterHasTableFunc(hasTableFunc HasTableFun) {
+	registerHasTableFuncOnce.Do(func() {
+		hasTable = hasTableFunc
+	})
+}
+
+var registerCacheTableFlagOnce sync.Once
+var cacheTableFlag CacheTableFlag = nil
+
+func RegisterCacheTableFlag(cacheTableFlagFunc CacheTableFlag) {
+	registerCacheTableFlagOnce.Do(func() {
+		cacheTableFlag = cacheTableFlagFunc
+	})
 }
 
 type ORMModel interface {
@@ -218,14 +240,25 @@ func (u *TeamModel) BeforeCreate(tx *gorm.DB) (err error) {
 	return
 }
 
-func HasTable(tx *gorm.DB, tableName string) bool {
-	return tx.Migrator().HasTable(tableName)
+func HasTable(teamId uint32, tx *gorm.DB, tableName string) bool {
+	if hasTable == nil {
+		if !tx.Migrator().HasTable(tableName) {
+			return false
+		}
+		if cacheTableFlag != nil {
+			_ = cacheTableFlag(teamId, tableName)
+		}
+		return true
+	}
+	return hasTable(teamId, tableName)
 }
 
-func CreateTable(tx *gorm.DB, tableName string, model any) error {
+func CreateTable(teamId uint32, tx *gorm.DB, tableName string, model any) error {
 	if err := tx.Table(tableName).AutoMigrate(model); err != nil {
 		return err
 	}
-
-	return nil
+	if cacheTableFlag == nil {
+		return nil
+	}
+	return cacheTableFlag(teamId, tableName)
 }

@@ -83,43 +83,43 @@ func (s *SendMessageLog) GetTeamID() uint32 {
 }
 
 func (s *SendMessageLog) TableName() string {
-	return genSendMessageLogTableName(s.SendedAt, s.TeamID)
+	return genSendMessageLogTableName(s.TeamID, s.SendedAt)
 }
 
-func createSendMessageLogTable(tx *gorm.DB, t time.Time, teamId uint32) (err error) {
-	tableName := genSendMessageLogTableName(t, teamId)
-	if do.HasTable(tx, tableName) {
+func createSendMessageLogTable(teamId uint32, t time.Time, tx *gorm.DB) (err error) {
+	tableName := genSendMessageLogTableName(teamId, t)
+	if do.HasTable(teamId, tx, tableName) {
 		return
 	}
 	s := &SendMessageLog{
 		TeamID:   teamId,
 		SendedAt: t,
 	}
-	if err := do.CreateTable(tx, tableName, s); err != nil {
+	if err := do.CreateTable(teamId, tx, tableName, s); err != nil {
 		return err
 	}
 	return
 }
 
-func genSendMessageLogTableName(t time.Time, teamId uint32) string {
+func genSendMessageLogTableName(teamId uint32, t time.Time) string {
 	offset := time.Monday - t.Weekday()
 	weekStart := t.AddDate(0, 0, int(offset))
 
 	return fmt.Sprintf("%s_%d_%s", tableNameSendMessageLog, teamId, weekStart.Format("20060102"))
 }
 
-func GetSendMessageLogTableName(tx *gorm.DB, t time.Time, teamId uint32) (string, error) {
-	tableName := genSendMessageLogTableName(t, teamId)
-	if !do.HasTable(tx, tableName) {
-		return tableName, createSendMessageLogTable(tx, t, teamId)
+func GetSendMessageLogTableName(teamId uint32, t time.Time, tx *gorm.DB) (string, error) {
+	tableName := genSendMessageLogTableName(teamId, t)
+	if !do.HasTable(teamId, tx, tableName) {
+		return tableName, createSendMessageLogTable(teamId, t, tx)
 	}
 	return tableName, nil
 }
 
-func GetSendMessageLogTableNameByRequestID(tx *gorm.DB, t time.Time, teamId uint32) (string, error) {
-	tableName := genSendMessageLogTableName(t, teamId)
-	if !do.HasTable(tx, tableName) {
-		return tableName, createSendMessageLogTable(tx, t, teamId)
+func GetSendMessageLogTableNameByRequestID(teamId uint32, requestID string, tx *gorm.DB) (string, error) {
+	tableName := genSendMessageLogTableName(teamId, time.Now())
+	if !do.HasTable(teamId, tx, tableName) {
+		return tableName, createSendMessageLogTable(teamId, time.Now(), tx)
 	}
 	return tableName, nil
 }

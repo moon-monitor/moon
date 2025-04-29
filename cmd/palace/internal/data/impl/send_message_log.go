@@ -47,12 +47,12 @@ func (s *sendMessageLogImpl) getTeamSendMessageLogTableName(ctx context.Context,
 	if err != nil {
 		return "", err
 	}
-	return team.GetSendMessageLogTableName(bizDB.GetDB(), sendAt, teamId)
+	return team.GetSendMessageLogTableName(teamId, sendAt, bizDB.GetDB())
 }
 
 func (s *sendMessageLogImpl) getSystemSendMessageLogTableName(_ context.Context, sendAt time.Time) (string, error) {
 	tx := s.GetMainDB()
-	return system.GetSendMessageLogTableName(tx.GetDB(), sendAt)
+	return system.GetSendMessageLogTableName(sendAt, tx.GetDB())
 }
 
 func (s *sendMessageLogImpl) retryTeamSendMessageLog(ctx context.Context, params *bo.RetrySendMessageParams) error {

@@ -9,6 +9,7 @@ import (
 	"github.com/google/wire"
 
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/bo"
+	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do/system"
 	"github.com/moon-monitor/moon/cmd/palace/internal/conf"
 	"github.com/moon-monitor/moon/cmd/palace/internal/data/query/systemgen"
@@ -46,6 +47,20 @@ func New(c *conf.Bootstrap, logger log.Logger) (*Data, func(), error) {
 	if err != nil {
 		return nil, nil, err
 	}
+
+	defer func() {
+		var key cache.K = "palace:table:exists"
+		do.RegisterHasTableFunc(func(teamId uint32, tableName string) bool {
+			ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+			defer cancel()
+			return data.cache.Client().HExists(ctx, key.Key(), tableName).Val()
+		})
+		do.RegisterCacheTableFlag(func(teamId uint32, tableName string) error {
+			ctx, cancel := context.WithTimeout(context.Background(), 5*time.Second)
+			defer cancel()
+			return data.cache.Client().HSet(ctx, key.Key(), tableName, true).Err()
+		})
+	}()
 
 	return data, func() {
 		data.helper.Info("closing the data resources")

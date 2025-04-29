@@ -82,13 +82,13 @@ func (s *SendMessageLog) TableName() string {
 	return genSendMessageLogTableName(s.SendedAt)
 }
 
-func createSendMessageLogTable(tx *gorm.DB, t time.Time) (err error) {
+func createSendMessageLogTable(t time.Time, tx *gorm.DB) (err error) {
 	tableName := genSendMessageLogTableName(t)
-	if do.HasTable(tx, tableName) {
+	if do.HasTable(0, tx, tableName) {
 		return
 	}
 	s := &SendMessageLog{SendedAt: t}
-	if err := do.CreateTable(tx, tableName, s); err != nil {
+	if err := do.CreateTable(0, tx, tableName, s); err != nil {
 		return err
 	}
 	return
@@ -101,10 +101,10 @@ func genSendMessageLogTableName(t time.Time) string {
 	return fmt.Sprintf("%s_%s", tableNameSendMessageLog, weekStart.Format("20060102"))
 }
 
-func GetSendMessageLogTableName(tx *gorm.DB, t time.Time) (string, error) {
+func GetSendMessageLogTableName(t time.Time, tx *gorm.DB) (string, error) {
 	tableName := genSendMessageLogTableName(t)
-	if !do.HasTable(tx, tableName) {
-		return tableName, createSendMessageLogTable(tx, t)
+	if !do.HasTable(0, tx, tableName) {
+		return tableName, createSendMessageLogTable(t, tx)
 	}
 	return tableName, nil
 }
