@@ -129,7 +129,7 @@ func GetRealtimeTableName(teamId uint32, t time.Time, tx *gorm.DB) (string, erro
 	return tableName, nil
 }
 
-func GetRealtimeTableNames(teamId uint32, start, end time.Time) []string {
+func GetRealtimeTableNames(teamId uint32, start, end time.Time, tx *gorm.DB) []string {
 	// 验证时间范围
 	if start.After(end) {
 		return nil
@@ -146,7 +146,9 @@ func GetRealtimeTableNames(teamId uint32, start, end time.Time) []string {
 		if currentMonday.AddDate(0, 0, 6).Before(start) {
 			continue
 		}
-		tableNames = append(tableNames, genRealtimeTableName(teamId, currentMonday))
+		if do.HasTable(teamId, tx, genRealtimeTableName(teamId, currentMonday)) {
+			tableNames = append(tableNames, genRealtimeTableName(teamId, currentMonday))
+		}
 	}
 
 	return tableNames

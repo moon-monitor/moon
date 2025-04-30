@@ -242,6 +242,9 @@ func (u *TeamModel) BeforeCreate(tx *gorm.DB) (err error) {
 
 func HasTable(teamId uint32, tx *gorm.DB, tableName string) bool {
 	if hasTable == nil {
+		if tx == nil {
+			return false
+		}
 		if !tx.Migrator().HasTable(tableName) {
 			return false
 		}

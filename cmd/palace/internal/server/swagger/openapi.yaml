@@ -6,6 +6,24 @@ info:
     title: ""
     version: 0.0.1
 paths:
+    /api/alert/list:
+        post:
+            tags:
+                - Alert
+            operationId: Alert_ListAlerts
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/api.palace.ListAlertParams'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.palace.ListAlertReply'
     /api/alert/push:
         post:
             tags:
@@ -2653,6 +2671,31 @@ components:
                     type: string
                     description: Reason for leaving the team
             description: LeaveTeamRequest represents the request data for leaving a team
+        api.palace.ListAlertParams:
+            type: object
+            properties:
+                pagination:
+                    $ref: '#/components/schemas/api.palace.common.PaginationRequest'
+                timeRange:
+                    type: array
+                    items:
+                        type: string
+                fingerprint:
+                    type: string
+                keyword:
+                    type: string
+                status:
+                    type: integer
+                    format: enum
+        api.palace.ListAlertReply:
+            type: object
+            properties:
+                pagination:
+                    $ref: '#/components/schemas/api.palace.common.PaginationReply'
+                items:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/api.palace.RealtimeAlertItem'
         api.palace.ListResourceReply:
             type: object
             properties:
@@ -3041,6 +3084,33 @@ components:
             type: object
             properties:
                 requestId:
+                    type: string
+        api.palace.RealtimeAlertItem:
+            type: object
+            properties:
+                id:
+                    type: integer
+                    format: uint32
+                status:
+                    type: integer
+                    format: enum
+                fingerprint:
+                    type: string
+                labels:
+                    type: object
+                    additionalProperties:
+                        type: string
+                summary:
+                    type: string
+                description:
+                    type: string
+                value:
+                    type: string
+                generatorURL:
+                    type: string
+                startsAt:
+                    type: string
+                endsAt:
                     type: string
         api.palace.RemoveMemberRequest:
             type: object

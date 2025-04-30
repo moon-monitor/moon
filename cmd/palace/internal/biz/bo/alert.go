@@ -58,10 +58,11 @@ type GetAlertParams struct {
 
 type ListAlertParams struct {
 	*PaginationRequest
-	TeamID      uint32       `json:"teamId"`
-	Fingerprint string       `json:"fingerprint"`
-	Keyword     string       `json:"keyword"`
-	TimeRange   [2]time.Time `json:"timeRange"`
+	TeamID      uint32           `json:"teamId"`
+	Fingerprint string           `json:"fingerprint"`
+	Keyword     string           `json:"keyword"`
+	TimeRange   []time.Time      `json:"timeRange"`
+	Status      vobj.AlertStatus `json:"status"`
 }
 
 func (p *ListAlertParams) ToListAlertReply(items []*event.Realtime) *ListAlertReply {

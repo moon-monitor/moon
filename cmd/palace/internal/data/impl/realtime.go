@@ -2,10 +2,13 @@ package impl
 
 import (
 	"context"
+	"fmt"
+	"strings"
 	"time"
 
 	"gorm.io/gen"
 	"gorm.io/gen/field"
+	"gorm.io/gorm"
 
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/bo"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do"
@@ -14,6 +17,7 @@ import (
 	"github.com/moon-monitor/moon/cmd/palace/internal/data"
 	"github.com/moon-monitor/moon/cmd/palace/internal/helper/permission"
 	"github.com/moon-monitor/moon/pkg/merr"
+	"github.com/moon-monitor/moon/pkg/util/validate"
 )
 
 func NewRealtime(data *data.Data) repository.Realtime {
@@ -153,4 +157,53 @@ func (r *realtimeImpl) UpdateAlert(ctx context.Context, alert *bo.Alert) error {
 		return err
 	}
 	return nil
+}
+
+// ListAlerts implements repository.Realtime.
+func (r *realtimeImpl) ListAlerts(ctx context.Context, params *bo.ListAlertParams) (*bo.ListAlertReply, error) {
+	bizDB, err := r.GetBizDB(params.TeamID)
+	if err != nil {
+		return nil, err
+	}
+	tableNames := event.GetRealtimeTableNames(params.TeamID, params.TimeRange[0], params.TimeRange[1], bizDB.GetDB())
+
+	tables := make([]any, 0, len(tableNames))
+	unionAllSQL := make([]string, 0, len(tableNames))
+	for _, tableName := range tableNames {
+		tables = append(tables, r.buildWrapper(bizDB.GetDB().Table(tableName), params))
+		unionAllSQL = append(unionAllSQL, "?")
+	}
+
+	queryDB := bizDB.GetDB().Table(fmt.Sprintf("(%s) as combined_results", strings.Join(unionAllSQL, " UNION ALL ")), tables...)
+	var realtimeDo []*event.Realtime
+	queryDB = r.buildWrapper(queryDB, params)
+	if validate.IsNotNil(params.PaginationRequest) {
+		var total int64
+		if err = queryDB.WithContext(ctx).Count(&total).Error; err != nil {
+			return nil, err
+		}
+		params.WithTotal(total)
+		queryDB = queryDB.Limit(int(params.Limit)).Offset(params.Offset())
+	}
+	err = queryDB.WithContext(ctx).Order("created_at DESC").Find(&realtimeDo).Error
+	if err != nil {
+		return nil, err
+	}
+	return params.ToListAlertReply(realtimeDo), nil
+}
+
+func (r *realtimeImpl) buildWrapper(bizDB *gorm.DB, params *bo.ListAlertParams) *gorm.DB {
+	if params.Keyword != "" {
+		bizDB = bizDB.Where("summary LIKE ? or description LIKE ?", params.Keyword, params.Keyword)
+	}
+	if params.Fingerprint != "" {
+		bizDB = bizDB.Where("fingerprint = ?", params.Fingerprint)
+	}
+	if !params.Status.IsUnknown() {
+		bizDB = bizDB.Where("status = ?", params.Status.GetValue())
+	}
+	bizDB = bizDB.Where("team_id = ?", params.TeamID)
+	bizDB = bizDB.Where("starts_at >= ?", params.TimeRange[0])
+	bizDB = bizDB.Where("starts_at <= ?", params.TimeRange[1])
+	return bizDB
 }

@@ -66,7 +66,7 @@ func TestGetRealtimeTableNames(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			result := GetRealtimeTableNames(tt.teamID, tt.start, tt.end)
+			result := GetRealtimeTableNames(tt.teamID, tt.start, tt.end, nil)
 			assert.Equal(t, tt.expected, result)
 		})
 	}

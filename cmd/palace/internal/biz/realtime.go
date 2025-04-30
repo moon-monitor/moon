@@ -5,6 +5,7 @@ import (
 
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/bo"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/repository"
+	"github.com/moon-monitor/moon/pkg/merr"
 )
 
 func NewRealtime(realtimeRepo repository.Realtime) *Realtime {
@@ -34,4 +35,11 @@ func (r *Realtime) SaveAlert(ctx context.Context, alert *bo.Alert) error {
 		return r.realtimeRepo.UpdateAlert(ctx, alert)
 	}
 	return r.realtimeRepo.CreateAlert(ctx, alert)
+}
+
+func (r *Realtime) ListAlerts(ctx context.Context, params *bo.ListAlertParams) (*bo.ListAlertReply, error) {
+	if len(params.TimeRange) != 2 {
+		return nil, merr.ErrorInvalidArgument("time range must be 2")
+	}
+	return r.realtimeRepo.ListAlerts(ctx, params)
 }
