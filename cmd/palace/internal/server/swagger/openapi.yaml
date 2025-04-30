@@ -2921,17 +2921,21 @@ components:
                     type: string
                     description: Keyword to search strategies by
                 status:
-                    type: array
-                    items:
-                        type: integer
-                        format: enum
+                    type: integer
                     description: List of statuses to filter strategies by
+                    format: enum
                 groupIds:
                     type: array
                     items:
                         type: integer
                         format: uint32
                     description: Group id
+                strategyTypes:
+                    type: array
+                    items:
+                        type: integer
+                        format: enum
+                    description: Strategy type
         api.palace.LoginByEmailRequest:
             type: object
             properties:

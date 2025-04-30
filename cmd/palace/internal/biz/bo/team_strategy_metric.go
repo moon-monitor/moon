@@ -493,20 +493,22 @@ func (s *OperateTeamStrategyParams) Validate() error {
 
 type ListTeamStrategyParams struct {
 	*PaginationRequest
-	Keyword  string
-	Status   []vobj.GlobalStatus
-	GroupIds []uint32
+	Keyword       string
+	Status        vobj.GlobalStatus
+	GroupIds      []uint32
+	StrategyTypes []vobj.StrategyType
 }
 
 func (l *ListTeamStrategyParams) Validate() error {
 	if l.Keyword != "" && utf8.RuneCountInString(l.Keyword) > 20 {
 		return merr.ErrorParamsError("keyword is too long")
 	}
-	if len(l.Status) > 0 {
-		for _, status := range l.Status {
-			if !status.Exist() {
-				return merr.ErrorParamsError("status is invalid")
-			}
+	if !l.Status.Exist() || l.Status.IsUnknown() {
+		return merr.ErrorParamsError("status is invalid")
+	}
+	for _, strategyType := range l.StrategyTypes {
+		if !strategyType.Exist() || strategyType.IsUnknown() {
+			return merr.ErrorParamsError("strategy type is invalid")
 		}
 	}
 	return nil

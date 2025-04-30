@@ -265,9 +265,11 @@ message ListTeamStrategyRequest {
   // Keyword to search strategies by
   string keyword = 2 [(buf.validate.field).string.max_len = 20];
   // List of statuses to filter strategies by
-  repeated api.palace.common.GlobalStatus status = 3;
+  api.palace.common.GlobalStatus status = 3;
   // Group id
   repeated uint32 groupIds = 4;
+  // Strategy type
+  repeated api.palace.common.StrategyType strategyTypes = 5;
 }
 
 message ListTeamStrategyReply {

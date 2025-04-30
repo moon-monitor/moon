@@ -106,8 +106,9 @@ func ToListTeamStrategyParams(request *palace.ListTeamStrategyRequest) *bo.ListT
 	return &bo.ListTeamStrategyParams{
 		PaginationRequest: ToPaginationRequest(request.GetPagination()),
 		Keyword:           request.GetKeyword(),
-		Status:            slices.Map(request.GetStatus(), func(status common.GlobalStatus) vobj.GlobalStatus { return vobj.GlobalStatus(status) }),
+		Status:            vobj.GlobalStatus(request.GetStatus()),
 		GroupIds:          request.GetGroupIds(),
+		StrategyTypes:     slices.Map(request.GetStrategyTypes(), func(strategyType common.StrategyType) vobj.StrategyType { return vobj.StrategyType(strategyType) }),
 	}
 }
 
