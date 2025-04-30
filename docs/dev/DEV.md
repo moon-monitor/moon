@@ -17,6 +17,28 @@ project.
 
 # Environment Setup
 
+## Windows Make Environment
+
+1. **Download w64devkit**  
+   Visit releases page: [https://github.com/skeeto/w64devkit/releases](https://github.com/skeeto/w64devkit/releases)  
+   Download latest `w64devkit-*.zip` (e.g. `w64devkit-1.20.0.zip`).
+
+2. **Extract to Local Directory**  
+   Extract ZIP file to custom directory (e.g. `C:\w64devkit`).
+
+3. **Configure Environment Variables**  
+   Add w64devkit's `bin` directory to system PATH:
+
+- Right-click **This PC** → **Properties** → **Advanced system settings** → **Environment Variables**
+- Under **System variables**, edit `Path` → Add path (e.g. `C:\w64devkit\bin`)
+
+4. **Verify Installation**  
+   Open Command Prompt and run:
+
+```bash
+bash make --version # Should output "GNU Make 4.x"
+```
+
 ## 1. protoc Installation
 
 ### MacOS
@@ -30,23 +52,32 @@ protoc --version
 
 ### Windows
 
-**Command Line Installation**
+1. **Download protoc Compiler**  
+   Visit the official releases
+   page: [https://github.com/protocolbuffers/protobuf/releases](https://github.com/protocolbuffers/protobuf/releases)  
+   Find and download the latest `protoc-x.x.x-win64.zip` (e.g. `protoc-25.1-win64.zip`).
 
-Open Command Prompt or PowerShell.
+2. **Extract and Configure Path**  
+   Extract the ZIP file to a custom directory (e.g. `C:\protoc`).  
+   Add the `protoc.exe` path to system environment variables:
+
+- Right-click **This PC** → **Properties** → **Advanced system settings** → **Environment Variables**
+- Under **System variables**, select `Path` → **Edit** → Add the extraction directory path (e.g. `C:\protoc\bin`)
+
+3. **Verify Installation**  
+   Open Command Prompt and run:
 
 ```bash
-# Install
-choco install protoc
-# Verify
-protoc --version
+   protoc --version # Should output similar to "libprotoc 25.1"
 ```
 
-**Manual Installation**
+Key improvements:
 
-Download the precompiled binary for Windows:
-[protobuf releases](https://github.com/protocolbuffers/protobuf/releases)
-
-Extract and add protoc.exe to your system's PATH environment variable.
+1. Added clear section headers with **bold** formatting
+2. Used proper technical terms ("extract" instead of "unzip")
+3. Standardized path formatting (`C:\protoc\bin`)
+4. Streamlined environment variable configuration steps
+5. Maintained consistent command/comment formatting
 
 ### Linux
 

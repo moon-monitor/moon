@@ -16,6 +16,35 @@
 
 # 环境篇
 
+## Window make 环境
+1. 下载 w64devkit
+   访问官方发布页：https://github.com/skeeto/w64devkit/releases
+   下载最新版本的 w64devkit-*.zip（例如 w64devkit-1.20.0.zip）。
+2. 解压到本地目录
+   将 ZIP 文件解压到自定义目录（例如 C:\w64devkit）。
+3. 配置环境变量
+   将 w64devkit 的 bin 目录添加到系统环境变量：
+   右键 此电脑 → 属性 → 高级系统设置 → 环境变量。
+   在 系统变量 中找到 Path → 点击 编辑 → 添加路径：C:\w64devkit\bin（根据实际解压路径调整）。
+4. 验证安装
+   打开命令提示符，运行：
+```bash
+make --version # 应输出类似 "GNU Make 4.4"
+```
+### 附加说明（优化版）
+
+**推荐使用 w64devkit 的原因：**
+1. **原生编译支持**：w64devkit 提供完整的 Windows 原生 GNU 工具链（含 `make`、`gcc` 等），能直接适配 Makefile 的编译需求。
+2. **环境一致性**：集成 MinGW-w64 工具链，避免因环境差异导致的编译问题。
+3. **工具链完整性**：内置编译调试工具，无需额外安装其他依赖。
+
+**其他方案的潜在问题：**
+- 使用 Chocolatey 等包管理器安装的 `make` 可能存在：
+    - **路径冲突**：与 Windows 原生工具链不兼容
+    - **依赖缺失**：缺少必要的 C/C++ 编译环境
+    - **版本适配问题**：工具链版本与项目要求不匹配
+
+
 ## 1. protoc 安装
 
 ### MacOS
@@ -29,23 +58,22 @@ protoc --version
 
 ### Windows
 
-**命令行安装**
+1. 下载 protoc 编译器
+   访问官方发布页：https://github.com/protocolbuffers/protobuf/releases
+   找到 protoc-x.x.x-win64.zip（例如 protoc-25.1-win64.zip），下载最新版本。
 
-打开命令提示符或 PowerShell。
+2. 解压并配置路径
+   解压下载的 ZIP 文件到自定义目录（例如 C:\protoc）。
+   将 protoc.exe 的路径添加到系统环境变量：
+   右键 此电脑 → 属性 → 高级系统设置 → 环境变量。
+   在 系统变量 中找到 Path → 点击 编辑 → 添加解压目录的路径（例如 C:\protoc\bin）。
+
+3. 验证安装
+   打开命令提示符，运行：
 
 ```bash
-# 安装
-choco install protoc
-# 验证
-protoc --version
+protoc --version  # 应输出类似 "libprotoc 25.1"
 ```
-
-**手动安装**
-
-下载适用于 Windows 的预编译二进制文件：
-[protobuf releases](https://github.com/protocolbuffers/protobuf/releases)
-
-解压并将 protoc.exe 添加到系统环境变量 PATH 中。
 
 ### Linux
 
