@@ -503,11 +503,11 @@ func (l *ListTeamStrategyParams) Validate() error {
 	if l.Keyword != "" && utf8.RuneCountInString(l.Keyword) > 20 {
 		return merr.ErrorParamsError("keyword is too long")
 	}
-	if !l.Status.Exist() || l.Status.IsUnknown() {
+	if !l.Status.Exist() {
 		return merr.ErrorParamsError("status is invalid")
 	}
 	for _, strategyType := range l.StrategyTypes {
-		if !strategyType.Exist() || strategyType.IsUnknown() {
+		if !strategyType.Exist() {
 			return merr.ErrorParamsError("strategy type is invalid")
 		}
 	}
