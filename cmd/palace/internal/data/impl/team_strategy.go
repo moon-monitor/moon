@@ -151,7 +151,7 @@ func (t *teamStrategyImpl) List(ctx context.Context, params *bo.ListTeamStrategy
 	query := tx.Strategy
 	wrappers := query.WithContext(ctx).Where(query.TeamID.Eq(teamId))
 	if validate.TextIsNotNull(params.Keyword) {
-		wrappers = wrappers.Where(query.Name.Like("%" + params.Keyword + "%"))
+		wrappers = wrappers.Where(query.Name.Like(params.Keyword))
 	}
 	if !params.Status.IsUnknown() {
 		wrappers = wrappers.Where(query.Status.Eq(params.Status.GetValue()))
