@@ -3471,6 +3471,12 @@ components:
                     type: integer
                     description: Id
                     format: uint32
+                alarmPages:
+                    type: array
+                    items:
+                        type: integer
+                        format: uint32
+                    description: alarm pages
         api.palace.SaveTeamMetricStrategyLevelsReply:
             type: object
             properties:

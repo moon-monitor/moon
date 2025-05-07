@@ -66,6 +66,7 @@ func ToSaveTeamMetricStrategyLevelParams(request *palace.SaveTeamMetricStrategyL
 		LabelNotices:   slices.Map(request.GetLabelNotices(), ToLabelNoticeParams),
 		Duration:       request.GetDuration().AsDuration(),
 		Status:         vobj.GlobalStatus(request.GetStatus()),
+		AlarmPages:     request.GetAlarmPages(),
 	}
 }
 
