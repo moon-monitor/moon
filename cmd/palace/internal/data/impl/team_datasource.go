@@ -45,18 +45,12 @@ func (t *teamMetricDatasourceImpl) Create(ctx context.Context, req *bo.SaveTeamM
 		Extra:          req.Extra,
 	}
 	metricDatasourceDo.WithContext(ctx)
-	bizMutation, _, err := getTeamBizQuery(ctx, t)
-	if err != nil {
-		return err
-	}
+	bizMutation := getTeamBizQuery(ctx, t)
 	return bizMutation.DatasourceMetric.WithContext(ctx).Create(metricDatasourceDo)
 }
 
 func (t *teamMetricDatasourceImpl) Update(ctx context.Context, req *bo.SaveTeamMetricDatasource) error {
-	bizMutation, teamId, err := getTeamBizQuery(ctx, t)
-	if err != nil {
-		return err
-	}
+	bizMutation, teamId := getTeamBizQueryWithTeamID(ctx, t)
 	mutation := bizMutation.DatasourceMetric
 	wrapper := []gen.Condition{
 		mutation.TeamID.Eq(teamId),
@@ -82,43 +76,34 @@ func (t *teamMetricDatasourceImpl) Update(ctx context.Context, req *bo.SaveTeamM
 	if validate.IsNotNil(req.BasicAuth) {
 		mutations = append(mutations, mutation.BasicAuth.Value(crypto.NewObject(req.BasicAuth)))
 	}
-	_, err = mutation.WithContext(ctx).Where(wrapper...).UpdateSimple(mutations...)
+	_, err := mutation.WithContext(ctx).Where(wrapper...).UpdateSimple(mutations...)
 	return err
 }
 
 func (t *teamMetricDatasourceImpl) UpdateStatus(ctx context.Context, req *bo.UpdateTeamMetricDatasourceStatusRequest) error {
-	bizMutation, teamId, err := getTeamBizQuery(ctx, t)
-	if err != nil {
-		return err
-	}
+	bizMutation, teamId := getTeamBizQueryWithTeamID(ctx, t)
 	mutation := bizMutation.DatasourceMetric
 	wrapper := []gen.Condition{
 		mutation.TeamID.Eq(teamId),
 		mutation.ID.Eq(req.DatasourceID),
 	}
-	_, err = mutation.WithContext(ctx).Where(wrapper...).UpdateSimple(mutation.Status.Value(req.Status.GetValue()))
+	_, err := mutation.WithContext(ctx).Where(wrapper...).UpdateSimple(mutation.Status.Value(req.Status.GetValue()))
 	return err
 }
 
 func (t *teamMetricDatasourceImpl) Delete(ctx context.Context, datasourceID uint32) error {
-	bizMutation, teamId, err := getTeamBizQuery(ctx, t)
-	if err != nil {
-		return err
-	}
+	bizMutation, teamId := getTeamBizQueryWithTeamID(ctx, t)
 	mutation := bizMutation.DatasourceMetric
 	wrapper := []gen.Condition{
 		mutation.TeamID.Eq(teamId),
 		mutation.ID.Eq(datasourceID),
 	}
-	_, err = mutation.WithContext(ctx).Where(wrapper...).Delete()
+	_, err := mutation.WithContext(ctx).Where(wrapper...).Delete()
 	return err
 }
 
 func (t *teamMetricDatasourceImpl) Get(ctx context.Context, datasourceID uint32) (do.DatasourceMetric, error) {
-	bizQuery, teamId, err := getTeamBizQuery(ctx, t)
-	if err != nil {
-		return nil, err
-	}
+	bizQuery, teamId := getTeamBizQueryWithTeamID(ctx, t)
 	mutation := bizQuery.DatasourceMetric
 	wrapper := []gen.Condition{
 		mutation.TeamID.Eq(teamId),
@@ -132,10 +117,7 @@ func (t *teamMetricDatasourceImpl) Get(ctx context.Context, datasourceID uint32)
 }
 
 func (t *teamMetricDatasourceImpl) List(ctx context.Context, req *bo.ListTeamMetricDatasource) (*bo.ListTeamMetricDatasourceReply, error) {
-	bizQuery, teamId, err := getTeamBizQuery(ctx, t)
-	if err != nil {
-		return nil, err
-	}
+	bizQuery, teamId := getTeamBizQueryWithTeamID(ctx, t)
 	mutation := bizQuery.DatasourceMetric
 	wrapper := mutation.WithContext(ctx).Where(mutation.TeamID.Eq(teamId))
 
@@ -169,10 +151,7 @@ func (t *teamMetricDatasourceImpl) FindByIds(ctx context.Context, datasourceIds 
 	if len(datasourceIds) == 0 {
 		return nil, nil
 	}
-	bizQuery, teamId, err := getTeamBizQuery(ctx, t)
-	if err != nil {
-		return nil, err
-	}
+	bizQuery, teamId := getTeamBizQueryWithTeamID(ctx, t)
 	mutation := bizQuery.DatasourceMetric
 	wrapper := mutation.WithContext(ctx).Where(mutation.TeamID.Eq(teamId), mutation.ID.In(datasourceIds...))
 	rows, err := wrapper.Find()

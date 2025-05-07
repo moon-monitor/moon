@@ -29,16 +29,13 @@ type dashboardChartImpl struct {
 }
 
 func (r *dashboardChartImpl) DeleteDashboardChartByDashboardID(ctx context.Context, dashboardID uint32) error {
-	tx, teamID, err := getTeamBizQuery(ctx, r)
-	if err != nil {
-		return err
-	}
+	tx, teamID := getTeamBizQueryWithTeamID(ctx, r)
 	mutation := tx.DashboardChart
 	wrapper := []gen.Condition{
 		mutation.TeamID.Eq(teamID),
 		mutation.DashboardID.Eq(dashboardID),
 	}
-	_, err = mutation.WithContext(ctx).Where(wrapper...).Delete()
+	_, err := mutation.WithContext(ctx).Where(wrapper...).Delete()
 	return err
 }
 
@@ -53,18 +50,12 @@ func (r *dashboardChartImpl) CreateDashboardChart(ctx context.Context, chart bo.
 		Height:      chart.GetHeight(),
 	}
 	dashboardChartDo.WithContext(ctx)
-	tx, _, err := getTeamBizQuery(ctx, r)
-	if err != nil {
-		return err
-	}
+	tx := getTeamBizQuery(ctx, r)
 	return tx.DashboardChart.WithContext(ctx).Create(dashboardChartDo)
 }
 
 func (r *dashboardChartImpl) UpdateDashboardChart(ctx context.Context, chart bo.DashboardChart) error {
-	tx, teamID, err := getTeamBizQuery(ctx, r)
-	if err != nil {
-		return err
-	}
+	tx, teamID := getTeamBizQueryWithTeamID(ctx, r)
 	mutation := tx.DashboardChart
 	wrapper := []gen.Condition{
 		mutation.TeamID.Eq(teamID),
@@ -78,32 +69,26 @@ func (r *dashboardChartImpl) UpdateDashboardChart(ctx context.Context, chart bo.
 		mutation.Width.Value(chart.GetWidth()),
 		mutation.Height.Value(chart.GetHeight()),
 	}
-	_, err = mutation.WithContext(ctx).Where(wrapper...).UpdateColumnSimple(updates...)
+	_, err := mutation.WithContext(ctx).Where(wrapper...).UpdateColumnSimple(updates...)
 	return err
 }
 
 // DeleteDashboardChart delete dashboard chart by id
 func (r *dashboardChartImpl) DeleteDashboardChart(ctx context.Context, req *bo.OperateOneDashboardChartReq) error {
-	tx, teamID, err := getTeamBizQuery(ctx, r)
-	if err != nil {
-		return err
-	}
+	tx, teamID := getTeamBizQueryWithTeamID(ctx, r)
 	mutation := tx.DashboardChart
 	wrapper := []gen.Condition{
 		mutation.TeamID.Eq(teamID),
 		mutation.ID.Eq(req.ID),
 		mutation.DashboardID.Eq(req.DashboardID),
 	}
-	_, err = mutation.WithContext(ctx).Where(wrapper...).Delete()
+	_, err := mutation.WithContext(ctx).Where(wrapper...).Delete()
 	return err
 }
 
 // GetDashboardChart get dashboard chart by id
 func (r *dashboardChartImpl) GetDashboardChart(ctx context.Context, req *bo.OperateOneDashboardChartReq) (do.DashboardChart, error) {
-	tx, teamID, err := getTeamBizQuery(ctx, r)
-	if err != nil {
-		return nil, err
-	}
+	tx, teamID := getTeamBizQueryWithTeamID(ctx, r)
 	mutation := tx.DashboardChart
 	wrapper := []gen.Condition{
 		mutation.TeamID.Eq(teamID),
@@ -119,10 +104,7 @@ func (r *dashboardChartImpl) GetDashboardChart(ctx context.Context, req *bo.Oper
 
 // ListDashboardCharts list dashboard charts with filter
 func (r *dashboardChartImpl) ListDashboardCharts(ctx context.Context, req *bo.ListDashboardChartReq) (*bo.ListDashboardChartReply, error) {
-	tx, teamID, err := getTeamBizQuery(ctx, r)
-	if err != nil {
-		return nil, err
-	}
+	tx, teamID := getTeamBizQueryWithTeamID(ctx, r)
 	mutation := tx.DashboardChart
 	query := mutation.WithContext(ctx).Where(mutation.TeamID.Eq(teamID), mutation.DashboardID.Eq(req.DashboardID))
 
@@ -148,15 +130,12 @@ func (r *dashboardChartImpl) ListDashboardCharts(ctx context.Context, req *bo.Li
 
 // BatchUpdateDashboardChartStatus update multiple dashboard charts status
 func (r *dashboardChartImpl) BatchUpdateDashboardChartStatus(ctx context.Context, req *bo.BatchUpdateDashboardChartStatusReq) error {
-	tx, teamID, err := getTeamBizQuery(ctx, r)
-	if err != nil {
-		return err
-	}
+	tx, teamID := getTeamBizQueryWithTeamID(ctx, r)
 	mutation := tx.DashboardChart
 	wrapper := []gen.Condition{
 		mutation.TeamID.Eq(teamID),
 		mutation.ID.In(req.Ids...),
 	}
-	_, err = mutation.WithContext(ctx).Where(wrapper...).UpdateColumnSimple(mutation.Status.Value(req.Status.GetValue()))
+	_, err := mutation.WithContext(ctx).Where(wrapper...).UpdateColumnSimple(mutation.Status.Value(req.Status.GetValue()))
 	return err
 }

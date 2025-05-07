@@ -26,10 +26,7 @@ type teamConfigSMSImpl struct {
 }
 
 func (t *teamConfigSMSImpl) List(ctx context.Context, req *bo.ListSMSConfigRequest) (*bo.ListSMSConfigListReply, error) {
-	bizQuery, teamID, err := getTeamBizQuery(ctx, t)
-	if err != nil {
-		return nil, err
-	}
+	bizQuery, teamID := getTeamBizQueryWithTeamID(ctx, t)
 	bizSMSConfigQuery := bizQuery.SmsConfig
 	wrapper := bizSMSConfigQuery.WithContext(ctx).Where(bizSMSConfigQuery.TeamID.Eq(teamID))
 
@@ -69,19 +66,13 @@ func (t *teamConfigSMSImpl) Create(ctx context.Context, config bo.TeamSMSConfig)
 		Sms:       crypto.NewObject(config.GetSMSConfig()),
 	}
 	smsConfigDo.WithContext(ctx)
-	bizQuery, _, err := getTeamBizQuery(ctx, t)
-	if err != nil {
-		return err
-	}
+	bizQuery := getTeamBizQuery(ctx, t)
 	bizSMSConfigQuery := bizQuery.SmsConfig
 	return bizSMSConfigQuery.WithContext(ctx).Create(smsConfigDo)
 }
 
 func (t *teamConfigSMSImpl) Update(ctx context.Context, config bo.TeamSMSConfig) error {
-	bizQuery, teamID, err := getTeamBizQuery(ctx, t)
-	if err != nil {
-		return err
-	}
+	bizQuery, teamID := getTeamBizQueryWithTeamID(ctx, t)
 	bizSMSConfigQuery := bizQuery.SmsConfig
 	wrappers := []gen.Condition{
 		bizSMSConfigQuery.TeamID.Eq(teamID),
@@ -94,15 +85,12 @@ func (t *teamConfigSMSImpl) Update(ctx context.Context, config bo.TeamSMSConfig)
 		bizSMSConfigQuery.Provider.Value(config.GetProviderType().GetValue()),
 		bizSMSConfigQuery.Sms.Value(crypto.NewObject(config.GetSMSConfig())),
 	}
-	_, err = bizSMSConfigQuery.WithContext(ctx).Where(wrappers...).UpdateColumnSimple(mutations...)
+	_, err := bizSMSConfigQuery.WithContext(ctx).Where(wrappers...).UpdateColumnSimple(mutations...)
 	return err
 }
 
 func (t *teamConfigSMSImpl) Get(ctx context.Context, id uint32) (do.TeamSMSConfig, error) {
-	bizQuery, teamID, err := getTeamBizQuery(ctx, t)
-	if err != nil {
-		return nil, err
-	}
+	bizQuery, teamID := getTeamBizQueryWithTeamID(ctx, t)
 	bizSMSConfigQuery := bizQuery.SmsConfig
 	wrapper := []gen.Condition{
 		bizSMSConfigQuery.TeamID.Eq(teamID),

@@ -34,10 +34,7 @@ func (t *teamHookImpl) Find(ctx context.Context, ids []uint32) ([]do.NoticeHook,
 	if len(ids) == 0 {
 		return nil, nil
 	}
-	bizQuery, teamId, err := getTeamBizQuery(ctx, t)
-	if err != nil {
-		return nil, err
-	}
+	bizQuery, teamId := getTeamBizQueryWithTeamID(ctx, t)
 
 	hookQuery := bizQuery.NoticeHook
 	wrapper := []gen.Condition{
@@ -64,19 +61,13 @@ func (t *teamHookImpl) Create(ctx context.Context, hook bo.NoticeHook) error {
 	}
 	noticeHook.WithContext(ctx)
 
-	query, _, err := getTeamBizQuery(ctx, t)
-	if err != nil {
-		return err
-	}
+	query := getTeamBizQuery(ctx, t)
 
 	return query.NoticeHook.WithContext(ctx).Create(noticeHook)
 }
 
 func (t *teamHookImpl) Update(ctx context.Context, hook bo.NoticeHook) error {
-	query, teamID, err := getTeamBizQuery(ctx, t)
-	if err != nil {
-		return err
-	}
+	query, teamID := getTeamBizQueryWithTeamID(ctx, t)
 	wrapper := []gen.Condition{
 		query.NoticeHook.ID.Eq(hook.GetID()),
 		query.NoticeHook.TeamID.Eq(teamID),
@@ -98,15 +89,12 @@ func (t *teamHookImpl) Update(ctx context.Context, hook bo.NoticeHook) error {
 		mutations = append(mutations, hookQuery.URL.Value(crypto.String(hook.GetURL())))
 	}
 
-	_, err = hookQuery.WithContext(ctx).Where(wrapper...).UpdateSimple(mutations...)
+	_, err := hookQuery.WithContext(ctx).Where(wrapper...).UpdateSimple(mutations...)
 	return err
 }
 
 func (t *teamHookImpl) UpdateStatus(ctx context.Context, req *bo.UpdateTeamNoticeHookStatusRequest) error {
-	query, teamID, err := getTeamBizQuery(ctx, t)
-	if err != nil {
-		return err
-	}
+	query, teamID := getTeamBizQueryWithTeamID(ctx, t)
 
 	wrapper := []gen.Condition{
 		query.NoticeHook.ID.Eq(req.HookID),
@@ -114,17 +102,14 @@ func (t *teamHookImpl) UpdateStatus(ctx context.Context, req *bo.UpdateTeamNotic
 	}
 
 	hookQuery := query.NoticeHook
-	_, err = hookQuery.WithContext(ctx).
+	_, err := hookQuery.WithContext(ctx).
 		Where(wrapper...).
 		UpdateSimple(hookQuery.Status.Value(req.Status.GetValue()))
 	return err
 }
 
 func (t *teamHookImpl) Delete(ctx context.Context, hookID uint32) error {
-	query, teamID, err := getTeamBizQuery(ctx, t)
-	if err != nil {
-		return err
-	}
+	query, teamID := getTeamBizQueryWithTeamID(ctx, t)
 
 	wrapper := []gen.Condition{
 		query.NoticeHook.ID.Eq(hookID),
@@ -132,15 +117,12 @@ func (t *teamHookImpl) Delete(ctx context.Context, hookID uint32) error {
 	}
 
 	hookQuery := query.NoticeHook
-	_, err = hookQuery.WithContext(ctx).Where(wrapper...).Delete()
+	_, err := hookQuery.WithContext(ctx).Where(wrapper...).Delete()
 	return err
 }
 
 func (t *teamHookImpl) Get(ctx context.Context, hookID uint32) (do.NoticeHook, error) {
-	query, teamID, err := getTeamBizQuery(ctx, t)
-	if err != nil {
-		return nil, err
-	}
+	query, teamID := getTeamBizQueryWithTeamID(ctx, t)
 
 	hookQuery := query.NoticeHook
 	wrapper := []gen.Condition{
@@ -156,10 +138,7 @@ func (t *teamHookImpl) Get(ctx context.Context, hookID uint32) (do.NoticeHook, e
 }
 
 func (t *teamHookImpl) List(ctx context.Context, req *bo.ListTeamNoticeHookRequest) (*bo.ListTeamNoticeHookReply, error) {
-	query, teamID, err := getTeamBizQuery(ctx, t)
-	if err != nil {
-		return nil, err
-	}
+	query, teamID := getTeamBizQueryWithTeamID(ctx, t)
 
 	hookQuery := query.NoticeHook
 	wrapper := hookQuery.WithContext(ctx).Where(hookQuery.TeamID.Eq(teamID))

@@ -30,17 +30,14 @@ func (t *teamStrategyMetricImpl) DeleteUnUsedLevels(ctx context.Context, params 
 	if params.StrategyMetricID <= 0 || len(params.RuleIds) == 0 {
 		return nil
 	}
-	tx, teamId, err := getTeamBizQuery(ctx, t)
-	if err != nil {
-		return err
-	}
+	tx, teamId := getTeamBizQueryWithTeamID(ctx, t)
 	strategyMetricRuleMutation := tx.StrategyMetricRule
 	wrapper := []gen.Condition{
 		strategyMetricRuleMutation.StrategyMetricID.Eq(params.StrategyMetricID),
 		strategyMetricRuleMutation.TeamID.Eq(teamId),
 		strategyMetricRuleMutation.ID.In(params.RuleIds...),
 	}
-	_, err = strategyMetricRuleMutation.WithContext(ctx).Where(wrapper...).Delete()
+	_, err := strategyMetricRuleMutation.WithContext(ctx).Where(wrapper...).Delete()
 	return err
 }
 
@@ -49,10 +46,7 @@ func (t *teamStrategyMetricImpl) FindLevels(ctx context.Context, params *bo.Find
 	if params.StrategyMetricID <= 0 {
 		return nil, nil
 	}
-	tx, teamId, err := getTeamBizQuery(ctx, t)
-	if err != nil {
-		return nil, err
-	}
+	tx, teamId := getTeamBizQueryWithTeamID(ctx, t)
 	strategyMetricRuleMutation := tx.StrategyMetricRule
 	wrapper := []gen.Condition{
 		strategyMetricRuleMutation.StrategyMetricID.Eq(params.StrategyMetricID),
@@ -72,10 +66,7 @@ func (t *teamStrategyMetricImpl) FindLevels(ctx context.Context, params *bo.Find
 
 // Create implements repository.TeamStrategyMetric.
 func (t *teamStrategyMetricImpl) Create(ctx context.Context, params bo.CreateTeamMetricStrategyParams) (do.StrategyMetric, error) {
-	tx, _, err := getTeamBizQuery(ctx, t)
-	if err != nil {
-		return nil, err
-	}
+	tx := getTeamBizQuery(ctx, t)
 
 	strategyMetricDo := &team.StrategyMetric{
 		StrategyID:  params.GetStrategy().GetID(),
@@ -87,7 +78,7 @@ func (t *teamStrategyMetricImpl) Create(ctx context.Context, params bo.CreateTea
 	}
 	strategyMetricDo.WithContext(ctx)
 
-	if err = tx.StrategyMetric.WithContext(ctx).Create(strategyMetricDo); err != nil {
+	if err := tx.StrategyMetric.WithContext(ctx).Create(strategyMetricDo); err != nil {
 		return nil, err
 	}
 
@@ -103,10 +94,7 @@ func (t *teamStrategyMetricImpl) Create(ctx context.Context, params bo.CreateTea
 
 // Update implements repository.TeamStrategyMetric.
 func (t *teamStrategyMetricImpl) Update(ctx context.Context, params bo.UpdateTeamMetricStrategyParams) (do.StrategyMetric, error) {
-	tx, teamId, err := getTeamBizQuery(ctx, t)
-	if err != nil {
-		return nil, err
-	}
+	tx, teamId := getTeamBizQueryWithTeamID(ctx, t)
 
 	strategyMetricMutation := tx.StrategyMetric
 	wrapper := []gen.Condition{
@@ -146,10 +134,7 @@ func (t *teamStrategyMetricImpl) Update(ctx context.Context, params bo.UpdateTea
 
 // UpdateLevels implements repository.TeamStrategyMetric.
 func (t *teamStrategyMetricImpl) UpdateLevels(ctx context.Context, params bo.SaveTeamMetricStrategyLevels) ([]do.StrategyMetricRule, error) {
-	tx, teamId, err := getTeamBizQuery(ctx, t)
-	if err != nil {
-		return nil, err
-	}
+	tx, teamId := getTeamBizQueryWithTeamID(ctx, t)
 
 	strategyMetricRuleMutation := tx.StrategyMetricRule
 	wrapper := []gen.Condition{
@@ -225,10 +210,7 @@ func (t *teamStrategyMetricImpl) UpdateLevels(ctx context.Context, params bo.Sav
 
 // CreateLevels implements repository.TeamStrategyMetric.
 func (t *teamStrategyMetricImpl) CreateLevels(ctx context.Context, params bo.SaveTeamMetricStrategyLevels) ([]do.StrategyMetricRule, error) {
-	tx, _, err := getTeamBizQuery(ctx, t)
-	if err != nil {
-		return nil, err
-	}
+	tx := getTeamBizQuery(ctx, t)
 
 	strategyMetricRuleDos := slices.Map(params.GetLevels(), func(rule bo.SaveTeamMetricStrategyLevel) *team.StrategyMetricRule {
 		ruleItem := &team.StrategyMetricRule{
@@ -258,7 +240,7 @@ func (t *teamStrategyMetricImpl) CreateLevels(ctx context.Context, params bo.Sav
 		return ruleItem
 	})
 
-	if err = tx.StrategyMetricRule.WithContext(ctx).Create(strategyMetricRuleDos...); err != nil {
+	if err := tx.StrategyMetricRule.WithContext(ctx).Create(strategyMetricRuleDos...); err != nil {
 		return nil, err
 	}
 
@@ -269,10 +251,7 @@ func (t *teamStrategyMetricImpl) CreateLevels(ctx context.Context, params bo.Sav
 
 // Delete implements repository.TeamStrategyMetric.
 func (t *teamStrategyMetricImpl) Delete(ctx context.Context, params *bo.OperateTeamStrategyParams) error {
-	tx, teamId, err := getTeamBizQuery(ctx, t)
-	if err != nil {
-		return err
-	}
+	tx, teamId := getTeamBizQueryWithTeamID(ctx, t)
 
 	strategyMetricMutation := tx.StrategyMetric
 	wrapper := []gen.Condition{
@@ -280,16 +259,13 @@ func (t *teamStrategyMetricImpl) Delete(ctx context.Context, params *bo.OperateT
 		strategyMetricMutation.TeamID.Eq(teamId),
 	}
 
-	_, err = strategyMetricMutation.WithContext(ctx).Where(wrapper...).Delete()
+	_, err := strategyMetricMutation.WithContext(ctx).Where(wrapper...).Delete()
 	return err
 }
 
 // DeleteLevels implements repository.TeamStrategyMetric.
 func (t *teamStrategyMetricImpl) DeleteLevels(ctx context.Context, params *bo.OperateTeamStrategyParams) error {
-	tx, teamId, err := getTeamBizQuery(ctx, t)
-	if err != nil {
-		return err
-	}
+	tx, teamId := getTeamBizQueryWithTeamID(ctx, t)
 
 	strategyMetricMutation := tx.StrategyMetric
 	wrapper := []gen.Condition{
@@ -308,16 +284,13 @@ func (t *teamStrategyMetricImpl) DeleteLevels(ctx context.Context, params *bo.Op
 		strategyMetricRuleMutation.TeamID.Eq(teamId),
 		strategyMetricRuleMutation.StrategyMetricID.In(strategyMetricIds...),
 	}
-	_, err = strategyMetricRuleMutation.WithContext(ctx).Where(wrapper...).Delete()
+	_, err := strategyMetricRuleMutation.WithContext(ctx).Where(wrapper...).Delete()
 	return err
 }
 
 // Get implements repository.TeamStrategyMetric.
 func (t *teamStrategyMetricImpl) Get(ctx context.Context, params *bo.OperateTeamStrategyParams) (do.StrategyMetric, error) {
-	tx, teamId, err := getTeamBizQuery(ctx, t)
-	if err != nil {
-		return nil, err
-	}
+	tx, teamId := getTeamBizQueryWithTeamID(ctx, t)
 
 	strategyMetricMutation := tx.StrategyMetric
 	wrapper := []gen.Condition{

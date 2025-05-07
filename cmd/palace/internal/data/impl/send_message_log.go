@@ -56,10 +56,7 @@ func (s *sendMessageLogImpl) getSystemSendMessageLogTableName(_ context.Context,
 }
 
 func (s *sendMessageLogImpl) retryTeamSendMessageLog(ctx context.Context, params *bo.RetrySendMessageParams) error {
-	tx, teamId, err := getTeamBizQuery(ctx, s)
-	if err != nil {
-		return err
-	}
+	tx, teamId := getTeamBizQueryWithTeamID(ctx, s)
 	tableName, err := s.getTeamSendMessageLogTableName(ctx, params.SendAt)
 	if err != nil {
 		return err
@@ -126,10 +123,7 @@ func (s *sendMessageLogImpl) createTeamSendMessageLog(ctx context.Context, param
 		Error:       "",
 	}
 	sendMessageLog.WithContext(ctx)
-	tx, _, err := getTeamBizQuery(ctx, s)
-	if err != nil {
-		return err
-	}
+	tx := getTeamBizQuery(ctx, s)
 	tableName, err := s.getTeamSendMessageLogTableName(ctx, params.SendAt)
 	if err != nil {
 		return err
@@ -157,10 +151,7 @@ func (s *sendMessageLogImpl) createSystemSendMessageLog(ctx context.Context, par
 
 func (s *sendMessageLogImpl) getTeamSendMessageLog(ctx context.Context, params *bo.GetSendMessageLogParams) (do.SendMessageLog, error) {
 	ctx = permission.WithTeamIDContext(ctx, params.TeamID)
-	tx, teamId, err := getTeamBizQuery(ctx, s)
-	if err != nil {
-		return nil, err
-	}
+	tx, teamId := getTeamBizQueryWithTeamID(ctx, s)
 	tableName, err := s.getTeamSendMessageLogTableName(ctx, params.SendAt)
 	if err != nil {
 		return nil, err
@@ -198,10 +189,7 @@ func (s *sendMessageLogImpl) getSystemSendMessageLog(ctx context.Context, params
 
 func (s *sendMessageLogImpl) updateTeamSendMessageLog(ctx context.Context, params *bo.UpdateSendMessageLogStatusParams) error {
 	ctx = permission.WithTeamIDContext(ctx, params.TeamID)
-	tx, teamId, err := getTeamBizQuery(ctx, s)
-	if err != nil {
-		return err
-	}
+	tx, teamId := getTeamBizQueryWithTeamID(ctx, s)
 	tableName, err := s.getTeamSendMessageLogTableName(ctx, params.SendAt)
 	if err != nil {
 		return err
@@ -244,10 +232,7 @@ func (s *sendMessageLogImpl) updateSystemSendMessageLog(ctx context.Context, par
 }
 
 func (s *sendMessageLogImpl) listTeamSendMessageLog(ctx context.Context, params *bo.ListSendMessageLogParams) (*bo.ListSendMessageLogReply, error) {
-	tx, teamId, err := getTeamBizQuery(ctx, s)
-	if err != nil {
-		return nil, err
-	}
+	tx, teamId := getTeamBizQueryWithTeamID(ctx, s)
 	sendAt := timex.Now()
 	if len(params.TimeRange) == 2 {
 		sendAt = params.TimeRange[0]

@@ -30,10 +30,7 @@ type teamDictImpl struct {
 }
 
 func (t *teamDictImpl) Get(ctx context.Context, dictID uint32) (do.TeamDict, error) {
-	query, teamID, err := getTeamBizQuery(ctx, t)
-	if err != nil {
-		return nil, err
-	}
+	query, teamID := getTeamBizQueryWithTeamID(ctx, t)
 
 	bizDictQuery := query.Dict
 	wrappers := []gen.Condition{
@@ -48,24 +45,18 @@ func (t *teamDictImpl) Get(ctx context.Context, dictID uint32) (do.TeamDict, err
 }
 
 func (t *teamDictImpl) Delete(ctx context.Context, dictID uint32) error {
-	query, teamID, err := getTeamBizQuery(ctx, t)
-	if err != nil {
-		return err
-	}
+	query, teamID := getTeamBizQueryWithTeamID(ctx, t)
 	bizDictQuery := query.Dict
 	wrappers := []gen.Condition{
 		bizDictQuery.TeamID.Eq(teamID),
 		bizDictQuery.ID.Eq(dictID),
 	}
-	_, err = bizDictQuery.WithContext(ctx).Where(wrappers...).Delete()
+	_, err := bizDictQuery.WithContext(ctx).Where(wrappers...).Delete()
 	return err
 }
 
 func (t *teamDictImpl) Create(ctx context.Context, dict bo.Dict) error {
-	query, _, err := getTeamBizQuery(ctx, t)
-	if err != nil {
-		return err
-	}
+	query := getTeamBizQuery(ctx, t)
 	dictDo := &team.Dict{
 		Key:      dict.GetKey(),
 		Value:    dict.GetValue(),
@@ -80,10 +71,7 @@ func (t *teamDictImpl) Create(ctx context.Context, dict bo.Dict) error {
 }
 
 func (t *teamDictImpl) Update(ctx context.Context, dict bo.Dict) error {
-	query, teamID, err := getTeamBizQuery(ctx, t)
-	if err != nil {
-		return err
-	}
+	query, teamID := getTeamBizQueryWithTeamID(ctx, t)
 	bizDictQuery := query.Dict
 	mutations := []field.AssignExpr{
 		bizDictQuery.Key.Value(dict.GetKey()),
@@ -97,7 +85,7 @@ func (t *teamDictImpl) Update(ctx context.Context, dict bo.Dict) error {
 		bizDictQuery.TeamID.Eq(teamID),
 		bizDictQuery.ID.Eq(dict.GetID()),
 	}
-	_, err = bizDictQuery.WithContext(ctx).Where(wrappers...).UpdateColumnSimple(mutations...)
+	_, err := bizDictQuery.WithContext(ctx).Where(wrappers...).UpdateColumnSimple(mutations...)
 	return err
 }
 
@@ -105,25 +93,19 @@ func (t *teamDictImpl) UpdateStatus(ctx context.Context, req *bo.UpdateDictStatu
 	if len(req.DictIds) == 0 {
 		return nil
 	}
-	query, teamID, err := getTeamBizQuery(ctx, t)
-	if err != nil {
-		return err
-	}
+	query, teamID := getTeamBizQueryWithTeamID(ctx, t)
 	bizDictQuery := query.Dict
 	wrappers := []gen.Condition{
 		bizDictQuery.TeamID.Eq(teamID),
 		bizDictQuery.ID.In(req.DictIds...),
 	}
-	_, err = bizDictQuery.WithContext(ctx).Where(wrappers...).
+	_, err := bizDictQuery.WithContext(ctx).Where(wrappers...).
 		UpdateColumnSimple(bizDictQuery.Status.Value(req.Status.GetValue()))
 	return err
 }
 
 func (t *teamDictImpl) List(ctx context.Context, req *bo.ListDictReq) (*bo.ListDictReply, error) {
-	query, teamID, err := getTeamBizQuery(ctx, t)
-	if err != nil {
-		return nil, err
-	}
+	query, teamID := getTeamBizQueryWithTeamID(ctx, t)
 	bizDictQuery := query.Dict
 	wrapper := bizDictQuery.WithContext(ctx).Where(bizDictQuery.TeamID.Eq(teamID))
 	if len(req.Langs) > 0 {
@@ -158,10 +140,7 @@ func (t *teamDictImpl) FindByIds(ctx context.Context, dictIds []uint32) ([]do.Te
 	if len(dictIds) == 0 {
 		return nil, nil
 	}
-	bizQuery, teamID, err := getTeamBizQuery(ctx, t)
-	if err != nil {
-		return nil, err
-	}
+	bizQuery, teamID := getTeamBizQueryWithTeamID(ctx, t)
 	mutation := bizQuery.Dict
 	wrapper := mutation.WithContext(ctx).Where(mutation.TeamID.Eq(teamID), mutation.ID.In(dictIds...))
 	rows, err := wrapper.Find()

@@ -32,10 +32,7 @@ func (t *teamNoticeImpl) List(ctx context.Context, req *bo.ListNoticeGroupReq) (
 	if validate.IsNil(req) {
 		return nil, nil
 	}
-	bizQuery, teamId, err := getTeamBizQuery(ctx, t)
-	if err != nil {
-		return nil, err
-	}
+	bizQuery, teamId := getTeamBizQueryWithTeamID(ctx, t)
 	noticeGroupQuery := bizQuery.NoticeGroup
 	wrapper := noticeGroupQuery.WithContext(ctx).Where(noticeGroupQuery.TeamID.Eq(teamId))
 	if !req.Status.IsUnknown() {
@@ -114,10 +111,7 @@ func (t *teamNoticeImpl) Create(ctx context.Context, group bo.SaveNoticeGroup) e
 		noticeGroupDo.SMSConfigID = group.GetSMSConfig().GetID()
 	}
 	noticeGroupDo.WithContext(ctx)
-	bizMutation, _, err := getTeamBizQuery(ctx, t)
-	if err != nil {
-		return err
-	}
+	bizMutation := getTeamBizQuery(ctx, t)
 	return bizMutation.NoticeGroup.WithContext(ctx).Create(noticeGroupDo)
 }
 
@@ -125,10 +119,7 @@ func (t *teamNoticeImpl) Update(ctx context.Context, group bo.SaveNoticeGroup) e
 	if validate.IsNil(group) {
 		return nil
 	}
-	noticeGroupMutation, teamId, err := getTeamBizQuery(ctx, t)
-	if err != nil {
-		return err
-	}
+	noticeGroupMutation, teamId := getTeamBizQueryWithTeamID(ctx, t)
 	wrapper := []gen.Condition{
 		noticeGroupMutation.NoticeGroup.TeamID.Eq(teamId),
 		noticeGroupMutation.NoticeGroup.ID.Eq(group.GetID()),
@@ -144,7 +135,7 @@ func (t *teamNoticeImpl) Update(ctx context.Context, group bo.SaveNoticeGroup) e
 	if validate.IsNotNil(group.GetSMSConfig()) {
 		mutations = append(mutations, noticeGroupMutation.NoticeGroup.SMSConfigID.Value(group.GetSMSConfig().GetID()))
 	}
-	_, err = noticeGroupMutation.NoticeGroup.WithContext(ctx).Where(wrapper...).UpdateColumnSimple(mutations...)
+	_, err := noticeGroupMutation.NoticeGroup.WithContext(ctx).Where(wrapper...).UpdateColumnSimple(mutations...)
 	if err != nil {
 		return err
 	}
@@ -213,37 +204,28 @@ func (t *teamNoticeImpl) UpdateStatus(ctx context.Context, req *bo.UpdateTeamNot
 		return nil
 	}
 
-	bizMutation, teamId, err := getTeamBizQuery(ctx, t)
-	if err != nil {
-		return err
-	}
+	bizMutation, teamId := getTeamBizQueryWithTeamID(ctx, t)
 	wrapper := []gen.Condition{
 		bizMutation.NoticeGroup.TeamID.Eq(teamId),
 		bizMutation.NoticeGroup.ID.In(groupIds...),
 	}
-	_, err = bizMutation.NoticeGroup.WithContext(ctx).Where(wrapper...).
+	_, err := bizMutation.NoticeGroup.WithContext(ctx).Where(wrapper...).
 		UpdateColumnSimple(bizMutation.NoticeGroup.Status.Value(req.Status.GetValue()))
 	return err
 }
 
 func (t *teamNoticeImpl) Delete(ctx context.Context, groupID uint32) error {
-	bizMutation, teamId, err := getTeamBizQuery(ctx, t)
-	if err != nil {
-		return err
-	}
+	bizMutation, teamId := getTeamBizQueryWithTeamID(ctx, t)
 	wrapper := []gen.Condition{
 		bizMutation.NoticeGroup.TeamID.Eq(teamId),
 		bizMutation.NoticeGroup.ID.Eq(groupID),
 	}
-	_, err = bizMutation.NoticeGroup.WithContext(ctx).Where(wrapper...).Delete()
+	_, err := bizMutation.NoticeGroup.WithContext(ctx).Where(wrapper...).Delete()
 	return err
 }
 
 func (t *teamNoticeImpl) Get(ctx context.Context, groupID uint32) (do.NoticeGroup, error) {
-	bizQuery, teamId, err := getTeamBizQuery(ctx, t)
-	if err != nil {
-		return nil, err
-	}
+	bizQuery, teamId := getTeamBizQueryWithTeamID(ctx, t)
 	wrapper := []gen.Condition{
 		bizQuery.NoticeGroup.TeamID.Eq(teamId),
 		bizQuery.NoticeGroup.ID.Eq(groupID),
@@ -259,10 +241,7 @@ func (t *teamNoticeImpl) FindByIds(ctx context.Context, groupIds []uint32) ([]do
 	if len(groupIds) == 0 {
 		return nil, nil
 	}
-	bizQuery, teamId, err := getTeamBizQuery(ctx, t)
-	if err != nil {
-		return nil, err
-	}
+	bizQuery, teamId := getTeamBizQueryWithTeamID(ctx, t)
 	mutation := bizQuery.NoticeGroup
 	wrapper := mutation.WithContext(ctx).Where(mutation.TeamID.Eq(teamId), mutation.ID.In(groupIds...))
 	rows, err := wrapper.Find()
@@ -276,10 +255,7 @@ func (t *teamNoticeImpl) FindLabelNotices(ctx context.Context, labelNoticeIds []
 	if len(labelNoticeIds) == 0 {
 		return nil, nil
 	}
-	bizQuery, teamId, err := getTeamBizQuery(ctx, t)
-	if err != nil {
-		return nil, err
-	}
+	bizQuery, teamId := getTeamBizQueryWithTeamID(ctx, t)
 	mutation := bizQuery.StrategyMetricRuleLabelNotice
 	wrapper := mutation.WithContext(ctx).Where(mutation.TeamID.Eq(teamId), mutation.ID.In(labelNoticeIds...))
 	rows, err := wrapper.Find()

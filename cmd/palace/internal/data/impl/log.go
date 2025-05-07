@@ -94,10 +94,7 @@ func (o *operateLogImpl) TeamOperateLog(ctx context.Context, log *bo.AddOperateL
 		IP:              log.IP,
 	}
 	operateLog.WithContext(ctx)
-	bizMutation, _, err := getTeamBizQuery(ctx, o)
-	if err != nil {
-		return err
-	}
+	bizMutation := getTeamBizQuery(ctx, o)
 	operateLogMutation := bizMutation.OperateLog
 	return operateLogMutation.WithContext(ctx).Create(operateLog)
 }
@@ -106,10 +103,7 @@ func (o *operateLogImpl) TeamList(ctx context.Context, req *bo.OperateLogListReq
 	if validate.IsNil(req) {
 		return nil, nil
 	}
-	bizQuery, teamId, err := getTeamBizQuery(ctx, o)
-	if err != nil {
-		return nil, err
-	}
+	bizQuery, teamId := getTeamBizQueryWithTeamID(ctx, o)
 	operateLogQuery := bizQuery.OperateLog
 	wrapper := operateLogQuery.WithContext(ctx).Where(operateLogQuery.TeamID.Eq(teamId))
 

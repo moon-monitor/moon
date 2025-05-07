@@ -29,10 +29,7 @@ type dashboardImpl struct {
 }
 
 func (r *dashboardImpl) CreateDashboard(ctx context.Context, dashboard bo.Dashboard) error {
-	query, _, err := getTeamBizQuery(ctx, r)
-	if err != nil {
-		return err
-	}
+	query := getTeamBizQuery(ctx, r)
 	dashboardDo := &team.Dashboard{
 		Title:    dashboard.GetTitle(),
 		Remark:   dashboard.GetRemark(),
@@ -44,10 +41,7 @@ func (r *dashboardImpl) CreateDashboard(ctx context.Context, dashboard bo.Dashbo
 }
 
 func (r *dashboardImpl) UpdateDashboard(ctx context.Context, dashboard bo.Dashboard) error {
-	query, teamID, err := getTeamBizQuery(ctx, r)
-	if err != nil {
-		return err
-	}
+	query, teamID := getTeamBizQueryWithTeamID(ctx, r)
 	mutation := query.Dashboard
 	wrappers := []gen.Condition{
 		mutation.TeamID.Eq(teamID),
@@ -59,31 +53,25 @@ func (r *dashboardImpl) UpdateDashboard(ctx context.Context, dashboard bo.Dashbo
 		mutation.Status.Value(dashboard.GetStatus().GetValue()),
 		mutation.ColorHex.Value(dashboard.GetColorHex()),
 	}
-	_, err = mutation.WithContext(ctx).Where(wrappers...).UpdateColumnSimple(mutations...)
+	_, err := mutation.WithContext(ctx).Where(wrappers...).UpdateColumnSimple(mutations...)
 	return err
 }
 
 // DeleteDashboard delete dashboard by id
 func (r *dashboardImpl) DeleteDashboard(ctx context.Context, id uint32) error {
-	query, teamID, err := getTeamBizQuery(ctx, r)
-	if err != nil {
-		return err
-	}
+	query, teamID := getTeamBizQueryWithTeamID(ctx, r)
 	mutation := query.Dashboard
 	wrappers := []gen.Condition{
 		mutation.TeamID.Eq(teamID),
 		mutation.ID.Eq(id),
 	}
-	_, err = mutation.WithContext(ctx).Where(wrappers...).Delete()
+	_, err := mutation.WithContext(ctx).Where(wrappers...).Delete()
 	return err
 }
 
 // GetDashboard get dashboard by id
 func (r *dashboardImpl) GetDashboard(ctx context.Context, id uint32) (do.Dashboard, error) {
-	query, teamID, err := getTeamBizQuery(ctx, r)
-	if err != nil {
-		return nil, err
-	}
+	query, teamID := getTeamBizQueryWithTeamID(ctx, r)
 	mutation := query.Dashboard
 	wrappers := []gen.Condition{
 		mutation.TeamID.Eq(teamID),
@@ -98,10 +86,7 @@ func (r *dashboardImpl) GetDashboard(ctx context.Context, id uint32) (do.Dashboa
 
 // ListDashboards list dashboards with filter
 func (r *dashboardImpl) ListDashboards(ctx context.Context, req *bo.ListDashboardReq) (*bo.ListDashboardReply, error) {
-	query, teamID, err := getTeamBizQuery(ctx, r)
-	if err != nil {
-		return nil, err
-	}
+	query, teamID := getTeamBizQueryWithTeamID(ctx, r)
 	mutation := query.Dashboard
 	wrapper := mutation.WithContext(ctx).Where(mutation.TeamID.Eq(teamID))
 
@@ -130,15 +115,12 @@ func (r *dashboardImpl) BatchUpdateDashboardStatus(ctx context.Context, req *bo.
 	if len(req.Ids) == 0 {
 		return nil
 	}
-	query, teamID, err := getTeamBizQuery(ctx, r)
-	if err != nil {
-		return err
-	}
+	query, teamID := getTeamBizQueryWithTeamID(ctx, r)
 	mutation := query.Dashboard
 	wrappers := []gen.Condition{
 		mutation.TeamID.Eq(teamID),
 		mutation.ID.In(req.Ids...),
 	}
-	_, err = mutation.WithContext(ctx).Where(wrappers...).UpdateColumnSimple(mutation.Status.Value(req.Status.GetValue()))
+	_, err := mutation.WithContext(ctx).Where(wrappers...).UpdateColumnSimple(mutation.Status.Value(req.Status.GetValue()))
 	return err
 }

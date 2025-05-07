@@ -29,10 +29,7 @@ type teamConfigEmailImpl struct {
 }
 
 func (t *teamConfigEmailImpl) Get(ctx context.Context, id uint32) (do.TeamEmailConfig, error) {
-	bizQuery, teamID, err := getTeamBizQuery(ctx, t)
-	if err != nil {
-		return nil, err
-	}
+	bizQuery, teamID := getTeamBizQueryWithTeamID(ctx, t)
 	bizEmailConfigQuery := bizQuery.EmailConfig
 	wrappers := []gen.Condition{
 		bizEmailConfigQuery.TeamID.Eq(teamID),
@@ -46,10 +43,7 @@ func (t *teamConfigEmailImpl) Get(ctx context.Context, id uint32) (do.TeamEmailC
 }
 
 func (t *teamConfigEmailImpl) List(ctx context.Context, req *bo.ListEmailConfigRequest) (*bo.ListEmailConfigListReply, error) {
-	bizQuery, teamID, err := getTeamBizQuery(ctx, t)
-	if err != nil {
-		return nil, err
-	}
+	bizQuery, teamID := getTeamBizQueryWithTeamID(ctx, t)
 	bizEmailConfigQuery := bizQuery.EmailConfig
 	wrapper := bizEmailConfigQuery.WithContext(ctx).Where(bizEmailConfigQuery.TeamID.Eq(teamID))
 	if !req.Status.IsUnknown() {
@@ -82,19 +76,13 @@ func (t *teamConfigEmailImpl) Create(ctx context.Context, config bo.TeamEmailCon
 		Email:     crypto.NewObject(config.GetEmailConfig()),
 	}
 	emailConfigDo.WithContext(ctx)
-	bizQuery, _, err := getTeamBizQuery(ctx, t)
-	if err != nil {
-		return err
-	}
+	bizQuery := getTeamBizQuery(ctx, t)
 	bizEmailConfigQuery := bizQuery.EmailConfig
 	return bizEmailConfigQuery.WithContext(ctx).Create(emailConfigDo)
 }
 
 func (t *teamConfigEmailImpl) Update(ctx context.Context, config bo.TeamEmailConfig) error {
-	bizQuery, teamID, err := getTeamBizQuery(ctx, t)
-	if err != nil {
-		return err
-	}
+	bizQuery, teamID := getTeamBizQueryWithTeamID(ctx, t)
 	bizEmailConfigQuery := bizQuery.EmailConfig
 	wrappers := []gen.Condition{
 		bizEmailConfigQuery.TeamID.Eq(teamID),
@@ -106,6 +94,6 @@ func (t *teamConfigEmailImpl) Update(ctx context.Context, config bo.TeamEmailCon
 		bizEmailConfigQuery.Status.Value(config.GetStatus().GetValue()),
 		bizEmailConfigQuery.Email.Value(crypto.NewObject(config.GetEmailConfig())),
 	}
-	_, err = bizEmailConfigQuery.WithContext(ctx).Where(wrappers...).UpdateColumnSimple(mutations...)
+	_, err := bizEmailConfigQuery.WithContext(ctx).Where(wrappers...).UpdateColumnSimple(mutations...)
 	return err
 }

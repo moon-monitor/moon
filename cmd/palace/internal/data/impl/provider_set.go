@@ -63,26 +63,30 @@ func getMainQuery(ctx context.Context, m MainDB) *systemgen.Query {
 	return systemgen.Use(db)
 }
 
-func getTeamBizQuery(ctx context.Context, b BizDB) (*teamgen.Query, uint32, error) {
+func getTeamBizQueryWithTeamID(ctx context.Context, b BizDB) (*teamgen.Query, uint32) {
 	teamID, ok := permission.GetTeamIDByContext(ctx)
 	if !ok {
-		return nil, 0, merr.ErrorPermissionDenied("team id not found")
+		panic(merr.ErrorPermissionDenied("team id not found"))
 	}
-	bizTranceDB, err := GetBizTransactionDB(ctx, b)
-	if err != nil {
-		return nil, 0, err
-	}
-	return teamgen.Use(bizTranceDB), teamID, nil
+	bizTranceDB := GetBizTransactionDB(ctx, b)
+	return teamgen.Use(bizTranceDB), teamID
 }
 
-func getTeamEventQuery(ctx context.Context, e EventDB) (*eventgen.Query, uint32, error) {
+func getTeamBizQuery(ctx context.Context, b BizDB) *teamgen.Query {
+	query, _ := getTeamBizQueryWithTeamID(ctx, b)
+	return query
+}
+
+func getTeamEventQueryWithTeamID(ctx context.Context, e EventDB) (*eventgen.Query, uint32) {
 	teamID, ok := permission.GetTeamIDByContext(ctx)
 	if !ok {
-		return nil, 0, merr.ErrorPermissionDenied("team id not found")
+		panic(merr.ErrorPermissionDenied("team id not found"))
 	}
-	eventTranceDB, err := GetEventDBTransaction(ctx, e)
-	if err != nil {
-		return nil, 0, err
-	}
-	return eventgen.Use(eventTranceDB), teamID, nil
+	eventTranceDB := GetEventDBTransaction(ctx, e)
+	return eventgen.Use(eventTranceDB), teamID
+}
+
+func getTeamEventQuery(ctx context.Context, e EventDB) *eventgen.Query {
+	query, _ := getTeamEventQueryWithTeamID(ctx, e)
+	return query
 }

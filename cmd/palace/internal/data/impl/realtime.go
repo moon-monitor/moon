@@ -49,10 +49,7 @@ func (r *realtimeImpl) getRealtimeTableName(ctx context.Context, alertStartsAt t
 // Exists implements repository.Realtime.
 func (r *realtimeImpl) Exists(ctx context.Context, alert *bo.GetAlertParams) (bool, error) {
 	ctx = permission.WithTeamIDContext(ctx, alert.TeamID)
-	tx, teamId, err := getTeamEventQuery(ctx, r)
-	if err != nil {
-		return false, err
-	}
+	tx, teamId := getTeamEventQueryWithTeamID(ctx, r)
 	tableName, err := r.getRealtimeTableName(ctx, alert.StartsAt)
 	if err != nil {
 		return false, err
@@ -76,10 +73,7 @@ func (r *realtimeImpl) Exists(ctx context.Context, alert *bo.GetAlertParams) (bo
 // GetAlert implements repository.Realtime.
 func (r *realtimeImpl) GetAlert(ctx context.Context, alert *bo.GetAlertParams) (do.Realtime, error) {
 	ctx = permission.WithTeamIDContext(ctx, alert.TeamID)
-	tx, teamId, err := getTeamEventQuery(ctx, r)
-	if err != nil {
-		return nil, err
-	}
+	tx, teamId := getTeamEventQueryWithTeamID(ctx, r)
 	tableName, err := r.getRealtimeTableName(ctx, alert.StartsAt)
 	if err != nil {
 		return nil, err
@@ -102,10 +96,7 @@ func (r *realtimeImpl) GetAlert(ctx context.Context, alert *bo.GetAlertParams) (
 // CreateAlert implements repository.Realtime.
 func (r *realtimeImpl) CreateAlert(ctx context.Context, alert *bo.Alert) error {
 	ctx = permission.WithTeamIDContext(ctx, alert.TeamID)
-	tx, teamId, err := getTeamEventQuery(ctx, r)
-	if err != nil {
-		return err
-	}
+	tx, teamId := getTeamEventQueryWithTeamID(ctx, r)
 
 	tableName, err := r.getRealtimeTableName(ctx, alert.StartsAt)
 	if err != nil {
@@ -130,10 +121,7 @@ func (r *realtimeImpl) CreateAlert(ctx context.Context, alert *bo.Alert) error {
 // UpdateAlert implements repository.Realtime.
 func (r *realtimeImpl) UpdateAlert(ctx context.Context, alert *bo.Alert) error {
 	ctx = permission.WithTeamIDContext(ctx, alert.TeamID)
-	tx, teamId, err := getTeamEventQuery(ctx, r)
-	if err != nil {
-		return err
-	}
+	tx, teamId := getTeamEventQueryWithTeamID(ctx, r)
 	tableName, err := r.getRealtimeTableName(ctx, alert.StartsAt)
 	if err != nil {
 		return err

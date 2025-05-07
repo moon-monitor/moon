@@ -70,36 +70,36 @@ func GetMainDBTransaction(ctx context.Context, d MainDB) *gorm.DB {
 	return d.GetMainDB().GetDB()
 }
 
-func GetBizTransactionDB(ctx context.Context, d BizDB) (*gorm.DB, error) {
+func GetBizTransactionDB(ctx context.Context, d BizDB) *gorm.DB {
 	tx, ok := GetBizTXByContext(ctx)
 	if ok {
-		return tx, nil
+		return tx
 	}
 	teamID, ok := permission.GetTeamIDByContext(ctx)
 	if !ok {
-		return nil, merr.ErrorPermissionDenied("team id not found")
+		panic(merr.ErrorPermissionDenied("team id not found"))
 	}
 	bizDB, err := d.GetBizDB(teamID)
 	if err != nil {
-		return nil, err
+		panic(err)
 	}
-	return bizDB.GetDB(), nil
+	return bizDB.GetDB()
 }
 
-func GetEventDBTransaction(ctx context.Context, d EventDB) (*gorm.DB, error) {
+func GetEventDBTransaction(ctx context.Context, d EventDB) *gorm.DB {
 	tx, ok := GetEventTXByContext(ctx)
 	if ok {
-		return tx, nil
+		return tx
 	}
 	teamID, ok := permission.GetTeamIDByContext(ctx)
 	if !ok {
-		return nil, merr.ErrorPermissionDenied("team id not found")
+		panic(merr.ErrorPermissionDenied("team id not found"))
 	}
 	eventDB, err := d.GetEventDB(teamID)
 	if err != nil {
-		return nil, err
+		panic(err)
 	}
-	return eventDB.GetDB(), nil
+	return eventDB.GetDB()
 }
 
 type transactionRepoImpl struct {
