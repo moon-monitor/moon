@@ -1,4 +1,4 @@
-package team
+package event
 
 import (
 	"fmt"
@@ -102,8 +102,7 @@ func createSendMessageLogTable(teamId uint32, t time.Time, tx *gorm.DB) (err err
 }
 
 func genSendMessageLogTableName(teamId uint32, t time.Time) string {
-	offset := time.Monday - t.Weekday()
-	weekStart := t.AddDate(0, 0, int(offset))
+	weekStart := do.GetPreviousMonday(t)
 
 	return fmt.Sprintf("%s_%d_%s", tableNameSendMessageLog, teamId, weekStart.Format("20060102"))
 }
@@ -116,10 +115,25 @@ func GetSendMessageLogTableName(teamId uint32, t time.Time, tx *gorm.DB) (string
 	return tableName, nil
 }
 
-func GetSendMessageLogTableNameByRequestID(teamId uint32, requestID string, tx *gorm.DB) (string, error) {
-	tableName := genSendMessageLogTableName(teamId, time.Now())
-	if !do.HasTable(teamId, tx, tableName) {
-		return tableName, createSendMessageLogTable(teamId, time.Now(), tx)
+func GetSendMessageLogTableNames(teamId uint32, start, end time.Time, tx *gorm.DB) []string {
+	if start.After(end) {
+		return nil
 	}
-	return tableName, nil
+
+	var tableNames []string
+	// 找到第一个周一（包含或早于start的周一）
+	firstMonday := do.GetPreviousMonday(start)
+
+	// 从第一个周一开始，每周增加7天，直到超过end时间
+	for currentMonday := firstMonday; !currentMonday.After(end); currentMonday = currentMonday.AddDate(0, 0, 7) {
+		// 确保生成的表名在时间范围内（周一+6天不超过start）
+		if currentMonday.AddDate(0, 0, 6).Before(start) {
+			continue
+		}
+		if do.HasTable(teamId, tx, genSendMessageLogTableName(teamId, currentMonday)) {
+			tableNames = append(tableNames, genSendMessageLogTableName(teamId, currentMonday))
+		}
+	}
+
+	return tableNames
 }

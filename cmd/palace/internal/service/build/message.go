@@ -31,7 +31,7 @@ func ToListSendMessageLogParams(req GetSendMessageLogsRequest) *bo.ListSendMessa
 		RequestID:         req.GetRequestId(),
 		Status:            vobj.SendMessageStatus(req.GetStatus()),
 		Keyword:           req.GetKeyword(),
-		TimeRange:         []time.Time{},
+		TimeRange:         [2]time.Time{},
 		MessageType:       vobj.MessageType(req.GetMessageType()),
 	}
 }

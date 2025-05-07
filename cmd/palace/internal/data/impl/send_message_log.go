@@ -2,15 +2,17 @@ package impl
 
 import (
 	"context"
+	"fmt"
 	"strings"
 	"time"
 
 	"gorm.io/gen"
+	"gorm.io/gorm"
 
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/bo"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do"
+	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do/event"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do/system"
-	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do/team"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/repository"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/vobj"
 	"github.com/moon-monitor/moon/cmd/palace/internal/data"
@@ -43,20 +45,20 @@ func (s *sendMessageLogImpl) getTeamSendMessageLogTableName(ctx context.Context,
 	if !ok {
 		return "", merr.ErrorPermissionDenied("team id not found")
 	}
-	bizDB, err := s.GetBizDB(teamId)
+	bizDB, err := s.GetEventDB(teamId)
 	if err != nil {
 		return "", err
 	}
-	return team.GetSendMessageLogTableName(teamId, sendAt, bizDB.GetDB())
+	return event.GetSendMessageLogTableName(teamId, sendAt, bizDB.GetDB())
 }
 
-func (s *sendMessageLogImpl) getSystemSendMessageLogTableName(_ context.Context, sendAt time.Time) (string, error) {
+func (s *sendMessageLogImpl) getSystemSendMessageLogTableName(sendAt time.Time) (string, error) {
 	tx := s.GetMainDB()
 	return system.GetSendMessageLogTableName(sendAt, tx.GetDB())
 }
 
 func (s *sendMessageLogImpl) retryTeamSendMessageLog(ctx context.Context, params *bo.RetrySendMessageParams) error {
-	tx, teamId := getTeamBizQueryWithTeamID(ctx, s)
+	tx, teamId := getTeamEventQueryWithTeamID(ctx, s)
 	tableName, err := s.getTeamSendMessageLogTableName(ctx, params.SendAt)
 	if err != nil {
 		return err
@@ -70,7 +72,7 @@ func (s *sendMessageLogImpl) retryTeamSendMessageLog(ctx context.Context, params
 
 func (s *sendMessageLogImpl) retrySystemSendMessageLog(ctx context.Context, params *bo.RetrySendMessageParams) error {
 	tx := getMainQuery(ctx, s)
-	tableName, err := s.getSystemSendMessageLogTableName(ctx, params.SendAt)
+	tableName, err := s.getSystemSendMessageLogTableName(params.SendAt)
 	if err != nil {
 		return err
 	}
@@ -113,7 +115,7 @@ func (s *sendMessageLogImpl) Create(ctx context.Context, params *bo.CreateSendMe
 }
 
 func (s *sendMessageLogImpl) createTeamSendMessageLog(ctx context.Context, params *bo.CreateSendMessageLogParams) error {
-	sendMessageLog := &team.SendMessageLog{
+	sendMessageLog := &event.SendMessageLog{
 		TeamID:      params.TeamID,
 		MessageType: params.MessageType,
 		Message:     params.Message.String(),
@@ -123,7 +125,7 @@ func (s *sendMessageLogImpl) createTeamSendMessageLog(ctx context.Context, param
 		Error:       "",
 	}
 	sendMessageLog.WithContext(ctx)
-	tx := getTeamBizQuery(ctx, s)
+	tx := getTeamEventQuery(ctx, s)
 	tableName, err := s.getTeamSendMessageLogTableName(ctx, params.SendAt)
 	if err != nil {
 		return err
@@ -141,7 +143,7 @@ func (s *sendMessageLogImpl) createSystemSendMessageLog(ctx context.Context, par
 	}
 	sendMessageLog.WithContext(ctx)
 	tx := getMainQuery(ctx, s)
-	tableName, err := s.getSystemSendMessageLogTableName(ctx, params.SendAt)
+	tableName, err := s.getSystemSendMessageLogTableName(params.SendAt)
 	if err != nil {
 		return err
 	}
@@ -151,7 +153,7 @@ func (s *sendMessageLogImpl) createSystemSendMessageLog(ctx context.Context, par
 
 func (s *sendMessageLogImpl) getTeamSendMessageLog(ctx context.Context, params *bo.GetSendMessageLogParams) (do.SendMessageLog, error) {
 	ctx = permission.WithTeamIDContext(ctx, params.TeamID)
-	tx, teamId := getTeamBizQueryWithTeamID(ctx, s)
+	tx, teamId := getTeamEventQueryWithTeamID(ctx, s)
 	tableName, err := s.getTeamSendMessageLogTableName(ctx, params.SendAt)
 	if err != nil {
 		return nil, err
@@ -171,7 +173,7 @@ func (s *sendMessageLogImpl) getTeamSendMessageLog(ctx context.Context, params *
 
 func (s *sendMessageLogImpl) getSystemSendMessageLog(ctx context.Context, params *bo.GetSendMessageLogParams) (do.SendMessageLog, error) {
 	tx := getMainQuery(ctx, s)
-	tableName, err := s.getSystemSendMessageLogTableName(ctx, params.SendAt)
+	tableName, err := s.getSystemSendMessageLogTableName(params.SendAt)
 	if err != nil {
 		return nil, err
 	}
@@ -189,7 +191,7 @@ func (s *sendMessageLogImpl) getSystemSendMessageLog(ctx context.Context, params
 
 func (s *sendMessageLogImpl) updateTeamSendMessageLog(ctx context.Context, params *bo.UpdateSendMessageLogStatusParams) error {
 	ctx = permission.WithTeamIDContext(ctx, params.TeamID)
-	tx, teamId := getTeamBizQueryWithTeamID(ctx, s)
+	tx, teamId := getTeamEventQueryWithTeamID(ctx, s)
 	tableName, err := s.getTeamSendMessageLogTableName(ctx, params.SendAt)
 	if err != nil {
 		return err
@@ -212,7 +214,7 @@ func (s *sendMessageLogImpl) updateTeamSendMessageLog(ctx context.Context, param
 
 func (s *sendMessageLogImpl) updateSystemSendMessageLog(ctx context.Context, params *bo.UpdateSendMessageLogStatusParams) error {
 	tx := getMainQuery(ctx, s)
-	tableName, err := s.getSystemSendMessageLogTableName(ctx, params.SendAt)
+	tableName, err := s.getSystemSendMessageLogTableName(params.SendAt)
 	if err != nil {
 		return err
 	}
@@ -232,86 +234,93 @@ func (s *sendMessageLogImpl) updateSystemSendMessageLog(ctx context.Context, par
 }
 
 func (s *sendMessageLogImpl) listTeamSendMessageLog(ctx context.Context, params *bo.ListSendMessageLogParams) (*bo.ListSendMessageLogReply, error) {
-	tx, teamId := getTeamBizQueryWithTeamID(ctx, s)
-	sendAt := timex.Now()
-	if len(params.TimeRange) == 2 {
-		sendAt = params.TimeRange[0]
-	}
-	tableName, err := s.getTeamSendMessageLogTableName(ctx, sendAt)
+	eventDB, err := s.GetEventDB(params.TeamID)
 	if err != nil {
 		return nil, err
 	}
-	sendMessageLogTx := tx.SendMessageLog.Table(tableName)
-	wrapper := sendMessageLogTx.WithContext(ctx).Where(sendMessageLogTx.TeamID.Eq(teamId))
-	if validate.TextIsNotNull(params.Keyword) {
-		wrapper = wrapper.Where(sendMessageLogTx.Message.Like(params.Keyword))
+	startAt, endAt := params.TimeRange[0], params.TimeRange[1]
+	if startAt.IsZero() {
+		startAt = timex.Now().AddDate(0, 0, -7)
 	}
-	if validate.TextIsNotNull(params.RequestID) {
-		wrapper = wrapper.Where(sendMessageLogTx.RequestID.Eq(params.RequestID))
+	if endAt.IsZero() {
+		endAt = timex.Now()
 	}
-	if !params.MessageType.IsUnknown() {
-		wrapper = wrapper.Where(sendMessageLogTx.MessageType.Eq(params.MessageType.GetValue()))
+	tableNames := event.GetSendMessageLogTableNames(params.TeamID, startAt, endAt, eventDB.GetDB())
+	tables := make([]any, 0, len(tableNames))
+	unionAllSQL := make([]string, 0, len(tableNames))
+	for _, tableName := range tableNames {
+		tables = append(tables, eventDB.GetDB().Table(tableName))
+		unionAllSQL = append(unionAllSQL, "?")
 	}
-	if len(params.TimeRange) == 2 {
-		wrapper = wrapper.Where(sendMessageLogTx.CreatedAt.Between(params.TimeRange[0], params.TimeRange[1]))
-	}
-	if !params.Status.IsUnknown() {
-		wrapper = wrapper.Where(sendMessageLogTx.Status.Eq(params.Status.GetValue()))
-	}
+	var sendMessageLogs []*event.SendMessageLog
+	queryDB := eventDB.GetDB().Table(fmt.Sprintf("(%s) as combined_results", strings.Join(unionAllSQL, " UNION ALL ")), tables...)
+	queryDB = s.buildSendMessageLogWrapper(queryDB, params)
+	queryDB = queryDB.Where("team_id = ?", params.TeamID)
 	if validate.IsNotNil(params.PaginationRequest) {
-		total, err := wrapper.Count()
-		if err != nil {
+		var total int64
+		if err = queryDB.WithContext(ctx).Count(&total).Error; err != nil {
 			return nil, err
 		}
 		params.WithTotal(total)
-		wrapper = wrapper.Limit(int(params.Limit)).Offset(params.Offset())
+		queryDB = queryDB.Limit(int(params.Limit)).Offset(params.Offset())
 	}
-	sendMessageLogs, err := wrapper.Find()
+	err = queryDB.WithContext(ctx).Order("created_at DESC").Find(&sendMessageLogs).Error
 	if err != nil {
 		return nil, err
 	}
-	rows := slices.Map(sendMessageLogs, func(log *team.SendMessageLog) do.SendMessageLog {
+	rows := slices.Map(sendMessageLogs, func(log *event.SendMessageLog) do.SendMessageLog {
 		return log
 	})
 	return params.ToListSendMessageLogReply(rows), nil
 }
 
-func (s *sendMessageLogImpl) listSystemSendMessageLog(ctx context.Context, params *bo.ListSendMessageLogParams) (*bo.ListSendMessageLogReply, error) {
-	tx := getMainQuery(ctx, s)
-	sendAt := timex.Now()
-	if len(params.TimeRange) == 2 {
-		sendAt = params.TimeRange[0]
-	}
-	tableName, err := s.getSystemSendMessageLogTableName(ctx, sendAt)
-	if err != nil {
-		return nil, err
-	}
-	sendMessageLogTx := tx.SendMessageLog.Table(tableName)
-	wrapper := sendMessageLogTx.WithContext(ctx)
+func (s *sendMessageLogImpl) buildSendMessageLogWrapper(eventDB *gorm.DB, params *bo.ListSendMessageLogParams) *gorm.DB {
 	if validate.TextIsNotNull(params.Keyword) {
-		wrapper = wrapper.Where(sendMessageLogTx.Message.Like(params.Keyword))
+		eventDB = eventDB.Where("message LIKE ?", params.Keyword)
 	}
 	if validate.TextIsNotNull(params.RequestID) {
-		wrapper = wrapper.Where(sendMessageLogTx.RequestID.Eq(params.RequestID))
+		eventDB = eventDB.Where("request_id = ?", params.RequestID)
 	}
 	if !params.MessageType.IsUnknown() {
-		wrapper = wrapper.Where(sendMessageLogTx.MessageType.Eq(params.MessageType.GetValue()))
+		eventDB = eventDB.Where("message_type = ?", params.MessageType.GetValue())
 	}
 	if len(params.TimeRange) == 2 {
-		wrapper = wrapper.Where(sendMessageLogTx.CreatedAt.Between(params.TimeRange[0], params.TimeRange[1]))
+		eventDB = eventDB.Where("created_at BETWEEN ? AND ?", params.TimeRange[0], params.TimeRange[1])
 	}
 	if !params.Status.IsUnknown() {
-		wrapper = wrapper.Where(sendMessageLogTx.Status.Eq(params.Status.GetValue()))
+		eventDB = eventDB.Where("status = ?", params.Status.GetValue())
 	}
+	return eventDB
+}
+
+func (s *sendMessageLogImpl) listSystemSendMessageLog(ctx context.Context, params *bo.ListSendMessageLogParams) (*bo.ListSendMessageLogReply, error) {
+	mainDB := s.GetMainDB().GetDB()
+	startAt, endAt := params.TimeRange[0], params.TimeRange[1]
+	if startAt.IsZero() {
+		startAt = timex.Now().AddDate(0, 0, -7)
+	}
+	if endAt.IsZero() {
+		endAt = timex.Now()
+	}
+	tableNames := system.GetSendMessageLogTableNames(startAt, endAt, mainDB)
+	tables := make([]any, 0, len(tableNames))
+	unionAllSQL := make([]string, 0, len(tableNames))
+	for _, tableName := range tableNames {
+		tables = append(tables, mainDB.Table(tableName))
+		unionAllSQL = append(unionAllSQL, "?")
+	}
+	var sendMessageLogs []*system.SendMessageLog
+	queryDB := mainDB.Table(fmt.Sprintf("(%s) as combined_results", strings.Join(unionAllSQL, " UNION ALL ")), tables...)
+	queryDB = s.buildSendMessageLogWrapper(queryDB, params)
 	if validate.IsNotNil(params.PaginationRequest) {
-		total, err := wrapper.Count()
-		if err != nil {
+		var total int64
+		if err := queryDB.WithContext(ctx).Count(&total).Error; err != nil {
 			return nil, err
 		}
 		params.WithTotal(total)
-		wrapper = wrapper.Limit(int(params.Limit)).Offset(params.Offset())
+		queryDB = queryDB.Limit(int(params.Limit)).Offset(params.Offset())
 	}
-	sendMessageLogs, err := wrapper.Find()
+	err := queryDB.WithContext(ctx).Order("created_at DESC").Find(&sendMessageLogs).Error
 	if err != nil {
 		return nil, err
 	}

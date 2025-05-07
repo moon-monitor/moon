@@ -265,3 +265,13 @@ func CreateTable(teamId uint32, tx *gorm.DB, tableName string, model any) error 
 	}
 	return cacheTableFlag(teamId, tableName)
 }
+
+// GetPreviousMonday 返回给定日期所在周的周一
+func GetPreviousMonday(t time.Time) time.Time {
+	// 计算与周一的偏移量
+	offset := int(time.Monday - t.Weekday())
+	if offset > 0 { // 如果当天是周日(Weekday=0)，则 offset=1，需要减去7天
+		offset -= 7
+	}
+	return t.AddDate(0, 0, offset)
+}

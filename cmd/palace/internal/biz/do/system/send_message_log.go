@@ -95,8 +95,7 @@ func createSendMessageLogTable(t time.Time, tx *gorm.DB) (err error) {
 }
 
 func genSendMessageLogTableName(t time.Time) string {
-	offset := time.Monday - t.Weekday()
-	weekStart := t.AddDate(0, 0, int(offset))
+	weekStart := do.GetPreviousMonday(t)
 
 	return fmt.Sprintf("%s_%s", tableNameSendMessageLog, weekStart.Format("20060102"))
 }
@@ -107,4 +106,22 @@ func GetSendMessageLogTableName(t time.Time, tx *gorm.DB) (string, error) {
 		return tableName, createSendMessageLogTable(t, tx)
 	}
 	return tableName, nil
+}
+
+func GetSendMessageLogTableNames(start, end time.Time, tx *gorm.DB) []string {
+	if start.After(end) {
+		return nil
+	}
+
+	var tableNames []string
+	firstMonday := do.GetPreviousMonday(start)
+	for currentMonday := firstMonday; !currentMonday.After(end); currentMonday = currentMonday.AddDate(0, 0, 7) {
+		if currentMonday.AddDate(0, 0, 6).Before(start) {
+			continue
+		}
+		if do.HasTable(0, tx, genSendMessageLogTableName(currentMonday)) {
+			tableNames = append(tableNames, genSendMessageLogTableName(currentMonday))
+		}
+	}
+	return tableNames
 }
