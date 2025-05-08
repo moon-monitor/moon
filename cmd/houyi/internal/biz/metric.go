@@ -11,6 +11,7 @@ import (
 	"github.com/moon-monitor/moon/cmd/houyi/internal/biz/repository"
 	"github.com/moon-monitor/moon/cmd/houyi/internal/conf"
 	"github.com/moon-monitor/moon/pkg/plugin/server"
+	"github.com/moon-monitor/moon/pkg/util/timex"
 )
 
 func NewMetric(
@@ -132,6 +133,7 @@ func (m *Metric) SyncMetricMetadata(ctx context.Context, item bo.MetricDatasourc
 		return err
 	}
 
+	ts := timex.Now()
 	metadataChan, err := metricInstance.Metadata(ctx)
 	if err != nil {
 		m.helper.WithContext(ctx).Errorw("msg", "sync metric metadata error", "err", err)
@@ -145,7 +147,7 @@ func (m *Metric) SyncMetricMetadata(ctx context.Context, item bo.MetricDatasourc
 			total++
 		}
 	}
-	m.helper.WithContext(ctx).Debugf("total metric: %d", total)
+	m.helper.WithContext(ctx).Debugf("total metric: %d, cost: %s", total, time.Since(ts))
 
 	return nil
 }
