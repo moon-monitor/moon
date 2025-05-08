@@ -124,3 +124,28 @@ func (m *Metric) newStrategyJob(_ context.Context, metric bo.MetricRule) (bo.Str
 	}
 	return event.NewStrategyMetricJob(metric.UniqueKey(), opts...)
 }
+
+func (m *Metric) SyncMetricMetadata(ctx context.Context, item bo.MetricDatasourceConfig) error {
+	metricInstance, err := m.metricInitRepo.Init(item)
+	if err != nil {
+		m.helper.WithContext(ctx).Errorw("msg", "sync metric metadata error", "err", err)
+		return err
+	}
+
+	metadataChan, err := metricInstance.Metadata(ctx)
+	if err != nil {
+		m.helper.WithContext(ctx).Errorw("msg", "sync metric metadata error", "err", err)
+		return err
+	}
+
+	total := 0
+	for metadata := range metadataChan {
+		for _, metric := range metadata {
+			m.helper.WithContext(ctx).Debugf("metric name: %s", metric)
+			total++
+		}
+	}
+	m.helper.WithContext(ctx).Debugf("total metric: %d", total)
+
+	return nil
+}

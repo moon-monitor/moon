@@ -1,6 +1,8 @@
 package do
 
 import (
+	"encoding/json"
+
 	"github.com/moon-monitor/moon/cmd/houyi/internal/biz/bo"
 	"github.com/moon-monitor/moon/pkg/util/slices"
 )
@@ -63,4 +65,9 @@ type MetricItem struct {
 	Labels map[string][]string `json:"labels"`
 	// Unit metric unit
 	Unit string `json:"unit"`
+}
+
+func (m *MetricItem) String() string {
+	bs, _ := json.Marshal(m)
+	return string(bs)
 }

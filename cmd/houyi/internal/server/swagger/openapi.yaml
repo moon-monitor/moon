@@ -36,6 +36,24 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/api.houyi.v1.PushAlertReply'
+    /v1/remove/strategy:
+        post:
+            tags:
+                - Sync
+            operationId: Sync_RemoveStrategy
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/api.houyi.v1.RemoveStrategyRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.houyi.v1.SyncReply'
     /v1/server/register:
         post:
             tags:
@@ -54,25 +72,7 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/api.common.ServerRegisterReply'
-    /v1/sync/certificate:
-        post:
-            tags:
-                - Sync
-            operationId: Sync_CertificateStrategy
-            requestBody:
-                content:
-                    application/json:
-                        schema:
-                            $ref: '#/components/schemas/api.houyi.v1.CertificateStrategyRequest'
-                required: true
-            responses:
-                "200":
-                    description: OK
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/api.houyi.v1.SyncReply'
-    /v1/sync/datasource-event:
+    /v1/sync/datasource/event:
         post:
             tags:
                 - Sync
@@ -90,7 +90,7 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/api.houyi.v1.SyncReply'
-    /v1/sync/datasource-logs:
+    /v1/sync/datasource/logs:
         post:
             tags:
                 - Sync
@@ -108,7 +108,7 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/api.houyi.v1.SyncReply'
-    /v1/sync/datasource-metric:
+    /v1/sync/datasource/metric:
         post:
             tags:
                 - Sync
@@ -126,7 +126,43 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/api.houyi.v1.SyncReply'
-    /v1/sync/event:
+    /v1/sync/metadata/metric:
+        post:
+            tags:
+                - Sync
+            operationId: Sync_MetricMetadata
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/api.houyi.v1.MetricMetadataRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.houyi.v1.SyncReply'
+    /v1/sync/strategy/certificate:
+        post:
+            tags:
+                - Sync
+            operationId: Sync_CertificateStrategy
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/api.houyi.v1.CertificateStrategyRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.houyi.v1.SyncReply'
+    /v1/sync/strategy/event:
         post:
             tags:
                 - Sync
@@ -144,7 +180,7 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/api.houyi.v1.SyncReply'
-    /v1/sync/http:
+    /v1/sync/strategy/http:
         post:
             tags:
                 - Sync
@@ -162,7 +198,7 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/api.houyi.v1.SyncReply'
-    /v1/sync/logs:
+    /v1/sync/strategy/logs:
         post:
             tags:
                 - Sync
@@ -180,7 +216,7 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/api.houyi.v1.SyncReply'
-    /v1/sync/metric:
+    /v1/sync/strategy/metric:
         post:
             tags:
                 - Sync
@@ -198,7 +234,7 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/api.houyi.v1.SyncReply'
-    /v1/sync/ping:
+    /v1/sync/strategy/ping:
         post:
             tags:
                 - Sync
@@ -216,25 +252,7 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/api.houyi.v1.SyncReply'
-    /v1/sync/remove:
-        post:
-            tags:
-                - Sync
-            operationId: Sync_RemoveStrategy
-            requestBody:
-                content:
-                    application/json:
-                        schema:
-                            $ref: '#/components/schemas/api.houyi.v1.RemoveStrategyRequest'
-                required: true
-            responses:
-                "200":
-                    description: OK
-                    content:
-                        application/json:
-                            schema:
-                                $ref: '#/components/schemas/api.houyi.v1.SyncReply'
-    /v1/sync/server-port:
+    /v1/sync/strategy/server-port:
         post:
             tags:
                 - Sync
@@ -1031,6 +1049,11 @@ components:
                     type: array
                     items:
                         $ref: '#/components/schemas/api.houyi.common.MetricDatasourceItem'
+        api.houyi.v1.MetricMetadataRequest:
+            type: object
+            properties:
+                item:
+                    $ref: '#/components/schemas/api.houyi.common.MetricDatasourceItem'
         api.houyi.v1.MetricStrategyRequest:
             type: object
             properties:

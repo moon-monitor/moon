@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/go-kratos/kratos/v2/log"
+	"google.golang.org/grpc/codes"
 
 	"github.com/moon-monitor/moon/cmd/houyi/internal/biz"
 	"github.com/moon-monitor/moon/cmd/houyi/internal/biz/bo"
@@ -94,4 +95,18 @@ func (s *SyncService) LogsDatasource(ctx context.Context, req *houyiv1.LogsDatas
 
 func (s *SyncService) EventDatasource(ctx context.Context, req *houyiv1.EventDatasourceRequest) (*houyiv1.SyncReply, error) {
 	return &houyiv1.SyncReply{}, nil
+}
+
+func (s *SyncService) MetricMetadata(ctx context.Context, req *houyiv1.MetricMetadataRequest) (*houyiv1.SyncReply, error) {
+	datasourceConfig, err := build.ToMetricDatasourceConfig(req.GetItem())
+	if err != nil {
+		return nil, err
+	}
+	if err := s.metricBiz.SyncMetricMetadata(ctx, datasourceConfig); err != nil {
+		return nil, err
+	}
+	return &houyiv1.SyncReply{
+		Code:    int32(codes.OK),
+		Message: "同步中，请稍后查看",
+	}, nil
 }

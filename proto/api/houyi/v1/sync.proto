@@ -12,77 +12,84 @@ option go_package = "github.com/moon-monitor/moon/pkg/api/houyi/v1;v1";
 service Sync {
   rpc MetricStrategy (MetricStrategyRequest) returns (SyncReply) {
     option (google.api.http) = {
-      post: "/v1/sync/metric"
+      post: "/v1/sync/strategy/metric"
       body: "*"
     };
   }
 
   rpc CertificateStrategy (CertificateStrategyRequest) returns (SyncReply) {
     option (google.api.http) = {
-      post: "/v1/sync/certificate"
+      post: "/v1/sync/strategy/certificate"
       body: "*"
     };
   }
 
   rpc ServerPortStrategy (ServerPortStrategyRequest) returns (SyncReply) {
     option (google.api.http) = {
-      post: "/v1/sync/server-port"
+      post: "/v1/sync/strategy/server-port"
       body: "*"
     };
   }
 
   rpc HttpStrategy (HttpStrategyRequest) returns (SyncReply) {
     option (google.api.http) = {
-      post: "/v1/sync/http"
+      post: "/v1/sync/strategy/http"
       body: "*"
     };
   }
 
   rpc PingStrategy (PingStrategyRequest) returns (SyncReply) {
     option (google.api.http) = {
-      post: "/v1/sync/ping"
+      post: "/v1/sync/strategy/ping"
       body: "*"
     };
   }
 
   rpc EventStrategy (EventStrategyRequest) returns (SyncReply) {
     option (google.api.http) = {
-      post: "/v1/sync/event"
+      post: "/v1/sync/strategy/event"
       body: "*"
     };
   }
 
   rpc LogsStrategy (LogsStrategyRequest) returns (SyncReply) {
     option (google.api.http) = {
-      post: "/v1/sync/logs"
+      post: "/v1/sync/strategy/logs"
       body: "*"
     };
   }
 
   rpc RemoveStrategy (RemoveStrategyRequest) returns (SyncReply) {
     option (google.api.http) = {
-      post: "/v1/sync/remove"
+      post: "/v1/remove/strategy"
       body: "*"
     };
   }
 
   rpc MetricDatasource(MetricDatasourceRequest) returns (SyncReply) {
     option (google.api.http) = {
-      post: "/v1/sync/datasource-metric"
+      post: "/v1/sync/datasource/metric"
       body: "*"
     };
   }
 
   rpc LogsDatasource(LogsDatasourceRequest) returns (SyncReply) {
     option (google.api.http) = {
-      post: "/v1/sync/datasource-logs"
+      post: "/v1/sync/datasource/logs"
       body: "*"
     };
   }
 
   rpc EventDatasource(EventDatasourceRequest) returns (SyncReply) {
     option (google.api.http) = {
-      post: "/v1/sync/datasource-event"
+      post: "/v1/sync/datasource/event"
+      body: "*"
+    };
+  }
+
+  rpc MetricMetadata(MetricMetadataRequest) returns (SyncReply) {
+    option (google.api.http) = {
+      post: "/v1/sync/metadata/metric"
       body: "*"
     };
   }
@@ -131,6 +138,10 @@ message LogsDatasourceRequest {
 
 message EventDatasourceRequest {
   repeated common.EventDatasourceItem items = 1;
+}
+
+message MetricMetadataRequest {
+  common.MetricDatasourceItem item = 1;
 }
 
 message SyncReply {
