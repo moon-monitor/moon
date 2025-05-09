@@ -104,19 +104,18 @@ func (m *metricInstance) QueryRange(ctx context.Context, req *bo.MetricRangeQuer
 	list := make([]*do.MetricQueryRangeReply, 0, len(metricQueryResponse.Data.Result))
 	for _, result := range metricQueryResponse.Data.Result {
 		queryValues := result.GetMetricQueryValues()
-		for _, queryValue := range queryValues {
-			item := &do.MetricQueryRangeReply{
-				Labels: result.Metric,
-				Values: []*do.MetricQueryValue{
-					{
-						Value:     queryValue.Value,
-						Timestamp: int64(queryValue.Timestamp),
-					},
-				},
-				ResultType: string(metricQueryResponse.Data.ResultType),
-			}
-			list = append(list, item)
+		item := &do.MetricQueryRangeReply{
+			Labels:     result.Metric,
+			Values:     make([]*do.MetricQueryValue, 0, len(queryValues)),
+			ResultType: string(metricQueryResponse.Data.ResultType),
 		}
+		for _, queryValue := range queryValues {
+			item.Values = append(item.Values, &do.MetricQueryValue{
+				Value:     queryValue.Value,
+				Timestamp: int64(queryValue.Timestamp),
+			})
+		}
+		list = append(list, item)
 	}
 	return list, nil
 }
