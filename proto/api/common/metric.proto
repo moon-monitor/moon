@@ -1,0 +1,13 @@
+syntax = "proto3";
+
+package api.common;
+
+option go_package = "github.com/moon-monitor/moon/pkg/api/common;common";
+
+message MetricItem {
+	string name = 1;
+	string help = 2;
+	string type = 3;
+	map<string, string> labels = 4;
+	string unit = 5;
+}

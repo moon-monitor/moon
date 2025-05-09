@@ -2134,6 +2134,24 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/api.palace.SendMsgCallbackReply'
+    /v1/server/sync/metadata:
+        post:
+            tags:
+                - Callback
+            operationId: Callback_SyncMetadata
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/api.palace.SyncMetadataRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.palace.SyncMetadataReply'
 components:
     schemas:
         api.common.AlertItem:
@@ -2176,6 +2194,21 @@ components:
                 version:
                     type: string
                 time:
+                    type: string
+        api.common.MetricItem:
+            type: object
+            properties:
+                name:
+                    type: string
+                help:
+                    type: string
+                type:
+                    type: string
+                labels:
+                    type: object
+                    additionalProperties:
+                        type: string
+                unit:
                     type: string
         api.common.ServerRegisterReply:
             type: object
@@ -3765,6 +3798,25 @@ components:
                     type: integer
                     description: subscribe type
                     format: enum
+        api.palace.SyncMetadataReply:
+            type: object
+            properties:
+                code:
+                    type: integer
+                    description: Code of the reply 0 is success, other is failed
+                    format: int32
+                msg:
+                    type: string
+                    description: Message of the reply, only when code is not 0, it is not empty
+        api.palace.SyncMetadataRequest:
+            type: object
+            properties:
+                items:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/api.common.MetricItem'
+                isDone:
+                    type: boolean
         api.palace.TeamOperateLogListReply:
             type: object
             properties:

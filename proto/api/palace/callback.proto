@@ -4,6 +4,7 @@ package api.palace;
 
 import "buf/validate/validate.proto";
 import "google/api/annotations.proto";
+import "common/metric.proto";
 
 option go_package = "github.com/moon-monitor/moon/pkg/api/palace;palace";
 
@@ -11,6 +12,13 @@ service Callback {
 	rpc SendMsgCallback (SendMsgCallbackRequest) returns (SendMsgCallbackReply) {
 		option (google.api.http) = {
 			post: "/v1/server/send/msg/callback"
+			body: "*"
+		};
+	}
+
+	rpc SyncMetadata (SyncMetadataRequest) returns (SyncMetadataReply) {
+		option (google.api.http) = {
+			post: "/v1/server/sync/metadata"
 			body: "*"
 		};
 	}
@@ -25,6 +33,17 @@ message SendMsgCallbackRequest {
 	uint32 teamId = 4;
 }
 message SendMsgCallbackReply {
+	// Code of the reply 0 is success, other is failed
+	int32 code = 1 [(buf.validate.field).required = true];
+	// Message of the reply, only when code is not 0, it is not empty
+	string msg = 2;
+}
+
+message SyncMetadataRequest {
+	repeated api.common.MetricItem items = 1;
+	bool isDone = 2;
+}
+message SyncMetadataReply {
 	// Code of the reply 0 is success, other is failed
 	int32 code = 1 [(buf.validate.field).required = true];
 	// Message of the reply, only when code is not 0, it is not empty

@@ -2,15 +2,20 @@ package biz
 
 import (
 	"context"
+	"strings"
 	"time"
 
 	"github.com/go-kratos/kratos/v2/log"
 
 	"github.com/moon-monitor/moon/cmd/houyi/internal/biz/bo"
+	"github.com/moon-monitor/moon/cmd/houyi/internal/biz/do"
 	"github.com/moon-monitor/moon/cmd/houyi/internal/biz/event"
 	"github.com/moon-monitor/moon/cmd/houyi/internal/biz/repository"
 	"github.com/moon-monitor/moon/cmd/houyi/internal/conf"
+	"github.com/moon-monitor/moon/pkg/api/common"
+	"github.com/moon-monitor/moon/pkg/api/palace"
 	"github.com/moon-monitor/moon/pkg/plugin/server"
+	"github.com/moon-monitor/moon/pkg/util/slices"
 	"github.com/moon-monitor/moon/pkg/util/timex"
 )
 
@@ -22,6 +27,7 @@ func NewMetric(
 	configRepo repository.Config,
 	eventBusRepo repository.EventBus,
 	cacheRepo repository.Cache,
+	callbackRepo repository.Callback,
 	logger log.Logger,
 ) *Metric {
 	evaluateConf := bc.GetEvaluate()
@@ -34,6 +40,7 @@ func NewMetric(
 		configRepo:       configRepo,
 		eventBusRepo:     eventBusRepo,
 		cacheRepo:        cacheRepo,
+		callbackRepo:     callbackRepo,
 		evaluateInterval: evaluateConf.GetInterval().AsDuration(),
 		evaluateTimeout:  evaluateConf.GetTimeout().AsDuration(),
 		syncInterval:     syncConfig.GetSyncInterval().AsDuration(),
@@ -50,6 +57,7 @@ type Metric struct {
 	configRepo       repository.Config
 	eventBusRepo     repository.EventBus
 	cacheRepo        repository.Cache
+	callbackRepo     repository.Callback
 	evaluateInterval time.Duration
 	evaluateTimeout  time.Duration
 	syncInterval     time.Duration
@@ -142,12 +150,36 @@ func (m *Metric) SyncMetricMetadata(ctx context.Context, item bo.MetricDatasourc
 
 	total := 0
 	for metadata := range metadataChan {
-		for _, metric := range metadata {
-			m.helper.WithContext(ctx).Debugf("metric name: %s", metric)
-			total++
+		total += len(metadata)
+		metadataItems := slices.Map(metadata, func(v *do.MetricItem) *common.MetricItem {
+			labels := make(map[string]string)
+			for k, v := range v.Labels {
+				labels[k] = strings.Join(v, ",")
+			}
+			return &common.MetricItem{
+				Name:   v.Name,
+				Help:   v.Help,
+				Type:   v.Type,
+				Labels: labels,
+				Unit:   v.Unit,
+			}
+		})
+		params := &palace.SyncMetadataRequest{
+			Items: metadataItems,
+		}
+		if err := m.callbackRepo.SyncMetadata(ctx, params); err != nil {
+			m.helper.WithContext(ctx).Errorw("msg", "sync metric metadata error", "err", err)
+			return err
 		}
 	}
 	m.helper.WithContext(ctx).Debugf("total metric: %d, cost: %s", total, time.Since(ts))
 
+	params := &palace.SyncMetadataRequest{
+		IsDone: true,
+	}
+	if err := m.callbackRepo.SyncMetadata(ctx, params); err != nil {
+		m.helper.WithContext(ctx).Errorw("msg", "sync metric metadata error", "err", err)
+		return err
+	}
 	return nil
 }

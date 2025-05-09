@@ -29,3 +29,10 @@ func (s *CallbackService) SendMsgCallback(ctx context.Context, req *palace.SendM
 		Msg:  "success",
 	}, nil
 }
+
+func (s *CallbackService) SyncMetadata(ctx context.Context, req *palace.SyncMetadataRequest) (*palace.SyncMetadataReply, error) {
+	return &palace.SyncMetadataReply{
+		Code: 0,
+		Msg:  "success",
+	}, nil
+}
