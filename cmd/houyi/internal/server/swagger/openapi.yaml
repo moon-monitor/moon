@@ -334,19 +334,6 @@ components:
         api.common.MetricDatasourceQueryReply:
             type: object
             properties:
-                status:
-                    type: string
-                error:
-                    type: string
-                errorType:
-                    type: string
-                data:
-                    $ref: '#/components/schemas/api.common.MetricQueryData'
-        api.common.MetricQueryData:
-            type: object
-            properties:
-                resultType:
-                    type: string
                 results:
                     type: array
                     items:
@@ -355,15 +342,15 @@ components:
             type: object
             properties:
                 metric:
-                    type: string
+                    type: object
+                    additionalProperties:
+                        type: string
                 value:
-                    type: array
-                    items:
-                        $ref: '#/components/schemas/api.common.MetricQueryResultValue'
+                    $ref: '#/components/schemas/api.common.MetricQueryResultValue'
                 values:
                     type: array
                     items:
-                        $ref: '#/components/schemas/api.common.MetricQueryResultValues'
+                        $ref: '#/components/schemas/api.common.MetricQueryResultValue'
         api.common.MetricQueryResultValue:
             type: object
             properties:
@@ -372,13 +359,6 @@ components:
                 value:
                     type: number
                     format: double
-        api.common.MetricQueryResultValues:
-            type: object
-            properties:
-                value:
-                    type: array
-                    items:
-                        $ref: '#/components/schemas/api.common.MetricQueryResultValue'
         api.common.ServerRegisterReply:
             type: object
             properties: {}

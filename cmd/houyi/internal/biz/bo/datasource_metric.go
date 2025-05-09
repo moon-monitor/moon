@@ -66,3 +66,27 @@ type SyncMetricMetadataRequest struct {
 	Item       MetricDatasourceConfig
 	OperatorId uint32
 }
+
+type MetricDatasourceQueryRequest struct {
+	Datasource MetricDatasourceConfig
+	Expr       string
+	Time       int64
+	StartTime  int64
+	EndTime    int64
+	Step       uint32
+}
+
+type MetricQueryValue struct {
+	Value     float64
+	Timestamp int64
+}
+
+type MetricQueryResult struct {
+	Metric map[string]string
+	Value  *MetricQueryValue
+	Values []*MetricQueryValue
+}
+
+type MetricDatasourceQueryReply struct {
+	Results []*MetricQueryResult
+}

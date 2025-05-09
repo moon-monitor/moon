@@ -189,3 +189,36 @@ func (m *Metric) SyncMetricMetadata(ctx context.Context, req *bo.SyncMetricMetad
 	}
 	return nil
 }
+
+func (m *Metric) QueryMetricDatasource(ctx context.Context, req *bo.MetricDatasourceQueryRequest) (*bo.MetricDatasourceQueryReply, error) {
+	metricInstance, err := m.metricInitRepo.Init(req.Datasource)
+	if err != nil {
+		m.helper.WithContext(ctx).Errorw("msg", "query metric datasource error", "err", err)
+		return nil, err
+	}
+
+	if req.EndTime > req.StartTime && req.EndTime > 0 {
+		queryRangeRequest := &bo.MetricRangeQueryRequest{
+			Expr:      req.Expr,
+			StartTime: time.Unix(req.StartTime, 0),
+			EndTime:   time.Unix(req.EndTime, 0),
+		}
+		queryResponse, err := metricInstance.QueryRange(ctx, queryRangeRequest)
+		if err != nil {
+			m.helper.WithContext(ctx).Errorw("msg", "query metric datasource error", "err", err)
+			return nil, err
+		}
+		return NewMetricDatasourceQueryReply(WithMetricDatasourceQueryRangeReply(queryResponse)), nil
+	}
+
+	queryRequest := &bo.MetricQueryRequest{
+		Expr: req.Expr,
+		Time: time.Unix(req.Time, 0),
+	}
+	queryResponse, err := metricInstance.Query(ctx, queryRequest)
+	if err != nil {
+		m.helper.WithContext(ctx).Errorw("msg", "query metric datasource error", "err", err)
+		return nil, err
+	}
+	return NewMetricDatasourceQueryReply(WithMetricDatasourceQueryReplyResults(queryResponse)), nil
+}
