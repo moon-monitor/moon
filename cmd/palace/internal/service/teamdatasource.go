@@ -10,6 +10,7 @@ import (
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/vobj"
 	"github.com/moon-monitor/moon/cmd/palace/internal/helper/permission"
 	"github.com/moon-monitor/moon/cmd/palace/internal/service/build"
+	com "github.com/moon-monitor/moon/pkg/api/common"
 	"github.com/moon-monitor/moon/pkg/api/palace"
 	"github.com/moon-monitor/moon/pkg/api/palace/common"
 	"github.com/moon-monitor/moon/pkg/merr"
@@ -17,17 +18,20 @@ import (
 
 type TeamDatasourceService struct {
 	palace.UnimplementedTeamDatasourceServer
-	teamDatasourceBiz *biz.TeamDatasource
-	helper            *log.Helper
+	teamDatasourceBiz   *biz.TeamDatasource
+	teamDatasourceQuery *biz.TeamDatasourceQuery
+	helper              *log.Helper
 }
 
 func NewTeamDatasourceService(
 	teamDatasourceBiz *biz.TeamDatasource,
+	teamDatasourceQuery *biz.TeamDatasourceQuery,
 	logger log.Logger,
 ) *TeamDatasourceService {
 	return &TeamDatasourceService{
-		teamDatasourceBiz: teamDatasourceBiz,
-		helper:            log.NewHelper(log.With(logger, "module", "service.datasource")),
+		teamDatasourceBiz:   teamDatasourceBiz,
+		teamDatasourceQuery: teamDatasourceQuery,
+		helper:              log.NewHelper(log.With(logger, "module", "service.datasource")),
 	}
 }
 
@@ -92,4 +96,25 @@ func (s *TeamDatasourceService) SyncMetricMetadata(ctx context.Context, req *pal
 		return nil, err
 	}
 	return &common.EmptyReply{Message: "数据源元数据同步中，请稍后刷新页面查看"}, nil
+}
+
+func (s *TeamDatasourceService) MetricDatasourceQuery(ctx context.Context, req *palace.MetricDatasourceQueryRequest) (*com.MetricDatasourceQueryReply, error) {
+	datasource, err := s.teamDatasourceBiz.GetMetricDatasource(ctx, req.GetDatasourceId())
+	if err != nil {
+		return nil, err
+	}
+
+	params := &bo.MetricDatasourceQueryRequest{
+		Datasource: datasource,
+		Expr:       req.GetExpr(),
+		Time:       req.GetTime(),
+		StartTime:  req.GetStartTime(),
+		EndTime:    req.GetEndTime(),
+		Step:       req.GetStep(),
+	}
+	reply, err := s.teamDatasourceQuery.MetricDatasourceQuery(ctx, params)
+	if err != nil {
+		return nil, err
+	}
+	return reply, nil
 }

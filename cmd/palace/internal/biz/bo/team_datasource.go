@@ -85,3 +85,12 @@ type UpdateTeamMetricDatasourceMetadataRemarkRequest struct {
 	ID         uint32
 	Help, Unit string
 }
+
+type MetricDatasourceQueryRequest struct {
+	Datasource do.DatasourceMetric
+	Expr       string
+	Time       int64
+	StartTime  int64
+	EndTime    int64
+	Step       uint32
+}

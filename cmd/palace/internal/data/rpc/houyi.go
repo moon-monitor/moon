@@ -8,6 +8,7 @@ import (
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/bo"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/repository"
 	"github.com/moon-monitor/moon/cmd/palace/internal/data"
+	"github.com/moon-monitor/moon/pkg/api/common"
 	houyiv1 "github.com/moon-monitor/moon/pkg/api/houyi/v1"
 	"github.com/moon-monitor/moon/pkg/config"
 	"github.com/moon-monitor/moon/pkg/merr"
@@ -43,6 +44,29 @@ func (s *houyiSyncClient) MetricMetadata(ctx context.Context, req *houyiv1.Metri
 		return houyiv1.NewSyncClient(s.server.Conn).MetricMetadata(ctx, req)
 	case config.Network_HTTP:
 		return houyiv1.NewSyncHTTPClient(s.server.Client).MetricMetadata(ctx, req)
+	default:
+		return nil, merr.ErrorInternalServerError("network is not supported")
+	}
+}
+
+type houyiQueryClient struct {
+	server *bo.Server
+}
+
+func (s *houyiServer) Query() (repository.HouyiQueryClient, bool) {
+	server, ok := s.FirstHouyiConn()
+	if !ok {
+		return nil, false
+	}
+	return &houyiQueryClient{server: server}, true
+}
+
+func (s *houyiQueryClient) MetricDatasourceQuery(ctx context.Context, req *houyiv1.MetricDatasourceQueryRequest) (*common.MetricDatasourceQueryReply, error) {
+	switch s.server.Config.Server.GetNetwork() {
+	case config.Network_GRPC:
+		return houyiv1.NewQueryClient(s.server.Conn).MetricDatasourceQuery(ctx, req)
+	case config.Network_HTTP:
+		return houyiv1.NewQueryHTTPClient(s.server.Client).MetricDatasourceQuery(ctx, req)
 	default:
 		return nil, merr.ErrorInternalServerError("network is not supported")
 	}

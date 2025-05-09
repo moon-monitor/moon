@@ -36,6 +36,24 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/api.houyi.v1.PushAlertReply'
+    /v1/metric/datasource/query:
+        post:
+            tags:
+                - Query
+            operationId: Query_MetricDatasourceQuery
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/api.houyi.v1.MetricDatasourceQueryRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.common.MetricDatasourceQueryReply'
     /v1/remove/strategy:
         post:
             tags:
@@ -313,6 +331,54 @@ components:
                     type: string
                 time:
                     type: string
+        api.common.MetricDatasourceQueryReply:
+            type: object
+            properties:
+                status:
+                    type: string
+                error:
+                    type: string
+                errorType:
+                    type: string
+                data:
+                    $ref: '#/components/schemas/api.common.MetricQueryData'
+        api.common.MetricQueryData:
+            type: object
+            properties:
+                resultType:
+                    type: string
+                results:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/api.common.MetricQueryResult'
+        api.common.MetricQueryResult:
+            type: object
+            properties:
+                metric:
+                    type: string
+                value:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/api.common.MetricQueryResultValue'
+                values:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/api.common.MetricQueryResultValues'
+        api.common.MetricQueryResultValue:
+            type: object
+            properties:
+                timestamp:
+                    type: string
+                value:
+                    type: number
+                    format: double
+        api.common.MetricQueryResultValues:
+            type: object
+            properties:
+                value:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/api.common.MetricQueryResultValue'
         api.common.ServerRegisterReply:
             type: object
             properties: {}
@@ -1042,6 +1108,22 @@ components:
                     format: date-time
                 strategies:
                     $ref: '#/components/schemas/api.houyi.common.LogsStrategyItem'
+        api.houyi.v1.MetricDatasourceQueryRequest:
+            type: object
+            properties:
+                datasource:
+                    $ref: '#/components/schemas/api.houyi.common.MetricDatasourceItem'
+                expr:
+                    type: string
+                time:
+                    type: string
+                startTime:
+                    type: string
+                endTime:
+                    type: string
+                step:
+                    type: integer
+                    format: uint32
         api.houyi.v1.MetricDatasourceRequest:
             type: object
             properties:
@@ -1218,5 +1300,6 @@ tags:
     - name: Alert
     - name: Health
       description: Health Check API
+    - name: Query
     - name: Server
     - name: Sync

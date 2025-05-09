@@ -8,6 +8,7 @@ import "buf/validate/validate.proto";
 import "palace/common/common_enum.proto";
 import "palace/common/common.proto";
 import "palace/common/team_datasource.proto";
+import "common/metric.proto";
 
 option go_package = "github.com/moon-monitor/moon/pkg/api/palace;palace";
 
@@ -43,6 +44,12 @@ service TeamDatasource {
   rpc SyncMetricMetadata (SyncMetricMetadataRequest) returns (api.palace.common.EmptyReply) {
     option (google.api.http) = {
       post: "/api/team/metric/datasource/sync/metadata"
+      body: "*"
+    };
+  }
+  rpc MetricDatasourceQuery (MetricDatasourceQueryRequest) returns (api.common.MetricDatasourceQueryReply) {
+    option (google.api.http) = {
+      post: "/api/team/metric/datasource/query"
       body: "*"
     };
   }
@@ -108,4 +115,15 @@ message SyncMetricMetadataRequest {
   uint32 datasourceId = 1 [(buf.validate.field).uint32 = {
     gt: 0,
   }];
+}
+
+message MetricDatasourceQueryRequest {
+  uint32 datasourceId = 1 [(buf.validate.field).uint32 = {
+    gt: 0,
+  }];
+  string expr = 2;
+  int64 time = 3;
+  int64 startTime = 4;
+  int64 endTime = 5;
+  uint32 step = 6;
 }

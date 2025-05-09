@@ -1216,6 +1216,24 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/api.palace.ListTeamMetricDatasourceReply'
+    /api/team/metric/datasource/query:
+        post:
+            tags:
+                - TeamDatasource
+            operationId: TeamDatasource_MetricDatasourceQuery
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/api.palace.MetricDatasourceQueryRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.common.MetricDatasourceQueryReply'
     /api/team/metric/datasource/status:
         put:
             tags:
@@ -2213,6 +2231,17 @@ components:
                     type: string
                 time:
                     type: string
+        api.common.MetricDatasourceQueryReply:
+            type: object
+            properties:
+                status:
+                    type: string
+                error:
+                    type: string
+                errorType:
+                    type: string
+                data:
+                    $ref: '#/components/schemas/api.common.MetricQueryData'
         api.common.MetricItem:
             type: object
             properties:
@@ -2228,6 +2257,43 @@ components:
                         type: string
                 unit:
                     type: string
+        api.common.MetricQueryData:
+            type: object
+            properties:
+                resultType:
+                    type: string
+                results:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/api.common.MetricQueryResult'
+        api.common.MetricQueryResult:
+            type: object
+            properties:
+                metric:
+                    type: string
+                value:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/api.common.MetricQueryResultValue'
+                values:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/api.common.MetricQueryResultValues'
+        api.common.MetricQueryResultValue:
+            type: object
+            properties:
+                timestamp:
+                    type: string
+                value:
+                    type: number
+                    format: double
+        api.common.MetricQueryResultValues:
+            type: object
+            properties:
+                value:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/api.common.MetricQueryResultValue'
         api.common.ServerRegisterReply:
             type: object
             properties: {}
@@ -3053,6 +3119,23 @@ components:
                     type: string
                     description: Redirect URL after logout, optional
             description: LogoutRequest represents the request data for logging out
+        api.palace.MetricDatasourceQueryRequest:
+            type: object
+            properties:
+                datasourceId:
+                    type: integer
+                    format: uint32
+                expr:
+                    type: string
+                time:
+                    type: string
+                startTime:
+                    type: string
+                endTime:
+                    type: string
+                step:
+                    type: integer
+                    format: uint32
         api.palace.OAuth2ListReply:
             type: object
             properties:
