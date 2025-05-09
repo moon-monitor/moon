@@ -1234,6 +1234,24 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/api.palace.common.EmptyReply'
+    /api/team/metric/datasource/sync/metadata:
+        post:
+            tags:
+                - TeamDatasource
+            operationId: TeamDatasource_SyncMetricMetadata
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/api.palace.SyncMetricMetadataRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.palace.common.EmptyReply'
     /api/team/notice/group:
         get:
             tags:
@@ -3817,6 +3835,21 @@ components:
                         $ref: '#/components/schemas/api.common.MetricItem'
                 isDone:
                     type: boolean
+                operatorId:
+                    type: integer
+                    format: uint32
+                teamId:
+                    type: integer
+                    format: uint32
+                datasourceId:
+                    type: integer
+                    format: uint32
+        api.palace.SyncMetricMetadataRequest:
+            type: object
+            properties:
+                datasourceId:
+                    type: integer
+                    format: uint32
         api.palace.TeamOperateLogListReply:
             type: object
             properties:

@@ -6,6 +6,7 @@ import (
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/bo"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/vobj"
+	com "github.com/moon-monitor/moon/pkg/api/common"
 	"github.com/moon-monitor/moon/pkg/api/palace"
 	"github.com/moon-monitor/moon/pkg/api/palace/common"
 	"github.com/moon-monitor/moon/pkg/util/slices"
@@ -72,4 +73,42 @@ func ToTeamMetricDatasourceItem(item do.DatasourceMetric) *common.TeamMetricData
 
 func ToTeamMetricDatasourceItems(items []do.DatasourceMetric) []*common.TeamMetricDatasourceItem {
 	return slices.Map(items, ToTeamMetricDatasourceItem)
+}
+
+func ToBatchSaveTeamMetricDatasourceMetadataRequest(req *palace.SyncMetadataRequest) *bo.BatchSaveTeamMetricDatasourceMetadata {
+	if validate.IsNil(req) {
+		return nil
+	}
+	return &bo.BatchSaveTeamMetricDatasourceMetadata{
+		TeamID:       req.GetTeamId(),
+		DatasourceID: req.GetDatasourceId(),
+		Metadata:     ToMetricDatasourceMetadataItems(req.GetDatasourceId(), req.GetItems()),
+		IsDone:       req.GetIsDone(),
+	}
+}
+
+func ToMetricDatasourceMetadataItems(datasourceID uint32, items []*com.MetricItem) []*bo.DatasourceMetricMetadata {
+	if len(items) == 0 {
+		return nil
+	}
+	return slices.MapFilter(items, func(item *com.MetricItem) (*bo.DatasourceMetricMetadata, bool) {
+		if validate.IsNil(item) {
+			return nil, false
+		}
+		return ToMetricDatasourceMetadataItem(datasourceID, item), true
+	})
+}
+
+func ToMetricDatasourceMetadataItem(datasourceID uint32, item *com.MetricItem) *bo.DatasourceMetricMetadata {
+	if validate.IsNil(item) {
+		return nil
+	}
+	return &bo.DatasourceMetricMetadata{
+		Name:         item.GetName(),
+		Help:         item.GetHelp(),
+		Type:         item.GetType(),
+		Labels:       item.GetLabels(),
+		Unit:         item.GetUnit(),
+		DatasourceID: datasourceID,
+	}
 }

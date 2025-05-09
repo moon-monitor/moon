@@ -102,7 +102,11 @@ func (s *SyncService) MetricMetadata(ctx context.Context, req *houyiv1.MetricMet
 	if err != nil {
 		return nil, err
 	}
-	if err := s.metricBiz.SyncMetricMetadata(ctx, datasourceConfig); err != nil {
+	params := &bo.SyncMetricMetadataRequest{
+		Item:       datasourceConfig,
+		OperatorId: req.GetOperatorId(),
+	}
+	if err := s.metricBiz.SyncMetricMetadata(ctx, params); err != nil {
 		return nil, err
 	}
 	return &houyiv1.SyncReply{

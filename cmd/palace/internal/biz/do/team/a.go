@@ -6,6 +6,7 @@ func Models() []any {
 		&EmailConfig{},
 		&Dashboard{},
 		&DashboardChart{},
+		&DatasourceMetricMetadata{},
 		&DatasourceMetric{},
 		&Dict{},
 		&OperateLog{},

@@ -134,8 +134,8 @@ func (m *Metric) newStrategyJob(_ context.Context, metric bo.MetricRule) (bo.Str
 	return event.NewStrategyMetricJob(metric.UniqueKey(), opts...)
 }
 
-func (m *Metric) SyncMetricMetadata(ctx context.Context, item bo.MetricDatasourceConfig) error {
-	metricInstance, err := m.metricInitRepo.Init(item)
+func (m *Metric) SyncMetricMetadata(ctx context.Context, req *bo.SyncMetricMetadataRequest) error {
+	metricInstance, err := m.metricInitRepo.Init(req.Item)
 	if err != nil {
 		m.helper.WithContext(ctx).Errorw("msg", "sync metric metadata error", "err", err)
 		return err
@@ -165,7 +165,10 @@ func (m *Metric) SyncMetricMetadata(ctx context.Context, item bo.MetricDatasourc
 			}
 		})
 		params := &palace.SyncMetadataRequest{
-			Items: metadataItems,
+			Items:        metadataItems,
+			OperatorId:   req.OperatorId,
+			TeamId:       req.Item.GetTeamId(),
+			DatasourceId: req.Item.GetId(),
 		}
 		if err := m.callbackRepo.SyncMetadata(ctx, params); err != nil {
 			m.helper.WithContext(ctx).Errorw("msg", "sync metric metadata error", "err", err)
@@ -175,7 +178,10 @@ func (m *Metric) SyncMetricMetadata(ctx context.Context, item bo.MetricDatasourc
 	m.helper.WithContext(ctx).Debugf("total metric: %d, cost: %s", total, time.Since(ts))
 
 	params := &palace.SyncMetadataRequest{
-		IsDone: true,
+		IsDone:       true,
+		OperatorId:   req.OperatorId,
+		TeamId:       req.Item.GetTeamId(),
+		DatasourceId: req.Item.GetId(),
 	}
 	if err := m.callbackRepo.SyncMetadata(ctx, params); err != nil {
 		m.helper.WithContext(ctx).Errorw("msg", "sync metric metadata error", "err", err)

@@ -12,6 +12,14 @@ func GetUserIDByContext(ctx context.Context) (uint32, bool) {
 	return userID, ok
 }
 
+func GetUserIDByContextWithDefault(ctx context.Context, defaultUserID uint32) uint32 {
+	userID, ok := GetUserIDByContext(ctx)
+	if !ok {
+		return defaultUserID
+	}
+	return userID
+}
+
 // WithUserIDContext Set the user id in the context.
 func WithUserIDContext(ctx context.Context, userID uint32) context.Context {
 	return context.WithValue(ctx, userIDContextKey{}, userID)

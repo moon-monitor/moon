@@ -1054,6 +1054,9 @@ components:
             properties:
                 item:
                     $ref: '#/components/schemas/api.houyi.common.MetricDatasourceItem'
+                operatorId:
+                    type: integer
+                    format: uint32
         api.houyi.v1.MetricStrategyRequest:
             type: object
             properties:

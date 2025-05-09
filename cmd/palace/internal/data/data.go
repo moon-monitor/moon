@@ -137,6 +137,14 @@ func (d *Data) FirstRabbitConn() (*bo.Server, bool) {
 	return nil, false
 }
 
+func (d *Data) FirstHouyiConn() (*bo.Server, bool) {
+	list := d.houyiConn.List()
+	for _, conn := range list {
+		return conn, true
+	}
+	return nil, false
+}
+
 func (d *Data) GetCache() cache.Cache {
 	return d.cache
 }

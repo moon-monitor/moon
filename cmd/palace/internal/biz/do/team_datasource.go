@@ -23,3 +23,14 @@ type DatasourceMetric interface {
 	GetExtra() kv.StringMap
 	GetStrategies() []StrategyMetric
 }
+
+type DatasourceMetricMetadata interface {
+	TeamBase
+	GetDatasourceMetricID() uint32
+	GetDatasourceMetric() DatasourceMetric
+	GetName() string
+	GetHelp() string
+	GetType() string
+	GetLabels() map[string]string
+	GetUnit() string
+}

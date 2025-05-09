@@ -61,3 +61,8 @@ func (m *MetricRangeQueryRequest) GetOptimalStep(scrapeInterval time.Duration) t
 	// 向上取整到scrapeInterval的倍数
 	return ((calculatedStep + scrapeInterval - 1) / scrapeInterval) * scrapeInterval
 }
+
+type SyncMetricMetadataRequest struct {
+	Item       MetricDatasourceConfig
+	OperatorId uint32
+}

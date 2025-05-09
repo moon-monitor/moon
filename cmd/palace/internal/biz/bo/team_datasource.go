@@ -45,3 +45,43 @@ type UpdateTeamMetricDatasourceStatusRequest struct {
 	DatasourceID uint32
 	Status       vobj.GlobalStatus
 }
+
+type DatasourceMetricMetadata struct {
+	Name         string
+	Help         string
+	Type         string
+	Labels       map[string]string
+	Unit         string
+	DatasourceID uint32
+}
+
+type BatchSaveTeamMetricDatasourceMetadata struct {
+	TeamID       uint32
+	DatasourceID uint32
+	Metadata     []*DatasourceMetricMetadata
+	IsDone       bool
+}
+
+type SyncMetricMetadataRequest struct {
+	TeamID       uint32
+	DatasourceID uint32
+}
+
+type ListTeamMetricDatasourceMetadata struct {
+	*PaginationRequest
+	DatasourceID uint32
+}
+
+func (r *ListTeamMetricDatasourceMetadata) ToListTeamMetricDatasourceMetadataReply(metadataItems []*team.DatasourceMetricMetadata) *ListTeamMetricDatasourceMetadataReply {
+	return &ListTeamMetricDatasourceMetadataReply{
+		PaginationReply: r.ToReply(),
+		Items:           slices.Map(metadataItems, func(metadata *team.DatasourceMetricMetadata) do.DatasourceMetricMetadata { return metadata }),
+	}
+}
+
+type ListTeamMetricDatasourceMetadataReply = ListReply[do.DatasourceMetricMetadata]
+
+type UpdateTeamMetricDatasourceMetadataRemarkRequest struct {
+	ID         uint32
+	Help, Unit string
+}

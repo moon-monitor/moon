@@ -8,9 +8,11 @@ import (
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/bo"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/vobj"
+	"github.com/moon-monitor/moon/cmd/palace/internal/helper/permission"
 	"github.com/moon-monitor/moon/cmd/palace/internal/service/build"
 	"github.com/moon-monitor/moon/pkg/api/palace"
 	"github.com/moon-monitor/moon/pkg/api/palace/common"
+	"github.com/moon-monitor/moon/pkg/merr"
 )
 
 type TeamDatasourceService struct {
@@ -75,4 +77,19 @@ func (s *TeamDatasourceService) ListTeamMetricDatasource(ctx context.Context, re
 		Pagination: build.ToPaginationReply(datasourceReply.PaginationReply),
 		Items:      build.ToTeamMetricDatasourceItems(datasourceReply.Items),
 	}, nil
+}
+
+func (s *TeamDatasourceService) SyncMetricMetadata(ctx context.Context, req *palace.SyncMetricMetadataRequest) (*common.EmptyReply, error) {
+	teamID, ok := permission.GetTeamIDByContext(ctx)
+	if !ok {
+		return nil, merr.ErrorBadRequest("请选择团队")
+	}
+	params := &bo.SyncMetricMetadataRequest{
+		DatasourceID: req.GetDatasourceId(),
+		TeamID:       teamID,
+	}
+	if err := s.teamDatasourceBiz.SyncMetricMetadata(ctx, params); err != nil {
+		return nil, err
+	}
+	return &common.EmptyReply{Message: "数据源元数据同步中，请稍后刷新页面查看"}, nil
 }

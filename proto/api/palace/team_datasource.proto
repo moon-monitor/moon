@@ -40,6 +40,12 @@ service TeamDatasource {
       body: "*"
     };
   }
+  rpc SyncMetricMetadata (SyncMetricMetadataRequest) returns (api.palace.common.EmptyReply) {
+    option (google.api.http) = {
+      post: "/api/team/metric/datasource/sync/metadata"
+      body: "*"
+    };
+  }
 }
 
 message SaveTeamMetricDatasourceRequest {
@@ -96,4 +102,10 @@ message ListTeamMetricDatasourceRequest {
 message ListTeamMetricDatasourceReply {
   api.palace.common.PaginationReply pagination = 1;
   repeated api.palace.common.TeamMetricDatasourceItem items = 2;
+}
+
+message SyncMetricMetadataRequest {
+  uint32 datasourceId = 1 [(buf.validate.field).uint32 = {
+    gt: 0,
+  }];
 }

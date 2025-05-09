@@ -142,6 +142,7 @@ message EventDatasourceRequest {
 
 message MetricMetadataRequest {
   common.MetricDatasourceItem item = 1;
+  uint32 operatorId = 2;
 }
 
 message SyncReply {

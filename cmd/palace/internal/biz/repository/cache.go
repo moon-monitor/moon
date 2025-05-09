@@ -34,10 +34,11 @@ type Cache interface {
 }
 
 const (
-	EmailCodeKey       cache.K = "palace:verify:email:code"
-	BankTokenKey       cache.K = "palace:token:ban"
-	OAuthTokenKey      cache.K = "palace:token:oauth"
-	UserCacheKey       cache.K = "palace:user:cache"
-	TeamCacheKey       cache.K = "palace:team:cache"
-	TeamMemberCacheKey cache.K = "palace:team:member:cache"
+	EmailCodeKey                        cache.K = "palace:verify:email:code"
+	BankTokenKey                        cache.K = "palace:token:ban"
+	OAuthTokenKey                       cache.K = "palace:token:oauth"
+	UserCacheKey                        cache.K = "palace:user:cache"
+	TeamCacheKey                        cache.K = "palace:team:cache"
+	TeamMemberCacheKey                  cache.K = "palace:team:member:cache"
+	TeamDatasourceMetricMetadataSyncKey cache.K = "palace:team:datasource:metric:metadata:sync"
 )
