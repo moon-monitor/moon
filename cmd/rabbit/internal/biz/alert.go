@@ -41,14 +41,28 @@ func (a *Alert) SendAlert(ctx context.Context, alert *bo.AlertsItem) error {
 	if len(receivers) == 0 {
 		return merr.ErrorParamsError("No receiver is available")
 	}
+	eg := new(errgroup.Group)
 	for _, receiver := range receivers {
 		noticeGroupConfig, ok := a.configRepo.GetNoticeGroupConfig(ctx, receiver)
 		if !ok || validate.IsNil(noticeGroupConfig) {
 			continue
 		}
-		a.sendEmail(ctx, noticeGroupConfig, alert)
-		a.sendSms(ctx, noticeGroupConfig, alert)
-		a.sendHook(ctx, noticeGroupConfig, alert)
+		eg.Go(func() error {
+			a.sendEmail(ctx, noticeGroupConfig, alert)
+			return nil
+		})
+		eg.Go(func() error {
+			a.sendSms(ctx, noticeGroupConfig, alert)
+			return nil
+		})
+		eg.Go(func() error {
+			a.sendHook(ctx, noticeGroupConfig, alert)
+			return nil
+		})
+	}
+	if err := eg.Wait(); err != nil {
+		a.helper.WithContext(ctx).Warnw("method", "SendAlert", "err", err)
+		return err
 	}
 	return nil
 }
@@ -163,6 +177,9 @@ func (a *Alert) sendHook(ctx context.Context, noticeGroupConfig bo.NoticeGroup, 
 				Body:    a.getHookBody(noticeGroupConfig.GetHookTemplate(hookConfig.GetApp()), alertItem),
 			})
 		}
+	}
+	if len(body) == 0 {
+		return
 	}
 	sendParamsOpts := []bo.SendHookParamsOption{
 		bo.WithSendHookParamsOptionBody(body),
