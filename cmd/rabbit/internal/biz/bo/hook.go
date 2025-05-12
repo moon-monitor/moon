@@ -3,7 +3,6 @@ package bo
 import (
 	"github.com/moon-monitor/moon/pkg/api/rabbit/common"
 	"github.com/moon-monitor/moon/pkg/merr"
-	"github.com/moon-monitor/moon/pkg/util/safety"
 	"github.com/moon-monitor/moon/pkg/util/slices"
 )
 
@@ -38,20 +37,20 @@ type HookConfig interface {
 }
 
 type SendHookParams interface {
-	GetBody() *safety.Map[common.HookAPP, []byte]
+	GetBody() []*HookBody
 	GetConfigs() []HookConfig
 }
 
 type sendHookParams struct {
-	BodyMap *safety.Map[common.HookAPP, []byte]
+	Body    []*HookBody
 	Configs []HookConfig
 }
 
-func (s *sendHookParams) GetBody() *safety.Map[common.HookAPP, []byte] {
+func (s *sendHookParams) GetBody() []*HookBody {
 	if s == nil {
 		return nil
 	}
-	return s.BodyMap
+	return s.Body
 }
 
 func (s *sendHookParams) GetConfigs() []HookConfig {
@@ -63,15 +62,19 @@ func (s *sendHookParams) GetConfigs() []HookConfig {
 
 type SendHookParamsOption func(params *sendHookParams) error
 
-func WithSendHookParamsOptionBody(bodyMap map[common.HookAPP][]byte) SendHookParamsOption {
+type HookBody struct {
+	AppName string
+	Body    []byte
+}
+
+func WithSendHookParamsOptionBody(body []*HookBody) SendHookParamsOption {
 	return func(params *sendHookParams) error {
-		if bodyMap == nil {
+		if len(body) == 0 {
 			return merr.ErrorParamsError("body is empty").WithMetadata(map[string]string{
 				"body": "body is empty",
 			})
 		}
-
-		params.BodyMap = safety.NewMap(bodyMap)
+		params.Body = body
 		return nil
 	}
 }

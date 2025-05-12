@@ -13,4 +13,5 @@ var ProviderSetBiz = wire.NewSet(
 	NewSMS,
 	NewHook,
 	NewLock,
+	NewAlert,
 )

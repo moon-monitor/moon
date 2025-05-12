@@ -114,9 +114,12 @@ func (s *SendService) Hook(ctx context.Context, req *rabbitv1.SendHookRequest) (
 	if len(hookConfigs) == 0 || len(req.GetBody()) == 0 {
 		return &common.EmptyReply{}, nil
 	}
-	bodyMap := make(map[common.HookAPP][]byte)
+	bodyMap := make([]*bo.HookBody, 0, len(req.GetBody()))
 	for _, body := range req.GetBody() {
-		bodyMap[body.App] = []byte(body.Body)
+		bodyMap = append(bodyMap, &bo.HookBody{
+			AppName: body.GetAppName(),
+			Body:    []byte(body.GetBody()),
+		})
 	}
 	opts := []bo.SendHookParamsOption{
 		bo.WithSendHookParamsOptionBody(bodyMap),

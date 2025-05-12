@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 
 	"github.com/moon-monitor/moon/pkg/api/common"
+	apicommon "github.com/moon-monitor/moon/pkg/api/rabbit/common"
 	"github.com/moon-monitor/moon/pkg/plugin/cache"
 )
 
@@ -15,6 +16,38 @@ type NoticeGroupConfig struct {
 	Emails    []string                     `json:"emails"`
 	Hooks     []string                     `json:"hooks"`
 	Templates map[common.NoticeType]string `json:"templates"`
+}
+
+// GetEmailTemplate implements bo.NoticeGroup.
+func (n *NoticeGroupConfig) GetEmailTemplate() string {
+	if n == nil {
+		return ""
+	}
+	return n.Templates[common.NoticeType_NOTICE_TYPE_EMAIL]
+}
+
+// GetHookTemplate implements bo.NoticeGroup.
+func (n *NoticeGroupConfig) GetHookTemplate(app apicommon.HookAPP) string {
+	if n == nil {
+		return ""
+	}
+	return n.Templates[common.NoticeType_NOTICE_TYPE_HOOK_DINGTALK]
+}
+
+// GetSmsTemplate implements bo.NoticeGroup.
+func (n *NoticeGroupConfig) GetSmsTemplate() string {
+	if n == nil {
+		return ""
+	}
+	return n.Templates[common.NoticeType_NOTICE_TYPE_SMS]
+}
+
+// GetTemplate implements bo.NoticeGroup.
+func (n *NoticeGroupConfig) GetTemplate(noticeType common.NoticeType) string {
+	if n == nil {
+		return ""
+	}
+	return n.Templates[noticeType]
 }
 
 // GetEmails implements bo.NoticeGroup.

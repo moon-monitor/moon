@@ -48,7 +48,7 @@ message SendEmailRequest {
   string contentType = 5;
   string attachment = 6;
   repeated string cc = 7;
-  optional rabbit.common.EmailConfig emailConfig = 8;
+  optional api.rabbit.common.EmailConfig emailConfig = 8;
   optional string configName = 9;
   string teamId = 10 [(buf.validate.field).required = true];
 }
@@ -64,21 +64,21 @@ message SendSmsRequest {
   }];
   string templateParameters = 3 [(buf.validate.field).required = true];
   string templateCode = 4 [(buf.validate.field).required = true];
-  optional rabbit.common.SMSConfig smsConfig = 5;
+  optional api.rabbit.common.SMSConfig smsConfig = 5;
   optional string configName = 6;
   string teamId = 7 [(buf.validate.field).required = true];
 }
 
 message SendHookRequest {
   message Body {
-    api.rabbit.common.HookAPP app = 1 [(buf.validate.field).required = true];
+    string appName = 1 [(buf.validate.field).required = true];
     string body = 2 [(buf.validate.field).required = true];
   }
   string requestId = 1 [(buf.validate.field).required = true, (buf.validate.field).string = {
     min_len: 32,
     max_len: 36,
   }];
-  repeated rabbit.common.HookConfig hooks = 2 [(buf.validate.field).cel = {
+  repeated api.rabbit.common.HookConfig hooks = 2 [(buf.validate.field).cel = {
     message: "hooks must be between 1 and 10"
     expression: "this.size() >= 1 && this.size() <= 100"
   }];

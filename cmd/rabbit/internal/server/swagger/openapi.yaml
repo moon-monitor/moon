@@ -421,9 +421,8 @@ components:
         api.rabbit.v1.SendHookRequest_Body:
             type: object
             properties:
-                app:
-                    type: integer
-                    format: enum
+                appName:
+                    type: string
                 body:
                     type: string
         api.rabbit.v1.SendSmsRequest:

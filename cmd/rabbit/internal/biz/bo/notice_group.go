@@ -2,6 +2,7 @@ package bo
 
 import (
 	"github.com/moon-monitor/moon/pkg/api/common"
+	apicommon "github.com/moon-monitor/moon/pkg/api/rabbit/common"
 )
 
 type NoticeGroup interface {
@@ -10,6 +11,10 @@ type NoticeGroup interface {
 	GetEmails() []string
 	GetHooks() []string
 	GetTemplates() map[common.NoticeType]string
+	GetTemplate(noticeType common.NoticeType) string
+	GetSmsTemplate() string
+	GetEmailTemplate() string
+	GetHookTemplate(app apicommon.HookAPP) string
 }
 
 func NewNoticeGroup(opts ...NoticeGroupOption) NoticeGroup {
@@ -55,6 +60,33 @@ func (n *noticeGroup) GetSms() []string {
 // GetTemplates implements NoticeGroup.
 func (n *noticeGroup) GetTemplates() map[common.NoticeType]string {
 	return n.templates
+}
+
+func (n *noticeGroup) GetTemplate(noticeType common.NoticeType) string {
+	return n.templates[noticeType]
+}
+
+func (n *noticeGroup) GetSmsTemplate() string {
+	return n.templates[common.NoticeType_NOTICE_TYPE_SMS]
+}
+
+func (n *noticeGroup) GetEmailTemplate() string {
+	return n.templates[common.NoticeType_NOTICE_TYPE_EMAIL]
+}
+
+func (n *noticeGroup) GetHookTemplate(app apicommon.HookAPP) string {
+	var template string
+	switch app {
+	case apicommon.HookAPP_DINGTALK:
+		template = n.templates[common.NoticeType_NOTICE_TYPE_HOOK_DINGTALK]
+	case apicommon.HookAPP_WECHAT:
+		template = n.templates[common.NoticeType_NOTICE_TYPE_HOOK_WECHAT]
+	case apicommon.HookAPP_FEISHU:
+		template = n.templates[common.NoticeType_NOTICE_TYPE_HOOK_FEISHU]
+	case apicommon.HookAPP_OTHER:
+		template = n.templates[common.NoticeType_NOTICE_TYPE_HOOK_WEBHOOK]
+	}
+	return template
 }
 
 func WithNoticeGroupOptionName(name string) NoticeGroupOption {
