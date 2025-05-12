@@ -18,6 +18,24 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/api.common.CheckReply'
+    /v1/alert/send:
+        post:
+            tags:
+                - Alert
+            operationId: Alert_SendAlert
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/api.common.AlertsItem'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.rabbit.common.EmptyReply'
     /v1/send/email:
         post:
             tags:
@@ -146,6 +164,71 @@ paths:
                                 $ref: '#/components/schemas/api.rabbit.common.EmptyReply'
 components:
     schemas:
+        api.common.AlertItem:
+            type: object
+            properties:
+                status:
+                    type: integer
+                    description: status of the alert
+                    format: enum
+                labels:
+                    type: object
+                    additionalProperties:
+                        type: string
+                    description: labels of the alert
+                annotations:
+                    type: object
+                    additionalProperties:
+                        type: string
+                    description: annotations of the alert
+                startsAt:
+                    type: string
+                    description: startsAt of the alert
+                endsAt:
+                    type: string
+                    description: endsAt of the alert
+                generatorURL:
+                    type: string
+                    description: generatorURL of the alert
+                fingerprint:
+                    type: string
+                    description: fingerprint of the alert
+                value:
+                    type: string
+                    description: value of the alert
+        api.common.AlertsItem:
+            type: object
+            properties:
+                receiver:
+                    type: string
+                status:
+                    type: integer
+                    format: enum
+                alerts:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/api.common.AlertItem'
+                groupLabels:
+                    type: object
+                    additionalProperties:
+                        type: string
+                commonLabels:
+                    type: object
+                    additionalProperties:
+                        type: string
+                commonAnnotations:
+                    type: object
+                    additionalProperties:
+                        type: string
+                externalURL:
+                    type: string
+                version:
+                    type: string
+                groupKey:
+                    type: string
+                truncatedAlerts:
+                    type: integer
+                    format: int32
         api.common.CheckReply:
             type: object
             properties:
@@ -418,6 +501,7 @@ components:
                     description: name service name
             description: micro server config
 tags:
+    - name: Alert
     - name: Health
       description: Health Check API
     - name: Send

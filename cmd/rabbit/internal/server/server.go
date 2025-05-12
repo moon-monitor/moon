@@ -29,6 +29,7 @@ func RegisterService(
 	healthService *service.HealthService,
 	sendService *service.SendService,
 	syncService *service.SyncService,
+	alertService *service.AlertService,
 ) server.Servers {
 	common.RegisterHealthServer(rpcSrv, healthService)
 	common.RegisterHealthHTTPServer(httpSrv, healthService)
@@ -36,6 +37,8 @@ func RegisterService(
 	rabbitv1.RegisterSyncServer(rpcSrv, syncService)
 	rabbitv1.RegisterSendHTTPServer(httpSrv, sendService)
 	rabbitv1.RegisterSyncHTTPServer(httpSrv, syncService)
+	rabbitv1.RegisterAlertServer(rpcSrv, alertService)
+	rabbitv1.RegisterAlertHTTPServer(httpSrv, alertService)
 	registerCustomerHookTest(httpSrv, c.IsDev())
 	return server.Servers{rpcSrv, httpSrv, tickerSrv}
 }

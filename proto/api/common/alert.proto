@@ -29,3 +29,16 @@ message AlertItem {
 	// value of the alert
 	string value = 8;	
 }
+
+message AlertsItem {
+	string receiver = 1;
+	AlertStatus status = 2;
+	repeated AlertItem alerts = 3;
+	map<string, string> groupLabels = 4;
+	map<string, string> commonLabels = 5;
+	map<string, string> commonAnnotations = 6;
+	string externalURL = 7;
+	string version = 8;
+	string groupKey = 9;
+	int32 truncatedAlerts = 10;
+}
