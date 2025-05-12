@@ -4,7 +4,7 @@ package api.rabbit.v1;
 
 import "google/api/annotations.proto";
 import "buf/validate/validate.proto";
-import "rabbit/common/notification.proto";
+import "rabbit/common/hook.proto";
 import "rabbit/common/email.proto";
 import "rabbit/common/sms.proto";
 import "rabbit/common/common.proto";

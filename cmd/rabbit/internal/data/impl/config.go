@@ -131,3 +131,36 @@ func (c *configImpl) SetHookConfig(ctx context.Context, configs ...bo.HookConfig
 	}
 	return c.Data.GetCache().Client().HSet(ctx, vobj.HookCacheKey.Key(), configDos).Err()
 }
+
+func (c *configImpl) GetNoticeGroupConfig(ctx context.Context, name string) (bo.NoticeGroup, bool) {
+	key := vobj.NoticeGroupCacheKey.Key()
+	exist, err := c.Data.GetCache().Client().HExists(ctx, key, name).Result()
+	if err != nil {
+		c.helper.WithContext(ctx).Errorw("method", "GetNoticeGroupConfig", "err", err)
+		return nil, false
+	}
+	if !exist {
+		return nil, false
+	}
+	var noticeGroupConfig do.NoticeGroupConfig
+	if err := c.Data.GetCache().Client().HGet(ctx, key, name).Scan(&noticeGroupConfig); err != nil {
+		c.helper.WithContext(ctx).Errorw("method", "GetNoticeGroupConfig", "err", err)
+		return nil, false
+	}
+	return &noticeGroupConfig, true
+}
+
+func (c *configImpl) SetNoticeGroupConfig(ctx context.Context, configs ...bo.NoticeGroup) error {
+	configDos := make(map[string]any, len(configs))
+	for _, v := range configs {
+		item := &do.NoticeGroupConfig{
+			Name:      v.GetName(),
+			Sms:       v.GetSms(),
+			Emails:    v.GetEmails(),
+			Hooks:     v.GetHooks(),
+			Templates: v.GetTemplates(),
+		}
+		configDos[item.UniqueKey()] = item
+	}
+	return c.Data.GetCache().Client().HSet(ctx, vobj.NoticeGroupCacheKey.Key(), configDos).Err()
+}

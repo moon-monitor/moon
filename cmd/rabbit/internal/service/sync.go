@@ -51,3 +51,22 @@ func (s *SyncService) Hook(ctx context.Context, req *apiv1.SyncHookRequest) (*co
 	}
 	return &common.EmptyReply{}, nil
 }
+
+func (s *SyncService) NoticeGroup(ctx context.Context, req *apiv1.SyncNoticeGroupRequest) (*common.EmptyReply, error) {
+	noticeGroups := slices.Map(req.GetNoticeGroups(), func(noticeGroupItem *common.NoticeGroup) bo.NoticeGroup {
+		templates := slices.Map(noticeGroupItem.GetTemplates(), func(templateItem *common.NoticeGroup_Template) bo.Template {
+			return templateItem
+		})
+		return bo.NewNoticeGroup(
+			bo.WithNoticeGroupOptionName(noticeGroupItem.GetName()),
+			bo.WithNoticeGroupOptionSms(noticeGroupItem.GetSms()),
+			bo.WithNoticeGroupOptionEmails(noticeGroupItem.GetEmails()),
+			bo.WithNoticeGroupOptionHooks(noticeGroupItem.GetHooks()),
+			bo.WithNoticeGroupOptionTemplates(templates),
+		)
+	})
+	if err := s.configBiz.SetNoticeGroupConfig(ctx, noticeGroups...); err != nil {
+		return nil, err
+	}
+	return &common.EmptyReply{}, nil
+}

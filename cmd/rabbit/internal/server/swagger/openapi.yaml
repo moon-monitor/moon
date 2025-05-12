@@ -144,6 +144,24 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/api.rabbit.common.EmptyReply'
+    /v1/sync/notice-group:
+        post:
+            tags:
+                - Sync
+            operationId: Sync_NoticeGroup
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/api.rabbit.v1.SyncNoticeGroupRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.rabbit.common.EmptyReply'
     /v1/sync/sms:
         post:
             tags:
@@ -319,6 +337,35 @@ components:
                         type: string
                 enable:
                     type: boolean
+        api.rabbit.common.NoticeGroup:
+            type: object
+            properties:
+                name:
+                    type: string
+                sms:
+                    type: array
+                    items:
+                        type: string
+                emails:
+                    type: array
+                    items:
+                        type: string
+                hooks:
+                    type: array
+                    items:
+                        type: string
+                templates:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/api.rabbit.common.NoticeGroup_Template'
+        api.rabbit.common.NoticeGroup_Template:
+            type: object
+            properties:
+                type:
+                    type: integer
+                    format: enum
+                template:
+                    type: string
         api.rabbit.common.SMSConfig:
             type: object
             properties:
@@ -414,6 +461,15 @@ components:
                     type: array
                     items:
                         $ref: '#/components/schemas/api.rabbit.common.HookConfig'
+                teamId:
+                    type: string
+        api.rabbit.v1.SyncNoticeGroupRequest:
+            type: object
+            properties:
+                noticeGroups:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/api.rabbit.common.NoticeGroup'
                 teamId:
                     type: string
         api.rabbit.v1.SyncSmsRequest:

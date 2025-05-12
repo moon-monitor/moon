@@ -13,4 +13,6 @@ type Config interface {
 	SetSMSConfig(ctx context.Context, configs ...bo.SMSConfig) error
 	GetHookConfig(ctx context.Context, name string) (bo.HookConfig, bool)
 	SetHookConfig(ctx context.Context, configs ...bo.HookConfig) error
+	GetNoticeGroupConfig(ctx context.Context, name string) (bo.NoticeGroup, bool)
+	SetNoticeGroupConfig(ctx context.Context, configs ...bo.NoticeGroup) error
 }

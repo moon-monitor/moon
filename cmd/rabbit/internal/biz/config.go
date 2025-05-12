@@ -73,3 +73,21 @@ func (c *Config) SetHookConfig(ctx context.Context, configs ...bo.HookConfig) er
 	}
 	return c.configRepo.SetHookConfig(ctx, configs...)
 }
+
+func (c *Config) GetNoticeGroupConfig(ctx context.Context, name *string, defaultConfig bo.NoticeGroup) bo.NoticeGroup {
+	if name == nil || *name == "" {
+		return defaultConfig
+	}
+	noticeGroupConfig, ok := c.configRepo.GetNoticeGroupConfig(ctx, *name)
+	if !ok {
+		return defaultConfig
+	}
+	return noticeGroupConfig
+}
+
+func (c *Config) SetNoticeGroupConfig(ctx context.Context, configs ...bo.NoticeGroup) error {
+	if len(configs) == 0 {
+		return nil
+	}
+	return c.configRepo.SetNoticeGroupConfig(ctx, configs...)
+}

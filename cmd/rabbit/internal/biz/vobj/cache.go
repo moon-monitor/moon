@@ -5,8 +5,9 @@ import (
 )
 
 const (
-	EmailCacheKey cache.K = "rabbit:config:email"
-	SmsCacheKey   cache.K = "rabbit:config:sms"
-	HookCacheKey  cache.K = "rabbit:config:hook"
-	SendLockKey   cache.K = "rabbit:send:lock"
+	EmailCacheKey       cache.K = "rabbit:config:email"
+	SmsCacheKey         cache.K = "rabbit:config:sms"
+	HookCacheKey        cache.K = "rabbit:config:hook"
+	SendLockKey         cache.K = "rabbit:send:lock"
+	NoticeGroupCacheKey cache.K = "rabbit:config:notice:group"
 )
