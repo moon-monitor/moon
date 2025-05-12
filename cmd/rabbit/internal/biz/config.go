@@ -91,3 +91,21 @@ func (c *Config) SetNoticeGroupConfig(ctx context.Context, configs ...bo.NoticeG
 	}
 	return c.configRepo.SetNoticeGroupConfig(ctx, configs...)
 }
+
+func (c *Config) GetNoticeUserConfig(ctx context.Context, name *string, defaultConfig bo.NoticeUser) bo.NoticeUser {
+	if name == nil || *name == "" {
+		return defaultConfig
+	}
+	noticeUserConfig, ok := c.configRepo.GetNoticeUserConfig(ctx, *name)
+	if !ok {
+		return defaultConfig
+	}
+	return noticeUserConfig
+}
+
+func (c *Config) SetNoticeUserConfig(ctx context.Context, configs ...bo.NoticeUser) error {
+	if len(configs) == 0 {
+		return nil
+	}
+	return c.configRepo.SetNoticeUserConfig(ctx, configs...)
+}

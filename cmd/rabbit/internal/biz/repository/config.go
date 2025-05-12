@@ -15,4 +15,6 @@ type Config interface {
 	SetHookConfig(ctx context.Context, configs ...bo.HookConfig) error
 	GetNoticeGroupConfig(ctx context.Context, name string) (bo.NoticeGroup, bool)
 	SetNoticeGroupConfig(ctx context.Context, configs ...bo.NoticeGroup) error
+	GetNoticeUserConfig(ctx context.Context, name string) (bo.NoticeUser, bool)
+	SetNoticeUserConfig(ctx context.Context, configs ...bo.NoticeUser) error
 }
