@@ -11,6 +11,7 @@ import (
 	"github.com/moon-monitor/moon/cmd/rabbit/internal/biz/vobj"
 	"github.com/moon-monitor/moon/cmd/rabbit/internal/data"
 	"github.com/moon-monitor/moon/pkg/api/common"
+	"github.com/moon-monitor/moon/pkg/merr"
 )
 
 func NewConfigRepo(d *data.Data, logger log.Logger) repository.Config {
@@ -42,6 +43,48 @@ func (c *configImpl) GetEmailConfig(ctx context.Context, name string) (bo.EmailC
 	}
 
 	return &emailConfig, true
+}
+
+func (c *configImpl) GetEmailConfigs(ctx context.Context, names ...string) ([]bo.EmailConfig, error) {
+	key := vobj.EmailCacheKey.Key()
+	exist, err := c.Data.GetCache().Client().Exists(ctx, key).Result()
+	if err != nil {
+		c.helper.WithContext(ctx).Errorw("method", "GetEmailConfig", "err", err)
+		return nil, err
+	}
+	if exist == 0 {
+		return nil, nil
+	}
+	all, err := c.Data.GetCache().Client().HMGet(ctx, key, names...).Result()
+	if err != nil {
+		c.helper.WithContext(ctx).Errorw("method", "GetEmailConfig", "err", err)
+		return nil, err
+	}
+
+	emailConfigs := make([]bo.EmailConfig, 0, len(all))
+	for _, v := range all {
+		if v == nil {
+			continue
+		}
+		var emailConfig do.EmailConfig
+		switch val := v.(type) {
+		case []byte:
+			if err := emailConfig.UnmarshalBinary(val); err != nil {
+				c.helper.WithContext(ctx).Warnw("method", "GetEmailConfig", "err", err)
+				return nil, err
+			}
+		case string:
+			if err := emailConfig.UnmarshalBinary([]byte(val)); err != nil {
+				c.helper.WithContext(ctx).Warnw("method", "GetEmailConfig", "err", err)
+				return nil, err
+			}
+		default:
+			c.helper.WithContext(ctx).Warnw("method", "GetEmailConfig", "err", merr.ErrorParamsError("invalid email config"))
+			continue
+		}
+		emailConfigs = append(emailConfigs, &emailConfig)
+	}
+	return emailConfigs, nil
 }
 
 func (c *configImpl) SetEmailConfig(ctx context.Context, configs ...bo.EmailConfig) error {
@@ -79,6 +122,48 @@ func (c *configImpl) GetSMSConfig(ctx context.Context, name string) (bo.SMSConfi
 	return &smsConfig, true
 }
 
+func (c *configImpl) GetSMSConfigs(ctx context.Context, names ...string) ([]bo.SMSConfig, error) {
+	key := vobj.SmsCacheKey.Key()
+	exist, err := c.Data.GetCache().Client().Exists(ctx, key).Result()
+	if err != nil {
+		c.helper.WithContext(ctx).Errorw("method", "GetSMSConfig", "err", err)
+		return nil, err
+	}
+	if exist == 0 {
+		return nil, nil
+	}
+	all, err := c.Data.GetCache().Client().HMGet(ctx, key, names...).Result()
+	if err != nil {
+		c.helper.WithContext(ctx).Errorw("method", "GetSMSConfig", "err", err)
+		return nil, err
+	}
+
+	smsConfigs := make([]bo.SMSConfig, 0, len(all))
+	for _, v := range all {
+		if v == nil {
+			continue
+		}
+		var smsConfig do.SMSConfig
+		switch val := v.(type) {
+		case []byte:
+			if err := smsConfig.UnmarshalBinary(val); err != nil {
+				c.helper.WithContext(ctx).Warnw("method", "GetSMSConfig", "err", err)
+				return nil, err
+			}
+		case string:
+			if err := smsConfig.UnmarshalBinary([]byte(val)); err != nil {
+				c.helper.WithContext(ctx).Warnw("method", "GetSMSConfig", "err", err)
+				return nil, err
+			}
+		default:
+			c.helper.WithContext(ctx).Warnw("method", "GetSMSConfig", "err", merr.ErrorParamsError("invalid sms config"))
+			continue
+		}
+		smsConfigs = append(smsConfigs, &smsConfig)
+	}
+	return smsConfigs, nil
+}
+
 func (c *configImpl) SetSMSConfig(ctx context.Context, configs ...bo.SMSConfig) error {
 	configDos := make(map[string]any, len(configs))
 	for _, v := range configs {
@@ -98,12 +183,12 @@ func (c *configImpl) SetSMSConfig(ctx context.Context, configs ...bo.SMSConfig) 
 
 func (c *configImpl) GetHookConfig(ctx context.Context, name string) (bo.HookConfig, bool) {
 	key := vobj.HookCacheKey.Key()
-	exist, err := c.Data.GetCache().Client().HExists(ctx, key, name).Result()
+	exist, err := c.Data.GetCache().Client().Exists(ctx, key).Result()
 	if err != nil {
 		c.helper.WithContext(ctx).Errorw("method", "GetHookConfig", "err", err)
 		return nil, false
 	}
-	if !exist {
+	if exist == 0 {
 		return nil, false
 	}
 	var hookConfig do.HookConfig
@@ -112,6 +197,48 @@ func (c *configImpl) GetHookConfig(ctx context.Context, name string) (bo.HookCon
 		return nil, false
 	}
 	return &hookConfig, true
+}
+
+func (c *configImpl) GetHookConfigs(ctx context.Context, names ...string) ([]bo.HookConfig, error) {
+	key := vobj.HookCacheKey.Key()
+	exist, err := c.Data.GetCache().Client().Exists(ctx, key).Result()
+	if err != nil {
+		c.helper.WithContext(ctx).Errorw("method", "GetHookConfig", "err", err)
+		return nil, err
+	}
+	if exist == 0 {
+		return nil, nil
+	}
+	all, err := c.Data.GetCache().Client().HMGet(ctx, key, names...).Result()
+	if err != nil {
+		c.helper.WithContext(ctx).Errorw("method", "GetHookConfig", "err", err)
+		return nil, err
+	}
+
+	hookConfigs := make([]bo.HookConfig, 0, len(all))
+	for _, v := range all {
+		if v == nil {
+			continue
+		}
+		var hookConfig do.HookConfig
+		switch val := v.(type) {
+		case []byte:
+			if err := hookConfig.UnmarshalBinary(val); err != nil {
+				c.helper.WithContext(ctx).Warnw("method", "GetHookConfig", "err", err)
+				return nil, err
+			}
+		case string:
+			if err := hookConfig.UnmarshalBinary([]byte(val)); err != nil {
+				c.helper.WithContext(ctx).Warnw("method", "GetHookConfig", "err", err)
+				return nil, err
+			}
+		default:
+			c.helper.WithContext(ctx).Warnw("method", "GetHookConfig", "err", merr.ErrorParamsError("invalid hook config"))
+			continue
+		}
+		hookConfigs = append(hookConfigs, &hookConfig)
+	}
+	return hookConfigs, nil
 }
 
 func (c *configImpl) SetHookConfig(ctx context.Context, configs ...bo.HookConfig) error {
@@ -135,12 +262,12 @@ func (c *configImpl) SetHookConfig(ctx context.Context, configs ...bo.HookConfig
 
 func (c *configImpl) GetNoticeGroupConfig(ctx context.Context, name string) (bo.NoticeGroup, bool) {
 	key := vobj.NoticeGroupCacheKey.Key()
-	exist, err := c.Data.GetCache().Client().HExists(ctx, key, name).Result()
+	exist, err := c.Data.GetCache().Client().Exists(ctx, key).Result()
 	if err != nil {
 		c.helper.WithContext(ctx).Errorw("method", "GetNoticeGroupConfig", "err", err)
 		return nil, false
 	}
-	if !exist {
+	if exist == 0 {
 		return nil, false
 	}
 	var noticeGroupConfig do.NoticeGroupConfig
@@ -149,6 +276,48 @@ func (c *configImpl) GetNoticeGroupConfig(ctx context.Context, name string) (bo.
 		return nil, false
 	}
 	return &noticeGroupConfig, true
+}
+
+func (c *configImpl) GetNoticeGroupConfigs(ctx context.Context, names ...string) ([]bo.NoticeGroup, error) {
+	key := vobj.NoticeGroupCacheKey.Key()
+	exist, err := c.Data.GetCache().Client().Exists(ctx, key).Result()
+	if err != nil {
+		c.helper.WithContext(ctx).Errorw("method", "GetNoticeGroupConfig", "err", err)
+		return nil, err
+	}
+	if exist == 0 {
+		return nil, nil
+	}
+	all, err := c.Data.GetCache().Client().HMGet(ctx, key, names...).Result()
+	if err != nil {
+		c.helper.WithContext(ctx).Errorw("method", "GetNoticeGroupConfig", "err", err)
+		return nil, err
+	}
+
+	noticeGroupConfigs := make([]bo.NoticeGroup, 0, len(all))
+	for _, v := range all {
+		if v == nil {
+			continue
+		}
+		var noticeGroupConfig do.NoticeGroupConfig
+		switch val := v.(type) {
+		case []byte:
+			if err := noticeGroupConfig.UnmarshalBinary(val); err != nil {
+				c.helper.WithContext(ctx).Warnw("method", "GetNoticeGroupConfig", "err", err)
+				return nil, err
+			}
+		case string:
+			if err := noticeGroupConfig.UnmarshalBinary([]byte(val)); err != nil {
+				c.helper.WithContext(ctx).Warnw("method", "GetNoticeGroupConfig", "err", err)
+				return nil, err
+			}
+		default:
+			c.helper.WithContext(ctx).Warnw("method", "GetNoticeGroupConfig", "err", merr.ErrorParamsError("invalid notice group config"))
+			continue
+		}
+		noticeGroupConfigs = append(noticeGroupConfigs, &noticeGroupConfig)
+	}
+	return noticeGroupConfigs, nil
 }
 
 func (c *configImpl) SetNoticeGroupConfig(ctx context.Context, configs ...bo.NoticeGroup) error {
@@ -178,12 +347,12 @@ func (c *configImpl) SetNoticeGroupConfig(ctx context.Context, configs ...bo.Not
 
 func (c *configImpl) GetNoticeUserConfig(ctx context.Context, name string) (bo.NoticeUser, bool) {
 	key := vobj.NoticeUserCacheKey.Key()
-	exist, err := c.Data.GetCache().Client().HExists(ctx, key, name).Result()
+	exist, err := c.Data.GetCache().Client().Exists(ctx, key).Result()
 	if err != nil {
 		c.helper.WithContext(ctx).Errorw("method", "GetNoticeUserConfig", "err", err)
 		return nil, false
 	}
-	if !exist {
+	if exist == 0 {
 		return nil, false
 	}
 	var noticeUserConfig do.NoticeUserConfig
@@ -192,6 +361,48 @@ func (c *configImpl) GetNoticeUserConfig(ctx context.Context, name string) (bo.N
 		return nil, false
 	}
 	return &noticeUserConfig, true
+}
+
+func (c *configImpl) GetNoticeUserConfigs(ctx context.Context, names ...string) ([]bo.NoticeUser, error) {
+	key := vobj.NoticeUserCacheKey.Key()
+	exist, err := c.Data.GetCache().Client().Exists(ctx, key).Result()
+	if err != nil {
+		c.helper.WithContext(ctx).Errorw("method", "GetNoticeUserConfig", "err", err)
+		return nil, err
+	}
+	if exist == 0 {
+		return nil, nil
+	}
+	all, err := c.Data.GetCache().Client().HMGet(ctx, key, names...).Result()
+	if err != nil {
+		c.helper.WithContext(ctx).Errorw("method", "GetNoticeUserConfig", "err", err)
+		return nil, err
+	}
+
+	noticeUserConfigs := make([]bo.NoticeUser, 0, len(all))
+	for _, v := range all {
+		if v == nil {
+			continue
+		}
+		var noticeUserConfig do.NoticeUserConfig
+		switch val := v.(type) {
+		case []byte:
+			if err := noticeUserConfig.UnmarshalBinary(val); err != nil {
+				c.helper.WithContext(ctx).Warnw("method", "GetNoticeUserConfig", "err", err)
+				return nil, err
+			}
+		case string:
+			if err := noticeUserConfig.UnmarshalBinary([]byte(val)); err != nil {
+				c.helper.WithContext(ctx).Warnw("method", "GetNoticeUserConfig", "err", err)
+				return nil, err
+			}
+		default:
+			c.helper.WithContext(ctx).Warnw("method", "GetNoticeUserConfig", "err", merr.ErrorParamsError("invalid notice user config"))
+			continue
+		}
+		noticeUserConfigs = append(noticeUserConfigs, &noticeUserConfig)
+	}
+	return noticeUserConfigs, nil
 }
 
 func (c *configImpl) SetNoticeUserConfig(ctx context.Context, configs ...bo.NoticeUser) error {

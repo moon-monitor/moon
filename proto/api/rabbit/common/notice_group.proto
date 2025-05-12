@@ -11,6 +11,7 @@ message NoticeGroup {
 	  api.common.NoticeType type = 1;
 	  string template = 2;
 	  string templateParameters = 3;
+	  string subject = 4;
 	}
 	string name = 1;
 	string smsConfigName = 2;

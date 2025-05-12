@@ -16,7 +16,7 @@ type NoticeGroup interface {
 	GetTemplates() map[common.NoticeType]Template
 	GetTemplate(noticeType common.NoticeType) Template
 	GetSmsTemplate() Template
-	GetEmailTemplate() string
+	GetEmailTemplate() Template
 	GetHookTemplate(app apicommon.HookAPP) string
 }
 
@@ -85,12 +85,8 @@ func (n *noticeGroup) GetSmsTemplate() Template {
 	return n.templates[common.NoticeType_NOTICE_TYPE_SMS]
 }
 
-func (n *noticeGroup) GetEmailTemplate() string {
-	t, ok := n.templates[common.NoticeType_NOTICE_TYPE_EMAIL]
-	if !ok || validate.IsNil(t) {
-		return ""
-	}
-	return t.GetTemplate()
+func (n *noticeGroup) GetEmailTemplate() Template {
+	return n.templates[common.NoticeType_NOTICE_TYPE_EMAIL]
 }
 
 func (n *noticeGroup) GetHookTemplate(app apicommon.HookAPP) string {
@@ -152,6 +148,7 @@ type Template interface {
 	GetType() common.NoticeType
 	GetTemplate() string
 	GetTemplateParameters() string
+	GetSubject() string
 }
 
 func WithNoticeGroupOptionTemplates(templates []Template) NoticeGroupOption {

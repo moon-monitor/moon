@@ -390,6 +390,8 @@ components:
                     type: string
                 templateParameters:
                     type: string
+                subject:
+                    type: string
         api.rabbit.common.NoticeUser:
             type: object
             properties:

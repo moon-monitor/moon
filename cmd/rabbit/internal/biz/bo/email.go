@@ -12,7 +12,9 @@ func NewSendEmailParams(config EmailConfig, opts ...SendEmailParamsOption) (Send
 		return nil, merr.ErrorParamsError("No email configuration is available")
 	}
 	params := &sendEmailParams{
-		config: config,
+		config:      config,
+		Subject:     "Moon Alert",
+		ContentType: "text/html",
 	}
 
 	for _, opt := range opts {
@@ -141,9 +143,7 @@ func WithSendEmailParamsOptionBody(body string) SendEmailParamsOption {
 func WithSendEmailParamsOptionSubject(subject string) SendEmailParamsOption {
 	return func(params *sendEmailParams) error {
 		if subject == "" {
-			return merr.ErrorParamsError("subject is required").WithMetadata(map[string]string{
-				"subject": "subject is required",
-			})
+			subject = "Moon Alert"
 		}
 
 		params.Subject = subject

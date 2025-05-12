@@ -31,15 +31,11 @@ func (n *NoticeGroupConfig) GetEmailConfigName() string {
 }
 
 // GetEmailTemplate implements bo.NoticeGroup.
-func (n *NoticeGroupConfig) GetEmailTemplate() string {
+func (n *NoticeGroupConfig) GetEmailTemplate() bo.Template {
 	if n == nil {
-		return ""
+		return nil
 	}
-	t, ok := n.Templates[common.NoticeType_NOTICE_TYPE_EMAIL]
-	if !ok || validate.IsNil(t) {
-		return ""
-	}
-	return t.Template
+	return n.Templates[common.NoticeType_NOTICE_TYPE_EMAIL]
 }
 
 // GetEmailUserNames implements bo.NoticeGroup.
@@ -126,6 +122,7 @@ type Template struct {
 	Type           common.NoticeType `json:"type"`
 	Template       string            `json:"template"`
 	TemplateParams string            `json:"templateParams"`
+	Subject        string            `json:"subject"`
 }
 
 // GetTemplate implements bo.Template.
@@ -142,6 +139,14 @@ func (t *Template) GetTemplateParameters() string {
 		return ""
 	}
 	return t.TemplateParams
+}
+
+// GetSubject implements bo.Template.
+func (t *Template) GetSubject() string {
+	if t == nil {
+		return ""
+	}
+	return t.Subject
 }
 
 // GetType implements bo.Template.

@@ -4,10 +4,12 @@ import (
 	"context"
 
 	"github.com/go-kratos/kratos/v2/log"
+	"golang.org/x/sync/errgroup"
 
 	"github.com/moon-monitor/moon/cmd/rabbit/internal/biz/bo"
 	"github.com/moon-monitor/moon/cmd/rabbit/internal/biz/repository"
 	"github.com/moon-monitor/moon/pkg/merr"
+	"github.com/moon-monitor/moon/pkg/util/slices"
 	"github.com/moon-monitor/moon/pkg/util/template"
 	"github.com/moon-monitor/moon/pkg/util/validate"
 )
@@ -56,6 +58,45 @@ func (a *Alert) sendEmail(ctx context.Context, noticeGroupConfig bo.NoticeGroup,
 	if len(emailNames) == 0 {
 		return
 	}
+	userConfigs, err := a.configRepo.GetNoticeUserConfigs(ctx, emailNames...)
+	if err != nil {
+		a.helper.WithContext(ctx).Warnw("method", "GetNoticeUserConfigs", "err", err)
+		return
+	}
+	emails := slices.MapFilter(userConfigs, func(userConfig bo.NoticeUser) (string, bool) {
+		if email := userConfig.GetEmail(); validate.TextIsNotNull(email) {
+			return email, true
+		}
+		return "", false
+	})
+	if len(emails) == 0 {
+		return
+	}
+	emailConfig, ok := a.configRepo.GetEmailConfig(ctx, noticeGroupConfig.GetEmailConfigName())
+	if !ok || validate.IsNil(emailConfig) {
+		return
+	}
+	emailTemplate := noticeGroupConfig.GetEmailTemplate()
+	eg := new(errgroup.Group)
+	for _, alertItem := range alert.Alerts {
+		opts := []bo.SendEmailParamsOption{
+			bo.WithSendEmailParamsOptionEmail(emails...),
+			bo.WithSendEmailParamsOptionSubject(a.getEmailSubject(emailTemplate.GetSubject(), alertItem)),
+			bo.WithSendEmailParamsOptionBody(a.getEmailBody(emailTemplate.GetTemplate(), alertItem)),
+		}
+		sendEmailParams, err := bo.NewSendEmailParams(emailConfig, opts...)
+		if err != nil {
+			a.helper.WithContext(ctx).Warnw("method", "NewSendEmailParams", "err", err)
+			continue
+		}
+		eg.Go(func() error {
+			return a.sendRepo.Email(ctx, sendEmailParams)
+		})
+	}
+
+	if err := eg.Wait(); err != nil {
+		a.helper.WithContext(ctx).Warnw("method", "sendEmail", "err", err)
+	}
 }
 
 func (a *Alert) sendSms(ctx context.Context, noticeGroupConfig bo.NoticeGroup, alert *bo.AlertsItem) {
@@ -63,8 +104,45 @@ func (a *Alert) sendSms(ctx context.Context, noticeGroupConfig bo.NoticeGroup, a
 	if len(smsNames) == 0 {
 		return
 	}
+	userConfigs, err := a.configRepo.GetNoticeUserConfigs(ctx, smsNames...)
+	if err != nil {
+		a.helper.WithContext(ctx).Warnw("method", "GetNoticeUserConfigs", "err", err)
+		return
+	}
+	phoneNumbers := slices.MapFilter(userConfigs, func(userConfig bo.NoticeUser) (string, bool) {
+		if phone := userConfig.GetPhone(); validate.TextIsNotNull(phone) {
+			return phone, true
+		}
+		return "", false
+	})
+	if len(phoneNumbers) == 0 {
+		return
+	}
+	smsConfig, ok := a.configRepo.GetSMSConfig(ctx, noticeGroupConfig.GetSmsConfigName())
+	if !ok || validate.IsNil(smsConfig) {
+		return
+	}
+	smsTemplate := noticeGroupConfig.GetSmsTemplate()
+	eg := new(errgroup.Group)
+	for _, alertItem := range alert.Alerts {
+		opts := []bo.SendSMSParamsOption{
+			bo.WithSendSMSParamsOptionPhoneNumbers(phoneNumbers...),
+			bo.WithSendSMSParamsOptionTemplateParam(a.getSmsBody(smsTemplate.GetTemplateParameters(), alertItem)),
+			bo.WithSendSMSParamsOptionTemplateCode(smsTemplate.GetTemplate()),
+		}
+		sendSMSParams, err := bo.NewSendSMSParams(smsConfig, opts...)
+		if err != nil {
+			a.helper.WithContext(ctx).Warnw("method", "NewSendSMSParams", "err", err)
+			continue
+		}
+		eg.Go(func() error {
+			return a.sendRepo.SMS(ctx, sendSMSParams)
+		})
+	}
+	if err := eg.Wait(); err != nil {
+		a.helper.WithContext(ctx).Warnw("method", "sendSms", "err", err)
+	}
 }
-
 func (a *Alert) sendHook(ctx context.Context, noticeGroupConfig bo.NoticeGroup, alert *bo.AlertsItem) {
 	hookNames := noticeGroupConfig.GetHookConfigNames()
 	if len(hookNames) == 0 {
@@ -101,4 +179,16 @@ func (a *Alert) sendHook(ctx context.Context, noticeGroupConfig bo.NoticeGroup, 
 
 func (a *Alert) getHookBody(temp string, alert *bo.AlertItem) []byte {
 	return []byte(template.TextFormatterX(temp, alert))
+}
+
+func (a *Alert) getEmailBody(temp string, alert *bo.AlertItem) string {
+	return template.HtmlFormatterX(temp, alert)
+}
+
+func (a *Alert) getEmailSubject(temp string, alert *bo.AlertItem) string {
+	return template.TextFormatterX(temp, alert)
+}
+
+func (a *Alert) getSmsBody(temp string, alert *bo.AlertItem) string {
+	return template.TextFormatterX(temp, alert)
 }
