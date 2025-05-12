@@ -180,6 +180,24 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/api.rabbit.common.EmptyReply'
+    /v1/sync/remove:
+        post:
+            tags:
+                - Sync
+            operationId: Sync_Remove
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/api.rabbit.v1.RemoveRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.rabbit.common.EmptyReply'
     /v1/sync/sms:
         post:
             tags:
@@ -411,6 +429,16 @@ components:
                     $ref: '#/components/schemas/api.rabbit.common.AliyunSMSConfig'
                 enable:
                     type: boolean
+        api.rabbit.v1.RemoveRequest:
+            type: object
+            properties:
+                teamId:
+                    type: string
+                name:
+                    type: string
+                type:
+                    type: integer
+                    format: enum
         api.rabbit.v1.SendEmailRequest:
             type: object
             properties:

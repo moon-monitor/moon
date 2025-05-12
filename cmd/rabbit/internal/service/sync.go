@@ -82,3 +82,15 @@ func (s *SyncService) NoticeUser(ctx context.Context, req *apiv1.SyncNoticeUserR
 	}
 	return &common.EmptyReply{}, nil
 }
+
+func (s *SyncService) Remove(ctx context.Context, req *apiv1.RemoveRequest) (*common.EmptyReply, error) {
+	params := &bo.RemoveConfigParams{
+		TeamID: req.GetTeamId(),
+		Name:   req.GetName(),
+		Type:   req.GetType(),
+	}
+	if err := s.configBiz.RemoveConfig(ctx, params); err != nil {
+		return nil, err
+	}
+	return &common.EmptyReply{}, nil
+}

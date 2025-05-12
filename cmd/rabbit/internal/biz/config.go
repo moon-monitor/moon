@@ -109,3 +109,7 @@ func (c *Config) SetNoticeUserConfig(ctx context.Context, configs ...bo.NoticeUs
 	}
 	return c.configRepo.SetNoticeUserConfig(ctx, configs...)
 }
+
+func (c *Config) RemoveConfig(ctx context.Context, params *bo.RemoveConfigParams) error {
+	return c.configRepo.RemoveConfig(ctx, params)
+}
