@@ -1,5 +1,12 @@
 package slices
 
+import (
+	"encoding"
+	"encoding/json"
+
+	"github.com/moon-monitor/moon/pkg/util/validate"
+)
+
 // FindByValue find slice by value, return value and ok
 func FindByValue[T any, R comparable](s []T, val R, f func(v T) R) (r T, ok bool) {
 	for _, v := range s {
@@ -62,4 +69,34 @@ func ToMap[T any, K comparable](s []T, f func(v T) K) map[K]T {
 		m[f(v)] = v
 	}
 	return m
+}
+
+func UnmarshalBinary[T any](data []any, src *[]*T) error {
+	if validate.IsNil(src) {
+		return nil
+	}
+	list := make([][]byte, 0, len(data))
+	for _, v := range data {
+		switch val := v.(type) {
+		case []byte:
+			list = append(list, val)
+		case string:
+			list = append(list, []byte(val))
+		}
+	}
+	for _, v := range list {
+		var item T
+		switch item := any(item).(type) {
+		case encoding.BinaryUnmarshaler:
+			if err := item.UnmarshalBinary(v); err != nil {
+				return err
+			}
+		default:
+			if err := json.Unmarshal(v, &item); err != nil {
+				return err
+			}
+		}
+		*src = append(*src, &item)
+	}
+	return nil
 }

@@ -11,7 +11,7 @@ import (
 	"github.com/moon-monitor/moon/cmd/rabbit/internal/biz/vobj"
 	"github.com/moon-monitor/moon/cmd/rabbit/internal/data"
 	"github.com/moon-monitor/moon/pkg/api/common"
-	"github.com/moon-monitor/moon/pkg/merr"
+	"github.com/moon-monitor/moon/pkg/util/slices"
 )
 
 func NewConfigRepo(d *data.Data, logger log.Logger) repository.Config {
@@ -61,30 +61,12 @@ func (c *configImpl) GetEmailConfigs(ctx context.Context, names ...string) ([]bo
 		return nil, err
 	}
 
-	emailConfigs := make([]bo.EmailConfig, 0, len(all))
-	for _, v := range all {
-		if v == nil {
-			continue
-		}
-		var emailConfig do.EmailConfig
-		switch val := v.(type) {
-		case []byte:
-			if err := emailConfig.UnmarshalBinary(val); err != nil {
-				c.helper.WithContext(ctx).Warnw("method", "GetEmailConfig", "err", err)
-				return nil, err
-			}
-		case string:
-			if err := emailConfig.UnmarshalBinary([]byte(val)); err != nil {
-				c.helper.WithContext(ctx).Warnw("method", "GetEmailConfig", "err", err)
-				return nil, err
-			}
-		default:
-			c.helper.WithContext(ctx).Warnw("method", "GetEmailConfig", "err", merr.ErrorParamsError("invalid email config"))
-			continue
-		}
-		emailConfigs = append(emailConfigs, &emailConfig)
+	emailConfigs := make([]*do.EmailConfig, 0, len(all))
+	if err := slices.UnmarshalBinary(all, &emailConfigs); err != nil {
+		c.helper.WithContext(ctx).Errorw("method", "GetEmailConfig", "err", err)
+		return nil, err
 	}
-	return emailConfigs, nil
+	return slices.Map(emailConfigs, func(v *do.EmailConfig) bo.EmailConfig { return v }), nil
 }
 
 func (c *configImpl) SetEmailConfig(ctx context.Context, configs ...bo.EmailConfig) error {
@@ -138,30 +120,12 @@ func (c *configImpl) GetSMSConfigs(ctx context.Context, names ...string) ([]bo.S
 		return nil, err
 	}
 
-	smsConfigs := make([]bo.SMSConfig, 0, len(all))
-	for _, v := range all {
-		if v == nil {
-			continue
-		}
-		var smsConfig do.SMSConfig
-		switch val := v.(type) {
-		case []byte:
-			if err := smsConfig.UnmarshalBinary(val); err != nil {
-				c.helper.WithContext(ctx).Warnw("method", "GetSMSConfig", "err", err)
-				return nil, err
-			}
-		case string:
-			if err := smsConfig.UnmarshalBinary([]byte(val)); err != nil {
-				c.helper.WithContext(ctx).Warnw("method", "GetSMSConfig", "err", err)
-				return nil, err
-			}
-		default:
-			c.helper.WithContext(ctx).Warnw("method", "GetSMSConfig", "err", merr.ErrorParamsError("invalid sms config"))
-			continue
-		}
-		smsConfigs = append(smsConfigs, &smsConfig)
+	smsConfigs := make([]*do.SMSConfig, 0, len(all))
+	if err := slices.UnmarshalBinary(all, &smsConfigs); err != nil {
+		c.helper.WithContext(ctx).Errorw("method", "GetSMSConfig", "err", err)
+		return nil, err
 	}
-	return smsConfigs, nil
+	return slices.Map(smsConfigs, func(v *do.SMSConfig) bo.SMSConfig { return v }), nil
 }
 
 func (c *configImpl) SetSMSConfig(ctx context.Context, configs ...bo.SMSConfig) error {
@@ -215,30 +179,12 @@ func (c *configImpl) GetHookConfigs(ctx context.Context, names ...string) ([]bo.
 		return nil, err
 	}
 
-	hookConfigs := make([]bo.HookConfig, 0, len(all))
-	for _, v := range all {
-		if v == nil {
-			continue
-		}
-		var hookConfig do.HookConfig
-		switch val := v.(type) {
-		case []byte:
-			if err := hookConfig.UnmarshalBinary(val); err != nil {
-				c.helper.WithContext(ctx).Warnw("method", "GetHookConfig", "err", err)
-				return nil, err
-			}
-		case string:
-			if err := hookConfig.UnmarshalBinary([]byte(val)); err != nil {
-				c.helper.WithContext(ctx).Warnw("method", "GetHookConfig", "err", err)
-				return nil, err
-			}
-		default:
-			c.helper.WithContext(ctx).Warnw("method", "GetHookConfig", "err", merr.ErrorParamsError("invalid hook config"))
-			continue
-		}
-		hookConfigs = append(hookConfigs, &hookConfig)
+	hookConfigs := make([]*do.HookConfig, 0, len(all))
+	if err := slices.UnmarshalBinary(all, &hookConfigs); err != nil {
+		c.helper.WithContext(ctx).Errorw("method", "GetHookConfig", "err", err)
+		return nil, err
 	}
-	return hookConfigs, nil
+	return slices.Map(hookConfigs, func(v *do.HookConfig) bo.HookConfig { return v }), nil
 }
 
 func (c *configImpl) SetHookConfig(ctx context.Context, configs ...bo.HookConfig) error {
@@ -294,30 +240,12 @@ func (c *configImpl) GetNoticeGroupConfigs(ctx context.Context, names ...string)
 		return nil, err
 	}
 
-	noticeGroupConfigs := make([]bo.NoticeGroup, 0, len(all))
-	for _, v := range all {
-		if v == nil {
-			continue
-		}
-		var noticeGroupConfig do.NoticeGroupConfig
-		switch val := v.(type) {
-		case []byte:
-			if err := noticeGroupConfig.UnmarshalBinary(val); err != nil {
-				c.helper.WithContext(ctx).Warnw("method", "GetNoticeGroupConfig", "err", err)
-				return nil, err
-			}
-		case string:
-			if err := noticeGroupConfig.UnmarshalBinary([]byte(val)); err != nil {
-				c.helper.WithContext(ctx).Warnw("method", "GetNoticeGroupConfig", "err", err)
-				return nil, err
-			}
-		default:
-			c.helper.WithContext(ctx).Warnw("method", "GetNoticeGroupConfig", "err", merr.ErrorParamsError("invalid notice group config"))
-			continue
-		}
-		noticeGroupConfigs = append(noticeGroupConfigs, &noticeGroupConfig)
+	noticeGroupConfigs := make([]*do.NoticeGroupConfig, 0, len(all))
+	if err := slices.UnmarshalBinary(all, &noticeGroupConfigs); err != nil {
+		c.helper.WithContext(ctx).Errorw("method", "GetNoticeGroupConfig", "err", err)
+		return nil, err
 	}
-	return noticeGroupConfigs, nil
+	return slices.Map(noticeGroupConfigs, func(v *do.NoticeGroupConfig) bo.NoticeGroup { return v }), nil
 }
 
 func (c *configImpl) SetNoticeGroupConfig(ctx context.Context, configs ...bo.NoticeGroup) error {
@@ -379,30 +307,12 @@ func (c *configImpl) GetNoticeUserConfigs(ctx context.Context, names ...string) 
 		return nil, err
 	}
 
-	noticeUserConfigs := make([]bo.NoticeUser, 0, len(all))
-	for _, v := range all {
-		if v == nil {
-			continue
-		}
-		var noticeUserConfig do.NoticeUserConfig
-		switch val := v.(type) {
-		case []byte:
-			if err := noticeUserConfig.UnmarshalBinary(val); err != nil {
-				c.helper.WithContext(ctx).Warnw("method", "GetNoticeUserConfig", "err", err)
-				return nil, err
-			}
-		case string:
-			if err := noticeUserConfig.UnmarshalBinary([]byte(val)); err != nil {
-				c.helper.WithContext(ctx).Warnw("method", "GetNoticeUserConfig", "err", err)
-				return nil, err
-			}
-		default:
-			c.helper.WithContext(ctx).Warnw("method", "GetNoticeUserConfig", "err", merr.ErrorParamsError("invalid notice user config"))
-			continue
-		}
-		noticeUserConfigs = append(noticeUserConfigs, &noticeUserConfig)
+	noticeUserConfigs := make([]*do.NoticeUserConfig, 0, len(all))
+	if err := slices.UnmarshalBinary(all, &noticeUserConfigs); err != nil {
+		c.helper.WithContext(ctx).Errorw("method", "GetNoticeUserConfig", "err", err)
+		return nil, err
 	}
-	return noticeUserConfigs, nil
+	return slices.Map(noticeUserConfigs, func(v *do.NoticeUserConfig) bo.NoticeUser { return v }), nil
 }
 
 func (c *configImpl) SetNoticeUserConfig(ctx context.Context, configs ...bo.NoticeUser) error {
