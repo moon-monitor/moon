@@ -52,21 +52,21 @@ func (a *Alert) SendAlert(ctx context.Context, alert *bo.AlertsItem) error {
 }
 
 func (a *Alert) sendEmail(ctx context.Context, noticeGroupConfig bo.NoticeGroup, alert *bo.AlertsItem) {
-	emailNames := noticeGroupConfig.GetEmails()
+	emailNames := noticeGroupConfig.GetEmailUserNames()
 	if len(emailNames) == 0 {
 		return
 	}
 }
 
 func (a *Alert) sendSms(ctx context.Context, noticeGroupConfig bo.NoticeGroup, alert *bo.AlertsItem) {
-	smsNames := noticeGroupConfig.GetSms()
+	smsNames := noticeGroupConfig.GetSmsUserNames()
 	if len(smsNames) == 0 {
 		return
 	}
 }
 
 func (a *Alert) sendHook(ctx context.Context, noticeGroupConfig bo.NoticeGroup, alert *bo.AlertsItem) {
-	hookNames := noticeGroupConfig.GetHooks()
+	hookNames := noticeGroupConfig.GetHookConfigNames()
 	if len(hookNames) == 0 {
 		return
 	}

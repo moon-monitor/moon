@@ -59,9 +59,11 @@ func (s *SyncService) NoticeGroup(ctx context.Context, req *apiv1.SyncNoticeGrou
 		})
 		return bo.NewNoticeGroup(
 			bo.WithNoticeGroupOptionName(noticeGroupItem.GetName()),
-			bo.WithNoticeGroupOptionSms(noticeGroupItem.GetSms()),
-			bo.WithNoticeGroupOptionEmails(noticeGroupItem.GetEmails()),
-			bo.WithNoticeGroupOptionHooks(noticeGroupItem.GetHooks()),
+			bo.WithNoticeGroupOptionSmsConfigName(noticeGroupItem.GetSmsConfigName()),
+			bo.WithNoticeGroupOptionEmailConfigName(noticeGroupItem.GetEmailConfigName()),
+			bo.WithNoticeGroupOptionHookConfigNames(noticeGroupItem.GetHookConfigNames()),
+			bo.WithNoticeGroupOptionSmsUserNames(noticeGroupItem.GetSmsUserNames()),
+			bo.WithNoticeGroupOptionEmailUserNames(noticeGroupItem.GetEmailUserNames()),
 			bo.WithNoticeGroupOptionTemplates(templates),
 		)
 	})

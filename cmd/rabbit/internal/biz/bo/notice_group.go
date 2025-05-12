@@ -3,23 +3,26 @@ package bo
 import (
 	"github.com/moon-monitor/moon/pkg/api/common"
 	apicommon "github.com/moon-monitor/moon/pkg/api/rabbit/common"
+	"github.com/moon-monitor/moon/pkg/util/validate"
 )
 
 type NoticeGroup interface {
 	GetName() string
-	GetSms() []string
-	GetEmails() []string
-	GetHooks() []string
-	GetTemplates() map[common.NoticeType]string
-	GetTemplate(noticeType common.NoticeType) string
-	GetSmsTemplate() string
+	GetSmsConfigName() string
+	GetEmailConfigName() string
+	GetSmsUserNames() []string
+	GetEmailUserNames() []string
+	GetHookConfigNames() []string
+	GetTemplates() map[common.NoticeType]Template
+	GetTemplate(noticeType common.NoticeType) Template
+	GetSmsTemplate() Template
 	GetEmailTemplate() string
 	GetHookTemplate(app apicommon.HookAPP) string
 }
 
 func NewNoticeGroup(opts ...NoticeGroupOption) NoticeGroup {
 	noticeGroup := &noticeGroup{
-		templates: make(map[common.NoticeType]string, 7),
+		templates: make(map[common.NoticeType]Template, 7),
 	}
 	for _, opt := range opts {
 		opt(noticeGroup)
@@ -30,21 +33,28 @@ func NewNoticeGroup(opts ...NoticeGroupOption) NoticeGroup {
 type NoticeGroupOption func(noticeGroup *noticeGroup)
 
 type noticeGroup struct {
-	name      string
-	sms       []string
-	emails    []string
-	hooks     []string
-	templates map[common.NoticeType]string
+	name            string
+	smsConfigName   string
+	emailConfigName string
+	smsUserNames    []string
+	emailUserNames  []string
+	hookConfigNames []string
+	templates       map[common.NoticeType]Template
+}
+
+// GetSmsUserNames implements NoticeGroup.
+func (n *noticeGroup) GetSmsUserNames() []string {
+	return n.smsUserNames
 }
 
 // GetEmails implements NoticeGroup.
-func (n *noticeGroup) GetEmails() []string {
-	return n.emails
+func (n *noticeGroup) GetEmailUserNames() []string {
+	return n.emailUserNames
 }
 
 // GetHooks implements NoticeGroup.
-func (n *noticeGroup) GetHooks() []string {
-	return n.hooks
+func (n *noticeGroup) GetHookConfigNames() []string {
+	return n.hookConfigNames
 }
 
 // GetName implements NoticeGroup.
@@ -52,41 +62,54 @@ func (n *noticeGroup) GetName() string {
 	return n.name
 }
 
-// GetSms implements NoticeGroup.
-func (n *noticeGroup) GetSms() []string {
-	return n.sms
+// GetSmsConfigName implements NoticeGroup.
+func (n *noticeGroup) GetSmsConfigName() string {
+	return n.smsConfigName
+}
+
+// GetEmailConfigName implements NoticeGroup.
+func (n *noticeGroup) GetEmailConfigName() string {
+	return n.emailConfigName
 }
 
 // GetTemplates implements NoticeGroup.
-func (n *noticeGroup) GetTemplates() map[common.NoticeType]string {
+func (n *noticeGroup) GetTemplates() map[common.NoticeType]Template {
 	return n.templates
 }
 
-func (n *noticeGroup) GetTemplate(noticeType common.NoticeType) string {
+func (n *noticeGroup) GetTemplate(noticeType common.NoticeType) Template {
 	return n.templates[noticeType]
 }
 
-func (n *noticeGroup) GetSmsTemplate() string {
+func (n *noticeGroup) GetSmsTemplate() Template {
 	return n.templates[common.NoticeType_NOTICE_TYPE_SMS]
 }
 
 func (n *noticeGroup) GetEmailTemplate() string {
-	return n.templates[common.NoticeType_NOTICE_TYPE_EMAIL]
+	t, ok := n.templates[common.NoticeType_NOTICE_TYPE_EMAIL]
+	if !ok || validate.IsNil(t) {
+		return ""
+	}
+	return t.GetTemplate()
 }
 
 func (n *noticeGroup) GetHookTemplate(app apicommon.HookAPP) string {
-	var template string
+	var template Template
+	var ok bool
 	switch app {
 	case apicommon.HookAPP_DINGTALK:
-		template = n.templates[common.NoticeType_NOTICE_TYPE_HOOK_DINGTALK]
+		template, ok = n.templates[common.NoticeType_NOTICE_TYPE_HOOK_DINGTALK]
 	case apicommon.HookAPP_WECHAT:
-		template = n.templates[common.NoticeType_NOTICE_TYPE_HOOK_WECHAT]
+		template, ok = n.templates[common.NoticeType_NOTICE_TYPE_HOOK_WECHAT]
 	case apicommon.HookAPP_FEISHU:
-		template = n.templates[common.NoticeType_NOTICE_TYPE_HOOK_FEISHU]
+		template, ok = n.templates[common.NoticeType_NOTICE_TYPE_HOOK_FEISHU]
 	case apicommon.HookAPP_OTHER:
-		template = n.templates[common.NoticeType_NOTICE_TYPE_HOOK_WEBHOOK]
+		template, ok = n.templates[common.NoticeType_NOTICE_TYPE_HOOK_WEBHOOK]
 	}
-	return template
+	if !ok || validate.IsNil(template) {
+		return ""
+	}
+	return template.GetTemplate()
 }
 
 func WithNoticeGroupOptionName(name string) NoticeGroupOption {
@@ -95,39 +118,52 @@ func WithNoticeGroupOptionName(name string) NoticeGroupOption {
 	}
 }
 
-func WithNoticeGroupOptionSms(sms []string) NoticeGroupOption {
+func WithNoticeGroupOptionSmsConfigName(smsConfigName string) NoticeGroupOption {
 	return func(noticeGroup *noticeGroup) {
-		noticeGroup.sms = sms
+		noticeGroup.smsConfigName = smsConfigName
 	}
 }
 
-func WithNoticeGroupOptionEmails(emails []string) NoticeGroupOption {
+func WithNoticeGroupOptionEmailConfigName(emailConfigName string) NoticeGroupOption {
 	return func(noticeGroup *noticeGroup) {
-		noticeGroup.emails = emails
+		noticeGroup.emailConfigName = emailConfigName
 	}
 }
 
-func WithNoticeGroupOptionHooks(hooks []string) NoticeGroupOption {
+func WithNoticeGroupOptionHookConfigNames(hookConfigNames []string) NoticeGroupOption {
 	return func(noticeGroup *noticeGroup) {
-		noticeGroup.hooks = hooks
+		noticeGroup.hookConfigNames = hookConfigNames
+	}
+}
+
+func WithNoticeGroupOptionSmsUserNames(smsUserNames []string) NoticeGroupOption {
+	return func(noticeGroup *noticeGroup) {
+		noticeGroup.smsUserNames = smsUserNames
+	}
+}
+
+func WithNoticeGroupOptionEmailUserNames(emailUserNames []string) NoticeGroupOption {
+	return func(noticeGroup *noticeGroup) {
+		noticeGroup.emailUserNames = emailUserNames
 	}
 }
 
 type Template interface {
 	GetType() common.NoticeType
 	GetTemplate() string
+	GetTemplateParameters() string
 }
 
 func WithNoticeGroupOptionTemplates(templates []Template) NoticeGroupOption {
 	return func(noticeGroup *noticeGroup) {
 		for _, template := range templates {
-			noticeGroup.templates[template.GetType()] = template.GetTemplate()
+			noticeGroup.templates[template.GetType()] = template
 		}
 	}
 }
 
 func WithNoticeGroupOptionTemplate(template Template) NoticeGroupOption {
 	return func(noticeGroup *noticeGroup) {
-		noticeGroup.templates[template.GetType()] = template.GetTemplate()
+		noticeGroup.templates[template.GetType()] = template
 	}
 }

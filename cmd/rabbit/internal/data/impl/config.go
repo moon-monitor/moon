@@ -10,6 +10,7 @@ import (
 	"github.com/moon-monitor/moon/cmd/rabbit/internal/biz/repository"
 	"github.com/moon-monitor/moon/cmd/rabbit/internal/biz/vobj"
 	"github.com/moon-monitor/moon/cmd/rabbit/internal/data"
+	"github.com/moon-monitor/moon/pkg/api/common"
 )
 
 func NewConfigRepo(d *data.Data, logger log.Logger) repository.Config {
@@ -153,12 +154,22 @@ func (c *configImpl) GetNoticeGroupConfig(ctx context.Context, name string) (bo.
 func (c *configImpl) SetNoticeGroupConfig(ctx context.Context, configs ...bo.NoticeGroup) error {
 	configDos := make(map[string]any, len(configs))
 	for _, v := range configs {
+		templateMap := make(map[common.NoticeType]*do.Template, len(v.GetTemplates()))
+		for _, t := range v.GetTemplates() {
+			templateMap[t.GetType()] = &do.Template{
+				Type:           t.GetType(),
+				Template:       t.GetTemplate(),
+				TemplateParams: t.GetTemplateParameters(),
+			}
+		}
 		item := &do.NoticeGroupConfig{
-			Name:      v.GetName(),
-			Sms:       v.GetSms(),
-			Emails:    v.GetEmails(),
-			Hooks:     v.GetHooks(),
-			Templates: v.GetTemplates(),
+			Name:            v.GetName(),
+			SMSConfigName:   v.GetSmsConfigName(),
+			EmailConfigName: v.GetEmailConfigName(),
+			HookConfigNames: v.GetHookConfigNames(),
+			SMSUserNames:    v.GetSmsUserNames(),
+			EmailUserNames:  v.GetEmailUserNames(),
+			Templates:       templateMap,
 		}
 		configDos[item.UniqueKey()] = item
 	}

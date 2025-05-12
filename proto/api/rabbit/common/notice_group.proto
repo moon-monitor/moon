@@ -10,11 +10,14 @@ message NoticeGroup {
 	message Template {
 	  api.common.NoticeType type = 1;
 	  string template = 2;
+	  string templateParameters = 3;
 	}
 	string name = 1;
-	repeated string sms = 2;
-	repeated string emails = 3;
-	repeated string hooks = 4;
-	repeated Template templates = 5;
+	string smsConfigName = 2;
+	string emailConfigName = 3;
+	repeated string hookConfigNames = 4;
+	repeated string smsUserNames = 5;
+	repeated string emailUserNames = 6;
+	repeated Template templates = 7;
   }
   

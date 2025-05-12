@@ -342,15 +342,19 @@ components:
             properties:
                 name:
                     type: string
-                sms:
+                smsConfigName:
+                    type: string
+                emailConfigName:
+                    type: string
+                hookConfigNames:
                     type: array
                     items:
                         type: string
-                emails:
+                smsUserNames:
                     type: array
                     items:
                         type: string
-                hooks:
+                emailUserNames:
                     type: array
                     items:
                         type: string
@@ -365,6 +369,8 @@ components:
                     type: integer
                     format: enum
                 template:
+                    type: string
+                templateParameters:
                     type: string
         api.rabbit.common.SMSConfig:
             type: object
