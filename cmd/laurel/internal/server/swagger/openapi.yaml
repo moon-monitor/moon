@@ -18,6 +18,24 @@ paths:
                         application/json:
                             schema:
                                 $ref: '#/components/schemas/api.common.CheckReply'
+    /v1/metric/push:
+        post:
+            tags:
+                - Metric
+            operationId: Metric_Push
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/api.laurel.v1.MetricPushRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.laurel.v1.MetricPushReply'
     /v1/server/register:
         post:
             tags:
@@ -69,6 +87,36 @@ components:
                     type: boolean
                 uuid:
                     type: string
+        api.laurel.common.Metric:
+            type: object
+            properties:
+                name:
+                    type: string
+                labels:
+                    type: object
+                    additionalProperties:
+                        type: string
+                value:
+                    type: number
+                    format: double
+                timestamp:
+                    type: number
+                    format: double
+        api.laurel.v1.MetricPushReply:
+            type: object
+            properties:
+                code:
+                    type: integer
+                    format: int32
+                message:
+                    type: string
+        api.laurel.v1.MetricPushRequest:
+            type: object
+            properties:
+                metrics:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/api.laurel.common.Metric'
         config.Discovery:
             type: object
             properties:
@@ -147,4 +195,5 @@ components:
 tags:
     - name: Health
       description: Health Check API
+    - name: Metric
     - name: Server

@@ -1,0 +1,12 @@
+syntax = "proto3";
+
+package api.laurel.common;
+
+option go_package = "github.com/moon-monitor/moon/pkg/api/laurel/common;common";
+
+message Metric {
+	string name = 1;
+	map<string, string> labels = 2;
+	double value = 3;
+	double timestamp = 4;
+}
