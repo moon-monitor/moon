@@ -146,7 +146,19 @@ conf-houyi:
            --go_out=paths=source_relative:./cmd/houyi/internal/conf \
            --experimental_allow_proto3_optional \
            ./cmd/houyi/internal/conf/*.proto
-		   
+
+.PHONY: conf-laurel
+conf-laurel:
+	make conf
+	make api app=laurel
+	protoc --proto_path=./proto/config \
+           --proto_path=./proto/api \
+           --proto_path=./proto/third_party \
+           --proto_path=./cmd/laurel/internal/conf \
+           --go_out=paths=source_relative:./cmd/laurel/internal/conf \
+           --experimental_allow_proto3_optional \
+           ./cmd/laurel/internal/conf/*.proto
+
 .PHONY: wire-palace
 wire-palace:
 	cd ./cmd/palace && wire
@@ -158,6 +170,10 @@ wire-rabbit:
 .PHONY: wire-houyi
 wire-houyi:
 	cd ./cmd/houyi && wire
+
+.PHONY: wire-laurel
+wire-laurel:
+	cd ./cmd/laurel && wire
 
 .PHONY: stringer-palace
 stringer-palace:
@@ -173,6 +189,11 @@ stringer-houyi:
 	@echo "Generating houyi stringer"
 	cd ./cmd/houyi/internal/biz/vobj && go generate
 
+.PHONY: stringer-laurel
+stringer-laurel:
+	@echo "Generating laurel stringer"
+	# cd ./cmd/laurel/internal/biz/vobj && go generate
+	
 .PHONY: gen-rabbit
 gen-rabbit:
 	@echo "Generating rabbit db"
@@ -180,6 +201,10 @@ gen-rabbit:
 .PHONY: gen-houyi
 gen-houyi:
 	@echo "Generating houyi db"
+
+.PHONY: gen-laurel
+gen-laurel:
+	@echo "Generating laurel db"
 
 .PHONY: build
 build:

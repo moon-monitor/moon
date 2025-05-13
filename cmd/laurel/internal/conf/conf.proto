@@ -1,0 +1,27 @@
+syntax = "proto3";
+
+package cmd.laurel.internal.conf;
+
+import "config.proto";
+
+option go_package = "github.com/moon-monitor/moon/cmd/laurel/internal/conf;conf";
+
+message Bootstrap {
+  config.Environment environment = 1;
+  config.Server server = 2;
+  config.Cache cache = 3;
+  config.Log log = 4;
+  config.Registry registry = 5;
+  Auth auth = 6;
+  config.MicroServer palace = 7;
+}
+
+message Auth {
+  message Token {
+    string token = 1;
+    string name = 2;
+  }
+  config.JWT jwt = 1;
+  repeated Token tokens = 2;
+}
+
