@@ -4,7 +4,10 @@ import (
 	"os"
 	"sync"
 
+	"github.com/go-kratos/kratos/v2"
+
 	"github.com/moon-monitor/moon/pkg/config"
+	"github.com/moon-monitor/moon/pkg/plugin/registry"
 )
 
 var (
@@ -101,4 +104,22 @@ func WithEnv(env config.Environment) Option {
 	return func(e *Env) {
 		e.env = env.String()
 	}
+}
+
+func WithKratosOption(registerConf *config.Registry, opts ...kratos.Option) []kratos.Option {
+	defer Hello()
+	optList := append(opts,
+		kratos.ID(env.ID()),
+		kratos.Name(env.Name()),
+		kratos.Version(env.Version()),
+		kratos.Metadata(env.Metadata()),
+	)
+	if registerConf != nil && registerConf.GetEnable() {
+		reg, err := registry.NewRegister(registerConf)
+		if err != nil {
+			panic(err)
+		}
+		optList = append(optList, kratos.Registrar(reg))
+	}
+	return optList
 }

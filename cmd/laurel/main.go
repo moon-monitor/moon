@@ -10,7 +10,6 @@ import (
 	"github.com/moon-monitor/moon/cmd/laurel/internal/conf"
 	"github.com/moon-monitor/moon/pkg/hello"
 	mlog "github.com/moon-monitor/moon/pkg/log"
-	"github.com/moon-monitor/moon/pkg/plugin/registry"
 	"github.com/moon-monitor/moon/pkg/plugin/server"
 	"github.com/moon-monitor/moon/pkg/util/load"
 )
@@ -61,24 +60,11 @@ func run(cfgPath string) {
 }
 
 func newApp(c *conf.Bootstrap, srvs server.Servers, logger log.Logger) *kratos.App {
-	hello.Hello()
-	env := hello.GetEnv()
-	opts := []kratos.Option{
-		kratos.ID(env.ID()),
-		kratos.Name(env.Name()),
-		kratos.Version(env.Version()),
-		kratos.Metadata(env.Metadata()),
+	opts := hello.WithKratosOption(
+		c.GetRegistry(),
 		kratos.Logger(logger),
 		kratos.Server(srvs...),
-	}
-	registerConf := c.GetRegistry()
-	if registerConf != nil && registerConf.GetEnable() {
-		reg, err := registry.NewRegister(c.GetRegistry())
-		if err != nil {
-			panic(err)
-		}
-		opts = append(opts, kratos.Registrar(reg))
-	}
+	)
 
 	return kratos.New(opts...)
 }
