@@ -20,6 +20,17 @@ type NoticeGroup interface {
 	GetHookTemplate(app apicommon.HookAPP) string
 }
 
+type GetNoticeGroupConfigParams struct {
+	TeamID             string
+	Name               *string
+	DefaultNoticeGroup NoticeGroup
+}
+
+type SetNoticeGroupConfigParams struct {
+	TeamID  string
+	Configs []NoticeGroup
+}
+
 func NewNoticeGroup(opts ...NoticeGroupOption) NoticeGroup {
 	noticeGroup := &noticeGroup{
 		templates: make(map[common.NoticeType]Template, 7),

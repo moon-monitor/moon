@@ -43,7 +43,7 @@ func (a *Alert) SendAlert(ctx context.Context, alert *bo.AlertsItem) error {
 	}
 	eg := new(errgroup.Group)
 	for _, receiver := range receivers {
-		noticeGroupConfig, ok := a.configRepo.GetNoticeGroupConfig(ctx, receiver)
+		noticeGroupConfig, ok := a.configRepo.GetNoticeGroupConfig(ctx, alert.GetTeamID(), receiver)
 		if !ok || validate.IsNil(noticeGroupConfig) {
 			continue
 		}
@@ -72,7 +72,7 @@ func (a *Alert) sendEmail(ctx context.Context, noticeGroupConfig bo.NoticeGroup,
 	if len(emailNames) == 0 {
 		return
 	}
-	userConfigs, err := a.configRepo.GetNoticeUserConfigs(ctx, emailNames...)
+	userConfigs, err := a.configRepo.GetNoticeUserConfigs(ctx, alert.GetTeamID(), emailNames...)
 	if err != nil {
 		a.helper.WithContext(ctx).Warnw("method", "GetNoticeUserConfigs", "err", err)
 		return
@@ -86,7 +86,7 @@ func (a *Alert) sendEmail(ctx context.Context, noticeGroupConfig bo.NoticeGroup,
 	if len(emails) == 0 {
 		return
 	}
-	emailConfig, ok := a.configRepo.GetEmailConfig(ctx, noticeGroupConfig.GetEmailConfigName())
+	emailConfig, ok := a.configRepo.GetEmailConfig(ctx, alert.GetTeamID(), noticeGroupConfig.GetEmailConfigName())
 	if !ok || validate.IsNil(emailConfig) {
 		return
 	}
@@ -118,7 +118,7 @@ func (a *Alert) sendSms(ctx context.Context, noticeGroupConfig bo.NoticeGroup, a
 	if len(smsNames) == 0 {
 		return
 	}
-	userConfigs, err := a.configRepo.GetNoticeUserConfigs(ctx, smsNames...)
+	userConfigs, err := a.configRepo.GetNoticeUserConfigs(ctx, alert.GetTeamID(), smsNames...)
 	if err != nil {
 		a.helper.WithContext(ctx).Warnw("method", "GetNoticeUserConfigs", "err", err)
 		return
@@ -132,7 +132,7 @@ func (a *Alert) sendSms(ctx context.Context, noticeGroupConfig bo.NoticeGroup, a
 	if len(phoneNumbers) == 0 {
 		return
 	}
-	smsConfig, ok := a.configRepo.GetSMSConfig(ctx, noticeGroupConfig.GetSmsConfigName())
+	smsConfig, ok := a.configRepo.GetSMSConfig(ctx, alert.GetTeamID(), noticeGroupConfig.GetSmsConfigName())
 	if !ok || validate.IsNil(smsConfig) {
 		return
 	}
@@ -166,7 +166,7 @@ func (a *Alert) sendHook(ctx context.Context, noticeGroupConfig bo.NoticeGroup, 
 	body := make([]*bo.HookBody, 0, len(hookNames)*len(alert.Alerts))
 
 	for _, hookName := range hookNames {
-		hookConfig, ok := a.configRepo.GetHookConfig(ctx, hookName)
+		hookConfig, ok := a.configRepo.GetHookConfig(ctx, alert.GetTeamID(), hookName)
 		if !ok || validate.IsNil(hookConfig) {
 			continue
 		}

@@ -1,15 +1,17 @@
 package bo
 
 import (
+	"strconv"
 	"strings"
 
+	"github.com/moon-monitor/moon/pkg/util/kv/label"
 	"github.com/moon-monitor/moon/pkg/util/validate"
 )
 
 type AlertItem struct {
 	Status       string
-	Labels       map[string]string
-	Annotations  map[string]string
+	Labels       *label.Label
+	Annotations  *label.Annotation
 	StartsAt     string
 	EndsAt       string
 	GeneratorURL string
@@ -21,9 +23,9 @@ type AlertsItem struct {
 	Receiver          string
 	Status            string
 	Alerts            []*AlertItem
-	GroupLabels       map[string]string
-	CommonLabels      map[string]string
-	CommonAnnotations map[string]string
+	GroupLabels       *label.Label
+	CommonLabels      *label.Label
+	CommonAnnotations *label.Annotation
 	ExternalURL       string
 	Version           string
 	GroupKey          string
@@ -36,4 +38,11 @@ func (a *AlertsItem) GetReceiver() []string {
 		return []string{}
 	}
 	return strings.Split(a.Receiver, ",")
+}
+
+func (a *AlertsItem) GetTeamID() string {
+	if a == nil {
+		return ""
+	}
+	return strconv.Itoa(int(a.CommonLabels.GetTeamId()))
 }

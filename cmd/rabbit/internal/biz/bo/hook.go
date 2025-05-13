@@ -36,6 +36,17 @@ type HookConfig interface {
 	GetEnable() bool
 }
 
+type GetHookConfigParams struct {
+	TeamID            string
+	Name              *string
+	DefaultHookConfig HookConfig
+}
+
+type SetHookConfigParams struct {
+	TeamID  string
+	Configs []HookConfig
+}
+
 type SendHookParams interface {
 	GetBody() []*HookBody
 	GetConfigs() []HookConfig

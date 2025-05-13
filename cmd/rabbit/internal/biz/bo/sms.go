@@ -31,6 +31,17 @@ type SMSConfig interface {
 	GetEnable() bool
 }
 
+type GetSMSConfigParams struct {
+	TeamID           string
+	Name             *string
+	DefaultSMSConfig SMSConfig
+}
+
+type SetSMSConfigParams struct {
+	TeamID  string
+	Configs []SMSConfig
+}
+
 type SendSMSParams interface {
 	GetPhoneNumbers() []string
 	GetGetTemplateParam() string

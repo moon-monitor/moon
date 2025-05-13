@@ -26,7 +26,11 @@ func NewSyncService(configBiz *biz.Config, logger log.Logger) *SyncService {
 }
 func (s *SyncService) Sms(ctx context.Context, req *apiv1.SyncSmsRequest) (*common.EmptyReply, error) {
 	smss := build.ToSMSConfigs(req.GetSmss())
-	if err := s.configBiz.SetSMSConfig(ctx, smss...); err != nil {
+	params := &bo.SetSMSConfigParams{
+		TeamID:  req.GetTeamId(),
+		Configs: smss,
+	}
+	if err := s.configBiz.SetSMSConfig(ctx, params); err != nil {
 		return nil, err
 	}
 	return &common.EmptyReply{}, nil
@@ -36,7 +40,11 @@ func (s *SyncService) Email(ctx context.Context, req *apiv1.SyncEmailRequest) (*
 	emails := slices.Map(req.GetEmails(), func(emailItem *common.EmailConfig) bo.EmailConfig {
 		return emailItem
 	})
-	if err := s.configBiz.SetEmailConfig(ctx, emails...); err != nil {
+	params := &bo.SetEmailConfigParams{
+		TeamID:  req.GetTeamId(),
+		Configs: emails,
+	}
+	if err := s.configBiz.SetEmailConfig(ctx, params); err != nil {
 		return nil, err
 	}
 	return &common.EmptyReply{}, nil
@@ -46,7 +54,11 @@ func (s *SyncService) Hook(ctx context.Context, req *apiv1.SyncHookRequest) (*co
 	hooks := slices.Map(req.GetHooks(), func(hookItem *common.HookConfig) bo.HookConfig {
 		return hookItem
 	})
-	if err := s.configBiz.SetHookConfig(ctx, hooks...); err != nil {
+	params := &bo.SetHookConfigParams{
+		TeamID:  req.GetTeamId(),
+		Configs: hooks,
+	}
+	if err := s.configBiz.SetHookConfig(ctx, params); err != nil {
 		return nil, err
 	}
 	return &common.EmptyReply{}, nil
@@ -67,7 +79,11 @@ func (s *SyncService) NoticeGroup(ctx context.Context, req *apiv1.SyncNoticeGrou
 			bo.WithNoticeGroupOptionTemplates(templates),
 		)
 	})
-	if err := s.configBiz.SetNoticeGroupConfig(ctx, noticeGroups...); err != nil {
+	params := &bo.SetNoticeGroupConfigParams{
+		TeamID:  req.GetTeamId(),
+		Configs: noticeGroups,
+	}
+	if err := s.configBiz.SetNoticeGroupConfig(ctx, params); err != nil {
 		return nil, err
 	}
 	return &common.EmptyReply{}, nil
@@ -77,7 +93,11 @@ func (s *SyncService) NoticeUser(ctx context.Context, req *apiv1.SyncNoticeUserR
 	noticeUsers := slices.Map(req.GetNoticeUsers(), func(noticeUserItem *common.NoticeUser) bo.NoticeUser {
 		return noticeUserItem
 	})
-	if err := s.configBiz.SetNoticeUserConfig(ctx, noticeUsers...); err != nil {
+	params := &bo.SetNoticeUserConfigParams{
+		TeamID:  req.GetTeamId(),
+		Configs: noticeUsers,
+	}
+	if err := s.configBiz.SetNoticeUserConfig(ctx, params); err != nil {
 		return nil, err
 	}
 	return &common.EmptyReply{}, nil

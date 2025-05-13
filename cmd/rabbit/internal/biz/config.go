@@ -4,8 +4,10 @@ import (
 	"context"
 
 	"github.com/go-kratos/kratos/v2/log"
+
 	"github.com/moon-monitor/moon/cmd/rabbit/internal/biz/bo"
 	"github.com/moon-monitor/moon/cmd/rabbit/internal/biz/repository"
+	"github.com/moon-monitor/moon/pkg/util/validate"
 )
 
 func NewConfig(configRepo repository.Config, logger log.Logger) *Config {
@@ -20,94 +22,94 @@ type Config struct {
 	configRepo repository.Config
 }
 
-func (c *Config) GetEmailConfig(ctx context.Context, name *string, defaultConfig bo.EmailConfig) bo.EmailConfig {
-	if name == nil || *name == "" {
-		return defaultConfig
+func (c *Config) GetEmailConfig(ctx context.Context, params *bo.GetEmailConfigParams) bo.EmailConfig {
+	if validate.IsNil(params.Name) || *params.Name == "" {
+		return params.DefaultEmailConfig
 	}
-	emailConfig, ok := c.configRepo.GetEmailConfig(ctx, *name)
+	emailConfig, ok := c.configRepo.GetEmailConfig(ctx, params.TeamID, *params.Name)
 	if !ok || !emailConfig.GetEnable() {
-		return defaultConfig
+		return params.DefaultEmailConfig
 	}
 	return emailConfig
 }
 
-func (c *Config) SetEmailConfig(ctx context.Context, configs ...bo.EmailConfig) error {
-	if len(configs) == 0 {
+func (c *Config) SetEmailConfig(ctx context.Context, params *bo.SetEmailConfigParams) error {
+	if len(params.Configs) == 0 {
 		return nil
 	}
-	return c.configRepo.SetEmailConfig(ctx, configs...)
+	return c.configRepo.SetEmailConfig(ctx, params.TeamID, params.Configs...)
 }
 
-func (c *Config) GetSMSConfig(ctx context.Context, name *string, defaultConfig bo.SMSConfig) bo.SMSConfig {
-	if name == nil || *name == "" {
-		return defaultConfig
+func (c *Config) GetSMSConfig(ctx context.Context, params *bo.GetSMSConfigParams) bo.SMSConfig {
+	if validate.IsNil(params.Name) || *params.Name == "" {
+		return params.DefaultSMSConfig
 	}
-	smsConfig, ok := c.configRepo.GetSMSConfig(ctx, *name)
+	smsConfig, ok := c.configRepo.GetSMSConfig(ctx, params.TeamID, *params.Name)
 	if !ok || !smsConfig.GetEnable() {
-		return defaultConfig
+		return params.DefaultSMSConfig
 	}
 	return smsConfig
 }
 
-func (c *Config) SetSMSConfig(ctx context.Context, configs ...bo.SMSConfig) error {
-	if len(configs) == 0 {
+func (c *Config) SetSMSConfig(ctx context.Context, params *bo.SetSMSConfigParams) error {
+	if len(params.Configs) == 0 {
 		return nil
 	}
-	return c.configRepo.SetSMSConfig(ctx, configs...)
+	return c.configRepo.SetSMSConfig(ctx, params.TeamID, params.Configs...)
 }
 
-func (c *Config) GetHookConfig(ctx context.Context, name *string, defaultConfig bo.HookConfig) bo.HookConfig {
-	if name == nil || *name == "" {
-		return defaultConfig
+func (c *Config) GetHookConfig(ctx context.Context, params *bo.GetHookConfigParams) bo.HookConfig {
+	if validate.IsNil(params.Name) || *params.Name == "" {
+		return params.DefaultHookConfig
 	}
-	hookConfig, ok := c.configRepo.GetHookConfig(ctx, *name)
+	hookConfig, ok := c.configRepo.GetHookConfig(ctx, params.TeamID, *params.Name)
 	if !ok || !hookConfig.GetEnable() {
-		return defaultConfig
+		return params.DefaultHookConfig
 	}
 	return hookConfig
 }
 
-func (c *Config) SetHookConfig(ctx context.Context, configs ...bo.HookConfig) error {
-	if len(configs) == 0 {
+func (c *Config) SetHookConfig(ctx context.Context, params *bo.SetHookConfigParams) error {
+	if len(params.Configs) == 0 {
 		return nil
 	}
-	return c.configRepo.SetHookConfig(ctx, configs...)
+	return c.configRepo.SetHookConfig(ctx, params.TeamID, params.Configs...)
 }
 
-func (c *Config) GetNoticeGroupConfig(ctx context.Context, name *string, defaultConfig bo.NoticeGroup) bo.NoticeGroup {
-	if name == nil || *name == "" {
-		return defaultConfig
+func (c *Config) GetNoticeGroupConfig(ctx context.Context, params *bo.GetNoticeGroupConfigParams) bo.NoticeGroup {
+	if validate.IsNil(params.Name) || *params.Name == "" {
+		return params.DefaultNoticeGroup
 	}
-	noticeGroupConfig, ok := c.configRepo.GetNoticeGroupConfig(ctx, *name)
+	noticeGroupConfig, ok := c.configRepo.GetNoticeGroupConfig(ctx, params.TeamID, *params.Name)
 	if !ok {
-		return defaultConfig
+		return params.DefaultNoticeGroup
 	}
 	return noticeGroupConfig
 }
 
-func (c *Config) SetNoticeGroupConfig(ctx context.Context, configs ...bo.NoticeGroup) error {
-	if len(configs) == 0 {
+func (c *Config) SetNoticeGroupConfig(ctx context.Context, params *bo.SetNoticeGroupConfigParams) error {
+	if len(params.Configs) == 0 {
 		return nil
 	}
-	return c.configRepo.SetNoticeGroupConfig(ctx, configs...)
+	return c.configRepo.SetNoticeGroupConfig(ctx, params.TeamID, params.Configs...)
 }
 
-func (c *Config) GetNoticeUserConfig(ctx context.Context, name *string, defaultConfig bo.NoticeUser) bo.NoticeUser {
-	if name == nil || *name == "" {
-		return defaultConfig
+func (c *Config) GetNoticeUserConfig(ctx context.Context, params *bo.GetNoticeUserConfigParams) bo.NoticeUser {
+	if validate.IsNil(params.Name) || *params.Name == "" {
+		return params.DefaultNoticeUser
 	}
-	noticeUserConfig, ok := c.configRepo.GetNoticeUserConfig(ctx, *name)
+	noticeUserConfig, ok := c.configRepo.GetNoticeUserConfig(ctx, params.TeamID, *params.Name)
 	if !ok {
-		return defaultConfig
+		return params.DefaultNoticeUser
 	}
 	return noticeUserConfig
 }
 
-func (c *Config) SetNoticeUserConfig(ctx context.Context, configs ...bo.NoticeUser) error {
-	if len(configs) == 0 {
+func (c *Config) SetNoticeUserConfig(ctx context.Context, params *bo.SetNoticeUserConfigParams) error {
+	if len(params.Configs) == 0 {
 		return nil
 	}
-	return c.configRepo.SetNoticeUserConfig(ctx, configs...)
+	return c.configRepo.SetNoticeUserConfig(ctx, params.TeamID, params.Configs...)
 }
 
 func (c *Config) RemoveConfig(ctx context.Context, params *bo.RemoveConfigParams) error {

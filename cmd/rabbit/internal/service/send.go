@@ -12,6 +12,7 @@ import (
 	"github.com/moon-monitor/moon/cmd/rabbit/internal/service/build"
 	"github.com/moon-monitor/moon/pkg/api/rabbit/common"
 	rabbitv1 "github.com/moon-monitor/moon/pkg/api/rabbit/v1"
+	"github.com/moon-monitor/moon/pkg/merr"
 	"github.com/moon-monitor/moon/pkg/util/pointer"
 	"github.com/moon-monitor/moon/pkg/util/slices"
 )
@@ -49,7 +50,12 @@ func (s *SendService) Email(ctx context.Context, req *rabbitv1.SendEmailRequest)
 	if !s.lockBiz.LockByAPP(ctx, req.GetRequestId(), vobj.APPEmail) {
 		return &common.EmptyReply{}, nil
 	}
-	emailConfig := s.configBiz.GetEmailConfig(ctx, req.ConfigName, req.GetEmailConfig())
+	params := &bo.GetEmailConfigParams{
+		TeamID:             req.GetTeamId(),
+		Name:               pointer.Of(req.GetConfigName()),
+		DefaultEmailConfig: req.GetEmailConfig(),
+	}
+	emailConfig := s.configBiz.GetEmailConfig(ctx, params)
 	opts := []bo.SendEmailParamsOption{
 		bo.WithSendEmailParamsOptionEmail(req.GetEmails()...),
 		bo.WithSendEmailParamsOptionBody(req.GetBody()),
@@ -72,8 +78,16 @@ func (s *SendService) Sms(ctx context.Context, req *rabbitv1.SendSmsRequest) (*c
 	if !s.lockBiz.LockByAPP(ctx, req.GetRequestId(), vobj.APPSms) {
 		return &common.EmptyReply{}, nil
 	}
-	smsConfig, _ := build.ToSMSConfig(req.GetSmsConfig())
-	smsConfig = s.configBiz.GetSMSConfig(ctx, req.ConfigName, smsConfig)
+	smsConfig, ok := build.ToSMSConfig(req.GetSmsConfig())
+	if !ok {
+		return nil, merr.ErrorParamsError("sms config is invalid")
+	}
+	params := &bo.GetSMSConfigParams{
+		TeamID:           req.GetTeamId(),
+		Name:             pointer.Of(req.GetConfigName()),
+		DefaultSMSConfig: smsConfig,
+	}
+	smsConfig = s.configBiz.GetSMSConfig(ctx, params)
 	opts := []bo.SendSMSParamsOption{
 		bo.WithSendSMSParamsOptionPhoneNumbers(req.GetPhones()...),
 		bo.WithSendSMSParamsOptionTemplateParam(req.GetTemplateParameters()),
@@ -109,7 +123,12 @@ func (s *SendService) Hook(ctx context.Context, req *rabbitv1.SendHookRequest) (
 		if err == nil {
 			hookConfig = hookConfigDo
 		}
-		return s.configBiz.GetHookConfig(ctx, pointer.Of(hookItem.Name), hookConfig), true
+		params := &bo.GetHookConfigParams{
+			TeamID:            req.GetTeamId(),
+			Name:              pointer.Of(hookItem.Name),
+			DefaultHookConfig: hookConfig,
+		}
+		return s.configBiz.GetHookConfig(ctx, params), true
 	})
 	if len(hookConfigs) == 0 || len(req.GetBody()) == 0 {
 		return &common.EmptyReply{}, nil

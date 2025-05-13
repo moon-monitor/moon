@@ -35,6 +35,17 @@ type EmailConfig interface {
 	GetName() string
 }
 
+type GetEmailConfigParams struct {
+	TeamID             string
+	Name               *string
+	DefaultEmailConfig EmailConfig
+}
+
+type SetEmailConfigParams struct {
+	TeamID  string
+	Configs []EmailConfig
+}
+
 type SendEmailParams interface {
 	GetEmails() []string
 	GetBody() string
