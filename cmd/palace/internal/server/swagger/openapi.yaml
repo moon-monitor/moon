@@ -3141,10 +3141,9 @@ components:
         api.palace.OAuthLoginByEmailRequest:
             type: object
             properties:
-                oauthId:
-                    type: integer
+                openId:
+                    type: string
                     description: OAuth2.0 provider Id
-                    format: uint32
                 email:
                     type: string
                     description: User email

@@ -23,4 +23,15 @@ type User interface {
 	GetRoles() []Role
 	GetTeams() []Team
 	ValidatePassword(p string) bool
+	SetEmail(email crypto.String)
+}
+
+type UserOAuth interface {
+	Base
+	GetOpenID() string
+	GetAPP() vobj.OAuthAPP
+	GetUserID() uint32
+	GetRow() string
+	GetUser() User
+	SetUser(user User)
 }

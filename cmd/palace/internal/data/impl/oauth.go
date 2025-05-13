@@ -7,6 +7,7 @@ import (
 	"gorm.io/gen"
 
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/bo"
+	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do/system"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/repository"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/vobj"
@@ -30,15 +31,15 @@ func toOAuthUserDo(u bo.IOAuthUser) *system.UserOAuth {
 		return nil
 	}
 	return &system.UserOAuth{
-		OAuthID: u.GetOAuthID(),
-		UserID:  u.GetUserID(),
-		Row:     u.String(),
-		APP:     u.GetAPP(),
-		User:    nil,
+		OpenID: u.GetOpenID(),
+		UserID: u.GetUserID(),
+		Row:    u.String(),
+		APP:    u.GetAPP(),
+		User:   nil,
 	}
 }
 
-func (o *oauthRepoImpl) Create(ctx context.Context, user bo.IOAuthUser) (*system.UserOAuth, error) {
+func (o *oauthRepoImpl) Create(ctx context.Context, user bo.IOAuthUser) (do.UserOAuth, error) {
 	oauthUserDo := toOAuthUserDo(user)
 	mainQuery := getMainQuery(ctx, o)
 	oauthUserMutation := mainQuery.UserOAuth
@@ -46,17 +47,17 @@ func (o *oauthRepoImpl) Create(ctx context.Context, user bo.IOAuthUser) (*system
 		return nil, err
 	}
 	return oauthUserMutation.WithContext(ctx).
-		Where(oauthUserMutation.OAuthID.Eq(oauthUserDo.OAuthID)).
+		Where(oauthUserMutation.OpenID.Eq(oauthUserDo.OpenID)).
 		Where(oauthUserMutation.APP.Eq(oauthUserDo.APP.GetValue())).
 		Preload(oauthUserMutation.User).
 		First()
 }
 
-func (o *oauthRepoImpl) FindByOAuthID(ctx context.Context, oauthID uint32, app vobj.OAuthAPP) (*system.UserOAuth, error) {
+func (o *oauthRepoImpl) FindByOpenID(ctx context.Context, openID string, app vobj.OAuthAPP) (do.UserOAuth, error) {
 	mainQuery := getMainQuery(ctx, o)
 	oauthUserMutation := mainQuery.UserOAuth
 	oauthUserDo, err := oauthUserMutation.WithContext(ctx).
-		Where(oauthUserMutation.OAuthID.Eq(oauthID)).
+		Where(oauthUserMutation.OpenID.Eq(openID)).
 		Where(oauthUserMutation.APP.Eq(app.GetValue())).
 		Preload(oauthUserMutation.User).
 		First()
@@ -66,16 +67,16 @@ func (o *oauthRepoImpl) FindByOAuthID(ctx context.Context, oauthID uint32, app v
 	return oauthUserDo, nil
 }
 
-func (o *oauthRepoImpl) SetUser(ctx context.Context, user *system.UserOAuth) (*system.UserOAuth, error) {
+func (o *oauthRepoImpl) SetUser(ctx context.Context, user do.UserOAuth) (do.UserOAuth, error) {
 	mainQuery := getMainQuery(ctx, o)
 	oauthUserMutation := mainQuery.UserOAuth
 	wrapper := []gen.Condition{
-		oauthUserMutation.ID.Eq(user.ID),
-		oauthUserMutation.APP.Eq(user.APP.GetValue()),
-		oauthUserMutation.OAuthID.Eq(user.OAuthID),
+		oauthUserMutation.ID.Eq(user.GetID()),
+		oauthUserMutation.APP.Eq(user.GetAPP().GetValue()),
+		oauthUserMutation.OpenID.Eq(user.GetOpenID()),
 	}
 
-	if _, err := oauthUserMutation.WithContext(ctx).Where(wrapper...).UpdateSimple(oauthUserMutation.UserID.Value(user.UserID)); err != nil {
+	if _, err := oauthUserMutation.WithContext(ctx).Where(wrapper...).UpdateSimple(oauthUserMutation.UserID.Value(user.GetUserID())); err != nil {
 		return nil, err
 	}
 	return oauthUserMutation.WithContext(ctx).Where(wrapper...).Preload(oauthUserMutation.User).First()

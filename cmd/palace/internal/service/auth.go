@@ -158,11 +158,11 @@ func (s *AuthService) LoginByEmail(ctx context.Context, req *palace.LoginByEmail
 
 func (s *AuthService) OAuthLoginByEmail(ctx context.Context, req *palace.OAuthLoginByEmailRequest) (*palace.LoginReply, error) {
 	oauthParams := &bo.OAuthLoginParams{
-		APP:     vobj.OAuthAPP(req.GetApp()),
-		Code:    req.GetCode(),
-		Email:   req.GetEmail(),
-		OAuthID: req.GetOauthId(),
-		Token:   req.GetToken(),
+		APP:    vobj.OAuthAPP(req.GetApp()),
+		Code:   req.GetCode(),
+		Email:  req.GetEmail(),
+		OpenID: req.GetOpenId(),
+		Token:  req.GetToken(),
 	}
 	return login(s.authBiz.OAuthLoginWithEmail(ctx, oauthParams))
 }

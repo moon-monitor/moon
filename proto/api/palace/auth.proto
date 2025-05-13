@@ -194,9 +194,9 @@ message LoginByEmailRequest {
 // OAuthLoginByEmailRequest represents the request data for OAuth2.0 login with email
 message OAuthLoginByEmailRequest {
   // OAuth2.0 provider Id
-  uint32 oauthId = 1 [(buf.validate.field).cel = {
-    message: "oauthId is required"
-    expression: "this > 0"
+  string openId = 1 [(buf.validate.field).cel = {
+    message: "openId is required"
+    expression: "this.size() > 0"
   }];
   // User email
   string email = 2 [(buf.validate.field).cel = {
@@ -218,7 +218,7 @@ message OAuthLoginByEmailRequest {
   }];
   // Application Id, to identify the application
   int32 app = 5 [(buf.validate.field).cel = {
-    message: "app is required"
+    message: "app is required"  
     expression: "this > 0"
   }];
 }

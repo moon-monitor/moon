@@ -4,12 +4,12 @@ import (
 	"context"
 
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/bo"
-	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do/system"
+	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/vobj"
 )
 
 type OAuth interface {
-	Create(ctx context.Context, user bo.IOAuthUser) (*system.UserOAuth, error)
-	FindByOAuthID(ctx context.Context, oauthID uint32, app vobj.OAuthAPP) (*system.UserOAuth, error)
-	SetUser(ctx context.Context, user *system.UserOAuth) (*system.UserOAuth, error)
+	Create(ctx context.Context, user bo.IOAuthUser) (do.UserOAuth, error)
+	FindByOpenID(ctx context.Context, openID string, app vobj.OAuthAPP) (do.UserOAuth, error)
+	SetUser(ctx context.Context, user do.UserOAuth) (do.UserOAuth, error)
 }

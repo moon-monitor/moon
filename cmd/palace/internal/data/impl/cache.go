@@ -252,7 +252,7 @@ func (c *cacheReoImpl) VerifyToken(ctx context.Context, token string) error {
 }
 
 func (c *cacheReoImpl) VerifyOAuthToken(ctx context.Context, oauthParams *bo.OAuthLoginParams) error {
-	key := repository.OAuthTokenKey.Key(oauthParams.OAuthID, oauthParams.Token)
+	key := repository.OAuthTokenKey.Key(oauthParams.APP, oauthParams.OpenID, oauthParams.Token)
 	exist, err := c.GetCache().Client().Exists(ctx, key).Result()
 	if err != nil {
 		return merr.ErrorInternalServerError("cache err").WithCause(err)
@@ -266,7 +266,8 @@ func (c *cacheReoImpl) VerifyOAuthToken(ctx context.Context, oauthParams *bo.OAu
 }
 
 func (c *cacheReoImpl) CacheVerifyOAuthToken(ctx context.Context, oauthParams *bo.OAuthLoginParams) error {
-	return c.GetCache().Client().Set(ctx, repository.OAuthTokenKey.Key(oauthParams.OAuthID, oauthParams.Token), "##code##", 10*time.Minute).Err()
+	key := repository.OAuthTokenKey.Key(oauthParams.APP, oauthParams.OpenID, oauthParams.Token)
+	return c.GetCache().Client().Set(ctx, key, "##code##", 10*time.Minute).Err()
 }
 
 func (c *cacheReoImpl) VerifyEmailCode(ctx context.Context, email, code string) error {

@@ -3,6 +3,7 @@ package bo
 import (
 	"encoding/json"
 	"fmt"
+	"strconv"
 
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/vobj"
@@ -12,7 +13,7 @@ import (
 
 type IOAuthUser interface {
 	fmt.Stringer
-	GetOAuthID() uint32
+	GetOpenID() string
 	GetEmail() string
 	GetRemark() string
 	GetUsername() string
@@ -38,7 +39,7 @@ type OAuthLoginParams struct {
 	APP          vobj.OAuthAPP `json:"app"`
 	Code         string        `json:"code"`
 	Email        string        `json:"email"`
-	OAuthID      uint32        `json:"oAuthID"`
+	OpenID       string        `json:"openID"`
 	Token        string        `json:"token"`
 	SendEmailFun SendEmailFun
 }
@@ -113,9 +114,9 @@ func (g *GithubUser) GetNickname() string {
 	return g.Name
 }
 
-// GetOAuthID 获取OAuth ID
-func (g *GithubUser) GetOAuthID() uint32 {
-	return g.ID
+// GetOpenID 获取OpenID
+func (g *GithubUser) GetOpenID() string {
+	return strconv.FormatUint(uint64(g.ID), 10)
 }
 
 // GetEmail 获取邮箱
@@ -195,9 +196,9 @@ func (g *GiteeUser) GetUserID() uint32 {
 	return g.userID
 }
 
-// GetOAuthID 获取OAuth ID
-func (g *GiteeUser) GetOAuthID() uint32 {
-	return g.ID
+// GetOpenID 获取OpenID
+func (g *GiteeUser) GetOpenID() string {
+	return strconv.FormatUint(uint64(g.ID), 10)
 }
 
 // GetEmail 获取邮箱

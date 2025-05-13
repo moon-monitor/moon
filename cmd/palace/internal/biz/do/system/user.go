@@ -150,3 +150,10 @@ func (u *User) ValidatePassword(p string) bool {
 	validate := password.New(p, u.Salt)
 	return validate.EQ(u.Password)
 }
+
+func (u *User) SetEmail(email crypto.String) {
+	if u == nil {
+		return
+	}
+	u.Email = email
+}
