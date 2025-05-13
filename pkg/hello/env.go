@@ -57,6 +57,16 @@ func SetEnvWithOption(opts ...Option) {
 	})
 }
 
+func SetEnvWithConfig(version string, env config.Environment, serverConf *config.Server) {
+	opts := []Option{
+		WithVersion(version),
+		WithEnv(env),
+		WithName(serverConf.GetName()),
+		WithMetadata(serverConf.GetMetadata()),
+	}
+	SetEnvWithOption(opts...)
+}
+
 func GetEnv() *Env {
 	return env
 }

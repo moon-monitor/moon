@@ -43,6 +43,8 @@ func run(cfgPath string) {
 	if err := load.Load(cfgPath, &bc); err != nil {
 		panic(err)
 	}
+	hello.SetEnvWithConfig(Version, bc.GetEnvironment(), bc.GetServer())
+
 	logger, err := mlog.New(bc.IsDev(), bc.GetLog())
 	if err != nil {
 		panic(err)
@@ -59,14 +61,6 @@ func run(cfgPath string) {
 }
 
 func newApp(c *conf.Bootstrap, srvs server.Servers, logger log.Logger) *kratos.App {
-	serverConf := c.GetServer()
-	envOpts := []hello.Option{
-		hello.WithVersion(Version),
-		hello.WithEnv(c.GetEnvironment()),
-		hello.WithName(serverConf.GetName()),
-		hello.WithMetadata(serverConf.GetMetadata()),
-	}
-	hello.SetEnvWithOption(envOpts...)
 	hello.Hello()
 	env := hello.GetEnv()
 	opts := []kratos.Option{

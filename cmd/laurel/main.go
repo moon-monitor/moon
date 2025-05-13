@@ -43,14 +43,7 @@ func run(cfgPath string) {
 	if err := load.Load(cfgPath, &bc); err != nil {
 		panic(err)
 	}
-	serverConf := bc.GetServer()
-	envOpts := []hello.Option{
-		hello.WithVersion(Version),
-		hello.WithEnv(bc.GetEnvironment()),
-		hello.WithName(serverConf.GetName()),
-		hello.WithMetadata(serverConf.GetMetadata()),
-	}
-	hello.SetEnvWithOption(envOpts...)
+	hello.SetEnvWithConfig(Version, bc.GetEnvironment(), bc.GetServer())
 
 	logger, err := mlog.New(bc.IsDev(), bc.GetLog())
 	if err != nil {
