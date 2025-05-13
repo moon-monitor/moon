@@ -2,7 +2,7 @@ package bo
 
 import (
 	"encoding/json"
-	"fmt"
+	"strings"
 	"time"
 
 	"github.com/prometheus/client_golang/prometheus"
@@ -48,14 +48,14 @@ func (c *CounterMetricVec) UnmarshalBinary(data []byte) error {
 }
 
 func (c *CounterMetricVec) GetMetricName() string {
-	return fmt.Sprintf("%s_%s_%s", c.Namespace, c.SubSystem, c.Name)
+	return strings.Join([]string{c.Namespace, c.SubSystem, c.Name, vobj.MetricTypeCounter.String()}, "_")
 }
 
 func (c *CounterMetricVec) New() *prometheus.CounterVec {
 	return prometheus.NewCounterVec(prometheus.CounterOpts{
 		Namespace: c.Namespace,
 		Subsystem: c.SubSystem,
-		Name:      c.Name,
+		Name:      strings.Join([]string{c.Name, vobj.MetricTypeCounter.String()}, "_"),
 		Help:      c.Help,
 	}, c.Labels)
 }
@@ -91,14 +91,14 @@ func (g *GaugeMetricVec) UnmarshalBinary(data []byte) error {
 }
 
 func (g *GaugeMetricVec) GetMetricName() string {
-	return fmt.Sprintf("%s_%s_%s", g.Namespace, g.SubSystem, g.Name)
+	return strings.Join([]string{g.Namespace, g.SubSystem, g.Name, vobj.MetricTypeGauge.String()}, "_")
 }
 
 func (g *GaugeMetricVec) New() *prometheus.GaugeVec {
 	return prometheus.NewGaugeVec(prometheus.GaugeOpts{
 		Namespace: g.Namespace,
 		Subsystem: g.SubSystem,
-		Name:      g.Name,
+		Name:      strings.Join([]string{g.Name, vobj.MetricTypeGauge.String()}, "_"),
 		Help:      g.Help,
 	}, g.Labels)
 }
@@ -142,14 +142,14 @@ func (h *HistogramMetricVec) UnmarshalBinary(data []byte) error {
 }
 
 func (h *HistogramMetricVec) GetMetricName() string {
-	return fmt.Sprintf("%s_%s_%s", h.Namespace, h.SubSystem, h.Name)
+	return strings.Join([]string{h.Namespace, h.SubSystem, h.Name, vobj.MetricTypeHistogram.String()}, "_")
 }
 
 func (h *HistogramMetricVec) New() *prometheus.HistogramVec {
 	return prometheus.NewHistogramVec(prometheus.HistogramOpts{
 		Namespace:                       h.Namespace,
 		Subsystem:                       h.SubSystem,
-		Name:                            h.Name,
+		Name:                            strings.Join([]string{h.Name, vobj.MetricTypeHistogram.String()}, "_"),
 		Help:                            h.Help,
 		Buckets:                         h.Buckets,
 		NativeHistogramBucketFactor:     h.NativeHistogramBucketFactor,
@@ -197,14 +197,14 @@ func (s *SummaryMetricVec) UnmarshalBinary(data []byte) error {
 }
 
 func (s *SummaryMetricVec) GetMetricName() string {
-	return fmt.Sprintf("%s_%s_%s", s.Namespace, s.SubSystem, s.Name)
+	return strings.Join([]string{s.Namespace, s.SubSystem, s.Name, vobj.MetricTypeSummary.String()}, "_")
 }
 
 func (s *SummaryMetricVec) New() *prometheus.SummaryVec {
 	return prometheus.NewSummaryVec(prometheus.SummaryOpts{
 		Namespace:  s.Namespace,
 		Subsystem:  s.SubSystem,
-		Name:       s.Name,
+		Name:       strings.Join([]string{s.Name, vobj.MetricTypeSummary.String()}, "_"),
 		Help:       s.Help,
 		Objectives: s.Objectives,
 		MaxAge:     time.Duration(s.MaxAge),
