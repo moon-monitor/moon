@@ -100,3 +100,14 @@ func UnmarshalBinary[T any](data []any, src *[]*T) error {
 	}
 	return nil
 }
+
+func GroupBy[T any, K comparable](s []T, f func(v T) K) map[K][]T {
+	m := make(map[K][]T)
+	for _, v := range s {
+		if _, ok := m[f(v)]; !ok {
+			m[f(v)] = make([]T, 0, len(s))
+		}
+		m[f(v)] = append(m[f(v)], v)
+	}
+	return m
+}

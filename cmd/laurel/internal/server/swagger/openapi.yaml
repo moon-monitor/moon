@@ -22,12 +22,12 @@ paths:
         post:
             tags:
                 - Metric
-            operationId: Metric_Push
+            operationId: Metric_PushMetricData
             requestBody:
                 content:
                     application/json:
                         schema:
-                            $ref: '#/components/schemas/api.laurel.v1.MetricPushRequest'
+                            $ref: '#/components/schemas/api.laurel.v1.PushMetricDataRequest'
                 required: true
             responses:
                 "200":
@@ -35,7 +35,25 @@ paths:
                     content:
                         application/json:
                             schema:
-                                $ref: '#/components/schemas/api.laurel.v1.MetricPushReply'
+                                $ref: '#/components/schemas/api.laurel.v1.EmptyReply'
+    /v1/metric/register:
+        post:
+            tags:
+                - Metric
+            operationId: Metric_RegisterMetric
+            requestBody:
+                content:
+                    application/json:
+                        schema:
+                            $ref: '#/components/schemas/api.laurel.v1.RegisterMetricRequest'
+                required: true
+            responses:
+                "200":
+                    description: OK
+                    content:
+                        application/json:
+                            schema:
+                                $ref: '#/components/schemas/api.laurel.v1.EmptyReply'
     /v1/server/register:
         post:
             tags:
@@ -87,9 +105,28 @@ components:
                     type: boolean
                 uuid:
                     type: string
-        api.laurel.common.Metric:
+        api.laurel.common.MetricCounterVec:
             type: object
             properties:
+                namespace:
+                    type: string
+                subSystem:
+                    type: string
+                name:
+                    type: string
+                labels:
+                    type: array
+                    items:
+                        type: string
+                help:
+                    type: string
+        api.laurel.common.MetricData:
+            type: object
+            properties:
+                namespace:
+                    type: string
+                subSystem:
+                    type: string
                 name:
                     type: string
                 labels:
@@ -102,7 +139,96 @@ components:
                 timestamp:
                     type: number
                     format: double
-        api.laurel.v1.MetricPushReply:
+        api.laurel.common.MetricGaugeVec:
+            type: object
+            properties:
+                namespace:
+                    type: string
+                subSystem:
+                    type: string
+                name:
+                    type: string
+                labels:
+                    type: array
+                    items:
+                        type: string
+                help:
+                    type: string
+        api.laurel.common.MetricHistogramVec:
+            type: object
+            properties:
+                namespace:
+                    type: string
+                subSystem:
+                    type: string
+                name:
+                    type: string
+                labels:
+                    type: array
+                    items:
+                        type: string
+                help:
+                    type: string
+                buckets:
+                    type: array
+                    items:
+                        type: number
+                        format: double
+                nativeHistogramBucketFactor:
+                    type: number
+                    format: double
+                nativeHistogramZeroThreshold:
+                    type: number
+                    format: double
+                nativeHistogramMaxBucketNumber:
+                    type: integer
+                    format: uint32
+                nativeHistogramMinResetDuration:
+                    type: string
+                nativeHistogramMaxZeroThreshold:
+                    type: number
+                    format: double
+                nativeHistogramMaxExemplars:
+                    type: string
+                nativeHistogramExemplarTTL:
+                    type: string
+        api.laurel.common.MetricSummaryVec:
+            type: object
+            properties:
+                namespace:
+                    type: string
+                subSystem:
+                    type: string
+                name:
+                    type: string
+                labels:
+                    type: array
+                    items:
+                        type: string
+                help:
+                    type: string
+                objectives:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/api.laurel.common.MetricSummaryVec_Objective'
+                maxAge:
+                    type: string
+                ageBuckets:
+                    type: integer
+                    format: uint32
+                bufCap:
+                    type: integer
+                    format: uint32
+        api.laurel.common.MetricSummaryVec_Objective:
+            type: object
+            properties:
+                quantile:
+                    type: number
+                    format: double
+                value:
+                    type: number
+                    format: double
+        api.laurel.v1.EmptyReply:
             type: object
             properties:
                 code:
@@ -110,13 +236,32 @@ components:
                     format: int32
                 message:
                     type: string
-        api.laurel.v1.MetricPushRequest:
+        api.laurel.v1.PushMetricDataRequest:
             type: object
             properties:
                 metrics:
                     type: array
                     items:
-                        $ref: '#/components/schemas/api.laurel.common.Metric'
+                        $ref: '#/components/schemas/api.laurel.common.MetricData'
+        api.laurel.v1.RegisterMetricRequest:
+            type: object
+            properties:
+                counterVecs:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/api.laurel.common.MetricCounterVec'
+                gaugeVecs:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/api.laurel.common.MetricGaugeVec'
+                histogramVecs:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/api.laurel.common.MetricHistogramVec'
+                summaryVecs:
+                    type: array
+                    items:
+                        $ref: '#/components/schemas/api.laurel.common.MetricSummaryVec'
         config.Discovery:
             type: object
             properties:

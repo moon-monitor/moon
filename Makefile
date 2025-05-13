@@ -192,7 +192,7 @@ stringer-houyi:
 .PHONY: stringer-laurel
 stringer-laurel:
 	@echo "Generating laurel stringer"
-	# cd ./cmd/laurel/internal/biz/vobj && go generate
+	cd ./cmd/laurel/internal/biz/vobj && go generate
 	
 .PHONY: gen-rabbit
 gen-rabbit:
