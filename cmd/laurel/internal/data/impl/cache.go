@@ -90,6 +90,78 @@ func (c *cacheImpl) StorageMetric(ctx context.Context, metrics ...bo.MetricVec) 
 	return eg.Wait()
 }
 
+func (c *cacheImpl) GetCounterMetrics(ctx context.Context) ([]*bo.CounterMetricVec, error) {
+	key := vobj.MetricCacheKeyPrefix.Key(vobj.MetricTypeCounter)
+	values, err := c.Data.GetCache().Client().HGetAll(ctx, key).Result()
+	if err != nil {
+		return nil, err
+	}
+	metrics := make([]*bo.CounterMetricVec, 0, len(values))
+	for _, metricValue := range values {
+		var metric bo.CounterMetricVec
+		err := metric.UnmarshalBinary([]byte(metricValue))
+		if err != nil {
+			return nil, err
+		}
+		metrics = append(metrics, &metric)
+	}
+	return metrics, nil
+}
+
+func (c *cacheImpl) GetGaugeMetrics(ctx context.Context) ([]*bo.GaugeMetricVec, error) {
+	key := vobj.MetricCacheKeyPrefix.Key(vobj.MetricTypeGauge)
+	values, err := c.Data.GetCache().Client().HGetAll(ctx, key).Result()
+	if err != nil {
+		return nil, err
+	}
+	metrics := make([]*bo.GaugeMetricVec, 0, len(values))
+	for _, metricValue := range values {
+		var metric bo.GaugeMetricVec
+		err := metric.UnmarshalBinary([]byte(metricValue))
+		if err != nil {
+			return nil, err
+		}
+		metrics = append(metrics, &metric)
+	}
+	return metrics, nil
+}
+
+func (c *cacheImpl) GetHistogramMetrics(ctx context.Context) ([]*bo.HistogramMetricVec, error) {
+	key := vobj.MetricCacheKeyPrefix.Key(vobj.MetricTypeHistogram)
+	values, err := c.Data.GetCache().Client().HGetAll(ctx, key).Result()
+	if err != nil {
+		return nil, err
+	}
+	metrics := make([]*bo.HistogramMetricVec, 0, len(values))
+	for _, metricValue := range values {
+		var metric bo.HistogramMetricVec
+		err := metric.UnmarshalBinary([]byte(metricValue))
+		if err != nil {
+			return nil, err
+		}
+		metrics = append(metrics, &metric)
+	}
+	return metrics, nil
+}
+
+func (c *cacheImpl) GetSummaryMetrics(ctx context.Context) ([]*bo.SummaryMetricVec, error) {
+	key := vobj.MetricCacheKeyPrefix.Key(vobj.MetricTypeSummary)
+	values, err := c.Data.GetCache().Client().HGetAll(ctx, key).Result()
+	if err != nil {
+		return nil, err
+	}
+	metrics := make([]*bo.SummaryMetricVec, 0, len(values))
+	for _, metricValue := range values {
+		var metric bo.SummaryMetricVec
+		err := metric.UnmarshalBinary([]byte(metricValue))
+		if err != nil {
+			return nil, err
+		}
+		metrics = append(metrics, &metric)
+	}
+	return metrics, nil
+}
+
 func (c *cacheImpl) GetMetric(ctx context.Context, metricType vobj.MetricType, metricName string) (bo.MetricVec, error) {
 	switch metricType {
 	case vobj.MetricTypeCounter:
