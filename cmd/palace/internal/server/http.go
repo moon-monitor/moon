@@ -16,6 +16,7 @@ import (
 	"github.com/moon-monitor/moon/cmd/palace/internal/conf"
 	"github.com/moon-monitor/moon/cmd/palace/internal/helper/middleware"
 	"github.com/moon-monitor/moon/cmd/palace/internal/service"
+	"github.com/moon-monitor/moon/pkg/metric"
 	"github.com/moon-monitor/moon/pkg/middler"
 	"github.com/moon-monitor/moon/pkg/util/docs"
 )
@@ -58,6 +59,7 @@ func NewHTTPServer(bc *conf.Bootstrap, authService *service.AuthService, logger 
 	srv := http.NewServer(opts...)
 
 	docs.RegisterDocs(srv, docFS, bc.IsDev())
+	metric.RegisterRoutes(srv)
 	registerOAuth2(bc.GetAuth().GetOauth2(), srv, authService)
 
 	return srv

@@ -14,6 +14,7 @@ message Bootstrap {
   config.Registry registry = 5;
   Auth auth = 6;
   config.MicroServer palace = 7;
+  repeated MetricVec metricVecs = 8;
 }
 
 message Auth {
@@ -23,5 +24,37 @@ message Auth {
   }
   config.JWT jwt = 1;
   repeated Token tokens = 2;
+}
+
+message MetricVec {
+  enum MetricType {
+    METRIC_TYPE_UNKNOWN = 0;
+    COUNTER = 1;
+    GAUGE = 2;
+    HISTOGRAM = 3;
+    SUMMARY = 4;
+  }
+  message Objective {
+    double quantile = 1;
+		double value = 2;
+	}
+  MetricType type = 1;
+  string namespace = 2;
+  string subSystem = 3;
+  string name = 4;
+  repeated string labels = 5;
+  string help = 6;
+  repeated Objective objectives = 7;
+  int64 maxAge = 8;
+  uint32 ageBuckets = 9;
+  uint32 bufCap = 10;
+  repeated double buckets = 11;
+	double nativeHistogramBucketFactor = 12;
+	double nativeHistogramZeroThreshold = 13;
+	uint32 nativeHistogramMaxBucketNumber = 14;
+	int64 nativeHistogramMinResetDuration = 15;
+	double nativeHistogramMaxZeroThreshold = 16;
+	int64 nativeHistogramMaxExemplars = 17;
+	int64 nativeHistogramExemplarTTL = 18;
 }
 

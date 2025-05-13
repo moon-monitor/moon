@@ -12,6 +12,7 @@ import (
 
 	"github.com/moon-monitor/moon/cmd/houyi/internal/conf"
 	"github.com/moon-monitor/moon/cmd/houyi/internal/helper/middleware"
+	"github.com/moon-monitor/moon/pkg/metric"
 	"github.com/moon-monitor/moon/pkg/middler"
 	"github.com/moon-monitor/moon/pkg/util/docs"
 )
@@ -50,6 +51,7 @@ func NewHTTPServer(bc *conf.Bootstrap, logger log.Logger) *http.Server {
 	srv := http.NewServer(opts...)
 
 	docs.RegisterDocs(srv, docFS, bc.IsDev())
+	metric.RegisterRoutes(srv)
 
 	return srv
 }
