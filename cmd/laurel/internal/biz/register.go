@@ -15,18 +15,21 @@ import (
 )
 
 func NewRegisterBiz(bc *conf.Bootstrap, serverRegisterRepo repository.ServerRegister, logger log.Logger) *RegisterBiz {
-	return &RegisterBiz{
+	r := &RegisterBiz{
 		serverRegisterRepo: serverRegisterRepo,
 		bc:                 bc,
 		uuid:               uuid.New().String(),
 		helper:             log.NewHelper(log.With(logger, "module", "biz.register")),
 	}
+	r.registerParams = r.register(false)
+	return r
 }
 
 type RegisterBiz struct {
 	uuid               string
 	bc                 *conf.Bootstrap
 	serverRegisterRepo repository.ServerRegister
+	registerParams     *common.ServerRegisterRequest
 	helper             *log.Helper
 }
 
@@ -42,10 +45,11 @@ func (b *RegisterBiz) register(online bool) *common.ServerRegisterRequest {
 			Version:  hello.GetEnv().Version(),
 			Name:     serverConfig.GetName(),
 		},
-		Discovery: nil,
-		TeamIds:   serverConfig.GetTeamIds(),
-		IsOnline:  online,
-		Uuid:      b.uuid,
+		Discovery:  nil,
+		TeamIds:    serverConfig.GetTeamIds(),
+		IsOnline:   online,
+		Uuid:       b.uuid,
+		ServerType: common.ServerRegisterRequest_LAUREL,
 	}
 	switch serverConfig.GetNetwork() {
 	case config.Network_GRPC:
@@ -65,9 +69,11 @@ func (b *RegisterBiz) register(online bool) *common.ServerRegisterRequest {
 }
 
 func (b *RegisterBiz) Online(ctx context.Context) error {
-	return b.serverRegisterRepo.Register(ctx, b.register(true))
+	b.registerParams.IsOnline = true
+	return b.serverRegisterRepo.Register(ctx, b.registerParams)
 }
 
 func (b *RegisterBiz) Offline(ctx context.Context) error {
-	return b.serverRegisterRepo.Register(ctx, b.register(false))
+	b.registerParams.IsOnline = false
+	return b.serverRegisterRepo.Register(ctx, b.registerParams)
 }

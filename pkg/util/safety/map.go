@@ -2,6 +2,8 @@ package safety
 
 import (
 	"sync"
+
+	"github.com/moon-monitor/moon/pkg/util/validate"
 )
 
 // NewMap Create a thread-safe map.
@@ -55,4 +57,13 @@ func (m *Map[K, T]) List() map[K]T {
 // Clear the map.
 func (m *Map[K, T]) Clear() {
 	m.m.Clear()
+}
+
+func (m *Map[K, T]) First() (T, bool) {
+	var first T
+	m.m.Range(func(key, value any) bool {
+		first = value.(T)
+		return false
+	})
+	return first, validate.IsNotNil(first)
 }

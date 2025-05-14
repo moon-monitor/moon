@@ -3,9 +3,11 @@ package impl
 import (
 	"context"
 
+	"github.com/prometheus/client_golang/prometheus"
+
+	"github.com/moon-monitor/moon/cmd/laurel/internal/biz/bo"
 	"github.com/moon-monitor/moon/cmd/laurel/internal/biz/repository"
 	"github.com/moon-monitor/moon/cmd/laurel/internal/data"
-	"github.com/prometheus/client_golang/prometheus"
 )
 
 func NewMetricRegister(data *data.Data) repository.MetricRegister {
@@ -16,6 +18,50 @@ func NewMetricRegister(data *data.Data) repository.MetricRegister {
 
 type metricRegisterImpl struct {
 	*data.Data
+}
+
+// WithCounterMetricValue implements repository.MetricRegister.
+func (m *metricRegisterImpl) WithCounterMetricValue(ctx context.Context, metrics ...*bo.MetricData) {
+	for _, metric := range metrics {
+		counterVec, ok := m.GetCounterMetric(metric.Name)
+		if !ok {
+			continue
+		}
+		counterVec.With(metric.Labels).Add(metric.Value)
+	}
+}
+
+// WithGaugeMetricValue implements repository.MetricRegister.
+func (m *metricRegisterImpl) WithGaugeMetricValue(ctx context.Context, metrics ...*bo.MetricData) {
+	for _, metric := range metrics {
+		gaugeVec, ok := m.GetGaugeMetric(metric.Name)
+		if !ok {
+			continue
+		}
+		gaugeVec.With(metric.Labels).Set(metric.Value)
+	}
+}
+
+// WithHistogramMetricValue implements repository.MetricRegister.
+func (m *metricRegisterImpl) WithHistogramMetricValue(ctx context.Context, metrics ...*bo.MetricData) {
+	for _, metric := range metrics {
+		histogramVec, ok := m.GetHistogramMetric(metric.Name)
+		if !ok {
+			continue
+		}
+		histogramVec.With(metric.Labels).Observe(metric.Value)
+	}
+}
+
+// WithSummaryMetricValue implements repository.MetricRegister.
+func (m *metricRegisterImpl) WithSummaryMetricValue(ctx context.Context, metrics ...*bo.MetricData) {
+	for _, metric := range metrics {
+		summaryVec, ok := m.GetSummaryMetric(metric.Name)
+		if !ok {
+			continue
+		}
+		summaryVec.With(metric.Labels).Observe(metric.Value)
+	}
 }
 
 // RegisterCounterMetric implements repository.MetricRegister.

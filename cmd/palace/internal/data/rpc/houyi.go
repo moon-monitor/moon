@@ -7,6 +7,7 @@ import (
 
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/bo"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/repository"
+	"github.com/moon-monitor/moon/cmd/palace/internal/biz/vobj"
 	"github.com/moon-monitor/moon/cmd/palace/internal/data"
 	"github.com/moon-monitor/moon/pkg/api/common"
 	houyiv1 "github.com/moon-monitor/moon/pkg/api/houyi/v1"
@@ -31,7 +32,7 @@ type houyiSyncClient struct {
 }
 
 func (s *houyiServer) Sync() (repository.HouyiSyncClient, bool) {
-	server, ok := s.FirstHouyiConn()
+	server, ok := s.FirstServerConn(vobj.ServerTypeHouyi)
 	if !ok {
 		return nil, false
 	}
@@ -54,7 +55,7 @@ type houyiQueryClient struct {
 }
 
 func (s *houyiServer) Query() (repository.HouyiQueryClient, bool) {
-	server, ok := s.FirstHouyiConn()
+	server, ok := s.FirstServerConn(vobj.ServerTypeHouyi)
 	if !ok {
 		return nil, false
 	}

@@ -24,12 +24,13 @@ message ServerRegisterRequest {
     PALACE = 1;
     HOUYI = 2;
     RABBIT = 3;
+    LAUREL = 4;
   }
   ServerType serverType = 1 [(buf.validate.field).required = true];
   config.MicroServer server = 2 [(buf.validate.field).required = true];
-  config.Discovery discovery = 3 [(buf.validate.field).required = true];
-  repeated uint32 teamIds = 4 [(buf.validate.field).required = true];
-  bool isOnline = 5 [(buf.validate.field).required = true];
+  config.Discovery discovery = 3;
+  repeated uint32 teamIds = 4;
+  bool isOnline = 5;
   string uuid = 6 [(buf.validate.field).required = true];
 }
 message ServerRegisterReply {}

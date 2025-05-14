@@ -30,7 +30,6 @@ message MetricData {
 	}];
 	map<string, string> labels = 5;
 	double value = 6;
-	double timestamp = 7;
 }
 
 message MetricVec {

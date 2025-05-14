@@ -7,6 +7,7 @@ import (
 
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/bo"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/repository"
+	"github.com/moon-monitor/moon/cmd/palace/internal/biz/vobj"
 	"github.com/moon-monitor/moon/cmd/palace/internal/data"
 	"github.com/moon-monitor/moon/pkg/api/common"
 	rabbitcommon "github.com/moon-monitor/moon/pkg/api/rabbit/common"
@@ -29,7 +30,7 @@ type rabbitServer struct {
 
 // Send implements repository.Rabbit.
 func (r *rabbitServer) Send() (repository.SendClient, bool) {
-	server, ok := r.FirstRabbitConn()
+	server, ok := r.FirstServerConn(vobj.ServerTypeRabbit)
 	if !ok {
 		return nil, false
 	}
@@ -38,7 +39,7 @@ func (r *rabbitServer) Send() (repository.SendClient, bool) {
 
 // Sync implements repository.Rabbit.
 func (r *rabbitServer) Sync() (repository.SyncClient, bool) {
-	server, ok := r.FirstRabbitConn()
+	server, ok := r.FirstServerConn(vobj.ServerTypeRabbit)
 	if !ok {
 		return nil, false
 	}
@@ -47,7 +48,7 @@ func (r *rabbitServer) Sync() (repository.SyncClient, bool) {
 
 // Alert implements repository.Rabbit.
 func (r *rabbitServer) Alert() (repository.AlertClient, bool) {
-	server, ok := r.FirstRabbitConn()
+	server, ok := r.FirstServerConn(vobj.ServerTypeRabbit)
 	if !ok {
 		return nil, false
 	}

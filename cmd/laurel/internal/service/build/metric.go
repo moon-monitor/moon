@@ -2,6 +2,7 @@ package build
 
 import (
 	"github.com/moon-monitor/moon/cmd/laurel/internal/biz/bo"
+	"github.com/moon-monitor/moon/cmd/laurel/internal/biz/vobj"
 	apicommon "github.com/moon-monitor/moon/pkg/api/laurel/common"
 	"github.com/moon-monitor/moon/pkg/util/slices"
 	"github.com/moon-monitor/moon/pkg/util/validate"
@@ -101,5 +102,26 @@ func ToSummaryMetricVec(summaryVec *apicommon.MetricVec) *bo.SummaryMetricVec {
 		MaxAge:     summaryVec.GetSummaryMaxAge(),
 		AgeBuckets: summaryVec.GetSummaryAgeBuckets(),
 		BufCap:     summaryVec.GetSummaryBufCap(),
+	}
+}
+
+func ToMetricDataList(metrics []*apicommon.MetricData) []*bo.MetricData {
+	if len(metrics) == 0 {
+		return nil
+	}
+	return slices.Map(metrics, ToMetricData)
+}
+
+func ToMetricData(metric *apicommon.MetricData) *bo.MetricData {
+	if validate.IsNil(metric) {
+		return nil
+	}
+	return &bo.MetricData{
+		MetricType: vobj.MetricType(metric.GetMetricType()),
+		Namespace:  metric.GetNamespace(),
+		SubSystem:  metric.GetSubSystem(),
+		Name:       metric.GetName(),
+		Labels:     metric.GetLabels(),
+		Value:      metric.GetValue(),
 	}
 }

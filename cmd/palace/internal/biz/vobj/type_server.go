@@ -10,4 +10,5 @@ const (
 	ServerTypePalace
 	ServerTypeHouyi
 	ServerTypeRabbit
+	ServerTypeLaurel
 )

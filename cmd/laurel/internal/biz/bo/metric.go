@@ -212,3 +212,12 @@ func (s *SummaryMetricVec) New() *prometheus.SummaryVec {
 		BufCap:     s.BufCap,
 	}, s.Labels)
 }
+
+type MetricData struct {
+	MetricType vobj.MetricType
+	Namespace  string
+	SubSystem  string
+	Name       string
+	Labels     map[string]string
+	Value      float64
+}

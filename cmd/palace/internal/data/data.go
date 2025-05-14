@@ -11,6 +11,7 @@ import (
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/bo"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do/system"
+	"github.com/moon-monitor/moon/cmd/palace/internal/biz/vobj"
 	"github.com/moon-monitor/moon/cmd/palace/internal/conf"
 	"github.com/moon-monitor/moon/cmd/palace/internal/data/query/systemgen"
 	"github.com/moon-monitor/moon/pkg/merr"
@@ -102,45 +103,51 @@ type Data struct {
 	cache                cache.Cache
 	rabbitConn           *safety.Map[string, *bo.Server]
 	houyiConn            *safety.Map[string, *bo.Server]
+	laurelConn           *safety.Map[string, *bo.Server]
 	helper               *log.Helper
 }
 
-func (d *Data) GetRabbitConn(id string) (*bo.Server, bool) {
-	return d.rabbitConn.Get(id)
-}
-
-func (d *Data) SetRabbitConn(id string, conn *bo.Server) {
-	d.rabbitConn.Set(id, conn)
-}
-
-func (d *Data) RemoveRabbitConn(id string) {
-	d.rabbitConn.Delete(id)
-}
-
-func (d *Data) GetHouyiConn(id string) (*bo.Server, bool) {
-	return d.houyiConn.Get(id)
-}
-
-func (d *Data) SetHouyiConn(id string, conn *bo.Server) {
-	d.houyiConn.Set(id, conn)
-}
-
-func (d *Data) RemoveHouyiConn(id string) {
-	d.houyiConn.Delete(id)
-}
-
-func (d *Data) FirstRabbitConn() (*bo.Server, bool) {
-	list := d.rabbitConn.List()
-	for _, conn := range list {
-		return conn, true
+func (d *Data) GetServerConn(serverType vobj.ServerType, id string) (*bo.Server, bool) {
+	switch serverType {
+	case vobj.ServerTypeRabbit:
+		return d.rabbitConn.Get(id)
+	case vobj.ServerTypeHouyi:
+		return d.houyiConn.Get(id)
+	case vobj.ServerTypeLaurel:
+		return d.laurelConn.Get(id)
 	}
 	return nil, false
 }
+func (d *Data) SetServerConn(serverType vobj.ServerType, id string, conn *bo.Server) {
+	switch serverType {
+	case vobj.ServerTypeRabbit:
+		d.rabbitConn.Set(id, conn)
+	case vobj.ServerTypeHouyi:
+		d.houyiConn.Set(id, conn)
+	case vobj.ServerTypeLaurel:
+		d.laurelConn.Set(id, conn)
+	}
+}
 
-func (d *Data) FirstHouyiConn() (*bo.Server, bool) {
-	list := d.houyiConn.List()
-	for _, conn := range list {
-		return conn, true
+func (d *Data) RemoveServerConn(serverType vobj.ServerType, id string) {
+	switch serverType {
+	case vobj.ServerTypeRabbit:
+		d.rabbitConn.Delete(id)
+	case vobj.ServerTypeHouyi:
+		d.houyiConn.Delete(id)
+	case vobj.ServerTypeLaurel:
+		d.laurelConn.Delete(id)
+	}
+}
+
+func (d *Data) FirstServerConn(serverType vobj.ServerType) (*bo.Server, bool) {
+	switch serverType {
+	case vobj.ServerTypeRabbit:
+		return d.rabbitConn.First()
+	case vobj.ServerTypeHouyi:
+		return d.houyiConn.First()
+	case vobj.ServerTypeLaurel:
+		return d.laurelConn.First()
 	}
 	return nil, false
 }

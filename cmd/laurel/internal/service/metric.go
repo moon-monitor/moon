@@ -22,6 +22,10 @@ type MetricService struct {
 }
 
 func (s *MetricService) PushMetricData(ctx context.Context, req *apiv1.PushMetricDataRequest) (*apiv1.EmptyReply, error) {
+	metricDataList := build.ToMetricDataList(req.GetMetrics())
+	if err := s.metricManager.WithMetricData(ctx, metricDataList...); err != nil {
+		return nil, err
+	}
 	return &apiv1.EmptyReply{}, nil
 }
 

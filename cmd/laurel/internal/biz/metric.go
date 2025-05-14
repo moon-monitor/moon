@@ -36,6 +36,39 @@ type MetricManager struct {
 	helper             *log.Helper
 }
 
+func (m *MetricManager) WithMetricData(ctx context.Context, metrics ...*bo.MetricData) error {
+	if len(metrics) == 0 {
+		return nil
+	}
+
+	metricDataList := slices.GroupBy(metrics, func(metric *bo.MetricData) vobj.MetricType {
+		return metric.MetricType
+	})
+
+	eg := new(errgroup.Group)
+	eg.Go(func() error {
+		m.metricRegisterRepo.WithCounterMetricValue(ctx, metricDataList[vobj.MetricTypeCounter]...)
+		return nil
+	})
+	eg.Go(func() error {
+		m.metricRegisterRepo.WithGaugeMetricValue(ctx, metricDataList[vobj.MetricTypeGauge]...)
+		return nil
+	})
+	eg.Go(func() error {
+		m.metricRegisterRepo.WithHistogramMetricValue(ctx, metricDataList[vobj.MetricTypeHistogram]...)
+		return nil
+	})
+	eg.Go(func() error {
+		m.metricRegisterRepo.WithSummaryMetricValue(ctx, metricDataList[vobj.MetricTypeSummary]...)
+		return nil
+	})
+	if err := eg.Wait(); err != nil {
+		m.helper.Errorw("msg", "with metric data error", "error", err)
+		return err
+	}
+	return nil
+}
+
 func (m *MetricManager) RegisterCounterMetric(ctx context.Context, metrics ...*bo.CounterMetricVec) error {
 	if len(metrics) == 0 {
 		return nil
