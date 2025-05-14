@@ -221,3 +221,7 @@ type MetricData struct {
 	Labels     map[string]string
 	Value      float64
 }
+
+func (m *MetricData) GetMetricName() string {
+	return strings.Join([]string{m.Namespace, m.SubSystem, m.Name, m.MetricType.String()}, "_")
+}

@@ -14,8 +14,8 @@ type MetricRegister interface {
 	RegisterHistogramMetric(ctx context.Context, name string, metric *prometheus.HistogramVec)
 	RegisterSummaryMetric(ctx context.Context, name string, metric *prometheus.SummaryVec)
 
-	WithCounterMetricValue(ctx context.Context, metrics ...*bo.MetricData)
-	WithGaugeMetricValue(ctx context.Context, metrics ...*bo.MetricData)
-	WithHistogramMetricValue(ctx context.Context, metrics ...*bo.MetricData)
-	WithSummaryMetricValue(ctx context.Context, metrics ...*bo.MetricData)
+	WithCounterMetricValue(ctx context.Context, metrics ...*bo.MetricData) error
+	WithGaugeMetricValue(ctx context.Context, metrics ...*bo.MetricData) error
+	WithHistogramMetricValue(ctx context.Context, metrics ...*bo.MetricData) error
+	WithSummaryMetricValue(ctx context.Context, metrics ...*bo.MetricData) error
 }

@@ -47,20 +47,16 @@ func (m *MetricManager) WithMetricData(ctx context.Context, metrics ...*bo.Metri
 
 	eg := new(errgroup.Group)
 	eg.Go(func() error {
-		m.metricRegisterRepo.WithCounterMetricValue(ctx, metricDataList[vobj.MetricTypeCounter]...)
-		return nil
+		return m.metricRegisterRepo.WithCounterMetricValue(ctx, metricDataList[vobj.MetricTypeCounter]...)
 	})
 	eg.Go(func() error {
-		m.metricRegisterRepo.WithGaugeMetricValue(ctx, metricDataList[vobj.MetricTypeGauge]...)
-		return nil
+		return m.metricRegisterRepo.WithGaugeMetricValue(ctx, metricDataList[vobj.MetricTypeGauge]...)
 	})
 	eg.Go(func() error {
-		m.metricRegisterRepo.WithHistogramMetricValue(ctx, metricDataList[vobj.MetricTypeHistogram]...)
-		return nil
+		return m.metricRegisterRepo.WithHistogramMetricValue(ctx, metricDataList[vobj.MetricTypeHistogram]...)
 	})
 	eg.Go(func() error {
-		m.metricRegisterRepo.WithSummaryMetricValue(ctx, metricDataList[vobj.MetricTypeSummary]...)
-		return nil
+		return m.metricRegisterRepo.WithSummaryMetricValue(ctx, metricDataList[vobj.MetricTypeSummary]...)
 	})
 	if err := eg.Wait(); err != nil {
 		m.helper.Errorw("msg", "with metric data error", "error", err)
