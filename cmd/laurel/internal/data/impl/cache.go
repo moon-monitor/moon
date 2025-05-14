@@ -12,6 +12,7 @@ import (
 	"github.com/moon-monitor/moon/cmd/laurel/internal/biz/vobj"
 	"github.com/moon-monitor/moon/cmd/laurel/internal/data"
 	"github.com/moon-monitor/moon/pkg/merr"
+	"github.com/moon-monitor/moon/pkg/plugin/cache"
 	"github.com/moon-monitor/moon/pkg/util/slices"
 )
 
@@ -33,22 +34,10 @@ func (c *cacheImpl) StorageMetric(ctx context.Context, metrics ...bo.MetricVec) 
 	metricsByType := slices.GroupBy(metrics, func(metric bo.MetricVec) vobj.MetricType {
 		return metric.Type()
 	})
-	counterMetrics := make([]bo.MetricVec, 0, len(metricsByType[vobj.MetricTypeCounter]))
-	gaugeMetrics := make([]bo.MetricVec, 0, len(metricsByType[vobj.MetricTypeGauge]))
-	histogramMetrics := make([]bo.MetricVec, 0, len(metricsByType[vobj.MetricTypeHistogram]))
-	summaryMetrics := make([]bo.MetricVec, 0, len(metricsByType[vobj.MetricTypeSummary]))
-	for metricType, metrics := range metricsByType {
-		switch metricType {
-		case vobj.MetricTypeCounter:
-			counterMetrics = append(counterMetrics, metrics...)
-		case vobj.MetricTypeGauge:
-			gaugeMetrics = append(gaugeMetrics, metrics...)
-		case vobj.MetricTypeHistogram:
-			histogramMetrics = append(histogramMetrics, metrics...)
-		case vobj.MetricTypeSummary:
-			summaryMetrics = append(summaryMetrics, metrics...)
-		}
-	}
+	counterMetrics := metricsByType[vobj.MetricTypeCounter]
+	gaugeMetrics := metricsByType[vobj.MetricTypeGauge]
+	histogramMetrics := metricsByType[vobj.MetricTypeHistogram]
+	summaryMetrics := metricsByType[vobj.MetricTypeSummary]
 	eg := new(errgroup.Group)
 	if len(counterMetrics) > 0 {
 		eg.Go(func() error {
@@ -90,74 +79,48 @@ func (c *cacheImpl) StorageMetric(ctx context.Context, metrics ...bo.MetricVec) 
 	return eg.Wait()
 }
 
-func (c *cacheImpl) GetCounterMetrics(ctx context.Context) ([]*bo.CounterMetricVec, error) {
+func (c *cacheImpl) GetCounterMetrics(ctx context.Context, names ...string) ([]*bo.CounterMetricVec, error) {
 	key := vobj.MetricCacheKeyPrefix.Key(vobj.MetricTypeCounter)
-	values, err := c.Data.GetCache().Client().HGetAll(ctx, key).Result()
-	if err != nil {
-		return nil, err
-	}
-	metrics := make([]*bo.CounterMetricVec, 0, len(values))
-	for _, metricValue := range values {
-		var metric bo.CounterMetricVec
-		err := metric.UnmarshalBinary([]byte(metricValue))
-		if err != nil {
-			return nil, err
-		}
-		metrics = append(metrics, &metric)
-	}
-	return metrics, nil
+	return getMetrics[bo.CounterMetricVec](ctx, c.Data.GetCache(), key, names...)
 }
 
-func (c *cacheImpl) GetGaugeMetrics(ctx context.Context) ([]*bo.GaugeMetricVec, error) {
+func (c *cacheImpl) GetGaugeMetrics(ctx context.Context, names ...string) ([]*bo.GaugeMetricVec, error) {
 	key := vobj.MetricCacheKeyPrefix.Key(vobj.MetricTypeGauge)
-	values, err := c.Data.GetCache().Client().HGetAll(ctx, key).Result()
-	if err != nil {
-		return nil, err
-	}
-	metrics := make([]*bo.GaugeMetricVec, 0, len(values))
-	for _, metricValue := range values {
-		var metric bo.GaugeMetricVec
-		err := metric.UnmarshalBinary([]byte(metricValue))
-		if err != nil {
-			return nil, err
-		}
-		metrics = append(metrics, &metric)
-	}
-	return metrics, nil
+	return getMetrics[bo.GaugeMetricVec](ctx, c.Data.GetCache(), key, names...)
 }
 
-func (c *cacheImpl) GetHistogramMetrics(ctx context.Context) ([]*bo.HistogramMetricVec, error) {
+func (c *cacheImpl) GetHistogramMetrics(ctx context.Context, names ...string) ([]*bo.HistogramMetricVec, error) {
 	key := vobj.MetricCacheKeyPrefix.Key(vobj.MetricTypeHistogram)
-	values, err := c.Data.GetCache().Client().HGetAll(ctx, key).Result()
-	if err != nil {
-		return nil, err
-	}
-	metrics := make([]*bo.HistogramMetricVec, 0, len(values))
-	for _, metricValue := range values {
-		var metric bo.HistogramMetricVec
-		err := metric.UnmarshalBinary([]byte(metricValue))
-		if err != nil {
-			return nil, err
-		}
-		metrics = append(metrics, &metric)
-	}
-	return metrics, nil
+	return getMetrics[bo.HistogramMetricVec](ctx, c.Data.GetCache(), key, names...)
 }
 
-func (c *cacheImpl) GetSummaryMetrics(ctx context.Context) ([]*bo.SummaryMetricVec, error) {
+func (c *cacheImpl) GetSummaryMetrics(ctx context.Context, names ...string) ([]*bo.SummaryMetricVec, error) {
 	key := vobj.MetricCacheKeyPrefix.Key(vobj.MetricTypeSummary)
-	values, err := c.Data.GetCache().Client().HGetAll(ctx, key).Result()
+	return getMetrics[bo.SummaryMetricVec](ctx, c.Data.GetCache(), key, names...)
+}
+
+func getMetrics[T any](ctx context.Context, cacheInstance cache.Cache, key string, names ...string) ([]*T, error) {
+	var (
+		values []interface{}
+		err    error
+	)
+	if len(names) > 0 {
+		values, err = cacheInstance.Client().HMGet(ctx, key, names...).Result()
+	} else {
+		valuesMap, getAllErr := cacheInstance.Client().HGetAll(ctx, key).Result()
+		values = make([]interface{}, 0, len(valuesMap))
+		for _, value := range valuesMap {
+			values = append(values, value)
+		}
+		err = getAllErr
+	}
 	if err != nil {
 		return nil, err
 	}
-	metrics := make([]*bo.SummaryMetricVec, 0, len(values))
-	for _, metricValue := range values {
-		var metric bo.SummaryMetricVec
-		err := metric.UnmarshalBinary([]byte(metricValue))
-		if err != nil {
-			return nil, err
-		}
-		metrics = append(metrics, &metric)
+
+	metrics := make([]*T, 0, len(values))
+	if err := slices.UnmarshalBinary(values, &metrics); err != nil {
+		return nil, err
 	}
 	return metrics, nil
 }

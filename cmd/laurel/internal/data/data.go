@@ -50,36 +50,36 @@ func (d *Data) GetCache() cache.Cache {
 	return d.cache
 }
 
-func (d *Data) GetCounterMetrics() *safety.Map[string, *prometheus.CounterVec] {
-	return d.counterMetrics
-}
-
-func (d *Data) GetGaugeMetrics() *safety.Map[string, *prometheus.GaugeVec] {
-	return d.gaugeMetrics
-}
-
-func (d *Data) GetHistogramMetrics() *safety.Map[string, *prometheus.HistogramVec] {
-	return d.histogramMetrics
-}
-
-func (d *Data) GetSummaryMetrics() *safety.Map[string, *prometheus.SummaryVec] {
-	return d.summaryMetrics
-}
-
-func (d *Data) SetCounterMetric(name string, metrics *prometheus.CounterVec) {
+func (d *Data) SetCounterMetric(name string, metrics *prometheus.CounterVec) bool {
+	if _, ok := d.counterMetrics.Get(name); ok {
+		return false
+	}
 	d.counterMetrics.Set(name, metrics)
+	return true
 }
 
-func (d *Data) SetGaugeMetric(name string, metrics *prometheus.GaugeVec) {
+func (d *Data) SetGaugeMetric(name string, metrics *prometheus.GaugeVec) bool {
+	if _, ok := d.gaugeMetrics.Get(name); ok {
+		return false
+	}
 	d.gaugeMetrics.Set(name, metrics)
+	return true
 }
 
-func (d *Data) SetHistogramMetric(name string, metrics *prometheus.HistogramVec) {
+func (d *Data) SetHistogramMetric(name string, metrics *prometheus.HistogramVec) bool {
+	if _, ok := d.histogramMetrics.Get(name); ok {
+		return false
+	}
 	d.histogramMetrics.Set(name, metrics)
+	return true
 }
 
-func (d *Data) SetSummaryMetric(name string, metrics *prometheus.SummaryVec) {
+func (d *Data) SetSummaryMetric(name string, metrics *prometheus.SummaryVec) bool {
+	if _, ok := d.summaryMetrics.Get(name); ok {
+		return false
+	}
 	d.summaryMetrics.Set(name, metrics)
+	return true
 }
 
 func (d *Data) GetCounterMetric(name string) (*prometheus.CounterVec, bool) {

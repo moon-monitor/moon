@@ -105,27 +105,35 @@ func (m *metricRegisterImpl) WithSummaryMetricValue(ctx context.Context, metrics
 // RegisterCounterMetric implements repository.MetricRegister.
 // Subtle: this method shadows the method (*Data).RegisterCounterMetric of metricRegisterImpl.Data.
 func (m *metricRegisterImpl) RegisterCounterMetric(ctx context.Context, name string, metric *prometheus.CounterVec) {
-	m.SetCounterMetric(name, metric)
+	if !m.SetCounterMetric(name, metric) {
+		return
+	}
 	prometheus.MustRegister(metric)
 }
 
 // RegisterGaugeMetric implements repository.MetricRegister.
 // Subtle: this method shadows the method (*Data).RegisterGaugeMetric of metricRegisterImpl.Data.
 func (m *metricRegisterImpl) RegisterGaugeMetric(ctx context.Context, name string, metric *prometheus.GaugeVec) {
-	m.SetGaugeMetric(name, metric)
+	if !m.SetGaugeMetric(name, metric) {
+		return
+	}
 	prometheus.MustRegister(metric)
 }
 
 // RegisterHistogramMetric implements repository.MetricRegister.
 // Subtle: this method shadows the method (*Data).RegisterHistogramMetric of metricRegisterImpl.Data.
 func (m *metricRegisterImpl) RegisterHistogramMetric(ctx context.Context, name string, metric *prometheus.HistogramVec) {
-	m.SetHistogramMetric(name, metric)
+	if !m.SetHistogramMetric(name, metric) {
+		return
+	}
 	prometheus.MustRegister(metric)
 }
 
 // RegisterSummaryMetric implements repository.MetricRegister.
 // Subtle: this method shadows the method (*Data).RegisterSummaryMetric of metricRegisterImpl.Data.
 func (m *metricRegisterImpl) RegisterSummaryMetric(ctx context.Context, name string, metric *prometheus.SummaryVec) {
-	m.SetSummaryMetric(name, metric)
+	if !m.SetSummaryMetric(name, metric) {
+		return
+	}
 	prometheus.MustRegister(metric)
 }

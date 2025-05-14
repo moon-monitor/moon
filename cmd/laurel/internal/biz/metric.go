@@ -25,8 +25,8 @@ func NewMetricManager(
 		cacheRepo:          cacheRepo,
 		helper:             log.NewHelper(log.With(logger, "module", "biz.metric")),
 	}
-	defer metricManager.loadCacheMetrics()
-	defer metricManager.loadConfigMetrics(bc)
+	metricManager.loadCacheMetrics()
+	metricManager.loadConfigMetrics(bc)
 	return metricManager
 }
 
@@ -47,16 +47,32 @@ func (m *MetricManager) WithMetricData(ctx context.Context, metrics ...*bo.Metri
 
 	eg := new(errgroup.Group)
 	eg.Go(func() error {
-		return m.metricRegisterRepo.WithCounterMetricValue(ctx, metricDataList[vobj.MetricTypeCounter]...)
+		metricDataList := metricDataList[vobj.MetricTypeCounter]
+		if len(metricDataList) == 0 {
+			return nil
+		}
+		return m.metricRegisterRepo.WithCounterMetricValue(ctx, metricDataList...)
 	})
 	eg.Go(func() error {
-		return m.metricRegisterRepo.WithGaugeMetricValue(ctx, metricDataList[vobj.MetricTypeGauge]...)
+		metricDataList := metricDataList[vobj.MetricTypeGauge]
+		if len(metricDataList) == 0 {
+			return nil
+		}
+		return m.metricRegisterRepo.WithGaugeMetricValue(ctx, metricDataList...)
 	})
 	eg.Go(func() error {
-		return m.metricRegisterRepo.WithHistogramMetricValue(ctx, metricDataList[vobj.MetricTypeHistogram]...)
+		metricDataList := metricDataList[vobj.MetricTypeHistogram]
+		if len(metricDataList) == 0 {
+			return nil
+		}
+		return m.metricRegisterRepo.WithHistogramMetricValue(ctx, metricDataList...)
 	})
 	eg.Go(func() error {
-		return m.metricRegisterRepo.WithSummaryMetricValue(ctx, metricDataList[vobj.MetricTypeSummary]...)
+		metricDataList := metricDataList[vobj.MetricTypeSummary]
+		if len(metricDataList) == 0 {
+			return nil
+		}
+		return m.metricRegisterRepo.WithSummaryMetricValue(ctx, metricDataList...)
 	})
 	if err := eg.Wait(); err != nil {
 		m.helper.Errorw("msg", "with metric data error", "error", err)

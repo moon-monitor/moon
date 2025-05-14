@@ -13,9 +13,9 @@ type Cache interface {
 	Unlock(ctx context.Context, key string) error
 
 	StorageMetric(ctx context.Context, metrics ...bo.MetricVec) error
-	GetCounterMetrics(ctx context.Context) ([]*bo.CounterMetricVec, error)
-	GetGaugeMetrics(ctx context.Context) ([]*bo.GaugeMetricVec, error)
-	GetHistogramMetrics(ctx context.Context) ([]*bo.HistogramMetricVec, error)
-	GetSummaryMetrics(ctx context.Context) ([]*bo.SummaryMetricVec, error)
+	GetCounterMetrics(ctx context.Context, names ...string) ([]*bo.CounterMetricVec, error)
+	GetGaugeMetrics(ctx context.Context, names ...string) ([]*bo.GaugeMetricVec, error)
+	GetHistogramMetrics(ctx context.Context, names ...string) ([]*bo.HistogramMetricVec, error)
+	GetSummaryMetrics(ctx context.Context, names ...string) ([]*bo.SummaryMetricVec, error)
 	GetMetric(ctx context.Context, metricType vobj.MetricType, metricName string) (bo.MetricVec, error)
 }
