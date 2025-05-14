@@ -2,8 +2,10 @@ package service
 
 import (
 	"context"
+	"strings"
 
 	"github.com/go-kratos/kratos/v2/log"
+	"github.com/go-kratos/kratos/v2/transport/http"
 
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/bo"
@@ -117,4 +119,53 @@ func (s *TeamDatasourceService) MetricDatasourceQuery(ctx context.Context, req *
 		return nil, err
 	}
 	return reply, nil
+}
+
+const (
+	OperationTeamDatasourceMetricDatasourceProxy = "/api.palace.TeamDatasource/MetricDatasourceProxy"
+)
+
+func (s *TeamDatasourceService) MetricDatasourceProxy(httpCtx http.Context) error {
+	isContentType := false
+	for k := range httpCtx.Request().Header {
+		if strings.EqualFold(k, "Content-Type") {
+			isContentType = true
+			break
+		}
+	}
+	if !isContentType {
+		httpCtx.Header().Set("Content-Type", "application/json")
+		httpCtx.Request().Header.Set("Content-Type", "application/json")
+	}
+	var in palace.MetricDatasourceProxyRequest
+	if err := httpCtx.Bind(&in); err != nil {
+		return err
+	}
+	if err := httpCtx.BindQuery(&in); err != nil {
+		return err
+	}
+	if err := httpCtx.BindVars(&in); err != nil {
+		return err
+	}
+	http.SetOperation(httpCtx, OperationTeamDatasourceMetricDatasourceProxy)
+
+	h := httpCtx.Middleware(func(ctx context.Context, req interface{}) (interface{}, error) {
+		ctx = permission.WithTeamIDContext(ctx, in.GetTeamId())
+		datasourceDo, err := s.teamDatasourceBiz.GetMetricDatasource(ctx, in.GetDatasourceId())
+		if err != nil {
+			return nil, err
+		}
+
+		datasource, err := build.ToMetricDatasource(datasourceDo, s.helper.Logger())
+		if err != nil {
+			return nil, err
+		}
+
+		return nil, datasource.Proxy(httpCtx, in.GetTarget())
+	})
+	_, err := h(httpCtx, &in)
+	if err != nil {
+		return err
+	}
+	return nil
 }

@@ -25,7 +25,12 @@ import (
 var docFS embed.FS
 
 // NewHTTPServer new an HTTP server.
-func NewHTTPServer(bc *conf.Bootstrap, authService *service.AuthService, logger log.Logger) *http.Server {
+func NewHTTPServer(
+	bc *conf.Bootstrap,
+	authService *service.AuthService,
+	teamDatasourceService *service.TeamDatasourceService,
+	logger log.Logger,
+) *http.Server {
 	serverConf := bc.GetServer()
 	httpConf := serverConf.GetHttp()
 	jwtConf := bc.GetAuth().GetJwt()
@@ -60,12 +65,13 @@ func NewHTTPServer(bc *conf.Bootstrap, authService *service.AuthService, logger 
 
 	docs.RegisterDocs(srv, docFS, bc.IsDev())
 	metric.RegisterRoutes(srv)
-	registerOAuth2(bc.GetAuth().GetOauth2(), srv, authService)
+	registerOAuth2Routes(bc.GetAuth().GetOauth2(), srv, authService)
+	registerTeamDatasourceRoutes(srv, teamDatasourceService)
 
 	return srv
 }
 
-func registerOAuth2(c *conf.Auth_OAuth2, httpSrv *http.Server, authService *service.AuthService) {
+func registerOAuth2Routes(c *conf.Auth_OAuth2, httpSrv *http.Server, authService *service.AuthService) {
 	if !c.GetEnable() {
 		return
 	}
@@ -77,4 +83,13 @@ func registerOAuth2(c *conf.Auth_OAuth2, httpSrv *http.Server, authService *serv
 		appRoute.GET("/", authService.OAuthLogin(app))
 		appRoute.GET("/callback", authService.OAuthLoginCallback(app))
 	}
+}
+
+func registerTeamDatasourceRoutes(srv *http.Server, teamDatasourceService *service.TeamDatasourceService) {
+	metricRoute := srv.Route("/datasource/metric")
+	publicRoute := "/{teamId}/{datasourceId}/{target:[^/]+(?:/[^?]*)}"
+	metricRoute.GET(publicRoute, teamDatasourceService.MetricDatasourceProxy)
+	metricRoute.POST(publicRoute, teamDatasourceService.MetricDatasourceProxy)
+	metricRoute.DELETE(publicRoute, teamDatasourceService.MetricDatasourceProxy)
+	metricRoute.PUT(publicRoute, teamDatasourceService.MetricDatasourceProxy)
 }

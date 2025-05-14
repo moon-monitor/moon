@@ -9,9 +9,9 @@ import (
 	"time"
 
 	"github.com/go-kratos/kratos/v2/log"
+	transporthttp "github.com/go-kratos/kratos/v2/transport/http"
 	"golang.org/x/sync/errgroup"
 
-	"github.com/moon-monitor/moon/pkg/api/houyi/common"
 	"github.com/moon-monitor/moon/pkg/merr"
 	"github.com/moon-monitor/moon/pkg/plugin/datasource"
 	"github.com/moon-monitor/moon/pkg/util/httpx"
@@ -32,17 +32,7 @@ const (
 	prometheusAPIV1Series = "/api/v1/series"
 )
 
-type Config interface {
-	GetEndpoint() string
-	GetHeaders() map[string]string
-	GetMethod() common.DatasourceQueryMethod
-	GetBasicAuth() datasource.BasicAuth
-	GetTLS() datasource.TLS
-	GetCA() string
-	GetScrapeInterval() time.Duration
-}
-
-func New(c Config, logger log.Logger) *Prometheus {
+func New(c datasource.MetricConfig, logger log.Logger) *Prometheus {
 	return &Prometheus{
 		c:      c,
 		helper: log.NewHelper(log.With(logger, "module", "plugin.datasource.prometheus")),
@@ -50,8 +40,51 @@ func New(c Config, logger log.Logger) *Prometheus {
 }
 
 type Prometheus struct {
-	c      Config
+	c      datasource.MetricConfig
 	helper *log.Helper
+}
+
+// Proxy implements datasource.Metric.
+func (p *Prometheus) Proxy(ctx transporthttp.Context, target string) error {
+	w := ctx.Response()
+	r := ctx.Request()
+
+	// 获取query data
+	query := r.URL.Query()
+	// 绑定query到to
+	api, err := url.JoinPath(p.c.GetEndpoint(), target)
+	if !validate.IsNil(err) {
+		return err
+	}
+	toURL, err := url.Parse(api)
+	if !validate.IsNil(err) {
+		return err
+	}
+	toURL.RawQuery = query.Encode()
+	// body
+	body := r.Body
+	hx := p.configureHTTPClient(ctx)
+	// 发起一个新请求， 把数据写回w
+	proxyReq, err := http.NewRequestWithContext(ctx, r.Method, toURL.String(), body)
+	if !validate.IsNil(err) {
+		return err
+	}
+	proxyReq.Header = r.Header
+	proxyReq.Form = r.Form
+	proxyReq.Body = r.Body
+	resp, err := hx.Do(proxyReq)
+	if !validate.IsNil(err) {
+		return err
+	}
+	defer resp.Body.Close()
+	for k, v := range resp.Header {
+		if len(v) == 0 {
+			continue
+		}
+		w.Header().Set(k, v[0])
+	}
+	_, err = io.Copy(w, resp.Body)
+	return err
 }
 
 func (p *Prometheus) GetScrapeInterval() time.Duration {

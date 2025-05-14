@@ -6,6 +6,8 @@ import (
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do/team"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/vobj"
+	"github.com/moon-monitor/moon/pkg/api/houyi/common"
+	"github.com/moon-monitor/moon/pkg/plugin/datasource"
 	"github.com/moon-monitor/moon/pkg/util/kv"
 	"github.com/moon-monitor/moon/pkg/util/slices"
 )
@@ -93,4 +95,49 @@ type MetricDatasourceQueryRequest struct {
 	StartTime  int64
 	EndTime    int64
 	Step       uint32
+}
+
+var _ datasource.MetricConfig = (*metricDatasourceConfig)(nil)
+
+func NewMetricDatasourceConfig(datasourceMetric do.DatasourceMetric) datasource.MetricConfig {
+	return &metricDatasourceConfig{datasourceMetric: datasourceMetric}
+}
+
+type metricDatasourceConfig struct {
+	datasourceMetric do.DatasourceMetric
+}
+
+// GetBasicAuth implements datasource.MetricConfig.
+func (m *metricDatasourceConfig) GetBasicAuth() datasource.BasicAuth {
+	return m.datasourceMetric.GetBasicAuth()
+}
+
+// GetCA implements datasource.MetricConfig.
+func (m *metricDatasourceConfig) GetCA() string {
+	return m.datasourceMetric.GetCA()
+}
+
+// GetEndpoint implements datasource.MetricConfig.
+func (m *metricDatasourceConfig) GetEndpoint() string {
+	return m.datasourceMetric.GetEndpoint()
+}
+
+// GetHeaders implements datasource.MetricConfig.
+func (m *metricDatasourceConfig) GetHeaders() map[string]string {
+	return m.datasourceMetric.GetHeaders()
+}
+
+// GetMethod implements datasource.MetricConfig.
+func (m *metricDatasourceConfig) GetMethod() common.DatasourceQueryMethod {
+	return common.DatasourceQueryMethod(m.datasourceMetric.GetQueryMethod().GetValue())
+}
+
+// GetScrapeInterval implements datasource.MetricConfig.
+func (m *metricDatasourceConfig) GetScrapeInterval() time.Duration {
+	return m.datasourceMetric.GetScrapeInterval()
+}
+
+// GetTLS implements datasource.MetricConfig.
+func (m *metricDatasourceConfig) GetTLS() datasource.TLS {
+	return m.datasourceMetric.GetTLS()
 }

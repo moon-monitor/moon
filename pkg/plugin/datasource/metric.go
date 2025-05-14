@@ -6,11 +6,23 @@ import (
 	"fmt"
 	"strconv"
 	"time"
+
+	"github.com/go-kratos/kratos/v2/transport/http"
+	"github.com/moon-monitor/moon/pkg/api/houyi/common"
 )
 
 type ResultType string
 
 type (
+	MetricConfig interface {
+		GetEndpoint() string
+		GetHeaders() map[string]string
+		GetMethod() common.DatasourceQueryMethod
+		GetBasicAuth() BasicAuth
+		GetTLS() TLS
+		GetCA() string
+		GetScrapeInterval() time.Duration
+	}
 	MetricQueryValue struct {
 		Timestamp float64 `json:"timestamp"`
 		Value     float64 `json:"value"`
@@ -67,6 +79,8 @@ type Metric interface {
 	Metadata(ctx context.Context) (<-chan *MetricMetadata, error)
 
 	GetScrapeInterval() time.Duration
+
+	Proxy(ctx http.Context, target string) error
 }
 
 // IsSuccessResponse is response success

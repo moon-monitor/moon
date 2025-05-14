@@ -13,7 +13,7 @@ import (
 	"github.com/moon-monitor/moon/pkg/util/timex"
 )
 
-var _ prometheus.Config = (*config)(nil)
+var _ datasource.MetricConfig = (*config)(nil)
 
 type config struct {
 	Endpoint  string
