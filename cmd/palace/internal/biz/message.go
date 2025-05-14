@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/go-kratos/kratos/v2/log"
+	"github.com/moon-monitor/moon/pkg/util/timex"
 
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/bo"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/repository"
@@ -34,6 +35,7 @@ type Message struct {
 func (a *Message) SendEmail(ctx context.Context, sendEmailParams *bo.SendEmailParams) error {
 	sendMessageLogParams := &bo.CreateSendMessageLogParams{
 		TeamID:      sendEmailParams.TeamID,
+		SendAt:      timex.Now(),
 		MessageType: vobj.MessageTypeEmail,
 		Message:     sendEmailParams,
 		RequestID:   sendEmailParams.RequestID,

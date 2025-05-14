@@ -17,7 +17,7 @@ const tableNameSendMessageLog = "team_send_message_logs"
 type SendMessageLog struct {
 	do.BaseModel
 	TeamID      uint32                 `gorm:"column:team_id;type:int unsigned;not null;comment:团队ID" json:"team_id,omitempty"`
-	SendedAt    time.Time              `gorm:"column:sended_at;type:datetime;not null;comment:发送时间" json:"sended_at,omitempty"`
+	SentAt      time.Time              `gorm:"column:sent_at;type:datetime;not null;default:CURRENT_TIMESTAMP;comment:发送时间" json:"sent_at,omitempty"`
 	MessageType vobj.MessageType       `gorm:"column:message_type;type:tinyint(2);not null;comment:消息类型" json:"message_type,omitempty"`
 	Message     string                 `gorm:"column:message;type:text;not null;comment:消息内容" json:"message,omitempty"`
 	RequestID   string                 `gorm:"column:request_id;type:varchar(64);not null;comment:请求ID;uniqueIndex:idx__request_id" json:"request_id,omitempty"`
@@ -83,7 +83,7 @@ func (s *SendMessageLog) GetTeamID() uint32 {
 }
 
 func (s *SendMessageLog) TableName() string {
-	return genSendMessageLogTableName(s.TeamID, s.SendedAt)
+	return genSendMessageLogTableName(s.TeamID, s.SentAt)
 }
 
 func createSendMessageLogTable(teamId uint32, t time.Time, tx *gorm.DB) (err error) {
@@ -92,8 +92,8 @@ func createSendMessageLogTable(teamId uint32, t time.Time, tx *gorm.DB) (err err
 		return
 	}
 	s := &SendMessageLog{
-		TeamID:   teamId,
-		SendedAt: t,
+		TeamID: teamId,
+		SentAt: t,
 	}
 	if err := do.CreateTable(teamId, tx, tableName, s); err != nil {
 		return err

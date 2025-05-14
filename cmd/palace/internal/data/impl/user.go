@@ -18,7 +18,6 @@ import (
 	"github.com/moon-monitor/moon/cmd/palace/internal/data"
 	"github.com/moon-monitor/moon/cmd/palace/internal/data/impl/build"
 	"github.com/moon-monitor/moon/pkg/merr"
-	"github.com/moon-monitor/moon/pkg/util/crypto"
 	"github.com/moon-monitor/moon/pkg/util/password"
 	"github.com/moon-monitor/moon/pkg/util/slices"
 	"github.com/moon-monitor/moon/pkg/util/template"
@@ -98,7 +97,7 @@ func (u *userRepoImpl) AppendTeam(ctx context.Context, team do.Team) error {
 }
 
 func (u *userRepoImpl) CreateUserWithOAuthUser(ctx context.Context, user bo.IOAuthUser, sendEmailFunc bo.SendEmailFun) (userDo do.User, err error) {
-	userDo, err = u.FindByEmail(ctx, crypto.String(user.GetEmail()))
+	userDo, err = u.FindByEmail(ctx, user.GetEmail())
 	if err == nil {
 		return userDo, nil
 	}
@@ -110,7 +109,7 @@ func (u *userRepoImpl) CreateUserWithOAuthUser(ctx context.Context, user bo.IOAu
 		Username:  user.GetUsername(),
 		Nickname:  user.GetNickname(),
 		Password:  "",
-		Email:     crypto.String(user.GetEmail()),
+		Email:     user.GetEmail(),
 		Phone:     "",
 		Remark:    user.GetRemark(),
 		Avatar:    user.GetAvatar(),
@@ -165,7 +164,7 @@ func (u *userRepoImpl) FindByID(ctx context.Context, userID uint32) (do.User, er
 	return user, nil
 }
 
-func (u *userRepoImpl) FindByEmail(ctx context.Context, email crypto.String) (do.User, error) {
+func (u *userRepoImpl) FindByEmail(ctx context.Context, email string) (do.User, error) {
 	mutation := getMainQuery(ctx, u)
 	userQuery := mutation.User
 	user, err := userQuery.WithContext(ctx).Where(userQuery.Email.Eq(email)).First()
@@ -179,7 +178,7 @@ func (u *userRepoImpl) SetEmail(ctx context.Context, user do.User, sendEmailFunc
 	userMutation := getMainQuery(ctx, u).User
 	wrapper := []gen.Condition{
 		userMutation.ID.Eq(user.GetID()),
-		userMutation.Email.Eq(crypto.String("")),
+		userMutation.Email.Eq(""),
 	}
 	pass := password.New(password.GenerateRandomPassword(8))
 	enValue, err := pass.EnValue()
@@ -214,12 +213,12 @@ func (u *userRepoImpl) SetEmail(ctx context.Context, user do.User, sendEmailFunc
 var welcomeEmailBody string
 
 func (u *userRepoImpl) sendUserPassword(ctx context.Context, user do.User, pass string, sendEmailFunc bo.SendEmailFun) error {
-	if err := validate.CheckEmail(string(user.GetEmail())); err != nil {
+	if err := validate.CheckEmail(user.GetEmail()); err != nil {
 		return nil
 	}
 
 	bodyParams := map[string]string{
-		"Username":    string(user.GetEmail()),
+		"Username":    user.GetEmail(),
 		"Password":    pass,
 		"RedirectURI": u.bc.GetAuth().GetOauth2().GetRedirectUri(),
 	}
@@ -228,7 +227,7 @@ func (u *userRepoImpl) sendUserPassword(ctx context.Context, user do.User, pass 
 		return err
 	}
 	sendEmailParams := &bo.SendEmailParams{
-		Email:       string(user.GetEmail()),
+		Email:       user.GetEmail(),
 		Body:        emailBody,
 		Subject:     "Welcome to the Moon Monitoring System.",
 		ContentType: "text/html",
@@ -288,7 +287,7 @@ func (u *userRepoImpl) UpdatePassword(ctx context.Context, updateUserPasswordInf
 	if err != nil {
 		return err
 	}
-	if err := validate.CheckEmail(string(userDo.GetEmail())); err != nil {
+	if err := validate.CheckEmail(userDo.GetEmail()); err != nil {
 		return err
 	}
 	defer func() {
@@ -296,7 +295,7 @@ func (u *userRepoImpl) UpdatePassword(ctx context.Context, updateUserPasswordInf
 			return
 		}
 		bodyParams := map[string]string{
-			"Email":       string(userDo.GetEmail()),
+			"Email":       userDo.GetEmail(),
 			"Password":    updateUserPasswordInfo.OriginPassword,
 			"RedirectURI": u.bc.GetAuth().GetOauth2().GetRedirectUri(),
 		}
@@ -307,7 +306,7 @@ func (u *userRepoImpl) UpdatePassword(ctx context.Context, updateUserPasswordInf
 		}
 
 		sendEmailParams := &bo.SendEmailParams{
-			Email:       string(userDo.GetEmail()),
+			Email:       userDo.GetEmail(),
 			Body:        body,
 			Subject:     "Password reset.",
 			ContentType: "text/html",
@@ -361,8 +360,8 @@ func (u *userRepoImpl) List(ctx context.Context, req *bo.UserListRequest) (*bo.U
 			userQuery.Nickname.Like(req.Keyword),
 			userQuery.Username.Like(req.Keyword),
 			userQuery.Remark.Like(req.Keyword),
-			userQuery.Email.Eq(crypto.String(req.Keyword)),
-			userQuery.Phone.Eq(crypto.String(req.Keyword)),
+			userQuery.Email.Eq(req.Keyword),
+			userQuery.Phone.Eq(req.Keyword),
 		}
 		wrapper = wrapper.Where(userQuery.Or(ors...))
 	}

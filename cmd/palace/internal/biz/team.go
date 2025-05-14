@@ -14,7 +14,6 @@ import (
 	"github.com/moon-monitor/moon/cmd/palace/internal/helper/permission"
 	"github.com/moon-monitor/moon/pkg/merr"
 	"github.com/moon-monitor/moon/pkg/plugin/server"
-	"github.com/moon-monitor/moon/pkg/util/crypto"
 )
 
 func NewTeam(
@@ -353,7 +352,7 @@ func (t *Team) InviteMember(ctx context.Context, req *bo.InviteMemberReq) error 
 		return err
 	}
 	req.WithOperator(operatorDo)
-	inviterDo, err := t.userRepo.FindByEmail(ctx, crypto.String(req.UserEmail))
+	inviterDo, err := t.userRepo.FindByEmail(ctx, req.UserEmail)
 	if err != nil {
 		return err
 	}

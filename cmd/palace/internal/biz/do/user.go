@@ -3,7 +3,6 @@ package do
 import (
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/vobj"
 	"github.com/moon-monitor/moon/pkg/plugin/cache"
-	"github.com/moon-monitor/moon/pkg/util/crypto"
 )
 
 type User interface {
@@ -11,8 +10,8 @@ type User interface {
 	cache.Object
 	GetUsername() string
 	GetNickname() string
-	GetEmail() crypto.String
-	GetPhone() crypto.String
+	GetEmail() string
+	GetPhone() string
 	GetRemark() string
 	GetPassword() string
 	GetSalt() string
@@ -23,7 +22,7 @@ type User interface {
 	GetRoles() []Role
 	GetTeams() []Team
 	ValidatePassword(p string) bool
-	SetEmail(email crypto.String)
+	SetEmail(email string)
 }
 
 type UserOAuth interface {

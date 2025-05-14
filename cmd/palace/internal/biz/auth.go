@@ -16,7 +16,6 @@ import (
 	"github.com/moon-monitor/moon/cmd/palace/internal/helper/middleware"
 	"github.com/moon-monitor/moon/cmd/palace/internal/helper/permission"
 	"github.com/moon-monitor/moon/pkg/merr"
-	"github.com/moon-monitor/moon/pkg/util/crypto"
 	"github.com/moon-monitor/moon/pkg/util/hash"
 	"github.com/moon-monitor/moon/pkg/util/password"
 	"github.com/moon-monitor/moon/pkg/util/safety"
@@ -117,7 +116,7 @@ func (a *AuthBiz) VerifyToken(ctx context.Context, token string) error {
 
 // LoginByPassword login by password
 func (a *AuthBiz) LoginByPassword(ctx context.Context, req *bo.LoginByPassword) (*bo.LoginSign, error) {
-	user, err := a.userRepo.FindByEmail(ctx, crypto.String(req.Email))
+	user, err := a.userRepo.FindByEmail(ctx, req.Email)
 	if err != nil {
 		return nil, merr.ErrorPasswordError("password error").WithCause(err)
 	}
@@ -252,14 +251,14 @@ func (a *AuthBiz) oauthUserFirstOrCreate(ctx context.Context, userInfo bo.IOAuth
 		}
 		oauthUserDoExist = false
 	}
-	if oauthUserDo.GetUserID() == 0 {
-		userDo, err := a.userRepo.FindByEmail(ctx, crypto.String(userInfo.GetEmail()))
+	if validate.IsNil(oauthUserDo) || oauthUserDo.GetUserID() == 0 {
+		userDo, err := a.userRepo.FindByEmail(ctx, userInfo.GetEmail())
 		if err != nil {
 			if !merr.IsUserNotFound(err) {
 				return nil, err
 			}
 		}
-		if userDo != nil {
+		if validate.IsNotNil(userDo) {
 			userInfo.WithUserID(userDo.GetID())
 		}
 	}
@@ -271,7 +270,7 @@ func (a *AuthBiz) oauthUserFirstOrCreate(ctx context.Context, userInfo bo.IOAuth
 				return err
 			}
 		}
-		if oauthUserDo.GetUser() == nil {
+		if validate.IsNil(oauthUserDo.GetUser()) {
 			// 创建用户
 			userDo, err := a.userRepo.CreateUserWithOAuthUser(ctx, userInfo, sendEmail)
 			if err != nil {
@@ -299,8 +298,9 @@ func (a *AuthBiz) oauthLogin(ctx context.Context, userInfo bo.IOAuthUser, sendEm
 	}
 
 	userDo := oauthUserDo.GetUser()
-	if validate.IsNil(userDo) || validate.CheckEmail(string(userDo.GetEmail())) != nil {
+	if validate.IsNil(userDo) || validate.CheckEmail(userDo.GetEmail()) != nil {
 		oauthParams := &bo.OAuthLoginParams{
+			APP:    userInfo.GetAPP(),
 			OpenID: oauthUserDo.GetOpenID(),
 			Token:  hash.MD5(password.GenerateRandomPassword(64)),
 		}
@@ -334,16 +334,14 @@ func (a *AuthBiz) OAuthLoginWithEmail(ctx context.Context, oauthParams *bo.OAuth
 		return nil, err
 	}
 	userDo := oauthUserDo.GetUser()
-	if userDo == nil {
-		return nil, merr.ErrorUnauthorized("oauth unauthorized").WithMetadata(map[string]string{
-			"exist": "false",
-		})
+	if validate.IsNil(userDo) {
+		return nil, merr.ErrorUnauthorized("oauth unauthorized")
 	}
-	if userDo.GetEmail().EQ(crypto.String(oauthParams.Email)) {
+	if userDo.GetEmail() == oauthParams.Email {
 		return a.login(userDo)
 	}
 
-	userDo.SetEmail(crypto.String(oauthParams.Email))
+	userDo.SetEmail(oauthParams.Email)
 	user, err := a.userRepo.SetEmail(ctx, userDo, oauthParams.SendEmailFun)
 	if err != nil {
 		return nil, err
@@ -362,7 +360,7 @@ func (a *AuthBiz) VerifyEmail(ctx context.Context, req *bo.VerifyEmailParams) er
 
 // LoginWithEmail 邮箱登录
 func (a *AuthBiz) LoginWithEmail(ctx context.Context, req *bo.LoginWithEmailParams) (*bo.LoginSign, error) {
-	if err := a.cacheRepo.VerifyEmailCode(ctx, string(req.GetEmail()), req.Code); err != nil {
+	if err := a.cacheRepo.VerifyEmailCode(ctx, req.GetEmail(), req.Code); err != nil {
 		return nil, err
 	}
 	userDo, err := a.userRepo.FindByEmail(ctx, req.GetEmail())

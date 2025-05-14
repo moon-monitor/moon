@@ -21,7 +21,6 @@ import (
 	"github.com/moon-monitor/moon/pkg/api/palace"
 	"github.com/moon-monitor/moon/pkg/api/palace/common"
 	"github.com/moon-monitor/moon/pkg/merr"
-	"github.com/moon-monitor/moon/pkg/util/crypto"
 )
 
 func NewAuthService(
@@ -142,7 +141,7 @@ func (s *AuthService) LoginByEmail(ctx context.Context, req *palace.LoginByEmail
 		BaseModel: do.BaseModel{},
 		Username:  req.GetUsername(),
 		Nickname:  req.GetNickname(),
-		Email:     crypto.String(req.GetEmail()),
+		Email:     req.GetEmail(),
 		Remark:    req.GetRemark(),
 		Gender:    vobj.Gender(req.GetGender()),
 		Position:  vobj.RoleUser,
@@ -158,11 +157,12 @@ func (s *AuthService) LoginByEmail(ctx context.Context, req *palace.LoginByEmail
 
 func (s *AuthService) OAuthLoginByEmail(ctx context.Context, req *palace.OAuthLoginByEmailRequest) (*palace.LoginReply, error) {
 	oauthParams := &bo.OAuthLoginParams{
-		APP:    vobj.OAuthAPP(req.GetApp()),
-		Code:   req.GetCode(),
-		Email:  req.GetEmail(),
-		OpenID: req.GetOpenId(),
-		Token:  req.GetToken(),
+		APP:          vobj.OAuthAPP(req.GetApp()),
+		Code:         req.GetCode(),
+		Email:        req.GetEmail(),
+		OpenID:       req.GetOpenId(),
+		Token:        req.GetToken(),
+		SendEmailFun: s.messageBiz.SendEmail,
 	}
 	return login(s.authBiz.OAuthLoginWithEmail(ctx, oauthParams))
 }

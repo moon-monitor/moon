@@ -6,7 +6,6 @@ import (
 
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/vobj"
-	"github.com/moon-monitor/moon/pkg/util/crypto"
 	"github.com/moon-monitor/moon/pkg/util/password"
 	"github.com/moon-monitor/moon/pkg/util/slices"
 )
@@ -20,8 +19,8 @@ type User struct {
 	Username string          `gorm:"column:username;type:varchar(64);not null;index:idx__sys_user__username,priority:1;comment:用户名" json:"username"`
 	Nickname string          `gorm:"column:nickname;type:varchar(64);not null;comment:昵称" json:"nickname"`
 	Password string          `gorm:"column:password;type:varchar(255);not null;comment:密码" json:"-"`
-	Email    crypto.String   `gorm:"column:email;type:text;not null;comment:邮箱" json:"email"`
-	Phone    crypto.String   `gorm:"column:phone;type:text;not null;comment:手机号" json:"phone"`
+	Email    string          `gorm:"column:email;type:varchar(64);not null;comment:邮箱" json:"email"`
+	Phone    string          `gorm:"column:phone;type:varchar(64);not null;comment:手机号" json:"phone"`
 	Remark   string          `gorm:"column:remark;type:varchar(255);not null;comment:备注" json:"remark"`
 	Avatar   string          `gorm:"column:avatar;type:varchar(255);not null;comment:头像" json:"avatar"`
 	Salt     string          `gorm:"column:salt;type:varchar(128);not null;comment:盐" json:"-"`
@@ -64,14 +63,14 @@ func (u *User) GetNickname() string {
 	return u.Nickname
 }
 
-func (u *User) GetEmail() crypto.String {
+func (u *User) GetEmail() string {
 	if u == nil {
 		return ""
 	}
 	return u.Email
 }
 
-func (u *User) GetPhone() crypto.String {
+func (u *User) GetPhone() string {
 	if u == nil {
 		return ""
 	}
@@ -151,7 +150,7 @@ func (u *User) ValidatePassword(p string) bool {
 	return validate.EQ(u.Password)
 }
 
-func (u *User) SetEmail(email crypto.String) {
+func (u *User) SetEmail(email string) {
 	if u == nil {
 		return
 	}

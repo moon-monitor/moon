@@ -48,6 +48,7 @@ func (s *UserOAuth) SetUser(user do.User) {
 		return
 	}
 	userDo, ok := user.(*User)
+	s.UserID = user.GetID()
 	if !ok {
 		return
 	}

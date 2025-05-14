@@ -123,6 +123,7 @@ func (s *sendMessageLogImpl) createTeamSendMessageLog(ctx context.Context, param
 		Status:      vobj.SendMessageStatusSending,
 		RetryCount:  0,
 		Error:       "",
+		SentAt:      params.SendAt,
 	}
 	sendMessageLog.WithContext(ctx)
 	tx := getTeamEventQuery(ctx, s)
@@ -136,10 +137,13 @@ func (s *sendMessageLogImpl) createTeamSendMessageLog(ctx context.Context, param
 
 func (s *sendMessageLogImpl) createSystemSendMessageLog(ctx context.Context, params *bo.CreateSendMessageLogParams) error {
 	sendMessageLog := &system.SendMessageLog{
+		SentAt:      params.SendAt,
 		MessageType: params.MessageType,
 		Message:     params.Message.String(),
 		RequestID:   params.RequestID,
 		Status:      vobj.SendMessageStatusSending,
+		RetryCount:  0,
+		Error:       "",
 	}
 	sendMessageLog.WithContext(ctx)
 	tx := getMainQuery(ctx, s)

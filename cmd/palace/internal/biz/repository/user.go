@@ -5,12 +5,11 @@ import (
 
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/bo"
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/do"
-	"github.com/moon-monitor/moon/pkg/util/crypto"
 )
 
 type User interface {
 	FindByID(ctx context.Context, userID uint32) (do.User, error)
-	FindByEmail(ctx context.Context, email crypto.String) (do.User, error)
+	FindByEmail(ctx context.Context, email string) (do.User, error)
 	CreateUserWithOAuthUser(ctx context.Context, user bo.IOAuthUser, sendEmailFunc bo.SendEmailFun) (do.User, error)
 	SetEmail(ctx context.Context, user do.User, sendEmailFunc bo.SendEmailFun) (do.User, error)
 	Create(ctx context.Context, user do.User, sendEmailFunc bo.SendEmailFun) (do.User, error)
