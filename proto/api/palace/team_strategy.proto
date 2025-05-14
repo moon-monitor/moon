@@ -229,7 +229,7 @@ message SaveTeamMetricStrategyLevelRequest {
   // Status
   api.palace.common.GlobalStatus status = 10;
   // Id
-  uint32 id = 11;
+  uint32 strategyMetricLevelId = 11;
   // alarm pages
   repeated uint32 alarmPages = 12;
 }

@@ -32,7 +32,7 @@ message ListAlertParams {
 }
 
 message RealtimeAlertItem {
-	uint32 id = 1;
+	uint32 alertId = 1;
 	api.common.AlertStatus status = 2;
 	string fingerprint = 3;
 	map<string, string> labels = 4;

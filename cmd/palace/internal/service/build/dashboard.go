@@ -14,13 +14,13 @@ func ToDashboardItem(dashboard do.Dashboard) *common.TeamDashboardItem {
 	}
 
 	return &common.TeamDashboardItem{
-		Id:        dashboard.GetID(),
-		Name:      dashboard.GetTitle(),
-		Remark:    dashboard.GetRemark(),
-		Status:    common.GlobalStatus(dashboard.GetStatus().GetValue()),
-		ColorHex:  dashboard.GetColorHex(),
-		CreatedAt: timex.Format(dashboard.GetCreatedAt()),
-		UpdatedAt: timex.Format(dashboard.GetUpdatedAt()),
+		TeamDashboardId: dashboard.GetID(),
+		Name:            dashboard.GetTitle(),
+		Remark:          dashboard.GetRemark(),
+		Status:          common.GlobalStatus(dashboard.GetStatus().GetValue()),
+		ColorHex:        dashboard.GetColorHex(),
+		CreatedAt:       timex.Format(dashboard.GetCreatedAt()),
+		UpdatedAt:       timex.Format(dashboard.GetUpdatedAt()),
 	}
 }
 
@@ -36,16 +36,16 @@ func ToDashboardChartItem(chart do.DashboardChart) *common.TeamDashboardChartIte
 	}
 
 	return &common.TeamDashboardChartItem{
-		Id:          chart.GetID(),
-		DashboardId: chart.GetDashboardID(),
-		Title:       chart.GetTitle(),
-		Remark:      chart.GetRemark(),
-		Status:      common.GlobalStatus(chart.GetStatus().GetValue()),
-		Url:         chart.GetUrl(),
-		Width:       chart.GetWidth(),
-		Height:      chart.GetHeight(),
-		CreatedAt:   timex.Format(chart.GetCreatedAt()),
-		UpdatedAt:   timex.Format(chart.GetUpdatedAt()),
+		TeamDashboardChartId: chart.GetID(),
+		DashboardId:          chart.GetDashboardID(),
+		Title:                chart.GetTitle(),
+		Remark:               chart.GetRemark(),
+		Status:               common.GlobalStatus(chart.GetStatus().GetValue()),
+		Url:                  chart.GetUrl(),
+		Width:                chart.GetWidth(),
+		Height:               chart.GetHeight(),
+		CreatedAt:            timex.Format(chart.GetCreatedAt()),
+		UpdatedAt:            timex.Format(chart.GetUpdatedAt()),
 	}
 }
 

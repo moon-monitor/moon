@@ -112,7 +112,7 @@ message GetResourceMenuTreeReply {
 // SaveResourceRequest represents the request data for creating or updating a resource
 message SaveResourceRequest {
   // Id of the resource (0 for create, >0 for update)
-  uint32 id = 1;
+  uint32 resourceId = 1;
   // Name of the resource
   string name = 2 [(buf.validate.field).required = true];
   // Path of the resource
@@ -134,7 +134,7 @@ message GetMenuRequest {
 // SaveMenuRequest represents the request data for creating or updating a system menu
 message SaveMenuRequest {
   // Id of the menu (0 for create, >0 for update)
-  uint32 id = 1;
+  uint32 menuId = 1;
   // Name of the menu
   string name = 2 [(buf.validate.field).required = true];
   // Path of the menu

@@ -49,7 +49,7 @@ func ToRealtimeAlertItem(item do.Realtime) *palace.RealtimeAlertItem {
 		return nil
 	}
 	return &palace.RealtimeAlertItem{
-		Id:           item.GetID(),
+		AlertId:      item.GetID(),
 		Status:       apicommon.AlertStatus(item.GetStatus().GetValue()),
 		Fingerprint:  item.GetFingerprint(),
 		Labels:       item.GetLabels().ToMap(),

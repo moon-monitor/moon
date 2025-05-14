@@ -29,13 +29,13 @@ func ToTeamAuditItem(audit do.TeamAudit) *common.TeamAuditItem {
 		return nil
 	}
 	return &common.TeamAuditItem{
-		Id:        audit.GetID(),
-		User:      ToUserBaseItem(audit.GetCreator()),
-		Status:    common.TeamAuditStatus(audit.GetStatus().GetValue()),
-		Reason:    audit.GetReason(),
-		CreatedAt: timex.Format(audit.GetCreatedAt()),
-		Team:      ToTeamBaseItem(audit.GetTeam()),
-		Action:    common.TeamAuditAction(audit.GetAction().GetValue()),
+		TeamAuditId: audit.GetID(),
+		User:        ToUserBaseItem(audit.GetCreator()),
+		Status:      common.TeamAuditStatus(audit.GetStatus().GetValue()),
+		Reason:      audit.GetReason(),
+		CreatedAt:   timex.Format(audit.GetCreatedAt()),
+		Team:        ToTeamBaseItem(audit.GetTeam()),
+		Action:      common.TeamAuditAction(audit.GetAction().GetValue()),
 	}
 }
 

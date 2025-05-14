@@ -55,7 +55,7 @@ func ToSaveTeamMetricStrategyLevelParams(request *palace.SaveTeamMetricStrategyL
 		panic("SaveTeamMetricStrategyLevelRequest is nil")
 	}
 	return &bo.SaveTeamMetricStrategyLevelParams{
-		ID:             request.GetId(),
+		ID:             request.GetStrategyMetricLevelId(),
 		LevelId:        request.GetLevelId(),
 		LevelName:      request.GetLevelName(),
 		SampleMode:     vobj.SampleMode(request.GetSampleMode()),

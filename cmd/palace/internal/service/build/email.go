@@ -25,7 +25,7 @@ func ToSaveEmailConfigRequest(req *palace.SaveEmailConfigRequest) *bo.SaveEmailC
 
 	item := &bo.SaveEmailConfigRequest{
 		Config: nil,
-		ID:     req.GetId(),
+		ID:     req.GetEmailConfigId(),
 		Name:   req.GetName(),
 		Remark: req.GetRemark(),
 		Status: vobj.GlobalStatus(req.GetStatus()),
@@ -48,14 +48,14 @@ func ToEmailConfigItem(config do.TeamEmailConfig) *palace.EmailConfigItem {
 	}
 
 	return &palace.EmailConfigItem{
-		User:   strutil.MaskEmail(config.GetUser()),
-		Pass:   strutil.MaskString(config.GetPass(), 0, 4),
-		Host:   config.GetHost(),
-		Port:   config.GetPort(),
-		Status: common.GlobalStatus(config.GetStatus().GetValue()),
-		Name:   config.GetName(),
-		Remark: config.GetRemark(),
-		Id:     config.GetID(),
+		User:          strutil.MaskEmail(config.GetUser()),
+		Pass:          strutil.MaskString(config.GetPass(), 0, 4),
+		Host:          config.GetHost(),
+		Port:          config.GetPort(),
+		Status:        common.GlobalStatus(config.GetStatus().GetValue()),
+		Name:          config.GetName(),
+		Remark:        config.GetRemark(),
+		EmailConfigId: config.GetID(),
 	}
 }
 

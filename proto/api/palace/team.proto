@@ -184,7 +184,7 @@ message SaveTeamRequest {
     message: "logo max length is 255"
     expression: "this.size() <= 255"
   }];
-  uint32 id = 4;
+  uint32 teamId = 4;
 }
 
 // GetTeamResourcesReply contains the response data for retrieving team resources
@@ -333,8 +333,8 @@ message SaveEmailConfigRequest {
     message: "remark max length is 200"
     expression: "this.size() <= 200"
   }];
-  // id of the email configuration
-  uint32 id = 8;
+  // emailConfigId of the email configuration
+  uint32 emailConfigId = 8;
 }
 
 // EmailConfigItem represents the structure of an email configuration
@@ -353,8 +353,8 @@ message EmailConfigItem {
   string name = 6;
   // Remark of the email configuration
   string remark = 7;
-  // id of the email configuration
-  uint32 id = 8;
+  // emailConfigId of the email configuration
+  uint32 emailConfigId = 8;
 }
 
 // GetEmailConfigsRequest represents the request data for retrieving the email configuration
@@ -398,8 +398,8 @@ message SaveSMSConfigRequest {
   }];
   // Enable SMS configuration
   api.palace.common.GlobalStatus status = 8;
-  // id of the SMS configuration
-  uint32 id = 9;
+  // smsConfigId of the SMS configuration
+  uint32 smsConfigId = 9;
 }
 
 // SMSConfigItem represents the structure of an SMS configuration
@@ -418,8 +418,8 @@ message SMSConfigItem {
   string name = 6;
   // Remark of the SMS configuration
   string remark = 7;
-  // id of the SMS configuration
-  uint32 id = 8;
+  // smsConfigId of the SMS configuration
+  uint32 smsConfigId = 8;
   // Enable SMS configuration
   api.palace.common.GlobalStatus status = 9;
 }

@@ -16,15 +16,15 @@ func ToResourceItem(resource do.Resource) *common.ResourceItem {
 		return nil
 	}
 	return &common.ResourceItem{
-		Id:        resource.GetID(),
-		Name:      resource.GetName(),
-		Path:      resource.GetPath(),
-		Status:    common.GlobalStatus(resource.GetStatus().GetValue()),
-		Remark:    resource.GetRemark(),
-		CreatedAt: timex.Format(resource.GetCreatedAt()),
-		UpdatedAt: timex.Format(resource.GetUpdatedAt()),
-		Allow:     common.ResourceAllow(resource.GetAllow().GetValue()),
-		Menus:     ToMenuTree(resource.GetMenus()),
+		ResourceId: resource.GetID(),
+		Name:       resource.GetName(),
+		Path:       resource.GetPath(),
+		Status:     common.GlobalStatus(resource.GetStatus().GetValue()),
+		Remark:     resource.GetRemark(),
+		CreatedAt:  timex.Format(resource.GetCreatedAt()),
+		UpdatedAt:  timex.Format(resource.GetUpdatedAt()),
+		Allow:      common.ResourceAllow(resource.GetAllow().GetValue()),
+		Menus:      ToMenuTree(resource.GetMenus()),
 	}
 }
 
@@ -55,7 +55,7 @@ func ToMenuTreeItem(menu do.Menu) *common.MenuTreeItem {
 
 func convertMenuToTreeItemWithMap(menu do.Menu, menuMap map[uint32]do.Menu) *common.MenuTreeItem {
 	treeItem := &common.MenuTreeItem{
-		Id:        menu.GetID(),
+		MenuId:    menu.GetID(),
 		Name:      menu.GetName(),
 		Path:      menu.GetPath(),
 		Status:    common.GlobalStatus(menu.GetStatus().GetValue()),
@@ -83,7 +83,7 @@ func ToSaveMenuReq(req *palace.SaveMenuRequest) *bo.SaveMenuReq {
 		return nil
 	}
 	return &bo.SaveMenuReq{
-		ID:          req.GetId(),
+		ID:          req.GetMenuId(),
 		Name:        req.GetName(),
 		Path:        req.GetPath(),
 		Status:      vobj.GlobalStatus(req.GetStatus()),
@@ -99,7 +99,7 @@ func ToSaveResourceReq(req *palace.SaveResourceRequest) *bo.SaveResourceReq {
 		return nil
 	}
 	return &bo.SaveResourceReq{
-		ID:     req.GetId(),
+		ID:     req.GetResourceId(),
 		Name:   req.GetName(),
 		Path:   req.GetPath(),
 		Status: vobj.GlobalStatus(req.GetStatus()),

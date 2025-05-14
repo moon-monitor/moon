@@ -34,17 +34,17 @@ func ToOperateLogItem(log do.OperateLog) *common.OperateLogItem {
 		return nil
 	}
 	return &common.OperateLogItem{
-		Id:          log.GetID(),
-		Operator:    ToUserBaseItem(log.GetCreator()),
-		Type:        common.OperateType(log.GetOperateType().GetValue()),
-		Module:      common.ResourceModule(log.GetOperateModule().GetValue()),
-		DataId:      log.GetOperateDataID(),
-		DataName:    log.GetOperateDataName(),
-		OperateTime: timex.Format(log.GetCreatedAt()),
-		Title:       log.GetTitle(),
-		Before:      log.GetBefore(),
-		After:       log.GetAfter(),
-		Ip:          log.GetIP(),
+		OperateLogId: log.GetID(),
+		Operator:     ToUserBaseItem(log.GetCreator()),
+		Type:         common.OperateType(log.GetOperateType().GetValue()),
+		Module:       common.ResourceModule(log.GetOperateModule().GetValue()),
+		DataId:       log.GetOperateDataID(),
+		DataName:     log.GetOperateDataName(),
+		OperateTime:  timex.Format(log.GetCreatedAt()),
+		Title:        log.GetTitle(),
+		Before:       log.GetBefore(),
+		After:        log.GetAfter(),
+		Ip:           log.GetIP(),
 	}
 }
 

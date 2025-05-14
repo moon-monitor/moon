@@ -16,7 +16,7 @@ func ToSaveOneTeamRequest(req *palace.SaveTeamRequest) *bo.SaveOneTeamRequest {
 		panic("SaveOneTeamRequest is nil")
 	}
 	return &bo.SaveOneTeamRequest{
-		TeamID:     req.GetId(),
+		TeamID:     req.GetTeamId(),
 		TeamName:   req.GetName(),
 		TeamRemark: req.GetRemark(),
 		TeamLogo:   req.GetLogo(),
@@ -40,7 +40,7 @@ func ToTeamItem(team do.Team) *common.TeamItem {
 	}
 
 	return &common.TeamItem{
-		Id:              team.GetID(),
+		TeamId:          team.GetID(),
 		Uuid:            team.GetUUID().String(),
 		Name:            team.GetName(),
 		Remark:          team.GetRemark(),
@@ -63,7 +63,7 @@ func ToTeamBaseItem(team do.Team) *common.TeamBaseItem {
 	}
 
 	return &common.TeamBaseItem{
-		Id:     team.GetID(),
+		TeamId: team.GetID(),
 		Name:   team.GetName(),
 		Remark: team.GetRemark(),
 		Logo:   team.GetLogo(),
@@ -111,14 +111,14 @@ func ToTeamMemberItem(member do.TeamMember) *common.TeamMemberItem {
 		return nil
 	}
 	return &common.TeamMemberItem{
-		Id:        member.GetTeamMemberID(),
-		User:      ToUserBaseItem(member.GetUser()),
-		Position:  common.MemberPosition(member.GetPosition().GetValue()),
-		Status:    common.MemberStatus(member.GetStatus().GetValue()),
-		Inviter:   ToUserBaseItem(member.GetInviter()),
-		Roles:     ToTeamRoleItems(member.GetRoles()),
-		CreatedAt: timex.Format(member.GetCreatedAt()),
-		UpdatedAt: timex.Format(member.GetUpdatedAt()),
+		TeamMemberId: member.GetTeamMemberID(),
+		User:         ToUserBaseItem(member.GetUser()),
+		Position:     common.MemberPosition(member.GetPosition().GetValue()),
+		Status:       common.MemberStatus(member.GetStatus().GetValue()),
+		Inviter:      ToUserBaseItem(member.GetInviter()),
+		Roles:        ToTeamRoleItems(member.GetRoles()),
+		CreatedAt:    timex.Format(member.GetCreatedAt()),
+		UpdatedAt:    timex.Format(member.GetUpdatedAt()),
 	}
 }
 
@@ -131,14 +131,14 @@ func ToTeamMemberBaseItem(member do.TeamMember) *common.TeamMemberBaseItem {
 		return nil
 	}
 	return &common.TeamMemberBaseItem{
-		Id:         member.GetID(),
-		MemberName: member.GetMemberName(),
-		Remark:     member.GetRemark(),
-		Position:   common.MemberPosition(member.GetPosition().GetValue()),
-		Status:     common.MemberStatus(member.GetStatus().GetValue()),
-		CreatedAt:  timex.Format(member.GetCreatedAt()),
-		UpdatedAt:  timex.Format(member.GetUpdatedAt()),
-		User:       ToUserBaseItem(member.GetUser()),
+		TeamMemberId: member.GetID(),
+		MemberName:   member.GetMemberName(),
+		Remark:       member.GetRemark(),
+		Position:     common.MemberPosition(member.GetPosition().GetValue()),
+		Status:       common.MemberStatus(member.GetStatus().GetValue()),
+		CreatedAt:    timex.Format(member.GetCreatedAt()),
+		UpdatedAt:    timex.Format(member.GetUpdatedAt()),
+		User:         ToUserBaseItem(member.GetUser()),
 	}
 }
 

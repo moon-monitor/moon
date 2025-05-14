@@ -29,15 +29,15 @@ func ToTeamRoleItem(role do.TeamRole) *common.TeamRoleItem {
 		return nil
 	}
 	return &common.TeamRoleItem{
-		Id:        role.GetID(),
-		Name:      role.GetName(),
-		Remark:    role.GetRemark(),
-		Status:    common.GlobalStatus(role.GetStatus().GetValue()),
-		Resources: nil,
-		Members:   nil,
-		CreatedAt: timex.Format(role.GetCreatedAt()),
-		UpdatedAt: timex.Format(role.GetUpdatedAt()),
-		Creator:   ToUserBaseItem(role.GetCreator()),
+		TeamRoleId: role.GetID(),
+		Name:       role.GetName(),
+		Remark:     role.GetRemark(),
+		Status:     common.GlobalStatus(role.GetStatus().GetValue()),
+		Resources:  nil,
+		Members:    nil,
+		CreatedAt:  timex.Format(role.GetCreatedAt()),
+		UpdatedAt:  timex.Format(role.GetUpdatedAt()),
+		Creator:    ToUserBaseItem(role.GetCreator()),
 	}
 }
 
@@ -50,7 +50,7 @@ func ToSystemRoleItem(role do.Role) *common.SystemRoleItem {
 		return nil
 	}
 	return &common.SystemRoleItem{
-		Id:        role.GetID(),
+		RoleId:    role.GetID(),
 		Name:      role.GetName(),
 		Remark:    role.GetRemark(),
 		Status:    common.GlobalStatus(role.GetStatus().GetValue()),

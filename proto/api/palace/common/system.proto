@@ -10,7 +10,7 @@ option go_package = "github.com/moon-monitor/moon/pkg/api/palace/common;common";
 // system-api
 message ResourceItem {
   // Unique identifier for the API resource
-  uint32 id = 1;
+  uint32 resourceId = 1;
   // Name of the API resource
   string name = 2;
   // Path of the API resource
@@ -69,7 +69,7 @@ message UserItem {
 
 message SystemRoleItem {
   // Unique identifier for the system role
-  uint32 id = 1;
+  uint32 roleId = 1;
   // Name of the system role
   string name = 2;
   // Remarks about the system role
@@ -89,7 +89,7 @@ message SystemRoleItem {
 
 message TeamBaseItem {
   // Unique identifier for the team
-  uint32 id = 1;
+  uint32 teamId = 1;
   // Name of the team
   string name = 2;
   // Remarks about the team
@@ -100,7 +100,7 @@ message TeamBaseItem {
 
 message TeamAuditItem {
   // Unique identifier for the team audit record
-  uint32 id = 1;
+  uint32 teamAuditId = 1;
   // User information of the audit requester
   UserBaseItem user = 2;
   // Status of the team audit
@@ -117,7 +117,7 @@ message TeamAuditItem {
 // OperateLogItem represents the structure of an operation log item.
 message OperateLogItem {
   // Unique identifier for the operation log.
-  uint32 id = 1;
+  uint32 operateLogId = 1;
   // Operator information of the operation requester
   UserBaseItem operator = 2;
   // Type of the operation
@@ -142,7 +142,7 @@ message OperateLogItem {
 
 message MenuTreeItem {
   // Unique identifier for the menu tree item
-  uint32 id = 1;
+  uint32 menuId = 1;
   // Name of the menu tree item
   string name = 2;
   // Path of the menu tree item

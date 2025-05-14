@@ -23,7 +23,7 @@ func ToSaveSMSConfigRequest(req *palace.SaveSMSConfigRequest) *bo.SaveSMSConfigR
 		validate.TextIsNotNull(req.GetEndpoint())
 	item := &bo.SaveSMSConfigRequest{
 		Config:   nil,
-		ID:       req.GetId(),
+		ID:       req.GetSmsConfigId(),
 		Name:     req.GetName(),
 		Remark:   req.GetRemark(),
 		Status:   vobj.GlobalStatus(req.GetStatus()),
@@ -70,7 +70,7 @@ func ToSMSConfigItem(item do.TeamSMSConfig) *palace.SMSConfigItem {
 		Endpoint:        config.Endpoint,
 		Name:            item.GetName(),
 		Remark:          item.GetRemark(),
-		Id:              item.GetID(),
+		SmsConfigId:     item.GetID(),
 		Status:          common.GlobalStatus(item.GetStatus().GetValue()),
 	}
 }

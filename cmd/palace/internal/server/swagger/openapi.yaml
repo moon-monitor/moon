@@ -2359,9 +2359,9 @@ components:
                 remark:
                     type: string
                     description: Remark of the email configuration
-                id:
+                emailConfigId:
                     type: integer
-                    description: id of the email configuration
+                    description: emailConfigId of the email configuration
                     format: uint32
             description: EmailConfigItem represents the structure of an email configuration
         api.palace.GetCaptchaReply:
@@ -3205,7 +3205,7 @@ components:
         api.palace.RealtimeAlertItem:
             type: object
             properties:
-                id:
+                alertId:
                     type: integer
                     format: uint32
                 status:
@@ -3292,9 +3292,9 @@ components:
                 remark:
                     type: string
                     description: Remark of the SMS configuration
-                id:
+                smsConfigId:
                     type: integer
-                    description: id of the SMS configuration
+                    description: smsConfigId of the SMS configuration
                     format: uint32
                 status:
                     type: integer
@@ -3327,15 +3327,15 @@ components:
                 remark:
                     type: string
                     description: Remark of the email configuration
-                id:
+                emailConfigId:
                     type: integer
-                    description: id of the email configuration
+                    description: emailConfigId of the email configuration
                     format: uint32
             description: SaveEmailConfigRequest represents the request data for saving or updating the email configuration
         api.palace.SaveMenuRequest:
             type: object
             properties:
-                id:
+                menuId:
                     type: integer
                     description: Id of the menu (0 for create, >0 for update)
                     format: uint32
@@ -3369,7 +3369,7 @@ components:
         api.palace.SaveResourceRequest:
             type: object
             properties:
-                id:
+                resourceId:
                     type: integer
                     description: Id of the resource (0 for create, >0 for update)
                     format: uint32
@@ -3440,9 +3440,9 @@ components:
                     type: integer
                     description: Enable SMS configuration
                     format: enum
-                id:
+                smsConfigId:
                     type: integer
-                    description: id of the SMS configuration
+                    description: smsConfigId of the SMS configuration
                     format: uint32
             description: SaveSMSConfigRequest represents the request data for saving or updating the SMS configuration
         api.palace.SaveTeamDashboardChartRequest:
@@ -3580,7 +3580,7 @@ components:
                     type: integer
                     description: Status
                     format: enum
-                id:
+                strategyMetricLevelId:
                     type: integer
                     description: Id
                     format: uint32
@@ -3716,7 +3716,7 @@ components:
                 logo:
                     type: string
                     description: Team logo URL
-                id:
+                teamId:
                     type: integer
                     format: uint32
             description: SaveTeamRequest represents the request data for saving or updating a team
@@ -4261,7 +4261,7 @@ components:
         api.palace.common.MenuTreeItem:
             type: object
             properties:
-                id:
+                menuId:
                     type: integer
                     description: Unique identifier for the menu tree item
                     format: uint32
@@ -4373,7 +4373,7 @@ components:
         api.palace.common.OperateLogItem:
             type: object
             properties:
-                id:
+                operateLogId:
                     type: integer
                     description: Unique identifier for the operation log.
                     format: uint32
@@ -4445,7 +4445,7 @@ components:
         api.palace.common.ResourceItem:
             type: object
             properties:
-                id:
+                resourceId:
                     type: integer
                     description: Unique identifier for the API resource
                     format: uint32
@@ -4539,7 +4539,7 @@ components:
         api.palace.common.SystemRoleItem:
             type: object
             properties:
-                id:
+                roleId:
                     type: integer
                     description: Unique identifier for the system role
                     format: uint32
@@ -4583,7 +4583,7 @@ components:
         api.palace.common.TeamAuditItem:
             type: object
             properties:
-                id:
+                teamAuditId:
                     type: integer
                     description: Unique identifier for the team audit record
                     format: uint32
@@ -4611,7 +4611,7 @@ components:
         api.palace.common.TeamBaseItem:
             type: object
             properties:
-                id:
+                teamId:
                     type: integer
                     description: Unique identifier for the team
                     format: uint32
@@ -4627,7 +4627,7 @@ components:
         api.palace.common.TeamDashboardChartItem:
             type: object
             properties:
-                id:
+                teamDashboardChartId:
                     type: integer
                     format: uint32
                 dashboardId:
@@ -4653,7 +4653,7 @@ components:
         api.palace.common.TeamDashboardItem:
             type: object
             properties:
-                id:
+                teamDashboardId:
                     type: integer
                     format: uint32
                 name:
@@ -4701,7 +4701,7 @@ components:
         api.palace.common.TeamItem:
             type: object
             properties:
-                id:
+                teamId:
                     type: integer
                     description: Unique identifier for the team.
                     format: uint32
@@ -4753,7 +4753,7 @@ components:
         api.palace.common.TeamMemberBaseItem:
             type: object
             properties:
-                id:
+                teamMemberId:
                     type: integer
                     format: uint32
                 memberName:
@@ -4775,7 +4775,7 @@ components:
         api.palace.common.TeamMemberItem:
             type: object
             properties:
-                id:
+                teamMemberId:
                     type: integer
                     description: Unique identifier for the member.
                     format: uint32
@@ -4857,7 +4857,7 @@ components:
         api.palace.common.TeamRoleItem:
             type: object
             properties:
-                id:
+                teamRoleId:
                     type: integer
                     description: Unique identifier for the role.
                     format: uint32
