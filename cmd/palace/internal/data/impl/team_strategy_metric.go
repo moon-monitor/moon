@@ -12,6 +12,7 @@ import (
 	"github.com/moon-monitor/moon/cmd/palace/internal/biz/repository"
 	"github.com/moon-monitor/moon/cmd/palace/internal/data"
 	"github.com/moon-monitor/moon/cmd/palace/internal/data/impl/build"
+	"github.com/moon-monitor/moon/pkg/merr"
 	"github.com/moon-monitor/moon/pkg/util/slices"
 )
 
@@ -308,8 +309,23 @@ func (t *teamStrategyMetricImpl) Get(ctx context.Context, params *bo.OperateTeam
 	}
 	strategyMetricDo, err := strategyMetricMutation.WithContext(ctx).Preload(preloads...).Where(wrapper...).First()
 	if err != nil {
-		return nil, strategyMetricNotFound(err)
+		err = strategyMetricNotFound(err)
+		if !merr.IsNotFound(err) {
+			return nil, err
+		}
+		strategyMutation := tx.Strategy
+		strategyWrapper := []gen.Condition{
+			strategyMutation.ID.Eq(params.StrategyId),
+			strategyMutation.TeamID.Eq(teamId),
+		}
+		strategyDo, err := strategyMutation.WithContext(ctx).Where(strategyWrapper...).First()
+		if err != nil {
+			return nil, strategyNotFound(err)
+		}
+		return &team.StrategyMetric{
+			Strategy: strategyDo,
+		}, nil
 	}
 
-	return build.ToStrategyMetric(ctx, strategyMetricDo), nil
+	return strategyMetricDo, nil
 }
