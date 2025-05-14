@@ -7,23 +7,35 @@ import (
 	"github.com/moon-monitor/moon/pkg/util/validate"
 )
 
-func ToCounterMetricVecs(counterVecs []*apicommon.MetricCounterVec) []*bo.CounterMetricVec {
+func ToCounterMetricVecs(counterVecs []*apicommon.MetricVec) []*bo.CounterMetricVec {
+	if len(counterVecs) == 0 {
+		return nil
+	}
 	return slices.Map(counterVecs, ToCounterMetricVec)
 }
 
-func ToGaugeMetricVecs(gaugeVecs []*apicommon.MetricGaugeVec) []*bo.GaugeMetricVec {
+func ToGaugeMetricVecs(gaugeVecs []*apicommon.MetricVec) []*bo.GaugeMetricVec {
+	if len(gaugeVecs) == 0 {
+		return nil
+	}
 	return slices.Map(gaugeVecs, ToGaugeMetricVec)
 }
 
-func ToHistogramMetricVecs(histogramVecs []*apicommon.MetricHistogramVec) []*bo.HistogramMetricVec {
+func ToHistogramMetricVecs(histogramVecs []*apicommon.MetricVec) []*bo.HistogramMetricVec {
+	if len(histogramVecs) == 0 {
+		return nil
+	}
 	return slices.Map(histogramVecs, ToHistogramMetricVec)
 }
 
-func ToSummaryMetricVecs(summaryVecs []*apicommon.MetricSummaryVec) []*bo.SummaryMetricVec {
+func ToSummaryMetricVecs(summaryVecs []*apicommon.MetricVec) []*bo.SummaryMetricVec {
+	if len(summaryVecs) == 0 {
+		return nil
+	}
 	return slices.Map(summaryVecs, ToSummaryMetricVec)
 }
 
-func ToCounterMetricVec(counterVec *apicommon.MetricCounterVec) *bo.CounterMetricVec {
+func ToCounterMetricVec(counterVec *apicommon.MetricVec) *bo.CounterMetricVec {
 	if validate.IsNil(counterVec) {
 		return nil
 	}
@@ -36,7 +48,7 @@ func ToCounterMetricVec(counterVec *apicommon.MetricCounterVec) *bo.CounterMetri
 	}
 }
 
-func ToGaugeMetricVec(gaugeVec *apicommon.MetricGaugeVec) *bo.GaugeMetricVec {
+func ToGaugeMetricVec(gaugeVec *apicommon.MetricVec) *bo.GaugeMetricVec {
 	if validate.IsNil(gaugeVec) {
 		return nil
 	}
@@ -49,7 +61,7 @@ func ToGaugeMetricVec(gaugeVec *apicommon.MetricGaugeVec) *bo.GaugeMetricVec {
 	}
 }
 
-func ToHistogramMetricVec(histogramVec *apicommon.MetricHistogramVec) *bo.HistogramMetricVec {
+func ToHistogramMetricVec(histogramVec *apicommon.MetricVec) *bo.HistogramMetricVec {
 	if validate.IsNil(histogramVec) {
 		return nil
 	}
@@ -59,7 +71,7 @@ func ToHistogramMetricVec(histogramVec *apicommon.MetricHistogramVec) *bo.Histog
 		Name:                            histogramVec.GetName(),
 		Labels:                          histogramVec.GetLabels(),
 		Help:                            histogramVec.GetHelp(),
-		Buckets:                         histogramVec.GetBuckets(),
+		Buckets:                         histogramVec.GetNativeHistogramBuckets(),
 		NativeHistogramBucketFactor:     histogramVec.GetNativeHistogramBucketFactor(),
 		NativeHistogramZeroThreshold:    histogramVec.GetNativeHistogramZeroThreshold(),
 		NativeHistogramMaxBucketNumber:  histogramVec.GetNativeHistogramMaxBucketNumber(),
@@ -70,11 +82,11 @@ func ToHistogramMetricVec(histogramVec *apicommon.MetricHistogramVec) *bo.Histog
 	}
 }
 
-func ToSummaryMetricVec(summaryVec *apicommon.MetricSummaryVec) *bo.SummaryMetricVec {
+func ToSummaryMetricVec(summaryVec *apicommon.MetricVec) *bo.SummaryMetricVec {
 	if validate.IsNil(summaryVec) {
 		return nil
 	}
-	objectivesList := summaryVec.GetObjectives()
+	objectivesList := summaryVec.GetSummaryObjectives()
 	objectives := make(map[float64]float64, len(objectivesList))
 	for _, objective := range objectivesList {
 		objectives[objective.GetQuantile()] = objective.GetValue()
@@ -86,8 +98,8 @@ func ToSummaryMetricVec(summaryVec *apicommon.MetricSummaryVec) *bo.SummaryMetri
 		Labels:     summaryVec.GetLabels(),
 		Help:       summaryVec.GetHelp(),
 		Objectives: objectives,
-		MaxAge:     summaryVec.GetMaxAge(),
-		AgeBuckets: summaryVec.GetAgeBuckets(),
-		BufCap:     summaryVec.GetBufCap(),
+		MaxAge:     summaryVec.GetSummaryMaxAge(),
+		AgeBuckets: summaryVec.GetSummaryAgeBuckets(),
+		BufCap:     summaryVec.GetSummaryBufCap(),
 	}
 }

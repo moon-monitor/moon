@@ -105,24 +105,12 @@ components:
                     type: boolean
                 uuid:
                     type: string
-        api.laurel.common.MetricCounterVec:
-            type: object
-            properties:
-                namespace:
-                    type: string
-                subSystem:
-                    type: string
-                name:
-                    type: string
-                labels:
-                    type: array
-                    items:
-                        type: string
-                help:
-                    type: string
         api.laurel.common.MetricData:
             type: object
             properties:
+                metricType:
+                    type: integer
+                    format: enum
                 namespace:
                     type: string
                 subSystem:
@@ -139,9 +127,12 @@ components:
                 timestamp:
                     type: number
                     format: double
-        api.laurel.common.MetricGaugeVec:
+        api.laurel.common.MetricVec:
             type: object
             properties:
+                metricType:
+                    type: integer
+                    format: enum
                 namespace:
                     type: string
                 subSystem:
@@ -154,22 +145,7 @@ components:
                         type: string
                 help:
                     type: string
-        api.laurel.common.MetricHistogramVec:
-            type: object
-            properties:
-                namespace:
-                    type: string
-                subSystem:
-                    type: string
-                name:
-                    type: string
-                labels:
-                    type: array
-                    items:
-                        type: string
-                help:
-                    type: string
-                buckets:
+                nativeHistogramBuckets:
                     type: array
                     items:
                         type: number
@@ -192,34 +168,19 @@ components:
                     type: string
                 nativeHistogramExemplarTTL:
                     type: string
-        api.laurel.common.MetricSummaryVec:
-            type: object
-            properties:
-                namespace:
-                    type: string
-                subSystem:
-                    type: string
-                name:
-                    type: string
-                labels:
+                summaryObjectives:
                     type: array
                     items:
-                        type: string
-                help:
+                        $ref: '#/components/schemas/api.laurel.common.MetricVec_Objective'
+                summaryMaxAge:
                     type: string
-                objectives:
-                    type: array
-                    items:
-                        $ref: '#/components/schemas/api.laurel.common.MetricSummaryVec_Objective'
-                maxAge:
-                    type: string
-                ageBuckets:
+                summaryAgeBuckets:
                     type: integer
                     format: uint32
-                bufCap:
+                summaryBufCap:
                     type: integer
                     format: uint32
-        api.laurel.common.MetricSummaryVec_Objective:
+        api.laurel.common.MetricVec_Objective:
             type: object
             properties:
                 quantile:
@@ -246,22 +207,10 @@ components:
         api.laurel.v1.RegisterMetricRequest:
             type: object
             properties:
-                counterVecs:
+                metricVecs:
                     type: array
                     items:
-                        $ref: '#/components/schemas/api.laurel.common.MetricCounterVec'
-                gaugeVecs:
-                    type: array
-                    items:
-                        $ref: '#/components/schemas/api.laurel.common.MetricGaugeVec'
-                histogramVecs:
-                    type: array
-                    items:
-                        $ref: '#/components/schemas/api.laurel.common.MetricHistogramVec'
-                summaryVecs:
-                    type: array
-                    items:
-                        $ref: '#/components/schemas/api.laurel.common.MetricSummaryVec'
+                        $ref: '#/components/schemas/api.laurel.common.MetricVec'
         config.Discovery:
             type: object
             properties:

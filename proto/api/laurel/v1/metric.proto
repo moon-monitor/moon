@@ -28,10 +28,7 @@ message PushMetricDataRequest {
 }
 
 message RegisterMetricRequest {
-	repeated api.laurel.common.MetricCounterVec counterVecs = 1;
-	repeated api.laurel.common.MetricGaugeVec gaugeVecs = 2;
-	repeated api.laurel.common.MetricHistogramVec histogramVecs = 3;
-	repeated api.laurel.common.MetricSummaryVec summaryVecs = 4;
+	repeated api.laurel.common.MetricVec metricVecs = 1;
 }
 
 message EmptyReply {

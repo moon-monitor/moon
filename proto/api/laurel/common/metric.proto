@@ -6,116 +6,66 @@ import "buf/validate/validate.proto";
 
 option go_package = "github.com/moon-monitor/moon/pkg/api/laurel/common;common";
 
+enum MetricType {
+	METRIC_TYPE_UNKNOWN = 0;
+	METRIC_TYPE_COUNTER = 1;
+	METRIC_TYPE_GAUGE = 2;
+	METRIC_TYPE_HISTOGRAM = 3;
+	METRIC_TYPE_SUMMARY = 4;
+}
+
 message MetricData {
-	string namespace = 1 [(buf.validate.field).string = {
+	MetricType metricType = 1;
+	string namespace = 2 [(buf.validate.field).string = {
 		min_len: 1,
 		max_len: 32
 	}];
-	string subSystem = 2 [(buf.validate.field).string = {
+	string subSystem = 3 [(buf.validate.field).string = {
 		min_len: 1,
 		max_len: 32
 	}];
-	string name = 3 [(buf.validate.field).string = {
+	string name = 4 [(buf.validate.field).string = {
 		min_len: 1,
 		max_len: 32
 	}];
-	map<string, string> labels = 4;
-	double value = 5;
-	double timestamp = 6;
+	map<string, string> labels = 5;
+	double value = 6;
+	double timestamp = 7;
 }
 
-message MetricCounterVec {
-	string namespace = 1 [(buf.validate.field).string = {
-		min_len: 1,
-		max_len: 32
-	}];
-	string subSystem = 2 [(buf.validate.field).string = {
-		min_len: 1,
-		max_len: 32
-	}];
-	string name = 3 [(buf.validate.field).string = {
-		min_len: 1,
-		max_len: 32
-	}];
-	repeated string labels = 4;
-	string help = 5 [(buf.validate.field).string = {
-		min_len: 1,
-		max_len: 255
-	}];
-}
-
-message MetricGaugeVec {
-	string namespace = 1 [(buf.validate.field).string = {
-		min_len: 1,
-		max_len: 32
-	}];
-	string subSystem = 2 [(buf.validate.field).string = {
-		min_len: 1,
-		max_len: 32
-	}];
-	string name = 3 [(buf.validate.field).string = {
-		min_len: 1,
-		max_len: 32
-	}];
-	repeated string labels = 4;
-	string help = 5 [(buf.validate.field).string = {
-		min_len: 1,
-		max_len: 255
-	}];
-}
-
-message MetricHistogramVec {
-	string namespace = 1 [(buf.validate.field).string = {
-		min_len: 1,
-		max_len: 32
-	}];
-	string subSystem = 2 [(buf.validate.field).string = {
-		min_len: 1,
-		max_len: 32
-	}];
-	string name = 3 [(buf.validate.field).string = {
-		min_len: 1,
-		max_len: 32
-	}];
-	repeated string labels = 4;
-	string help = 5 [(buf.validate.field).string = {
-		min_len: 1,
-		max_len: 255
-	}];
-	repeated double buckets = 6;
-	double nativeHistogramBucketFactor = 7;
-	double nativeHistogramZeroThreshold = 8;
-	uint32 nativeHistogramMaxBucketNumber = 9;
-	int64 nativeHistogramMinResetDuration = 10;
-	double nativeHistogramMaxZeroThreshold = 11;
-	int64 nativeHistogramMaxExemplars = 12;
-	int64 nativeHistogramExemplarTTL = 13;
-}
-
-message MetricSummaryVec {
+message MetricVec {
 	message Objective {
 		double quantile = 1;
 		double value = 2;
 	}
-	string namespace = 1 [(buf.validate.field).string = {
+	MetricType metricType = 1;
+	string namespace = 2 [(buf.validate.field).string = {
 		min_len: 1,
 		max_len: 32
 	}];
-	string subSystem = 2 [(buf.validate.field).string = {
+	string subSystem = 3 [(buf.validate.field).string = {
 		min_len: 1,
 		max_len: 32
 	}];
-	string name = 3 [(buf.validate.field).string = {
+	string name = 4 [(buf.validate.field).string = {
 		min_len: 1,
 		max_len: 32
 	}];
-	repeated string labels = 4;
-	string help = 5 [(buf.validate.field).string = {
+	repeated string labels = 5;
+	string help = 6 [(buf.validate.field).string = {
 		min_len: 1,
 		max_len: 255
 	}];
-	repeated Objective objectives = 6;
-	int64 maxAge = 7;
-	uint32 ageBuckets = 8;
-	uint32 bufCap = 9;
+	repeated double nativeHistogramBuckets = 7;
+	double nativeHistogramBucketFactor = 8;
+	double nativeHistogramZeroThreshold = 9;
+	uint32 nativeHistogramMaxBucketNumber = 10;
+	int64 nativeHistogramMinResetDuration = 11;
+	double nativeHistogramMaxZeroThreshold = 12;
+	int64 nativeHistogramMaxExemplars = 13;
+	int64 nativeHistogramExemplarTTL = 14;
+	repeated Objective summaryObjectives = 15;
+	int64 summaryMaxAge = 16;
+	uint32 summaryAgeBuckets = 17;
+	uint32 summaryBufCap = 18;
 }
